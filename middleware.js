@@ -1,3 +1,4 @@
+import { origem } from '@/lib/origem';
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
@@ -18,10 +19,7 @@ export async function middleware(request) {
   const { data: { user } } = await supabase.auth.getUser();
   const caminho = request.nextUrl.pathname;
   if (!user && !PUBLICAS.some((p) => caminho.startsWith(p))) {
-    const url = request.nextUrl.clone();
-    url.pathname = '/login';
-    url.search = '';
-    return NextResponse.redirect(url);
+    return NextResponse.redirect(new URL('/login', origem(request)));
   }
   return resposta;
 }

@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
+import { origem } from '@/lib/origem';
 
 export async function GET(request) {
   const url = new URL(request.url);
@@ -8,5 +9,5 @@ export async function GET(request) {
     const supabase = await supabaseServer();
     await supabase.auth.exchangeCodeForSession(code);
   }
-  return NextResponse.redirect(new URL('/', url.origin));
+  return NextResponse.redirect(new URL('/', origem(request)));
 }
