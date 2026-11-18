@@ -7,8 +7,8 @@ const T = '00000000-0000-0000-0000-000000000030';
 const casos = {
   'tok-pai': ['/', '/painel', '/hoje', '/tarefas', '/tarefas?ok=1', '/tarefas/nova', `/tarefas/${T}`, '/agenda', '/agenda?v=dia', '/agenda?v=semana', '/agenda?v=mes', `/agenda?v=semana&m=${E}`,
     '/notificacoes', '/tela', `/tela?m=${E}`, '/relatorios', '/relatorios?per=hoje', '/relatorios?per=semana', '/relatorios?per=30d', '/relatorios?per=livre&de=2026-10-01&ate=2026-11-30',
-    `/relatorios?m=${E}&st=atrasada`, '/relatorios?st=cumprida&hor=com&origem=pais', '/relatorios?cat=00000000-0000-0000-0000-000000000020', '/relatorios-csv?per=mes', '/config', '/privacidade'],
-  'tok-filho': ['/', '/hoje', '/tarefas', '/tarefas/nova', '/agenda', '/agenda?v=dia', '/agenda?v=mes', '/notificacoes', '/tela', '/relatorios', '/painel', '/config', `/tarefas/${T}`],
+    `/relatorios?m=${E}&st=atrasada`, '/relatorios?st=cumprida&hor=com&origem=pais', '/relatorios?cat=00000000-0000-0000-0000-000000000020', '/relatorios-csv?per=mes', '/config', '/config?nova=1', '/perfil', '/admin', '/privacidade'],
+  'tok-filho': ['/', '/hoje', '/tarefas', '/tarefas/nova', '/agenda', '/agenda?v=dia', '/agenda?v=mes', '/notificacoes', '/tela', '/relatorios', '/painel', '/config', '/perfil', '/admin', `/tarefas/${T}`],
   'tok-estranho': ['/', '/hoje', '/sem-acesso'],
   '': ['/', '/painel', '/login', '/privacidade', '/manifest.json'],
 };

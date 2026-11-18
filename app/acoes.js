@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
-import { parseMin, hojeISO } from '@/lib/util';
+import { parseMin, hojeISO, CORES_CAT } from '@/lib/util';
 
 const txt = (fd, k, max = 500) => { const v = fd.get(k); return v == null ? null : String(v).trim().slice(0, max) || null; };
 const uuid = (v) => (/^[0-9a-f-]{36}$/i.test(String(v || '')) ? String(v) : null);
@@ -19,7 +19,11 @@ async function rpc(nome, args) {
 }
 
 // ===== Filho =====
-export async function concluir(_, fd) { return rpc('ra_concluir', { p_oc: uuid(fd.get('oc')), p_foto: caminhoFoto(fd.get('foto')) }); }
+export async function concluir(_, fd) {
+  const foto = caminhoFoto(fd.get('foto'));
+  const em = foto && !Number.isNaN(Date.parse(fd.get('foto_em'))) ? new Date(fd.get('foto_em')).toISOString() : null;
+  return rpc('ra_concluir2', { p_oc: uuid(fd.get('oc')), p_foto: foto, p_foto_em: em });
+}
 export async function desfazer(_, fd) { return rpc('ra_desfazer', { p_oc: uuid(fd.get('oc')) }); }
 export async function justificar(_, fd) { return rpc('ra_justificar', { p_oc: uuid(fd.get('oc')), p_texto: txt(fd, 'texto') }); }
 export async function pedirAdiamento(_, fd) {
@@ -101,6 +105,11 @@ export async function salvarMembro(_, fd) {
   };
   if (!reg.nome) return { erro: 'Informe o nome' };
   const id = uuid(fd.get('id'));
+  if (id && fd.has('avatar')) {
+    const a = String(fd.get('avatar') || '');
+    if (a && !a.startsWith(`${eu.familia_id}/${id}/avatar-`)) return { erro: 'Imagem inválida' };
+    reg.avatar = a || null;
+  }
   if (id === eu.id && (!reg.ativo || reg.papel !== 'gestor')) return { erro: 'Você não pode tirar o seu próprio acesso de pai/mãe' };
   const { error } = id
     ? await supabase.from('ra_membros').update(reg).eq('id', id)
@@ -194,4 +203,80 @@ export async function marcarLidas() {
   const supabase = await supabaseServer();
   await supabase.from('ra_notificacoes').update({ lida: true }).eq('lida', false);
   revalidatePath('/', 'layout');
+}
+
+
+// ===== Cadastros =====
+const caminhoAvatar = (v) => (/^[0-9a-f-]{36}\/[0-9a-z-]{6,36}\/avatar-\d+\.jpg$/.test(String(v || '')) ? String(v) : null);
+
+export async function salvarFamilia(_, fd) {
+  const supabase = await supabaseServer();
+  const { data: eu } = await supabase.rpc('ra_eu');
+  if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
+  const reg = { nome: txt(fd, 'nome', 60) };
+  if (!reg.nome) return { erro: 'Informe o nome da família' };
+  const h = Number(fd.get('foto_max_horas'));
+  if (Number.isInteger(h) && h >= 1 && h <= 48) reg.foto_max_horas = h;
+  if (fd.has('avatar')) {
+    const a = String(fd.get('avatar') || '');
+    if (a && !(caminhoAvatar(a) && a.startsWith(`${eu.familia_id}/familia/`))) return { erro: 'Imagem inválida' };
+    reg.avatar = a || null;
+  }
+  const { error } = await supabase.from('ra_familias').update(reg).eq('id', eu.familia_id);
+  if (error) return { erro: error.message };
+  revalidatePath('/', 'layout');
+  return { ok: true };
+}
+
+export async function editarCategoria(_, fd) {
+  const supabase = await supabaseServer();
+  const nome = txt(fd, 'nome', 30);
+  if (!nome) return { erro: 'Informe o nome' };
+  const cor = CORES_CAT[fd.get('cor')] ? fd.get('cor') : 'azul';
+  const { error } = await supabase.from('ra_categorias').update({ nome, cor }).eq('id', uuid(fd.get('id')));
+  if (error) return { erro: error.message };
+  revalidatePath('/', 'layout');
+  return { ok: true };
+}
+
+export async function excluirCategoria(fd) {
+  const supabase = await supabaseServer();
+  await supabase.from('ra_categorias').delete().eq('id', uuid(fd.get('id')));
+  revalidatePath('/', 'layout');
+}
+
+// ===== Perfil =====
+export async function salvarPerfil(_, fd) {
+  if (!fd.has('avatar')) return { ok: true };
+  const a = String(fd.get('avatar') || '');
+  if (a && !caminhoAvatar(a)) return { erro: 'Imagem inválida' };
+  return rpc('ra_meu_avatar', { p_caminho: a || null });
+}
+
+export async function salvarAvisos(_, fd) {
+  const c = fd.get('concluida');
+  return rpc('ra_minhas_notif', { p_prefs: {
+    concluida: ['todas', 'com_foto', 'nenhuma'].includes(c) ? c : 'todas',
+    justificativa: fd.get('justificativa') === '1', adiamento: fd.get('adiamento') === '1',
+    tela: fd.get('tela') === '1', tarefa_filho: fd.get('tarefa_filho') === '1',
+  } });
+}
+
+// ===== Famílias =====
+export async function criarFamilia(_, fd) {
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc('ra_criar_familia', { p_nome: txt(fd, 'familia', 60), p_meu_nome: txt(fd, 'nome', 60) });
+  if (error) return { erro: error.message.replace(/^.*?:\s*/, '') };
+  revalidatePath('/', 'layout');
+  redirect('/config?nova=1');
+}
+
+export async function adminCriarFamilia(_, fd) {
+  return rpc('ra_admin_criar_familia', { p_nome: txt(fd, 'familia', 60), p_gestor_nome: txt(fd, 'nome', 60), p_gestor_email: txt(fd, 'email', 120) });
+}
+
+export async function adminAtivarFamilia(fd) {
+  const supabase = await supabaseServer();
+  await supabase.rpc('ra_admin_ativar_familia', { p_id: uuid(fd.get('id')), p_ativa: fd.get('ativa') === '1' });
+  revalidatePath('/admin');
 }

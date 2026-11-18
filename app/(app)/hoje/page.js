@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Hoje({ searchParams }) {
   const sp = await searchParams;
-  const { supabase, eu, membros, gestor } = await exigirMembro();
+  const { supabase, eu, membros, gestor, familia: fam } = await exigirMembro();
   const hoje = hojeISO();
   const dia = /^\d{4}-\d{2}-\d{2}$/.test(sp.d || '') ? sp.d : hoje;
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
@@ -29,7 +29,7 @@ export default async function Hoje({ searchParams }) {
     const { data } = await supabase.from('ra_tela_real').select('id').eq('membro_id', eu.id).eq('data', addDias(hoje, -1)).maybeSingle();
     lembrarTela = !data;
   }
-  const props = (x) => ({ oc: x.o, st: x.st, dono: !gestor && x.o.membro_id === eu.id, gestor, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje });
+  const props = (x) => ({ oc: x.o, st: x.st, dono: !gestor && x.o.membro_id === eu.id, gestor, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, fotoHoras: fam.foto_max_horas });
 
   return (
     <main className="estreito">

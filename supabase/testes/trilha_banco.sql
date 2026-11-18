@@ -7,7 +7,7 @@ declare
   nok int := 0; nfalha int := 0;
   d0 date := (now() at time zone 'America/Sao_Paulo')::date;
   gU uuid := gen_random_uuid(); f1U uuid := gen_random_uuid(); f2U uuid := gen_random_uuid(); xU uuid := gen_random_uuid();
-  fam uuid; G uuid; F1 uuid; F2 uuid; F3 uuid; cat uuid;
+  fam uuid; fam2 uuid; G uuid; G2 uuid; F1 uuid; F2 uuid; F3 uuid; cat uuid;
   tP uuid; tD uuid; tS uuid; tM uuid; tF uuid;
   oc uuid; oc2 uuid; adi uuid; prop uuid;
   n int; b boolean; t text; m public.ra_membros;
@@ -44,6 +44,17 @@ begin
     insert into public.ra_membros(familia_id, nome, papel) values ((select id from public.ra_familias where nome = 'Nossa família' limit 1), 'Intruso', 'filho');
     nfalha := nfalha + 1; r := r || E'FALHA 2.4 pai inseriu membro em OUTRA família\n';
   exception when others then nok := nok + 1; r := r || E'OK  2.4 Pai NÃO consegue mexer em outra família\n'; end;
+
+  perform public.ra_minhas_notif('{"concluida":"com_foto","justificativa":false,"adiamento":true,"tela":true,"tarefa_filho":true}');
+  select notif->>'concluida' into t from public.ra_membros where id = G;
+  if t = 'com_foto' then nok := nok + 1; r := r || E'OK  2.5 Pai escolhe os próprios avisos (só conclusão com foto, sem justificativas)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 2.5 preferências\n'; end if;
+  insert into public.ra_membros(familia_id, email, nome, papel, notif) values (fam, 'teste-mae@teste.local', 'Mãe Teste', 'gestor', '{"concluida":"nenhuma"}') returning id into G2;
+  update public.ra_familias set nome = 'TESTE 2', foto_max_horas = 3, avatar = fam::text || '/familia/avatar-1.jpg' where id = fam; get diagnostics n = row_count;
+  if n = 1 then nok := nok + 1; r := r || E'OK  2.6 Pai edita a família (nome, imagem, foto vale 3 horas)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 2.6 editar família\n'; end if;
+  update public.ra_categorias set nome = 'Estudos', cor = 'ciano' where id = cat; get diagnostics n = row_count;
+  if n = 1 then nok := nok + 1; r := r || E'OK  2.7 Pai edita categoria (nome e cor)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 2.7\n'; end if;
+  begin perform public.ra_admin_familias(); nfalha := nfalha + 1; r := r || E'FALHA 2.8 pai comum viu todas as famílias\n';
+  exception when others then nok := nok + 1; r := r || E'OK  2.8 Pai comum NÃO vê a lista de todas as famílias (só o administrador)\n'; end;
 
   -- ===== 3. Tarefas criadas pelo pai =====
   insert into public.ra_tarefas(familia_id, titulo, categoria_id, responsavel_id, tipo, data_inicio, hora_inicio, hora_fim, exige_foto, criada_por)
@@ -85,13 +96,28 @@ begin
   exception when others then nok := nok + 1; r := r || E'OK  4.5 Tarefa com foto obrigatória recusa conclusão sem foto\n'; end;
   begin perform public.ra_concluir(oc, F2::text || '/' || F2::text || '/x.jpg'); nfalha := nfalha + 1; r := r || E'FALHA 4.6 aceitou foto de outra pasta\n';
   exception when others then nok := nok + 1; r := r || E'OK  4.6 Recusa foto de pasta de outra pessoa\n'; end;
-  perform public.ra_concluir(oc, fam::text || '/' || F1::text || '/foto.jpg');
+  begin perform public.ra_concluir2(oc, fam::text || '/' || F1::text || '/velha.jpg', now() - interval '5 hours'); nfalha := nfalha + 1; r := r || E'FALHA 4.6b aceitou foto antiga\n';
+  exception when others then nok := nok + 1; r := r || E'OK  4.6b Recusa foto antiga (tirada há 5 horas, limite 3)\n'; end;
+  begin perform public.ra_concluir(oc, fam::text || '/' || F1::text || '/semdata.jpg'); nfalha := nfalha + 1; r := r || E'FALHA 4.6c aceitou foto sem data\n';
+  exception when others then nok := nok + 1; r := r || E'OK  4.6c Recusa foto sem a data de quando foi tirada\n'; end;
+  perform public.ra_concluir2(oc, fam::text || '/' || F1::text || '/foto.jpg', now() - interval '10 minutes');
   select status into t from public.ra_ocorrencias where id = oc;
-  if t = 'cumprida' then nok := nok + 1; r := r || E'OK  4.7 Filho conclui com foto\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.7\n'; end if;
+  select foto_tirada_em is not null into b from public.ra_ocorrencias where id = oc;
+  if t = 'cumprida' and b then nok := nok + 1; r := r || E'OK  4.7 Filho conclui com foto tirada agora (horário da foto fica registrado)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.7\n'; end if;
+  select id into oc2 from public.ra_ocorrencias where tarefa_id = tM limit 1;
+  perform public.ra_concluir2(oc2, null, null);
+  execute 'reset role';
+  select count(*) into n from public.ra_notificacoes where para_membro = G and titulo = 'Filho1 concluiu: Arrumar quarto (com foto)';
+  if n = 1 then nok := nok + 1; r := r || E'OK  4.7b Pai recebe aviso da tarefa concluída com foto\n'; else nfalha := nfalha + 1; r := r || 'FALHA 4.7b avisos=' || n || E'\n'; end if;
+  select count(*) into n from public.ra_notificacoes where para_membro = G and titulo like 'Filho1 concluiu: Pagar conta%';
+  if n = 0 then nok := nok + 1; r := r || E'OK  4.7c Pai que pediu "só com foto" não recebe conclusão sem foto\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.7c\n'; end if;
+  select count(*) into n from public.ra_notificacoes where para_membro = G2 and titulo like 'Filho1 concluiu%';
+  if n = 0 then nok := nok + 1; r := r || E'OK  4.7d Mãe que desligou avisos de conclusão não recebe nenhum\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.7d\n'; end if;
+  execute 'set local role authenticated';
   perform public.ra_desfazer(oc);
   select status into t from public.ra_ocorrencias where id = oc;
   if t = 'pendente' then nok := nok + 1; r := r || E'OK  4.8 Filho desfaz a conclusão\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.8\n'; end if;
-  perform public.ra_concluir(oc, fam::text || '/' || F1::text || '/foto.jpg');
+  perform public.ra_concluir2(oc, fam::text || '/' || F1::text || '/foto.jpg', now());
   begin perform public.ra_definir_horario(oc, '10:00', '11:00'); nfalha := nfalha + 1; r := r || E'FALHA 4.9 filho mudou horário definido pelos pais\n';
   exception when others then nok := nok + 1; r := r || E'OK  4.9 Filho não muda horário que os pais definiram\n'; end;
   select id into oc2 from public.ra_ocorrencias where tarefa_id = tD and data = d0 - 2;
@@ -225,6 +251,28 @@ begin
   if m.id is null and n = 0 then nok := nok + 1; r := r || E'OK  7.3 Pessoa não convidada entra no Google mas não vê nada\n'; else nfalha := nfalha + 1; r := r || E'FALHA 7.3\n'; end if;
   begin perform public.ra_concluir(oc, null); nfalha := nfalha + 1; r := r || E'FALHA 7.4\n';
   exception when others then nok := nok + 1; r := r || E'OK  7.4 Não convidado não consegue concluir tarefa de ninguém\n'; end;
+
+  fam2 := public.ra_criar_familia('Família do Estranho', 'Estranho');
+  select count(*) into n from public.ra_categorias where familia_id = fam2;
+  if public.ra_sou_gestor() and public.ra_minha_familia() = fam2 and n >= 11 then nok := nok + 1; r := r || E'OK  7.4b Pessoa nova cria a própria família, vira pai/mãe e já ganha as 11 categorias\n'; else nfalha := nfalha + 1; r := r || 'FALHA 7.4b categorias=' || n || E'\n'; end if;
+  select count(*) into n from public.ra_membros;
+  if n = 1 then nok := nok + 1; r := r || E'OK  7.4c Família nova não enxerga nenhuma outra família\n'; else nfalha := nfalha + 1; r := r || 'FALHA 7.4c membros=' || n || E'\n'; end if;
+  begin perform public.ra_criar_familia('Outra', 'Estranho'); nfalha := nfalha + 1; r := r || E'FALHA 7.4d criou segunda família\n';
+  exception when others then nok := nok + 1; r := r || E'OK  7.4d Mesma pessoa não cria uma segunda família\n'; end;
+
+  -- administrador geral (super admin)
+  execute 'reset role';
+  perform set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid(), 'email', 'sakaiadm2@gmail.com', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from public.ra_admin_familias() a where a.id in (fam, fam2);
+  if n = 2 then nok := nok + 1; r := r || E'OK  7.7 Administrador geral vê todas as famílias com os números de uso\n'; else nfalha := nfalha + 1; r := r || 'FALHA 7.7 viu ' || n || E'\n'; end if;
+  perform public.ra_admin_ativar_familia(fam, false);
+  nok := nok + 1; r := r || E'OK  7.8 Administrador desativa uma família\n';
+  execute 'reset role';
+  perform set_config('request.jwt.claims', json_build_object('sub', f2U, 'email', 'teste-f2@teste.local', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from public.ra_membros;
+  if public.ra_meu_id() is null and n = 0 then nok := nok + 1; r := r || E'OK  7.9 Família desativada perde o acesso (nada apagado)\n'; else nfalha := nfalha + 1; r := r || 'FALHA 7.9 membros=' || n || E'\n'; end if;
 
   execute 'reset role';
   perform set_config('request.jwt.claims', '{}', true);

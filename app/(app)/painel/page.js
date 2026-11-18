@@ -10,7 +10,7 @@ import { responderAdiamento, avaliarJustificativa, conferir, responderTela } fro
 export const dynamic = 'force-dynamic';
 
 export default async function Painel() {
-  const { supabase, eu, membros } = await exigirGestor();
+  const { supabase, eu, membros, familia } = await exigirGestor();
   const hoje = hojeISO();
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
   const nome = Object.fromEntries(membros.map((m) => [m.id, m.nome]));
@@ -36,7 +36,7 @@ export default async function Painel() {
   return (
     <main>
       <div className="cab">
-        <div><h1 className="titulo">Painel da família</h1><p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(hoje)}</p></div>
+        <div><h1 className="titulo">{familia.nome}</h1><p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(hoje)}</p></div>
         <a className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</a>
       </div>
       <div className="kpis">

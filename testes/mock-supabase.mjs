@@ -29,8 +29,13 @@ const ocorr = [
   oc(8, tarefas[2], dia(-1), { status: 'cumprida', concluida_em: dia(-1) + 'T18:00:00Z', conferido: 'conferido' }),
   oc(9, tarefas[2], hoje), oc(10, tarefas[2], dia(2)),
 ];
+const familias = [{ id: FAM, nome: 'Família Sakai', avatar: null, ativa: true, foto_max_horas: 2, criado_em: dia(-40) + 'T12:00:00Z' }];
+const adminFamilias = [
+  { ...familias[0], gestores: 'Thomas <pai@t.l>, Mãe', n_gestores: 2, n_filhos: 2, n_ativos: 2, tarefas: 3, oc_30d: 10, cumpridas_30d: 3, ultima_acao: new Date().toISOString() },
+  { id: id(700), nome: 'Família Teste', avatar: `${id(700)}/familia/avatar-1.jpg`, ativa: false, criado_em: dia(-5) + 'T12:00:00Z', gestores: 'Ana <ana@t.l>', n_gestores: 1, n_filhos: 0, n_ativos: 0, tarefas: 0, oc_30d: 0, cumpridas_30d: 0, ultima_acao: null },
+];
 const tabelas = {
-  ra_membros: membros, ra_categorias: cats, ra_tarefas: tarefas, ra_ocorrencias: ocorr,
+  ra_familias: familias, ra_membros: membros, ra_categorias: cats, ra_tarefas: tarefas, ra_ocorrencias: ocorr,
   ra_adiamentos: [{ id: id(200), ocorrencia_id: id(103), familia_id: FAM, membro_id: E, nova_data: dia(3), nova_hora: '15:00:00', motivo: 'Prova', status: 'pendente', criado_em: new Date().toISOString(), oc: { data: dia(-1), hora_inicio: '19:00:00', tarefa: { titulo: 'Estudar 1h' } } }],
   ra_notificacoes: [{ id: id(300), familia_id: FAM, para_membro: G, titulo: 'Eduardo pediu adiamento: Estudar 1h', link: '/painel', lida: false, criado_em: new Date().toISOString() }, { id: id(301), familia_id: FAM, para_membro: G, titulo: 'Eduardo justificou', link: '/painel', lida: true, criado_em: new Date(Date.now() - 86400e3).toISOString() }],
   ra_tela_previsto: [{ id: id(400), familia_id: FAM, membro_id: E, formato: 'aparelho', dias_semana: [0, 1, 2, 3, 4, 5, 6], vigencia_inicio: dia(-30), vigencia_fim: null, fixado: true, min_celular: 120, min_computador: 60, min_total: null, origem: 'pais', criado_por: G, criado_em: new Date().toISOString() }],
@@ -61,14 +66,19 @@ http.createServer((req, res) => {
     const usr = usuarios[tok];
     if (u.pathname === '/__log') { res.end(JSON.stringify(log.splice(0))); return; }
     log.push(`${req.method} ${u.pathname} ${body.slice(0, 300)}`);
-    const send = (code, obj, headers = {}) => { res.writeHead(code, { 'content-type': 'application/json', ...headers }); res.end(obj === undefined ? '' : JSON.stringify(obj)); };
+    const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' };
+    const send = (code, obj, headers = {}) => { res.writeHead(code, { 'content-type': 'application/json', ...cors, ...headers }); res.end(obj === undefined ? '' : JSON.stringify(obj)); };
+    if (req.method === 'OPTIONS') return send(204);
     if (u.pathname === '/auth/v1/user') return usr ? send(200, { id: usr.id, email: usr.email, aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} }) : send(401, { message: 'invalid' });
     if (u.pathname === '/auth/v1/logout') return send(204);
     if (u.pathname.startsWith('/storage/v1/object/sign/')) { const b = JSON.parse(body || '{}'); return send(200, (b.paths || []).map((p) => ({ path: p, signedURL: '/object/sign/x?token=t', error: null }))); }
+    if (u.pathname.startsWith('/storage/v1/object/') && req.method === 'POST') return send(200, { Key: u.pathname.slice(19), Id: 'x' });
     const m = u.pathname.match(/^\/rest\/v1\/(rpc\/)?([a-z_]+)$/);
     if (!m) return send(404, { message: 'nada' });
     if (m[1]) {
       if (m[2] === 'ra_eu' || m[2] === 'ra_vincular') return send(200, usr?.eu || null);
+      if (m[2] === 'ra_sou_super') return send(200, tok === 'tok-pai');
+      if (m[2] === 'ra_admin_familias') return tok === 'tok-pai' ? send(200, adminFamilias) : send(400, { message: 'Apenas o administrador geral' });
       if (m[2] === 'ra_tela_previsto_dia') return send(200, [{ formato: 'aparelho', min_celular: 120, min_computador: 60, min_total: 180, fixado: true }]);
       return send(200, null);
     }

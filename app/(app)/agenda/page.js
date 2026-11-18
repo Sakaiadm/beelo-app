@@ -8,7 +8,7 @@ export const dynamic = 'force-dynamic';
 
 export default async function Agenda({ searchParams }) {
   const sp = await searchParams;
-  const { supabase, eu, membros, gestor } = await exigirMembro();
+  const { supabase, eu, membros, gestor, familia: fam } = await exigirMembro();
   const hoje = hojeISO();
   const v = ['dia', 'semana', 'mes'].includes(sp.v) ? sp.v : 'semana';
   const d = /^\d{4}-\d{2}-\d{2}$/.test(sp.d || '') ? sp.d : hoje;
@@ -86,7 +86,7 @@ export default async function Agenda({ searchParams }) {
         <div style={{ maxWidth: 680 }}>
           {lista.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
           {lista.map((x) => (
-            <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={!gestor && x.o.membro_id === eu.id} gestor={gestor} familia={eu.familia_id}
+            <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={!gestor && x.o.membro_id === eu.id} gestor={gestor} familia={eu.familia_id} fotoHoras={fam.foto_max_horas}
               fotoUrl={fotos[x.o.foto_path]} nomeMembro={gestor && !filtroM ? nome[x.o.membro_id] : null} hoje={hoje} />
           ))}
         </div>

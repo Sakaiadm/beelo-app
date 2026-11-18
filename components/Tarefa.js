@@ -12,7 +12,7 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje }) {
+export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, fotoHoras = 2 }) {
   const [aba, setAba] = useState(null);
   const cat = oc.tarefa?.categoria;
   const [fundo, letra] = CORES_CAT[cat?.cor] || CORES_CAT.cinza;
@@ -46,6 +46,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
             {oc.tarefa?.exige_foto && !feita ? ' · com foto' : ''}
             {oc.tarefa?.criada_por === oc.membro_id ? ' · criada pelo filho' : ''}
             {oc.conferido === 'conferido' ? ' · conferido' : ''}
+            {oc.foto_tirada_em ? ` · foto tirada ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}
           </div>
           {oc.justificativa && <div className="meta">Justificativa: “{oc.justificativa}”{oc.justificativa_status === 'aceita' ? ' (aceita)' : oc.justificativa_status === 'recusada' ? ' (recusada)' : ''}</div>}
         </div>
@@ -77,7 +78,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
         <div className="painel-acao">
           <Form acao={concluir}>
             <input type="hidden" name="oc" value={oc.id} />
-            <Foto familia={familia} membro={oc.membro_id} obrigatoria={oc.tarefa?.exige_foto} />
+            <Foto familia={familia} membro={oc.membro_id} obrigatoria={oc.tarefa?.exige_foto} atualHoras={fotoHoras} />
             <button className="btn" style={{ marginTop: 10 }}>Marcar como feita</button>
           </Form>
         </div>
