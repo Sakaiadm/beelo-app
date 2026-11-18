@@ -17,7 +17,9 @@ export default async function Detalhes({ params }) {
   const pode = gestor || (t.criada_por === eu.id && t.responsavel_id === eu.id);
   const lista = await ocorrencias(supabase, { de: addDias(hoje, -30), ate: addDias(hoje, 7), tarefaId: t.id });
   const fotos = await urlsFotos(supabase, lista.map((o) => o.foto_path));
-  const itens = lista.map((o) => ({ o, st: statusExibido(o, hoje) })).reverse();
+  // Só o quadrinho que importa: o de hoje; se não houver, o próximo; se não, o último que passou.
+  const escolhida = lista.find((o) => o.data === hoje) || lista.find((o) => o.data > hoje) || [...lista].reverse()[0];
+  const itens = escolhida ? [{ o: escolhida, st: statusExibido(escolhida, hoje) }] : [];
   const resp = membros.find((m) => m.id === t.responsavel_id);
   const [f, l] = CORES_CAT[t.categoria?.cor] || CORES_CAT.cinza;
   const quando = t.tipo === 'pontual' ? `Em ${dataCurta(t.data_inicio)}` : t.recorrencia === 'dias_semana' ? t.dias_semana.map((d) => DIAS_CURTO[d]).join(' ') : REC[t.recorrencia] || 'Repete';
@@ -39,7 +41,7 @@ export default async function Detalhes({ params }) {
         </div>
         {t.descricao && <p style={{ marginBottom: 0 }}>{t.descricao}</p>}
       </div>
-      <div className="grupo-titulo">Últimos dias e próximos</div>
+      <div className="grupo-titulo">{itens[0]?.o.data === hoje ? 'Hoje' : 'Tarefa'}</div>
       {itens.length === 0 && <div className="card vazio">Nenhuma ocorrência neste período.</div>}
       {itens.map((x) => <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={!gestor && x.o.membro_id === eu.id} gestor={gestor} familia={eu.familia_id} fotoUrl={fotos[x.o.foto_path]} hoje={hoje} />)}
     </main>
