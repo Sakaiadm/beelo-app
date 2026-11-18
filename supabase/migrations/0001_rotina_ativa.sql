@@ -500,7 +500,6 @@ create policy ra_tr_upd on public.ra_tela_real for update using (
 create policy ra_hist_sel on public.ra_historico for select using (familia_id = public.ra_minha_familia() and public.ra_sou_gestor());
 
 -- Funções: só usuários logados executam.
-revoke execute on all functions in schema public from anon;
 do $$ declare f text; begin
   for f in select p.oid::regprocedure::text from pg_proc p join pg_namespace n on n.oid = p.pronamespace
            where n.nspname = 'public' and p.proname like 'ra\_%' loop
