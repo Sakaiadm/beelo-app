@@ -12,7 +12,7 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, justObrig = false }) {
+export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje }) {
   const [aba, setAba] = useState(null);
   const cat = oc.tarefa?.categoria;
   const [fundo, letra] = CORES_CAT[cat?.cor] || CORES_CAT.cinza;
@@ -48,7 +48,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
             {oc.conferido === 'conferido' ? ' · conferido' : ''}
             {oc.foto_tirada_em ? ` · foto tirada ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}
           </div>
-          {justObrig && atrasada && !oc.justificativa && dono && <div className="meta" style={{ color: 'var(--erro)', fontWeight: 600 }}>Os pais pedem uma justificativa.</div>}
+          {oc.tarefa?.exige_justificativa && atrasada && !oc.justificativa && dono && <div className="meta" style={{ color: 'var(--erro)', fontWeight: 600 }}>Justifique o atraso para poder concluir.</div>}
           {oc.justificativa && <div className="meta">Justificativa: “{oc.justificativa}”{oc.justificativa_status === 'aceita' ? ' (aceita)' : oc.justificativa_status === 'recusada' ? ' (recusada)' : ''}</div>}
         </div>
         {fotoUrl && <a href={fotoUrl} target="_blank" rel="noreferrer"><img src={fotoUrl} alt={`Foto de ${oc.tarefa?.titulo}`} className="foto-mini" style={{ width: 48, height: 48 }} /></a>}
@@ -58,7 +58,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
       {dono && (
         <div className="acoes" style={{ marginTop: 8 }}>
           {atrasada && <button className="btn sec peq" onClick={() => alternar('justificar')}>Justificar</button>}
-          {st === 'pendente' || st === 'atrasada' ? <button className="btn sec peq" onClick={() => alternar('adiar')}>Adiar</button> : null}
+          {(st === 'pendente' || st === 'atrasada') && oc.tarefa?.permite_adiar ? <button className="btn sec peq" onClick={() => alternar('adiar')}>Adiar</button> : null}
           {!feita && !oc.horario_travado && <button className="btn sec peq" onClick={() => alternar('horario')}>Horário</button>}
           {feita && !oc.conferido && (
             <Form acao={desfazer}><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Desfazer</button></Form>

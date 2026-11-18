@@ -60,6 +60,8 @@ export async function salvarTarefa(_, fd) {
     data_inicio: data(fd.get('data_inicio')) || hojeISO(), data_fim: tipo === 'recorrente' ? data(fd.get('data_fim')) : null,
     hora_inicio: comHorario ? hora(fd.get('hora_inicio')) : null, hora_fim: comHorario ? hora(fd.get('hora_fim')) : null,
     exige_foto: fd.get('exige_foto') === '1',
+    permite_adiar: eu.papel === 'gestor' ? fd.get('permite_adiar') === '1' : true,
+    exige_justificativa: eu.papel === 'gestor' ? fd.get('exige_justificativa') === '1' : false,
   };
   if (!reg.titulo) return { erro: 'Dê um nome para a tarefa' };
   if (!reg.responsavel_id) return { erro: 'Escolha para quem é a tarefa' };
@@ -216,7 +218,6 @@ export async function salvarFamilia(_, fd) {
   if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
   const reg = { nome: txt(fd, 'nome', 60) };
   if (!reg.nome) return { erro: 'Informe o nome da família' };
-  reg.justificativa_obrigatoria = fd.get('justificativa_obrigatoria') === '1';
   if (fd.has('avatar')) {
     const a = String(fd.get('avatar') || '');
     if (a && !(caminhoAvatar(a) && (a.startsWith('preset:') || a.startsWith(`${eu.familia_id}/familia/`)))) return { erro: 'Imagem inválida' };

@@ -8,7 +8,7 @@ declare
   d0 date := (now() at time zone 'America/Sao_Paulo')::date;
   gU uuid := gen_random_uuid(); f1U uuid := gen_random_uuid(); f2U uuid := gen_random_uuid(); xU uuid := gen_random_uuid();
   fam uuid; fam2 uuid; G uuid; G2 uuid; F1 uuid; F2 uuid; F3 uuid; cat uuid;
-  tP uuid; tD uuid; tS uuid; tM uuid; tF uuid;
+  tP uuid; tL uuid; tD uuid; tS uuid; tM uuid; tF uuid;
   oc uuid; oc2 uuid; adi uuid; prop uuid;
   n int; b boolean; t text; m public.ra_membros;
   rec record;
@@ -61,8 +61,10 @@ begin
   -- ===== 3. Tarefas criadas pelo pai =====
   insert into public.ra_tarefas(familia_id, titulo, categoria_id, responsavel_id, tipo, data_inicio, hora_inicio, hora_fim, exige_foto, criada_por)
   values (fam, 'Arrumar quarto', cat, F1, 'pontual', d0, '08:00', '09:00', true, G) returning id into tP;
-  insert into public.ra_tarefas(familia_id, titulo, categoria_id, responsavel_id, tipo, recorrencia, data_inicio, criada_por)
-  values (fam, 'Estudar 1h', cat, F1, 'recorrente', 'diaria', d0 - 3, G) returning id into tD;
+  insert into public.ra_tarefas(familia_id, titulo, categoria_id, responsavel_id, tipo, recorrencia, data_inicio, criada_por, permite_adiar)
+  values (fam, 'Estudar 1h', cat, F1, 'recorrente', 'diaria', d0 - 3, G, true) returning id into tD;
+  insert into public.ra_tarefas(familia_id, titulo, responsavel_id, tipo, data_inicio, criada_por, exige_justificativa)
+  values (fam, 'Lição de casa', F1, 'pontual', d0 - 1, G, true) returning id into tL;
   insert into public.ra_tarefas(familia_id, titulo, responsavel_id, tipo, recorrencia, dias_semana, data_inicio, criada_por)
   values (fam, 'Academia', F2, 'recorrente', 'dias_semana', '{1,3,5}', d0 - 3, G) returning id into tS;
   insert into public.ra_tarefas(familia_id, titulo, responsavel_id, tipo, recorrencia, data_inicio, criada_por)
@@ -88,7 +90,7 @@ begin
   m := public.ra_vincular();
   if m.id = F1 then nok := nok + 1; r := r || E'OK  4.1 Filho entra e é vinculado (e-mail com maiúsculas/minúsculas diferentes)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.1 vínculo do filho\n'; end if;
   select count(*) into n from public.ra_notificacoes where titulo like 'Nova tarefa:%';
-  if n = 3 then nok := nok + 1; r := r || E'OK  4.2 Sininho: filho recebeu aviso das 3 tarefas novas\n'; else nfalha := nfalha + 1; r := r || 'FALHA 4.2 avisos=' || n || E'\n'; end if;
+  if n = 4 then nok := nok + 1; r := r || E'OK  4.2 Sininho: filho recebeu aviso das 4 tarefas novas\n'; else nfalha := nfalha + 1; r := r || 'FALHA 4.2 avisos=' || n || E'\n'; end if;
   select count(*) into n from public.ra_ocorrencias where membro_id <> F1;
   if n = 0 then nok := nok + 1; r := r || E'OK  4.3 Filho não vê tarefas do irmão\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.3 filho viu tarefas do irmão\n'; end if;
   select count(*) into n from public.ra_tarefas where id = tS;
@@ -139,6 +141,16 @@ begin
   perform public.ra_pedir_adiamento(oc2, d0 + 10, '15:00', 'Prova na escola');
   select status into t from public.ra_ocorrencias where id = oc2;
   if t = 'adiamento_pedido' then nok := nok + 1; r := r || E'OK  4.12 Filho pede adiamento\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.12\n'; end if;
+  select id into oc2 from public.ra_ocorrencias where tarefa_id = tM limit 1;
+  begin perform public.ra_pedir_adiamento(oc2, d0 + 20, null, 'quero adiar'); nfalha := nfalha + 1; r := r || E'FALHA 4.12b adiou tarefa que não pode ser adiada\n';
+  exception when others then nok := nok + 1; r := r || E'OK  4.12b Tarefa com "pode adiar" desligado recusa pedido de adiamento\n'; end;
+  select id into oc2 from public.ra_ocorrencias where tarefa_id = tL;
+  begin perform public.ra_concluir2(oc2, null, null); nfalha := nfalha + 1; r := r || E'FALHA 4.12c concluiu atrasada sem justificar\n';
+  exception when others then nok := nok + 1; r := r || E'OK  4.12c Tarefa atrasada que exige justificativa não conclui sem justificar\n'; end;
+  perform public.ra_justificar(oc2, 'Esqueci o caderno na escola');
+  perform public.ra_concluir2(oc2, null, null);
+  select status into t from public.ra_ocorrencias where id = oc2;
+  if t = 'cumprida' then nok := nok + 1; r := r || E'OK  4.12d Depois de justificar, conclui normalmente\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.12d\n'; end if;
   begin
     insert into public.ra_tarefas(familia_id, titulo, responsavel_id, tipo, data_inicio, criada_por) values (fam, 'Hack', F2, 'pontual', d0, F1);
     nfalha := nfalha + 1; r := r || E'FALHA 4.13 filho criou tarefa para o irmão\n';

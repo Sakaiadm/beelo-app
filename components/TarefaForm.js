@@ -67,8 +67,12 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
           Sem horário: vale o dia todo{gestor ? ' e o filho pode encaixar o horário dele.' : '. Você pode pôr horário depois, na tela Hoje.'}
         </p>
       )}
-      <label className="check" style={{ marginTop: 14 }}><input type="checkbox" name="exige_foto" value="1" defaultChecked={t?.exige_foto} />Exige foto para concluir</label>
-      <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '2px 0 0' }}>Marcado: só conclui enviando uma foto tirada na hora. Desmarcado: conclui com um toque, sem foto.</p>
+      <div style={{ display: 'grid', gap: 12, marginTop: 16 }}>
+        <label className="check"><input type="checkbox" name="exige_foto" value="1" defaultChecked={t?.exige_foto} />Exige foto para concluir</label>
+        {gestor && <label className="check"><input type="checkbox" name="permite_adiar" value="1" defaultChecked={t?.permite_adiar} />Pode adiar</label>}
+        {gestor && <label className="check"><input type="checkbox" name="exige_justificativa" value="1" defaultChecked={t?.exige_justificativa} />Exige justificativa se atrasar</label>}
+      </div>
+      <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '8px 0 0' }}>Tudo desligado: o filho conclui com um toque, sem foto, e não pode adiar. Foto: precisa ser de hoje. Justificativa: sem ela, a tarefa atrasada não conclui.</p>
       <label htmlFor="descricao">Detalhes (opcional)</label>
       <textarea id="descricao" name="descricao" maxLength={1000} defaultValue={t?.descricao || ''} />
       <button className="btn bloco" style={{ marginTop: 16 }}>Salvar tarefa</button>

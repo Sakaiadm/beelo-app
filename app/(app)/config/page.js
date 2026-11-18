@@ -66,8 +66,7 @@ export default async function Config({ searchParams }) {
           <div className="linha">
             <div><label htmlFor="fn">Nome da família ou grupo</label><input id="fn" name="nome" defaultValue={familia.nome} maxLength={60} required /></div>
           </div>
-          <label className="check" style={{ marginTop: 14 }}><input type="checkbox" name="justificativa_obrigatoria" value="1" defaultChecked={familia.justificativa_obrigatoria} />Justificativa obrigatória</label>
-          <p style={{ fontSize: 13, color: 'var(--cinza)' }}>Desligado (padrão): justificar é opcional. Ligado: o filho vê o aviso “os pais pedem uma justificativa” nas tarefas atrasadas. A foto de comprovação precisa ser de hoje.</p>
+          <p style={{ fontSize: 13, color: 'var(--cinza)' }}>A foto de comprovação precisa ser de hoje. Foto, adiamento e justificativa são definidos em cada tarefa.</p>
           <button className="btn sec">Salvar</button>
         </Form>
       </div>

@@ -29,7 +29,7 @@ export default async function Hoje({ searchParams }) {
     const { data } = await supabase.from('ra_tela_real').select('id').eq('membro_id', eu.id).eq('data', addDias(hoje, -1)).maybeSingle();
     lembrarTela = !data;
   }
-  const props = (x) => ({ oc: x.o, st: x.st, dono: !gestor && x.o.membro_id === eu.id, gestor, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, justObrig: fam.justificativa_obrigatoria });
+  const props = (x) => ({ oc: x.o, st: x.st, dono: !gestor && x.o.membro_id === eu.id, gestor, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje });
 
   return (
     <main className="estreito">

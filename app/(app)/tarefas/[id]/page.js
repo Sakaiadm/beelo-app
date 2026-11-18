@@ -1,27 +1,47 @@
 import { notFound } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
-import { hojeISO } from '@/lib/util';
-import TarefaForm from '@/components/TarefaForm';
-import { excluirTarefa } from '@/app/acoes';
+import { ocorrencias, urlsFotos } from '@/lib/dados';
+import { hojeISO, addDias, statusExibido, CORES_CAT, DIAS_CURTO, hhmm, dataCurta } from '@/lib/util';
+import Tarefa from '@/components/Tarefa';
+import Icone from '@/components/Icone';
 
-export default async function Editar({ params }) {
+export const dynamic = 'force-dynamic';
+const REC = { diaria: 'Todo dia', semanal: 'Toda semana', mensal: 'Todo mês' };
+
+export default async function Detalhes({ params }) {
   const { id } = await params;
-  const { supabase, membros, gestor, eu } = await exigirMembro();
-  const { data: t } = await supabase.from('ra_tarefas').select('*').eq('id', id).maybeSingle();
+  const { supabase, eu, membros, gestor } = await exigirMembro();
+  const { data: t } = await supabase.from('ra_tarefas').select('*, categoria:ra_categorias(nome, cor)').eq('id', id).maybeSingle();
   if (!t) notFound();
-  const podeEditar = gestor || (t.criada_por === eu.id && t.responsavel_id === eu.id);
-  if (!podeEditar) notFound();
-  const { data: categorias } = await supabase.from('ra_categorias').select('*').order('ordem');
-  const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
+  const hoje = hojeISO();
+  const pode = gestor || (t.criada_por === eu.id && t.responsavel_id === eu.id);
+  const lista = await ocorrencias(supabase, { de: addDias(hoje, -30), ate: addDias(hoje, 7), tarefaId: t.id });
+  const fotos = await urlsFotos(supabase, lista.map((o) => o.foto_path));
+  const itens = lista.map((o) => ({ o, st: statusExibido(o, hoje) })).reverse();
+  const resp = membros.find((m) => m.id === t.responsavel_id);
+  const [f, l] = CORES_CAT[t.categoria?.cor] || CORES_CAT.cinza;
+  const quando = t.tipo === 'pontual' ? `Em ${dataCurta(t.data_inicio)}` : t.recorrencia === 'dias_semana' ? t.dias_semana.map((d) => DIAS_CURTO[d]).join(' ') : REC[t.recorrencia] || 'Repete';
+  const horario = t.hora_inicio ? `${hhmm(t.hora_inicio)}${t.hora_fim ? '–' + hhmm(t.hora_fim) : ''}` : 'Sem horário';
+  const regras = [t.exige_foto && 'Exige foto', t.permite_adiar && 'Pode adiar', t.exige_justificativa && 'Exige justificativa se atrasar'].filter(Boolean);
   return (
     <main className="estreito">
-      <div className="cab"><h1 className="titulo">Editar tarefa</h1></div>
-      <TarefaForm t={t} filhos={filhos} categorias={categorias || []} gestor={gestor} hoje={hojeISO()} />
-      <form action={excluirTarefa} className="card">
-        <input type="hidden" name="id" value={t.id} />
-        <p style={{ margin: '0 0 10px', fontSize: 14, color: 'var(--cinza)' }}>Excluir para de gerar a tarefa daqui para frente. O histórico já feito continua nos relatórios.</p>
-        <button className="btn perigo">Excluir tarefa</button>
-      </form>
+      <div className="cab">
+        <div><h1 className="titulo">{t.titulo}</h1><p className="sub">{resp?.nome} · {quando} · {horario}</p></div>
+        <div className="acoes">
+          <a className="btn sec peq" href="/tarefas">Voltar</a>
+          {pode && <a className="btn peq icone" href={`/tarefas/${t.id}/editar`} aria-label="Editar tarefa" title="Editar"><Icone nome="lapis" tam={18} cor="#fff" /></a>}
+        </div>
+      </div>
+      <div className="card">
+        <div className="acoes" style={{ alignItems: 'center' }}>
+          {t.categoria && <span className="pilula" style={{ background: f, color: l }}>{t.categoria.nome}</span>}
+          {regras.length ? regras.map((r) => <span key={r} className="pilula" style={{ background: 'var(--campo)', color: 'var(--texto)' }}>{r}</span>) : <span style={{ fontSize: 13, color: 'var(--cinza)' }}>Sem regras extras</span>}
+        </div>
+        {t.descricao && <p style={{ marginBottom: 0 }}>{t.descricao}</p>}
+      </div>
+      <div className="grupo-titulo">Últimos dias e próximos</div>
+      {itens.length === 0 && <div className="card vazio">Nenhuma ocorrência neste período.</div>}
+      {itens.map((x) => <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={!gestor && x.o.membro_id === eu.id} gestor={gestor} familia={eu.familia_id} fotoUrl={fotos[x.o.foto_path]} hoje={hoje} />)}
     </main>
   );
 }

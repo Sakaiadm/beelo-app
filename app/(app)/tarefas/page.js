@@ -21,7 +21,7 @@ export default async function Tarefas({ searchParams }) {
   return (
     <main>
       <div className="cab">
-        <div><h1 className="titulo">{gestor ? 'Tarefas' : 'Minhas tarefas'}</h1><p className="sub">{gestor ? 'Cadastre e edite as tarefas de cada filho.' : 'Crie tarefas suas para organizar a rotina.'}</p></div>
+        <div><h1 className="titulo">{gestor ? 'Tarefas' : 'Minhas tarefas'}</h1><p className="sub">{gestor ? 'Toque numa tarefa para ver os detalhes. O lápis edita.' : 'Crie tarefas suas para organizar a rotina.'}</p></div>
         <a className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</a>
       </div>
       {sp.ok && <div className="aviso ok">Tarefa salva.</div>}
@@ -34,8 +34,9 @@ export default async function Tarefas({ searchParams }) {
               const [f, l] = CORES_CAT[t.categoria?.cor] || CORES_CAT.cinza;
               const pode = gestor || t.criada_por === eu.id;
               return (
-                <tr key={t.id}>
-                  <td style={{ fontWeight: 700 }}>{pode ? <a href={`/tarefas/${t.id}`}>{t.titulo}</a> : t.titulo}
+                <tr key={t.id} className="clicavel">
+                  <td className="acao-linha" style={{ width: 52 }}>{pode && <a className="btn sec peq icone" href={`/tarefas/${t.id}/editar`} aria-label={`Editar ${t.titulo}`} title="Editar"><Icone nome="lapis" tam={18} /></a>}</td>
+                  <td style={{ fontWeight: 700 }}><a className="cobre" href={`/tarefas/${t.id}`} style={{ color: 'inherit', textDecoration: 'none' }}>{t.titulo}</a>
                     {t.criada_por === t.responsavel_id && gestor && <div style={{ fontSize: 12, color: 'var(--cinza)', fontWeight: 500 }}>criada por {nome[t.criada_por]}</div>}</td>
                   <td>{quando(t)}</td>
                   <td>{t.hora_inicio ? `${hhmm(t.hora_inicio)}${t.hora_fim ? '–' + hhmm(t.hora_fim) : ''}` : 'Sem horário'}</td>

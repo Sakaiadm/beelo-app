@@ -5,10 +5,10 @@ const sess = (tok) => 'base64-' + Buffer.from(JSON.stringify({ access_token: tok
 const E = '00000000-0000-0000-0000-000000000003';
 const T = '00000000-0000-0000-0000-000000000030';
 const casos = {
-  'tok-pai': ['/', '/painel', '/hoje', '/tarefas', '/tarefas?ok=1', '/tarefas/nova', `/tarefas/${T}`, '/agenda', '/agenda?v=dia', '/agenda?v=semana', '/agenda?v=mes', `/agenda?v=semana&m=${E}`,
+  'tok-pai': ['/', '/painel', '/hoje', '/tarefas', '/tarefas?ok=1', '/tarefas/nova', `/tarefas/${T}`, `/tarefas/${T}/editar`, '/agenda', '/agenda?v=dia', '/agenda?v=semana', '/agenda?v=mes', `/agenda?v=semana&m=${E}`,
     '/notificacoes', '/tela', `/tela?m=${E}`, '/relatorios', '/relatorios?per=hoje', '/relatorios?per=semana', '/relatorios?per=30d', '/relatorios?per=livre&de=2026-10-01&ate=2026-11-30',
     `/relatorios?m=${E}&st=atrasada`, '/relatorios?st=cumprida&hor=com&origem=pais', '/relatorios?cat=00000000-0000-0000-0000-000000000020', '/config', '/config?nova=1', '/perfil', '/admin', '/privacidade'],
-  'tok-filho': ['/', '/hoje', '/tarefas', '/tarefas/nova', '/agenda', '/agenda?v=dia', '/agenda?v=mes', '/notificacoes', '/tela', '/relatorios', '/painel', '/config', '/perfil', '/admin', `/tarefas/${T}`],
+  'tok-filho': ['/', '/hoje', '/tarefas', '/tarefas/nova', '/agenda', '/agenda?v=dia', '/agenda?v=mes', '/notificacoes', '/tela', '/relatorios', '/painel', '/config', '/perfil', '/admin', `/tarefas/${T}`, `/tarefas/${T}/editar`],
   'tok-estranho': ['/', '/hoje', '/sem-acesso'],
   '': ['/', '/painel', '/login', '/privacidade', '/manifest.json'],
 };
@@ -29,7 +29,7 @@ for (const [tok, rotas] of Object.entries(casos)) {
       st = resp.status(); final = r.includes('csv') ? r.split('?')[0] : new URL(page.url()).pathname;
       txt = r.includes('csv') ? (await resp.text()).slice(0, 60).replace(/\n/g, ' | ') : (await page.locator('h1').first().textContent({ timeout: 2000 }).catch(() => ''));
     } catch (e) { st = 'ERRO'; erros.push(e.message); }
-    const esperado404 = tok === 'tok-filho' && r.startsWith('/tarefas/0') && st === 404;
+    const esperado404 = tok === 'tok-filho' && r.startsWith('/tarefas/0') && r.endsWith('/editar') && st === 404;
     if (esperado404) txt = 'bloqueado: filho não edita tarefa dos pais (esperado)';
     const ruim = !esperado404 && st >= 400 || st === 'ERRO' || erros.length || /Application error|Internal Server Error/.test(txt);
     if (ruim) falhas++;

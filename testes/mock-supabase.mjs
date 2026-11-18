@@ -13,12 +13,12 @@ const membros = [
 ];
 const cats = [{ id: id(20), familia_id: FAM, nome: 'Estudo', cor: 'indigo', ordem: 1 }, { id: id(21), familia_id: FAM, nome: 'Casa', cor: 'laranja', ordem: 2 }];
 const tarefas = [
-  { id: id(30), familia_id: FAM, titulo: 'Estudar 1h', descricao: 'Matemática', categoria_id: id(20), responsavel_id: E, tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [], data_inicio: dia(-10), data_fim: null, hora_inicio: '19:00:00', hora_fim: '20:00:00', exige_foto: false, criada_por: G, ativa: true, categoria: cats[0] },
-  { id: id(31), familia_id: FAM, titulo: 'Arrumar quarto', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: null, hora_fim: null, exige_foto: true, criada_por: G, ativa: true, categoria: cats[1] },
-  { id: id(32), familia_id: FAM, titulo: 'Violão', descricao: null, categoria_id: null, responsavel_id: A, tipo: 'recorrente', recorrencia: 'dias_semana', dias_semana: [1, 3], data_inicio: dia(-10), data_fim: dia(30), hora_inicio: '15:00:00', hora_fim: null, exige_foto: false, criada_por: A, ativa: true, categoria: null },
+  { id: id(30), familia_id: FAM, titulo: 'Estudar 1h', descricao: 'Matemática', categoria_id: id(20), responsavel_id: E, tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [], data_inicio: dia(-10), data_fim: null, hora_inicio: '19:00:00', hora_fim: '20:00:00', exige_foto: false, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, categoria: cats[0] },
+  { id: id(31), familia_id: FAM, titulo: 'Arrumar quarto', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: null, hora_fim: null, exige_foto: true, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, categoria: cats[1] },
+  { id: id(32), familia_id: FAM, titulo: 'Violão', descricao: null, categoria_id: null, responsavel_id: A, tipo: 'recorrente', recorrencia: 'dias_semana', dias_semana: [1, 3], data_inicio: dia(-10), data_fim: dia(30), hora_inicio: '15:00:00', hora_fim: null, exige_foto: false, permite_adiar: true, exige_justificativa: false, criada_por: A, ativa: true, categoria: null },
 ];
-tarefas.push({ id: id(34), familia_id: FAM, titulo: 'Lavar a louça', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: '23:30:00', hora_fim: null, exige_foto: true, criada_por: G, ativa: true, categoria: cats[1] });
-const tRef = (t) => ({ id: t.id, titulo: t.titulo, descricao: t.descricao, exige_foto: t.exige_foto, criada_por: t.criada_por, tipo: t.tipo, categoria: t.categoria });
+tarefas.push({ id: id(34), familia_id: FAM, titulo: 'Lavar a louça', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: '23:30:00', hora_fim: null, exige_foto: true, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, categoria: cats[1] });
+const tRef = (t) => ({ id: t.id, titulo: t.titulo, descricao: t.descricao, exige_foto: t.exige_foto, permite_adiar: t.permite_adiar, exige_justificativa: t.exige_justificativa, criada_por: t.criada_por, tipo: t.tipo, categoria: t.categoria });
 const oc = (n, t, d, extra = {}) => ({ id: id(100 + n), tarefa_id: t.id, familia_id: FAM, membro_id: t.responsavel_id, data: d, hora_inicio: t.hora_inicio, hora_fim: t.hora_fim, horario_travado: t.criada_por !== t.responsavel_id, status: 'pendente', concluida_em: null, foto_path: null, conferido: null, justificativa: null, justificativa_status: null, tarefa: tRef(t), ...extra });
 const ocorr = [
   oc(1, tarefas[0], dia(-3), { status: 'cumprida', concluida_em: dia(-3) + 'T22:00:00Z' }),
@@ -67,7 +67,7 @@ http.createServer((req, res) => {
     const tok = (req.headers.authorization || '').replace('Bearer ', '');
     const usr = usuarios[tok];
     if (u.pathname === '/__log') { res.end(JSON.stringify(log.splice(0))); return; }
-    log.push(`${req.method} ${u.pathname} ${body.slice(0, 300)}`);
+    log.push(`${req.method} ${u.pathname} ${body.slice(0, 700)}`);
     const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' };
     const send = (code, obj, headers = {}) => { res.writeHead(code, { 'content-type': 'application/json', ...cors, ...headers }); res.end(obj === undefined ? '' : JSON.stringify(obj)); };
     if (req.method === 'OPTIONS') return send(204);

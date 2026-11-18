@@ -22,7 +22,6 @@ export default async function AppLayout({ children }) {
           <Menu itens={itens} />
           <div className="quem">
             <Tema />
-            {gestor && <a className="icone-btn" href="/config" aria-label="Cadastros" title="Cadastros"><Icone nome="config" cor="#fff" /></a>}
             <a className="icone-btn" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
               <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
             </a>

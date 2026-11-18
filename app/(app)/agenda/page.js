@@ -86,7 +86,7 @@ export default async function Agenda({ searchParams }) {
         <div style={{ maxWidth: 680 }}>
           {lista.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
           {lista.map((x) => (
-            <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={!gestor && x.o.membro_id === eu.id} gestor={gestor} familia={eu.familia_id} justObrig={fam.justificativa_obrigatoria}
+            <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={!gestor && x.o.membro_id === eu.id} gestor={gestor} familia={eu.familia_id}
               fotoUrl={fotos[x.o.foto_path]} nomeMembro={gestor && !filtroM ? nome[x.o.membro_id] : null} hoje={hoje} />
           ))}
         </div>
