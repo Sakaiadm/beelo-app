@@ -9,7 +9,13 @@ const seguranca = [
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
+  serverExternalPackages: ['web-push'],
   experimental: { serverActions: { bodySizeLimit: '1mb' } },
-  async headers() { return [{ source: '/(.*)', headers: seguranca }]; },
+  async headers() {
+    return [
+      { source: '/(.*)', headers: seguranca },
+      { source: '/sw.js', headers: [{ key: 'Cache-Control', value: 'no-cache, no-store, must-revalidate' }, { key: 'Service-Worker-Allowed', value: '/' }] },
+    ];
+  },
 };
 export default nextConfig;

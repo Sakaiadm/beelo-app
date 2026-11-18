@@ -3,6 +3,7 @@ import Form from '@/components/Form';
 import AvatarUpload from '@/components/AvatarUpload';
 import { salvarPerfil, salvarAvisos } from '@/app/acoes';
 import { urlsAvatares } from '@/lib/avatar';
+import AvisosCelular from '@/components/AvisosCelular';
 
 export const dynamic = 'force-dynamic';
 
@@ -26,6 +27,9 @@ export default async function Perfil() {
           <p style={{ fontSize: 13, color: 'var(--cinza)' }}>Opcional. Escolha uma foto sua ou um avatar.</p>
           <button className="btn sec">Salvar</button>
         </Form>
+      </div>
+      <div className="card"><h2>Avisos no celular</h2>
+        <AvisosCelular chavePublica={process.env.VAPID_PUBLIC_KEY || ''} />
       </div>
       {gestor && (
         <div className="card"><h2>Avisos que eu quero receber</h2>

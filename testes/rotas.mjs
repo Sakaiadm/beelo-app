@@ -10,7 +10,7 @@ const casos = {
     `/relatorios?m=${E}&st=atrasada`, '/relatorios?st=cumprida&hor=com&origem=pais', '/relatorios?cat=00000000-0000-0000-0000-000000000020', '/config', '/config?nova=1', '/perfil', '/admin', '/privacidade'],
   'tok-filho': ['/', '/hoje', '/tarefas', '/tarefas/nova', '/agenda', '/agenda?v=dia', '/agenda?v=mes', '/notificacoes', '/tela', '/relatorios', '/painel', '/config', '/perfil', '/admin', `/tarefas/${T}`, `/tarefas/${T}/editar`],
   'tok-estranho': ['/', '/hoje', '/sem-acesso'],
-  '': ['/', '/painel', '/login', '/privacidade', '/manifest.json'],
+  '': ['/', '/painel', '/login', '/privacidade', '/manifest.json', '/sw.js', '/icone-192.png', '/apple-touch-icon.png'],
 };
 const browser = await chromium.launch();
 const linhas = []; let falhas = 0;

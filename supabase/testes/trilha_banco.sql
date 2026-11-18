@@ -304,5 +304,47 @@ begin
   exception when others then nok := nok + 1; r := r || E'OK  7.6 Visitante sem login não chama funções\n'; end;
   execute 'reset role';
 
+
+  -- ===== 8. Avisos no celular (push) =====
+  execute 'reset role';
+  update public.ra_familias set ativa = true where id = fam;   -- foi desativada no teste 7.8
+  perform set_config('request.jwt.claims', json_build_object('sub', gU, 'email', 'teste-pai@teste.local', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  begin perform public.ra_push_inscrever('http://inseguro.exemplo/x', 'a', 'b'); nfalha := nfalha + 1; r := r || E'FALHA 8.1 aceitou endereço sem https\n';
+  exception when others then nok := nok + 1; r := r || E'OK  8.1 Recusa aparelho com endereço sem https\n'; end;
+  perform public.ra_push_inscrever('https://push.exemplo/pai-1', 'chave-p256', 'chave-auth', 'Celular do pai');
+  perform public.ra_push_inscrever('https://push.exemplo/pai-1', 'chave-p256-nova', 'chave-auth', 'Celular do pai');
+  select count(*) into n from public.ra_push_inscricoes;
+  if n = 1 then nok := nok + 1; r := r || E'OK  8.2 Pai cadastra o aparelho (cadastrar de novo não duplica)\n'; else nfalha := nfalha + 1; r := r || 'FALHA 8.2 aparelhos=' || n || E'\n'; end if;
+  execute 'reset role';
+  perform set_config('request.jwt.claims', json_build_object('sub', f1U, 'email', 'teste-f1@teste.local', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from public.ra_push_inscricoes;
+  if n = 0 then nok := nok + 1; r := r || E'OK  8.3 Filho não enxerga o aparelho do pai\n'; else nfalha := nfalha + 1; r := r || E'FALHA 8.3\n'; end if;
+  begin perform public.ra_push_definir_segredo('segredo-de-teste-com-mais-de-24-letras'); nfalha := nfalha + 1; r := r || E'FALHA 8.4 usuário comum definiu o segredo\n';
+  exception when others then nok := nok + 1; r := r || E'OK  8.4 Usuário comum não consegue definir o segredo do servidor\n'; end;
+  begin perform * from public.ra_push_pendentes('qualquer-coisa'); nfalha := nfalha + 1; r := r || E'FALHA 8.5 leu a fila sem segredo\n';
+  exception when others then nok := nok + 1; r := r || E'OK  8.5 Fila de avisos recusa quem não tem o segredo\n'; end;
+  execute 'reset role';
+  perform public.ra_push_definir_segredo('segredo-de-teste-com-mais-de-24-letras');
+  perform set_config('request.jwt.claims', json_build_object('sub', gU, 'email', 'teste-pai@teste.local', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  perform public.ra_push_teste();
+  execute 'reset role';
+  execute 'set local role anon';
+  begin perform * from public.ra_push_pendentes('segredo-errado-segredo-errado-xx'); nfalha := nfalha + 1; r := r || E'FALHA 8.6 segredo errado aceito\n';
+  exception when others then nok := nok + 1; r := r || E'OK  8.6 Segredo errado é recusado\n'; end;
+  select count(*) into n from public.ra_push_pendentes('segredo-de-teste-com-mais-de-24-letras') p where p.endpoint = 'https://push.exemplo/pai-1' and p.titulo like 'Teste:%';
+  if n = 1 then nok := nok + 1; r := r || E'OK  8.7 Servidor com o segredo certo recebe o aviso de teste para o aparelho do pai\n'; else nfalha := nfalha + 1; r := r || 'FALHA 8.7 pendentes=' || n || E'\n'; end if;
+  select count(*) into n from public.ra_push_pendentes('segredo-de-teste-com-mais-de-24-letras') p where p.endpoint <> 'https://push.exemplo/pai-1';
+  if n = 0 then nok := nok + 1; r := r || E'OK  8.8 Avisos de quem não tem aparelho não entram na fila\n'; else nfalha := nfalha + 1; r := r || E'FALHA 8.8\n'; end if;
+  perform public.ra_push_concluir('segredo-de-teste-com-mais-de-24-letras', (select array_agg(p.notif_id) from public.ra_push_pendentes('segredo-de-teste-com-mais-de-24-letras') p), array['https://push.exemplo/morto']);
+  select count(*) into n from public.ra_push_pendentes('segredo-de-teste-com-mais-de-24-letras');
+  if n = 0 then nok := nok + 1; r := r || E'OK  8.9 Depois de enviado, o aviso sai da fila\n'; else nfalha := nfalha + 1; r := r || E'FALHA 8.9\n'; end if;
+  perform public.ra_push_concluir('segredo-de-teste-com-mais-de-24-letras', null, array['https://push.exemplo/pai-1']);
+  execute 'reset role';
+  select count(*) into n from public.ra_push_inscricoes;
+  if n = 0 then nok := nok + 1; r := r || E'OK  8.10 Aparelho que não existe mais (recusado pelo celular) é removido\n'; else nfalha := nfalha + 1; r := r || E'FALHA 8.10\n'; end if;
+
   raise exception E'RELATORIO_TESTES\nAprovados: %  Falhas: %\n%', nok, nfalha, r;
 end $$;

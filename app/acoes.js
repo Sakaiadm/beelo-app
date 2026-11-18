@@ -263,6 +263,15 @@ export async function salvarAvisos(_, fd) {
   } });
 }
 
+// ===== Avisos no celular =====
+export async function salvarAparelho(sub, aparelho) {
+  const chaves = sub?.keys || {};
+  if (!sub?.endpoint || !chaves.p256dh || !chaves.auth) return { erro: 'Aparelho inválido' };
+  return rpc('ra_push_inscrever', { p_endpoint: String(sub.endpoint), p_p256dh: String(chaves.p256dh), p_auth: String(chaves.auth), p_aparelho: String(aparelho || '').slice(0, 80) });
+}
+export async function removerAparelho(endpoint) { return rpc('ra_push_cancelar', { p_endpoint: String(endpoint || '') }); }
+export async function enviarTeste() { return rpc('ra_push_teste', {}); }
+
 // ===== Famílias =====
 export async function criarFamilia(_, fd) {
   const supabase = await supabaseServer();

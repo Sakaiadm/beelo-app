@@ -3,6 +3,7 @@ import Icone from '@/components/Icone';
 import Tema from '@/components/Tema';
 import Menu from '@/components/Menu';
 import Avatar from '@/components/Avatar';
+import Selo from '@/components/Selo';
 import { urlsAvatares } from '@/lib/avatar';
 
 export default async function AppLayout({ children }) {
@@ -32,6 +33,7 @@ export default async function AppLayout({ children }) {
           </div>
         </div>
       </header>
+      <Selo n={naoLidas} />
       {children}
       <Menu itens={itens} baixo />
     </>
