@@ -1,0 +1,143 @@
+import { exigirMembro } from '@/lib/sessao';
+import { lerFiltros, dadosRelatorio } from '@/lib/relatorio';
+import { telaResumo, totalReal } from '@/lib/tela';
+import { dataCurta, fmtMin, STATUS_TXT, CORES_CAT, inicioSemana, DIAS, hhmm } from '@/lib/util';
+import Imprimir from '@/components/Imprimir';
+
+export const dynamic = 'force-dynamic';
+const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
+
+export default async function Relatorios({ searchParams }) {
+  const sp = await searchParams;
+  const s = await exigirMembro();
+  const { supabase, gestor, eu, membros } = s;
+  const f = lerFiltros(sp);
+  const { lista, ids } = await dadosRelatorio(supabase, f, s);
+  const { data: categorias } = await supabase.from('ra_categorias').select('*').order('ordem');
+  const nome = Object.fromEntries(membros.map((m) => [m.id, m.nome]));
+  const filhos = membros.filter((m) => m.papel === 'filho');
+
+  const validas = lista.filter((x) => !['adiada', 'adiamento_pedido', 'pendente'].includes(x.st));
+  const feitas = validas.filter((x) => x.st.startsWith('cumprida'));
+  const noPrazo = feitas.filter((x) => x.st === 'cumprida');
+  const atrasos = lista.filter((x) => ['atrasada', 'nao_cumprida', 'cumprida_atraso', 'justificada'].includes(x.st));
+  const comHora = validas.filter((x) => x.o.hora_inicio);
+  const disciplina = pct(comHora.filter((x) => x.st === 'cumprida').length, comHora.length);
+  const { data: adis } = await supabase.from('ra_adiamentos').select('status, membro_id, criado_em').in('membro_id', ids)
+    .gte('criado_em', f.de + 'T00:00:00-03:00').lte('criado_em', f.ate + 'T23:59:59-03:00');
+
+  const porCat = (categorias || []).map((c) => {
+    const l = validas.filter((x) => x.o.tarefa?.categoria?.id === c.id);
+    return { c, total: l.length, p: pct(l.filter((x) => x.st.startsWith('cumprida')).length, l.length) };
+  }).filter((x) => x.total);
+  const semanas = [...new Set(validas.map((x) => inicioSemana(x.o.data)))].sort();
+  const porSemana = semanas.map((w) => ({ w, por: ids.map((id) => { const l = validas.filter((x) => x.o.membro_id === id && inicioSemana(x.o.data) === w); return { id, p: pct(l.filter((x) => x.st.startsWith('cumprida')).length, l.length), n: l.length }; }) }));
+  const porDiaSem = DIAS.map((d, i) => ({ d, n: atrasos.filter((x) => new Date(x.o.data + 'T12:00:00Z').getUTCDay() === i).length }));
+  const maxDS = Math.max(1, ...porDiaSem.map((x) => x.n));
+
+  const linhas = ids.map((id) => {
+    const l = validas.filter((x) => x.o.membro_id === id);
+    const fe = l.filter((x) => x.st.startsWith('cumprida'));
+    const dias = [...new Set(lista.filter((x) => x.o.membro_id === id).map((x) => x.o.data))].sort().reverse();
+    let seq = 0;
+    for (const d of dias) { const ld = lista.filter((x) => x.o.membro_id === id && x.o.data === d && x.st !== 'adiada'); if (ld.length && ld.every((x) => x.st.startsWith('cumprida') || x.st === 'pendente')) seq++; else break; }
+    return { id, total: l.length, feitas: fe.length, atraso: l.filter((x) => ['cumprida_atraso', 'atrasada', 'nao_cumprida', 'justificada'].includes(x.st)).length,
+      just: l.filter((x) => x.o.justificativa).length, adi: (adis || []).filter((a) => a.membro_id === id).length,
+      adiOk: (adis || []).filter((a) => a.membro_id === id && a.status === 'aprovado').length,
+      proprias: l.filter((x) => x.o.tarefa?.criada_por === id).length, seq };
+  });
+  const telas = {};
+  for (const id of ids) { const m = membros.find((x) => x.id === id); if (m?.tela_ativo) telas[id] = await telaResumo(supabase, id, f.de, f.ate); }
+  const qs = new URLSearchParams(Object.entries({ per: f.per, de: f.de, ate: f.ate, m: f.m, cat: f.cat, st: f.st, origem: f.origem, hor: f.hor }).filter(([, v]) => v)).toString();
+
+  return (
+    <main>
+      <div className="cab">
+        <div><h1 className="titulo">{gestor ? 'Relatórios' : 'Minha evolução'}</h1><p className="sub">{dataCurta(f.de)} a {dataCurta(f.ate)}{f.m ? ` · ${nome[f.m]}` : gestor ? ' · todos os filhos' : ''}</p></div>
+        <div className="acoes nao-imprimir"><a className="btn sec" href={`/relatorios-csv?${qs}`}>Excel</a><Imprimir /></div>
+      </div>
+
+      <form className="card filtros nao-imprimir" method="get">
+        <div><label htmlFor="per">Período</label><select id="per" name="per" defaultValue={f.per}>
+          <option value="hoje">Hoje</option><option value="semana">Esta semana</option><option value="mes">Este mês</option><option value="30d">Últimos 30 dias</option><option value="livre">Escolher datas</option></select></div>
+        <div><label htmlFor="de">De</label><input id="de" type="date" name="de" defaultValue={f.de} /></div>
+        <div><label htmlFor="ate">Até</label><input id="ate" type="date" name="ate" defaultValue={f.ate} /></div>
+        {gestor && <div><label htmlFor="m">Filho</label><select id="m" name="m" defaultValue={f.m}><option value="">Todos</option>{filhos.map((x) => <option key={x.id} value={x.id}>{x.nome}</option>)}</select></div>}
+        <div><label htmlFor="cat">Categoria</label><select id="cat" name="cat" defaultValue={f.cat}><option value="">Todas</option>{(categorias || []).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select></div>
+        <div><label htmlFor="st">Status</label><select id="st" name="st" defaultValue={f.st}><option value="">Todos</option>
+          {['cumprida', 'cumprida_atraso', 'atrasada', 'nao_cumprida', 'justificada', 'adiada', 'pendente'].map((k) => <option key={k} value={k}>{STATUS_TXT[k]}</option>)}</select></div>
+        <div><label htmlFor="origem">Criada por</label><select id="origem" name="origem" defaultValue={f.origem}><option value="">Pais e filhos</option><option value="pais">Pais</option><option value="filho">Filho</option></select></div>
+        <div><label htmlFor="hor">Horário</label><select id="hor" name="hor" defaultValue={f.hor}><option value="">Com e sem</option><option value="com">Com horário</option><option value="sem">Sem horário</option></select></div>
+        <div><button className="btn" style={{ width: '100%' }}>Filtrar</button></div>
+      </form>
+      <p className="sub nao-imprimir" style={{ marginTop: -6, marginBottom: 14, fontSize: 13 }}>As datas “De” e “Até” valem quando o período é “Escolher datas”.</p>
+
+      <div className="kpis">
+        <div className="kpi destaque"><small>Cumprimento</small><strong>{pct(feitas.length, validas.length)}<span style={{ fontSize: 16 }}>%</span></strong>
+          <em>{feitas.length} de {validas.length} tarefas · {gestor && !f.m ? ids.map((id) => { const l = linhas.find((x) => x.id === id); return `${nome[id]} ${pct(l.feitas, l.total)}%`; }).join(' · ') : ''}</em></div>
+        <div className="kpi"><small>No prazo x com atraso</small><strong>{noPrazo.length} <span style={{ fontSize: 16, color: 'var(--cinza)' }}>· {feitas.length - noPrazo.length}</span></strong><em>{atrasos.length} atraso(s) no período</em></div>
+        <div className="kpi"><small>No horário planejado</small><strong>{disciplina}<span style={{ fontSize: 16 }}>%</span></strong><em>Disciplina com a agenda ({comHora.length} com horário)</em></div>
+        <div className="kpi"><small>Adiamentos</small><strong>{(adis || []).length}</strong><em>{(adis || []).filter((a) => a.status === 'aprovado').length} aprovado(s)</em></div>
+      </div>
+
+      <div className="duas">
+        <div className="card grande"><h2>Cumprimento por categoria</h2>
+          {porCat.length === 0 && <div className="vazio">Sem dados no período.</div>}
+          <div className="barras-h">{porCat.map(({ c, p, total }) => (
+            <div className="l" key={c.id}><span>{c.nome}</span><div className="barra"><div style={{ width: `${p}%`, background: (CORES_CAT[c.cor] || CORES_CAT.azul)[1] }} /></div><span title={`${total} tarefas`}>{p}%</span></div>))}
+          </div>
+        </div>
+        <div className="card lado"><h2>Atrasos por dia da semana</h2>
+          <div className="barras-h">{porDiaSem.map((x) => (
+            <div className="l" key={x.d}><span style={{ textTransform: 'capitalize' }}>{x.d}</span><div className="barra"><div style={{ width: `${(x.n / maxDS) * 100}%`, background: 'var(--erro)' }} /></div><span>{x.n}</span></div>))}
+          </div>
+        </div>
+      </div>
+
+      <div className="card"><h2>Cumprimento por semana</h2>
+        {porSemana.length === 0 ? <div className="vazio">Sem dados no período.</div> : (
+          <div className="rolavel"><table><thead><tr><th>Semana de</th>{ids.map((id) => <th key={id}>{nome[id]}</th>)}</tr></thead>
+            <tbody>{porSemana.map(({ w, por }) => (
+              <tr key={w}><td>{dataCurta(w)}</td>{por.map((x) => (
+                <td key={x.id}><div style={{ display: 'flex', alignItems: 'center', gap: 8 }}><div className="barra" style={{ flex: 1, minWidth: 60 }}><div style={{ width: `${x.p}%` }} /></div><strong style={{ width: 40, textAlign: 'right' }}>{x.n ? `${x.p}%` : '—'}</strong></div></td>))}</tr>))}
+            </tbody></table></div>)}
+      </div>
+
+      <div className="card"><h2>{gestor ? 'Por filho' : 'Resumo'}</h2>
+        <div className="rolavel"><table>
+          <thead><tr><th>Filho</th><th className="num">Cumpridas</th><th className="num">Com atraso</th><th className="num">Justificativas</th><th className="num">Adiamentos (aprovados)</th><th className="num">Criadas por ele(a)</th><th className="num">Sequência</th><th className="num">Tela prev. x real</th></tr></thead>
+          <tbody>{linhas.map((l) => {
+            const t = telas[l.id] || [];
+            const prev = t.reduce((a, r) => a + (r.previsto?.min_total || 0), 0), real = t.reduce((a, r) => a + totalReal(r), 0);
+            const n = t.filter((r) => r.previsto).length || 1;
+            return (
+              <tr key={l.id}><td style={{ fontWeight: 700 }}>{nome[l.id]}</td><td className="num">{l.feitas} de {l.total}</td><td className="num">{l.atraso}</td><td className="num">{l.just}</td>
+                <td className="num">{l.adi} ({l.adiOk})</td><td className="num">{l.proprias}</td><td className="num">{l.seq} dia(s)</td>
+                <td className="num">{t.length ? <span className="pilula" style={{ background: real > prev ? '#fbe3e5' : '#dff3e6', color: real > prev ? '#8f1c26' : '#1f6b3a' }}>{fmtMin(prev / n)} → {fmtMin(real / t.length)} /dia</span> : '—'}</td></tr>);
+          })}</tbody>
+        </table></div>
+      </div>
+
+      {Object.keys(telas).length > 0 && (
+        <div className="card"><h2>Tempo de tela: previsto x realizado</h2>
+          <div className="rolavel"><table><thead><tr><th>Dia</th>{gestor && <th>Filho</th>}<th className="num">Previsto</th><th className="num">Realizado</th><th className="num">Celular</th><th className="num">Computador</th><th className="num">Diferença</th></tr></thead>
+            <tbody>{Object.entries(telas).flatMap(([id, rs]) => rs.map((r) => {
+              const real = totalReal(r), prev = r.previsto?.min_total, dif = prev != null ? real - prev : null;
+              return (<tr key={r.id}><td>{dataCurta(r.data)}</td>{gestor && <td>{nome[id]}</td>}<td className="num">{prev != null ? fmtMin(prev) : '—'}</td><td className="num">{fmtMin(real)}</td>
+                <td className="num">{r.min_celular != null ? fmtMin(r.min_celular) : '—'}</td><td className="num">{r.min_computador != null ? fmtMin(r.min_computador) : '—'}</td>
+                <td className="num" style={{ fontWeight: 700, color: dif == null ? undefined : dif > 0 ? 'var(--erro)' : 'var(--ok)' }}>{dif == null ? '—' : (dif > 0 ? '+' : '') + fmtMin(dif)}</td></tr>);
+            }))}</tbody></table></div>
+        </div>
+      )}
+
+      <div className="card"><h2>Tarefas no período ({lista.length})</h2>
+        <div className="rolavel"><table><thead><tr><th>Dia</th>{gestor && <th>Filho</th>}<th>Tarefa</th><th>Categoria</th><th>Horário</th><th>Status</th><th>Justificativa</th></tr></thead>
+          <tbody>{lista.slice().reverse().slice(0, 300).map(({ o, st }) => (
+            <tr key={o.id}><td>{dataCurta(o.data)}</td>{gestor && <td>{nome[o.membro_id]}</td>}<td>{o.tarefa?.titulo}</td><td>{o.tarefa?.categoria?.nome || '—'}</td>
+              <td>{o.hora_inicio ? hhmm(o.hora_inicio) : 'Sem horário'}</td><td>{STATUS_TXT[st]}</td><td style={{ fontSize: 13 }}>{o.justificativa || ''}</td></tr>))}
+          </tbody></table></div>
+        {lista.length > 300 && <p className="sub" style={{ fontSize: 13 }}>Mostrando as 300 mais recentes. O Excel traz todas.</p>}
+      </div>
+    </main>
+  );
+}

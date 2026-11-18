@@ -1,0 +1,3 @@
+{ "name": "Rotina Ativa", "short_name": "Rotina Ativa", "start_url": "/", "display": "standalone",
+  "background_color": "#f4f8fe", "theme_color": "#1a6fe0",
+  "icons": [{ "src": "/icone.svg", "sizes": "any", "type": "image/svg+xml", "purpose": "any maskable" }] }
