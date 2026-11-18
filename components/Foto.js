@@ -3,7 +3,6 @@ import { useRef, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import Icone from './Icone';
 
-// Comprime no aparelho (o canvas descarta EXIF/GPS) e envia ao bucket privado.
 async function comprimir(arquivo) {
   const img = await createImageBitmap(arquivo);
   const max = 1600, esc = Math.min(1, max / Math.max(img.width, img.height));

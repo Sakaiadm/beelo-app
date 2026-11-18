@@ -7,6 +7,7 @@ const seguranca = [
   { key: 'Permissions-Policy', value: 'camera=(self), microphone=(), geolocation=()' },
 ];
 const nextConfig = {
+  output: 'standalone',
   poweredByHeader: false,
   experimental: { serverActions: { bodySizeLimit: '1mb' } },
   async headers() { return [{ source: '/(.*)', headers: seguranca }]; },

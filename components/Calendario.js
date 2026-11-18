@@ -1,6 +1,5 @@
 import { addDias, diaSemana, inicioMes, fimMes, mesAno, DIAS_CURTO } from '@/lib/util';
 
-// Calendário mensal no estilo da pluviometria: a cor mostra o % cumprido no dia.
 export default function Calendario({ mes, porDia, hoje, sel, link }) {
   const ini = inicioMes(mes), fim = fimMes(mes);
   const vazios = diaSemana(ini);

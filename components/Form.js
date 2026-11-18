@@ -1,7 +1,6 @@
 'use client';
 import { useActionState, useEffect, useRef } from 'react';
 
-// Formulário com mensagem de erro/sucesso vinda da ação do servidor.
 export default function Form({ acao, children, okTxt, limpar, className, style }) {
   const [estado, enviar, pendente] = useActionState(acao, null);
   const ref = useRef(null);
