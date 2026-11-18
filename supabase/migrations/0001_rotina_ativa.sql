@@ -385,7 +385,7 @@ language sql stable security definer set search_path = public as $$
      and p.familia_id = public.ra_minha_familia()
      and p.vigencia_inicio <= p_data and (p.vigencia_fim is null or p.vigencia_fim >= p_data)
      and extract(dow from p_data)::int = any(p.dias_semana)
-   order by (p.vigencia_inicio = p.vigencia_fim) desc, p.criado_em desc
+   order by coalesce(p.vigencia_inicio = p.vigencia_fim, false) desc, p.criado_em desc
    limit 1
 $$;
 
