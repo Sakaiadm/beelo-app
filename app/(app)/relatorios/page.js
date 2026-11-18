@@ -54,7 +54,7 @@ export default async function Relatorios({ searchParams }) {
     <main>
       <div className="cab">
         <div><h1 className="titulo">{gestor ? 'Relatórios' : 'Minha evolução'}</h1><p className="sub">{dataCurta(f.de)} a {dataCurta(f.ate)}{f.m ? ` · ${nome[f.m]}` : gestor ? ' · todos os filhos' : ''}</p></div>
-        <div className="acoes nao-imprimir"><a className="btn sec" href={`/relatorios-csv?${qs}`}>Excel</a><Imprimir /></div>
+        <div className="acoes nao-imprimir"><Imprimir /></div>
       </div>
 
       <form className="card filtros nao-imprimir" method="get">
@@ -136,7 +136,7 @@ export default async function Relatorios({ searchParams }) {
             <tr key={o.id}><td>{dataCurta(o.data)}</td>{gestor && <td>{nome[o.membro_id]}</td>}<td>{o.tarefa?.titulo}</td><td>{o.tarefa?.categoria?.nome || '—'}</td>
               <td>{o.hora_inicio ? hhmm(o.hora_inicio) : 'Sem horário'}</td><td>{STATUS_TXT[st]}</td><td style={{ fontSize: 13 }}>{o.justificativa || ''}</td></tr>))}
           </tbody></table></div>
-        {lista.length > 300 && <p className="sub" style={{ fontSize: 13 }}>Mostrando as 300 mais recentes. O Excel traz todas.</p>}
+        {lista.length > 300 && <p className="sub" style={{ fontSize: 13 }}>Mostrando as 300 mais recentes.</p>}
       </div>
     </main>
   );

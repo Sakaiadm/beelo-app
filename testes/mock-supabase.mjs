@@ -17,6 +17,7 @@ const tarefas = [
   { id: id(31), familia_id: FAM, titulo: 'Arrumar quarto', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: null, hora_fim: null, exige_foto: true, criada_por: G, ativa: true, categoria: cats[1] },
   { id: id(32), familia_id: FAM, titulo: 'Violão', descricao: null, categoria_id: null, responsavel_id: A, tipo: 'recorrente', recorrencia: 'dias_semana', dias_semana: [1, 3], data_inicio: dia(-10), data_fim: dia(30), hora_inicio: '15:00:00', hora_fim: null, exige_foto: false, criada_por: A, ativa: true, categoria: null },
 ];
+tarefas.push({ id: id(34), familia_id: FAM, titulo: 'Lavar a louça', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: '23:30:00', hora_fim: null, exige_foto: true, criada_por: G, ativa: true, categoria: cats[1] });
 const tRef = (t) => ({ id: t.id, titulo: t.titulo, descricao: t.descricao, exige_foto: t.exige_foto, criada_por: t.criada_por, tipo: t.tipo, categoria: t.categoria });
 const oc = (n, t, d, extra = {}) => ({ id: id(100 + n), tarefa_id: t.id, familia_id: FAM, membro_id: t.responsavel_id, data: d, hora_inicio: t.hora_inicio, hora_fim: t.hora_fim, horario_travado: t.criada_por !== t.responsavel_id, status: 'pendente', concluida_em: null, foto_path: null, conferido: null, justificativa: null, justificativa_status: null, tarefa: tRef(t), ...extra });
 const ocorr = [
@@ -27,6 +28,7 @@ const ocorr = [
   oc(5, tarefas[1], hoje, { status: 'cumprida', concluida_em: new Date().toISOString(), foto_path: `${FAM}/${E}/foto.jpg` }),
   oc(6, tarefas[0], dia(1)), oc(7, tarefas[0], dia(2)),
   oc(8, tarefas[2], dia(-1), { status: 'cumprida', concluida_em: dia(-1) + 'T18:00:00Z', conferido: 'conferido' }),
+  oc(12, tarefas[3], hoje),
   oc(9, tarefas[2], hoje), oc(10, tarefas[2], dia(2)),
 ];
 const familias = [{ id: FAM, nome: 'Família Sakai', avatar: null, ativa: true, foto_max_horas: 2, criado_em: dia(-40) + 'T12:00:00Z' }];

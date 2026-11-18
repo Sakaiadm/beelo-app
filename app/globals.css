@@ -46,6 +46,19 @@ input, select, textarea { width: 100%; font-size: 15px; padding: 0 14px; height:
 textarea { padding: 10px 14px; height: auto; min-height: 70px; resize: vertical; }
 input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--azul); vertical-align: -4px; }
 .check { display: flex; align-items: center; gap: 10px; font-weight: 600; color: var(--texto); font-size: 14px; }
+/* Seletor liga/desliga: todo checkbox dentro de .check vira uma chave que corre da esquerda para a direita */
+.check input[type=checkbox] { appearance: none; -webkit-appearance: none; width: 46px; height: 28px; flex-shrink: 0; margin: 0; border-radius: 999px; background: var(--campo); position: relative; cursor: pointer; transition: background .2s; vertical-align: middle; }
+.check input[type=checkbox]::before { content: ''; position: absolute; top: 3px; left: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.3); transition: transform .2s; }
+.check input[type=checkbox]:checked { background: var(--azul); }
+.check input[type=checkbox]:checked::before { transform: translateX(18px); }
+.check input[type=checkbox]:focus-visible { outline: 3px solid color-mix(in srgb, var(--azul) 45%, transparent); outline-offset: 2px; }
+.check input[type=checkbox]:disabled { opacity: .5; cursor: not-allowed; }
+@media (prefers-reduced-motion: reduce) { .check input[type=checkbox], .check input[type=checkbox]::before { transition: none; } }
+.btn.icone { padding: 0; width: 44px; }
+.btn.peq.icone { width: 40px; }
+.avatares { display: grid; grid-template-columns: repeat(auto-fill, minmax(52px, 1fr)); gap: 8px; margin-top: 10px; }
+.avatares button { border: 2px solid transparent; background: transparent; border-radius: 50%; padding: 2px; cursor: pointer; }
+.avatares button[aria-pressed=true] { border-color: var(--azul); }
 .linha { display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 12px; }
 .btn { display: inline-flex; align-items: center; justify-content: center; gap: 8px; min-height: 44px; padding: 0 18px; border: 0; border-radius: 12px; font-size: 15px; font-weight: 700; background: #1a6fe0; color: #fff; cursor: pointer; text-decoration: none; }
 .btn:hover { filter: brightness(1.07); }

@@ -14,7 +14,7 @@ const AVISOS = [
 ];
 
 export default async function Perfil() {
-  const { supabase, eu, gestor, familia, superAdmin } = await exigirMembro();
+  const { supabase, eu, gestor, familia } = await exigirMembro();
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const n = { concluida: 'todas', justificativa: true, adiamento: true, tela: true, tarefa_filho: true, ...(eu.notif || {}) };
   return (
@@ -22,19 +22,11 @@ export default async function Perfil() {
       <div className="cab"><div><h1 className="titulo">Meu perfil</h1><p className="sub">{eu.nome} · {familia.nome}</p></div></div>
       <div className="card"><h2>Minha foto</h2>
         <Form acao={salvarPerfil} okTxt="Foto salva.">
-          <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} rotulo={eu.nome} cor={eu.cor} />
-          <p style={{ fontSize: 13, color: 'var(--cinza)' }}>Opcional. Aparece no topo do app e nas listas da família.</p>
+          <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} atualAvatar={eu.avatar} rotulo={eu.nome} cor={eu.cor} />
+          <p style={{ fontSize: 13, color: 'var(--cinza)' }}>Opcional. Escolha uma foto sua ou um avatar.</p>
           <button className="btn sec">Salvar</button>
         </Form>
       </div>
-      {gestor && (
-        <div className="card"><h2>Atalhos</h2>
-          <div className="acoes">
-            <a className="btn sec peq" href="/config">Cadastros</a><a className="btn sec peq" href="/relatorios">Relatórios</a>
-            <a className="btn sec peq" href="/tela">Tempo de tela</a>{superAdmin && <a className="btn sec peq" href="/admin">Administração</a>}
-          </div>
-        </div>
-      )}
       {gestor && (
         <div className="card"><h2>Avisos que eu quero receber</h2>
           <Form acao={salvarAvisos} okTxt="Preferências salvas.">

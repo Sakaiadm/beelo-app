@@ -13,8 +13,15 @@ async function comprimir(arquivo) {
   return await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.8));
 }
 
-// atualHoras: se informado, só aceita foto tirada nas últimas X horas (câmera ou galeria).
-export default function Foto({ nome = 'foto', familia, membro, obrigatoria, atualHoras }) {
+const dia = (d) => d.toLocaleDateString('en-CA', { timeZone: 'America/Sao_Paulo' });
+const horaBR = () => Number(new Date().toLocaleString('en-GB', { timeZone: 'America/Sao_Paulo', hour: '2-digit', hour12: false }));
+// Foto do dia: vale a de hoje (e, até 7h da manhã, a de ontem). Câmera ou galeria.
+function fotoDeHoje(d) {
+  if (d.getTime() > Date.now() + 15 * 60e3) return false;
+  const hoje = dia(new Date()), ontem = dia(new Date(Date.now() - 86400e3));
+  return dia(d) === hoje || (dia(d) === ontem && horaBR() < 7);
+}
+export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHoje }) {
   const cam = useRef(null), gal = useRef(null);
   const [estado, setEstado] = useState({ caminho: '', previa: '', msg: '', em: '' });
 
@@ -23,13 +30,10 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, atua
     e.target.value = '';
     if (!arq) return;
     const { data } = await dataDaFoto(arq);
-    if (atualHoras) {
-      const idade = (Date.now() - data.getTime()) / 3600e3;
-      if (idade > atualHoras || idade < -0.25) {
-        const quando = data.toLocaleString('pt-BR', { day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' });
-        setEstado({ caminho: '', previa: '', em: '', msg: `Essa foto é de ${quando}. Tire uma foto agora para comprovar a tarefa.` });
-        return;
-      }
+    if (soHoje && !fotoDeHoje(data)) {
+      const quando = data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
+      setEstado({ caminho: '', previa: '', em: '', msg: `Essa foto é de ${quando}. Use uma foto de hoje.` });
+      return;
     }
     setEstado({ caminho: '', previa: '', em: '', msg: 'Enviando foto…' });
     try {
@@ -50,11 +54,11 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, atua
       <input ref={cam} type="file" accept="image/*" capture="environment" hidden onChange={escolher} />
       <input ref={gal} type="file" accept="image/*" hidden onChange={escolher} />
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
-        <button type="button" className="btn sec peq" onClick={() => cam.current.click()}><Icone nome="camera" tam={18} />Câmera</button>
-        <button type="button" className="btn sec peq" onClick={() => gal.current.click()}><Icone nome="galeria" tam={18} />Galeria</button>
+        <button type="button" className="btn sec peq icone" aria-label="Tirar foto" title="Tirar foto" onClick={() => cam.current.click()}><Icone nome="camera" tam={20} /></button>
+        <button type="button" className="btn sec peq icone" aria-label="Escolher da galeria" title="Escolher da galeria" onClick={() => gal.current.click()}><Icone nome="galeria" tam={20} /></button>
         {estado.previa && <img src={estado.previa} alt="Prévia da foto" className="foto-mini" />}
         <span style={{ fontSize: 13, color: estado.msg.startsWith('Essa foto') ? 'var(--erro)' : 'var(--cinza)' }}>
-          {estado.msg || (obrigatoria ? 'Foto obrigatória' : 'Foto opcional') + (atualHoras ? ` · tirada agora (até ${atualHoras} h)` : '')}
+          {estado.msg || (obrigatoria ? 'Foto obrigatória' : 'Foto opcional') + (soHoje ? ' · de hoje' : '')}
         </span>
       </div>
     </div>

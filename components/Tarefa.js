@@ -12,7 +12,7 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, fotoHoras = 2 }) {
+export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, justObrig = false }) {
   const [aba, setAba] = useState(null);
   const cat = oc.tarefa?.categoria;
   const [fundo, letra] = CORES_CAT[cat?.cor] || CORES_CAT.cinza;
@@ -31,7 +31,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
             <button className="circulo" aria-label={`Concluir ${oc.tarefa?.titulo}`} title="Marcar como feita"><Icone nome={ic} cor={cor} tam={26} /></button>
           </Form>
         ) : podeConcluir ? (
-          <button className="circulo" onClick={() => alternar('concluir')} aria-label={`Concluir ${oc.tarefa?.titulo} com foto`}><Icone nome={ic} cor={cor} tam={26} /></button>
+          <button className="circulo" onClick={() => alternar('concluir')} aria-label={`Concluir ${oc.tarefa?.titulo} com foto`} title="Esta tarefa pede foto"><Icone nome={ic} cor={cor} tam={26} /></button>
         ) : (
           <span className="circulo"><Icone nome={ic} cor={cor} tam={26} rotulo={STATUS_TXT[st]} /></span>
         )}
@@ -48,6 +48,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
             {oc.conferido === 'conferido' ? ' · conferido' : ''}
             {oc.foto_tirada_em ? ` · foto tirada ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}
           </div>
+          {justObrig && atrasada && !oc.justificativa && dono && <div className="meta" style={{ color: 'var(--erro)', fontWeight: 600 }}>Os pais pedem uma justificativa.</div>}
           {oc.justificativa && <div className="meta">Justificativa: “{oc.justificativa}”{oc.justificativa_status === 'aceita' ? ' (aceita)' : oc.justificativa_status === 'recusada' ? ' (recusada)' : ''}</div>}
         </div>
         {fotoUrl && <a href={fotoUrl} target="_blank" rel="noreferrer"><img src={fotoUrl} alt={`Foto de ${oc.tarefa?.titulo}`} className="foto-mini" style={{ width: 48, height: 48 }} /></a>}
@@ -56,11 +57,9 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
 
       {dono && (
         <div className="acoes" style={{ marginTop: 8 }}>
-          {podeConcluir && oc.tarefa?.exige_foto && <button className="btn peq" onClick={() => alternar('concluir')}>Concluir com foto</button>}
-          {podeConcluir && !oc.tarefa?.exige_foto && <button className="btn sec peq" onClick={() => alternar('concluir')}>Concluir com foto</button>}
           {atrasada && <button className="btn sec peq" onClick={() => alternar('justificar')}>Justificar</button>}
-          {st === 'pendente' || st === 'atrasada' ? <button className="btn sec peq" onClick={() => alternar('adiar')}>Pedir adiamento</button> : null}
-          {!feita && !oc.horario_travado && <button className="btn sec peq" onClick={() => alternar('horario')}>{oc.hora_inicio ? 'Mudar horário' : 'Pôr horário'}</button>}
+          {st === 'pendente' || st === 'atrasada' ? <button className="btn sec peq" onClick={() => alternar('adiar')}>Adiar</button> : null}
+          {!feita && !oc.horario_travado && <button className="btn sec peq" onClick={() => alternar('horario')}>Horário</button>}
           {feita && !oc.conferido && (
             <Form acao={desfazer}><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Desfazer</button></Form>
           )}
@@ -78,8 +77,8 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
         <div className="painel-acao">
           <Form acao={concluir}>
             <input type="hidden" name="oc" value={oc.id} />
-            <Foto familia={familia} membro={oc.membro_id} obrigatoria={oc.tarefa?.exige_foto} atualHoras={fotoHoras} />
-            <button className="btn" style={{ marginTop: 10 }}>Marcar como feita</button>
+            <Foto familia={familia} membro={oc.membro_id} obrigatoria={oc.tarefa?.exige_foto} soHoje />
+            <button className="btn icone" style={{ marginTop: 10, width: 56 }} aria-label="Concluir" title="Concluir"><Icone nome="check" tam={24} cor="#fff" /></button>
           </Form>
         </div>
       )}
@@ -103,7 +102,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
             </div>
             <label htmlFor={`m-${oc.id}`}>Motivo</label>
             <textarea id={`m-${oc.id}`} name="motivo" required minLength={3} maxLength={500} />
-            <button className="btn" style={{ marginTop: 10 }}>Pedir adiamento</button>
+            <button className="btn" style={{ marginTop: 10 }}>Adiar</button>
           </Form>
         </div>
       )}

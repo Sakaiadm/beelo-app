@@ -24,7 +24,7 @@ export default async function Admin() {
           const pct = f.oc_30d ? Math.round((100 * f.cumpridas_30d) / f.oc_30d) : null;
           return (
             <div key={f.id} className="tarefa" style={{ display: 'flex', gap: 12, alignItems: 'center', flexWrap: 'wrap', opacity: f.ativa ? 1 : 0.6 }}>
-              <Avatar nome={f.nome} url={urls[f.avatar]} tam={44} quadrado />
+              <Avatar nome={f.nome} url={urls[f.avatar]} avatar={f.avatar} tam={44} quadrado />
               <div style={{ flex: 1, minWidth: 200 }}>
                 <div style={{ fontWeight: 700 }}>{f.nome}{f.id === minha.id && <span className="pilula" style={{ marginLeft: 8, fontSize: 12 }}>sua</span>}{!f.ativa && <span className="pilula" style={{ marginLeft: 8, fontSize: 12 }}>desativada</span>}</div>
                 <div style={{ fontSize: 13, color: 'var(--cinza)' }}>{f.gestores || 'sem gestor'}</div>

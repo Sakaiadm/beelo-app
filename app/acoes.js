@@ -107,7 +107,8 @@ export async function salvarMembro(_, fd) {
   const id = uuid(fd.get('id'));
   if (id && fd.has('avatar')) {
     const a = String(fd.get('avatar') || '');
-    if (a && !a.startsWith(`${eu.familia_id}/${id}/avatar-`)) return { erro: 'Imagem inválida' };
+    if (a && !a.startsWith('preset:') && !a.startsWith(`${eu.familia_id}/${id}/avatar-`)) return { erro: 'Imagem inválida' };
+    if (a && !caminhoAvatar(a)) return { erro: 'Imagem inválida' };
     reg.avatar = a || null;
   }
   if (id === eu.id && (!reg.ativo || reg.papel !== 'gestor')) return { erro: 'Você não pode tirar o seu próprio acesso de pai/mãe' };
@@ -207,7 +208,7 @@ export async function marcarLidas() {
 
 
 // ===== Cadastros =====
-const caminhoAvatar = (v) => (/^[0-9a-f-]{36}\/[0-9a-z-]{6,36}\/avatar-\d+\.jpg$/.test(String(v || '')) ? String(v) : null);
+const caminhoAvatar = (v) => (/^([0-9a-f-]{36}\/[0-9a-z-]{6,36}\/avatar-\d+\.jpg|preset:[md]\d{1,2})$/.test(String(v || '')) ? String(v) : null);
 
 export async function salvarFamilia(_, fd) {
   const supabase = await supabaseServer();
@@ -215,11 +216,10 @@ export async function salvarFamilia(_, fd) {
   if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
   const reg = { nome: txt(fd, 'nome', 60) };
   if (!reg.nome) return { erro: 'Informe o nome da família' };
-  const h = Number(fd.get('foto_max_horas'));
-  if (Number.isInteger(h) && h >= 1 && h <= 48) reg.foto_max_horas = h;
+  reg.justificativa_obrigatoria = fd.get('justificativa_obrigatoria') === '1';
   if (fd.has('avatar')) {
     const a = String(fd.get('avatar') || '');
-    if (a && !(caminhoAvatar(a) && a.startsWith(`${eu.familia_id}/familia/`))) return { erro: 'Imagem inválida' };
+    if (a && !(caminhoAvatar(a) && (a.startsWith('preset:') || a.startsWith(`${eu.familia_id}/familia/`)))) return { erro: 'Imagem inválida' };
     reg.avatar = a || null;
   }
   const { error } = await supabase.from('ra_familias').update(reg).eq('id', eu.familia_id);

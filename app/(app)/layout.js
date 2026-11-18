@@ -22,11 +22,12 @@ export default async function AppLayout({ children }) {
           <Menu itens={itens} />
           <div className="quem">
             <Tema />
+            {gestor && <a className="icone-btn" href="/config" aria-label="Cadastros" title="Cadastros"><Icone nome="config" cor="#fff" /></a>}
             <a className="icone-btn" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
               <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
             </a>
             <a href="/perfil" title="Meu perfil" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none' }}>
-              <Avatar nome={eu.nome} cor={eu.cor} url={urls[eu.avatar]} /><span className="nome">{eu.nome}</span>
+              <Avatar nome={eu.nome} cor={eu.cor} url={urls[eu.avatar]} avatar={eu.avatar} /><span className="nome">{eu.nome}</span>
             </a>
             <form action="/auth/sair" method="post"><button className="icone-btn" aria-label="Sair" title="Sair"><Icone nome="sair" cor="#fff" tam={20} /></button></form>
           </div>

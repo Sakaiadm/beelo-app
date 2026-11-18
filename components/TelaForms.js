@@ -75,7 +75,7 @@ export function RealForm({ eu, data, previsto, atual, membroId, familia }) {
       <div style={{ marginTop: 8 }}><Foto nome={formato === 'total' ? 'foto_celular' : 'foto_computador'} familia={familia} membro={eu} /></div>
       <label htmlFor="obs">Observação (opcional)</label>
       <input id="obs" name="obs" maxLength={300} defaultValue={atual?.obs || ''} placeholder="ex.: trabalho da faculdade no computador" />
-      <button className="btn bloco" style={{ marginTop: 14 }}>Salvar realizado</button>
+      <button className="btn bloco" style={{ marginTop: 14 }}>Salvar</button>
     </Form>
   );
 }

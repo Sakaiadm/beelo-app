@@ -8,7 +8,7 @@ export default async function Nova() {
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
   return (
     <main className="estreito">
-      <div className="cab"><h1 className="titulo">{gestor ? 'Nova tarefa' : 'Minha nova tarefa'}</h1></div>
+      <div className="cab"><h1 className="titulo">Nova tarefa</h1></div>
       <TarefaForm filhos={filhos} categorias={categorias || []} gestor={gestor} hoje={hojeISO()} />
     </main>
   );

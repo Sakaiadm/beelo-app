@@ -14,7 +14,7 @@ function MembroForm({ m, familia, url }) {
   return (
     <Form acao={salvarMembro} okTxt="Salvo." className="tarefa" limpar={!m}>
       {m && <input type="hidden" name="id" value={m.id} />}
-      {m && <div style={{ marginBottom: 10 }}><AvatarUpload familia={familia} pasta={m.id} atualUrl={url} rotulo={m.nome} cor={m.cor} /></div>}
+      {m && <div style={{ marginBottom: 10 }}><AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={m.nome} cor={m.cor} /></div>}
       <div className="linha">
         <div><label htmlFor={`n-${k}`}>Nome</label><input id={`n-${k}`} name="nome" defaultValue={m?.nome} required maxLength={60} /></div>
         <div><label htmlFor={`e-${k}`}>E-mail Google</label><input id={`e-${k}`} type="email" name="email" defaultValue={m?.email || ''} placeholder="nome@gmail.com" /></div>
@@ -62,13 +62,13 @@ export default async function Config({ searchParams }) {
 
       <div className="card"><h2>Família</h2>
         <Form acao={salvarFamilia} okTxt="Família salva.">
-          <div style={{ marginBottom: 10 }}><AvatarUpload familia={familia.id} pasta="familia" atualUrl={urls[familia.avatar]} rotulo={familia.nome} cor="#1a6fe0" quadrado /></div>
+          <div style={{ marginBottom: 10 }}><AvatarUpload familia={familia.id} pasta="familia" atualUrl={urls[familia.avatar]} atualAvatar={familia.avatar} rotulo={familia.nome} cor="#1a6fe0" quadrado /></div>
           <div className="linha">
             <div><label htmlFor="fn">Nome da família ou grupo</label><input id="fn" name="nome" defaultValue={familia.nome} maxLength={60} required /></div>
-            <div><label htmlFor="fh">Foto vale por quantas horas</label><input id="fh" type="number" name="foto_max_horas" min={1} max={48} defaultValue={familia.foto_max_horas || 2} /></div>
           </div>
-          <p style={{ fontSize: 13, color: 'var(--cinza)' }}>A foto de comprovação precisa ter sido tirada dentro desse prazo. Fotos antigas da galeria são recusadas.</p>
-          <button className="btn sec">Salvar família</button>
+          <label className="check" style={{ marginTop: 14 }}><input type="checkbox" name="justificativa_obrigatoria" value="1" defaultChecked={familia.justificativa_obrigatoria} />Justificativa obrigatória</label>
+          <p style={{ fontSize: 13, color: 'var(--cinza)' }}>Desligado (padrão): justificar é opcional. Ligado: o filho vê o aviso “os pais pedem uma justificativa” nas tarefas atrasadas. A foto de comprovação precisa ser de hoje.</p>
+          <button className="btn sec">Salvar</button>
         </Form>
       </div>
 

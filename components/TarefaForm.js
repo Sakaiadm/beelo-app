@@ -68,6 +68,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
         </p>
       )}
       <label className="check" style={{ marginTop: 14 }}><input type="checkbox" name="exige_foto" value="1" defaultChecked={t?.exige_foto} />Exige foto para concluir</label>
+      <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '2px 0 0' }}>Marcado: só conclui enviando uma foto tirada na hora. Desmarcado: conclui com um toque, sem foto.</p>
       <label htmlFor="descricao">Detalhes (opcional)</label>
       <textarea id="descricao" name="descricao" maxLength={1000} defaultValue={t?.descricao || ''} />
       <button className="btn bloco" style={{ marginTop: 16 }}>Salvar tarefa</button>
