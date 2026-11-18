@@ -32,6 +32,11 @@ server {
   listen 80;
   server_name $DOMINIO;
   client_max_body_size 6m;
+  # O login (Google/Supabase) devolve cookies grandes; sem isso o nginx dá 502 Bad Gateway.
+  proxy_buffer_size 128k;
+  proxy_buffers 4 256k;
+  proxy_busy_buffers_size 256k;
+  large_client_header_buffers 4 32k;
   location / {
     proxy_pass http://127.0.0.1:$PORTA;
     proxy_set_header Host \$host;
@@ -43,6 +48,6 @@ NGX
   ln -sf /etc/nginx/sites-available/rotina-ativa /etc/nginx/sites-enabled/rotina-ativa
   nginx -t && systemctl reload nginx
   command -v certbot >/dev/null || apt-get install -y certbot python3-certbot-nginx
-  certbot --nginx -d "$DOMINIO" --non-interactive --agree-tos --register-unsafely-without-email --redirect || echo "Certificado HTTPS não emitido; rode: certbot --nginx -d $DOMINIO"
+  certbot --nginx -d "$DOMINIO" --non-interactive --agree-tos --register-unsafely-without-email --redirect --reinstall || echo "Certificado HTTPS não emitido; rode: certbot --nginx -d $DOMINIO"
 fi
 echo "Pronto: https://$DOMINIO"
