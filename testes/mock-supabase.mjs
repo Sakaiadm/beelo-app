@@ -59,7 +59,8 @@ http.createServer((req, res) => {
     const u = new URL(req.url, 'http://x');
     const tok = (req.headers.authorization || '').replace('Bearer ', '');
     const usr = usuarios[tok];
-    log.push(`${req.method} ${u.pathname}${u.search}`);
+    if (u.pathname === '/__log') { res.end(JSON.stringify(log.splice(0))); return; }
+    log.push(`${req.method} ${u.pathname} ${body.slice(0, 300)}`);
     const send = (code, obj, headers = {}) => { res.writeHead(code, { 'content-type': 'application/json', ...headers }); res.end(obj === undefined ? '' : JSON.stringify(obj)); };
     if (u.pathname === '/auth/v1/user') return usr ? send(200, { id: usr.id, email: usr.email, aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} }) : send(401, { message: 'invalid' });
     if (u.pathname === '/auth/v1/logout') return send(204);

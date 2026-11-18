@@ -25,11 +25,13 @@ for (const [tok, rotas] of Object.entries(casos)) {
     erros.length = 0;
     let st, final, txt = '';
     try {
-      const resp = await page.goto(BASE + r, { waitUntil: 'networkidle' });
-      st = resp.status(); final = new URL(page.url()).pathname;
+      const resp = r.includes('csv') ? await page.request.get(BASE + r) : await page.goto(BASE + r, { waitUntil: 'networkidle' });
+      st = resp.status(); final = r.includes('csv') ? r.split('?')[0] : new URL(page.url()).pathname;
       txt = r.includes('csv') ? (await resp.text()).slice(0, 60).replace(/\n/g, ' | ') : (await page.locator('h1').first().textContent({ timeout: 2000 }).catch(() => ''));
     } catch (e) { st = 'ERRO'; erros.push(e.message); }
-    const ruim = st >= 400 || st === 'ERRO' || erros.length || /Application error|Internal Server Error/.test(txt);
+    const esperado404 = tok === 'tok-filho' && r.startsWith('/tarefas/0') && st === 404;
+    if (esperado404) txt = 'bloqueado: filho não edita tarefa dos pais (esperado)';
+    const ruim = !esperado404 && st >= 400 || st === 'ERRO' || erros.length || /Application error|Internal Server Error/.test(txt);
     if (ruim) falhas++;
     linhas.push(`${ruim ? 'FALHA' : 'OK   '} [${tok.replace('tok-', '') || 'sem login'}] ${r} -> ${st} ${final !== r.split('?')[0] ? '(foi para ' + final + ') ' : ''}"${(txt || '').trim().slice(0, 50)}" ${erros.join(' ; ')}`);
   }
