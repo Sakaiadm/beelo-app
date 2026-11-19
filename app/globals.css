@@ -279,3 +279,10 @@ a.cartao-l:hover { border-color: var(--azul); }
 .btn.bloco[disabled] { opacity: .5; cursor: default; }
 .cam-badge { position: absolute; right: -6px; bottom: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--cartao); border: 1px solid var(--campo); color: var(--azul); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
 .link-btn { background: none; border: 0; color: var(--azul); font-weight: 700; font-size: 14px; cursor: pointer; padding: 6px; }
+
+/* Faixa de carregamento no alto ao trocar de tela */
+.progresso { position: fixed; top: 0; left: 0; height: 3px; width: 0; z-index: 9999; background: #7fb2ff; box-shadow: 0 0 6px #7fb2ff; opacity: 0; pointer-events: none; transition: opacity .2s; }
+.progresso.on { opacity: 1; animation: progresso 8s cubic-bezier(.1,.7,.3,1) forwards; }
+@keyframes progresso { 0% { width: 0; } 10% { width: 35%; } 100% { width: 92%; } }
+body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
+@media (prefers-reduced-motion: reduce) { .progresso.on { animation: none; width: 100%; } }

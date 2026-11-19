@@ -6,6 +6,8 @@ import Menu from '@/components/Menu';
 import Avatar from '@/components/Avatar';
 import Selo from '@/components/Selo';
 import { urlsAvatares } from '@/lib/avatar';
+import { Suspense } from 'react';
+import Progresso from '@/components/Progresso';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia } = await exigirMembro();
@@ -17,6 +19,7 @@ export default async function AppLayout({ children }) {
        ...(eu.tela_ativo ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: 'Evolução', icone: 'grafico' }];
   return (
     <>
+      <Suspense fallback={null}><Progresso /></Suspense>
       <header className="topo">
         <div className="topo-in">
           <Link className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</Link>
