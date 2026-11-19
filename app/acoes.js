@@ -51,6 +51,9 @@ export async function conferir(_, fd) {
   return rpc('ra_conferir', { p_oc: uuid(fd.get('oc')), p_valor: v });
 }
 
+// Depois de salvar ou excluir, volta para o dia que estava aberto na Agenda.
+const voltarAgenda = (fd) => (/^\d{4}-\d{2}-\d{2}$/.test(fd.get('voltar') || '') ? `/agenda?v=dia&d=${fd.get('voltar')}` : '/agenda?v=dia');
+
 export async function salvarTarefa(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
@@ -89,17 +92,17 @@ export async function salvarTarefa(_, fd) {
   // Gera já as ocorrências dos próximos dias, para a tarefa aparecer na hora na Agenda.
   await supabase.rpc('ra_gerar_ocorrencias', { p_de: addDias(hojeISO(), -7), p_ate: addDias(hojeISO(), 54) });
   revalidar();
-  redirect('/tarefas?ok=1');
+  redirect(voltarAgenda(fd));
 }
 
-export async function excluirTarefa(fd) {
+export async function excluirTarefa(_, fd) {
   const supabase = await supabaseServer();
   const id = uuid(fd.get('id'));
   // Mantém histórico: desativa a tarefa e cancela ocorrências futuras pendentes.
   await supabase.from('ra_tarefas').update({ ativa: false }).eq('id', id);
   await supabase.from('ra_ocorrencias').update({ status: 'cancelada' }).eq('tarefa_id', id).eq('status', 'pendente').gte('data', hojeISO());
   revalidar();
-  redirect('/tarefas');
+  redirect(voltarAgenda(fd));
 }
 
 export async function salvarPessoa(_, fd) {

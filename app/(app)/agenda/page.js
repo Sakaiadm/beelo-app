@@ -52,7 +52,6 @@ export default async function Agenda({ searchParams }) {
       )}
       <div className="dois">
         <Link prefetch={false} className="bt az" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={16} cor="#fff" />Adicionar tarefa</Link>
-        <Link prefetch={false} className="bt" href="/tarefas">Ver todas as tarefas</Link>
       </div>
       {gestor && (
         <div className="seg" aria-label="Pessoa">
@@ -64,7 +63,7 @@ export default async function Agenda({ searchParams }) {
       {v === 'mes' && (
         <div className="card" style={{ maxWidth: 560 }}>
           <Calendario mes={d} porDia={porDia} hoje={hoje} sel={d}
-            link={(x, dia) => (dia ? `/tarefas?d=${x}${filtroM && gestor ? `&m=${filtroM}` : ''}` : qs({ d: x }))} />
+            link={(x, dia) => (dia ? `/agenda?v=dia&d=${x}${filtroM && gestor ? `&m=${filtroM}` : ''}` : qs({ d: x }))} />
         </div>
       )}
 
@@ -74,15 +73,15 @@ export default async function Agenda({ searchParams }) {
             const dia = addDias(de, i);
             const itens = lista.filter((x) => x.o.data === dia && x.st !== 'adiada');
             return (
-              <div className="dia" key={dia} style={dia === hoje ? { outline: '2px solid var(--azul)' } : undefined}>
-                <h3><Link prefetch={false} href={`/tarefas?d=${dia}${filtroM && gestor ? `&m=${filtroM}` : ''}`} style={{ color: 'var(--texto)', textDecoration: 'none' }}>{DIAS[diaSemana(dia)].slice(0, 3)} {dia.slice(8)}</Link></h3>
+              <Link prefetch={false} className="dia" key={dia} href={`/agenda?v=dia&d=${dia}${filtroM && gestor ? `&m=${filtroM}` : ''}`} style={{ display: 'block', color: 'var(--texto)', textDecoration: 'none', ...(dia === hoje ? { outline: '2px solid var(--azul)' } : {}) }}>
+                <h3>{DIAS[diaSemana(dia)].slice(0, 3)} {dia.slice(8)}</h3>
                 {itens.length === 0 && <div style={{ fontSize: 12, color: 'var(--cinza)' }}>Livre</div>}
                 {itens.map(({ o, st }) => (
                   <div key={o.id} className={`mini ${st.startsWith('cumprida') ? 'ok' : st === 'atrasada' || st === 'nao_cumprida' ? 'atr' : ''}`}>
                     <strong>{o.hora_inicio ? hhmm(o.hora_inicio) : '—'}</strong> {o.tarefa?.titulo}{!filtroM && gestor ? ` · ${nome[o.membro_id]}` : ''}
                   </div>
                 ))}
-              </div>
+              </Link>
             );
           })}
         </div></div>
@@ -93,7 +92,7 @@ export default async function Agenda({ searchParams }) {
           {lista.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
           {lista.map((x) => (
             <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={!gestor && x.o.membro_id === eu.id} gestor={gestor} familia={eu.familia_id}
-              fotoUrl={fotos[x.o.foto_path]} nomeMembro={gestor && !filtroM ? nome[x.o.membro_id] : null} hoje={hoje} />
+              editarHref={gestor || (x.o.tarefa?.criada_por === eu.id && x.o.membro_id === eu.id) ? `/tarefas/${x.o.tarefa_id}/editar?d=${d}` : null} fotoUrl={fotos[x.o.foto_path]} nomeMembro={gestor && !filtroM ? nome[x.o.membro_id] : null} hoje={hoje} />
           ))}
         </div>
       )}

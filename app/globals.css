@@ -286,3 +286,4 @@ a.cartao-l:hover { border-color: var(--azul); }
 @keyframes progresso { 0% { width: 0; } 10% { width: 35%; } 100% { width: 92%; } }
 body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 @media (prefers-reduced-motion: reduce) { .progresso.on { animation: none; width: 100%; } }
+.tarefa .topo-t .lapis { flex: none; }

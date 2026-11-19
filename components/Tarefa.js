@@ -1,5 +1,6 @@
 'use client';
 import { useState } from 'react';
+import Link from 'next/link';
 import Icone from './Icone';
 import Form from './Form';
 import Foto from './Foto';
@@ -12,7 +13,7 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje }) {
+export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, editarHref }) {
   const [aba, setAba] = useState(null);
   const cat = oc.tarefa?.categoria;
   const [fundo, letra] = CORES_CAT[cat?.cor] || CORES_CAT.cinza;
@@ -53,6 +54,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
         </div>
         {fotoUrl && <a href={fotoUrl} target="_blank" rel="noreferrer"><img src={fotoUrl} alt={`Foto de ${oc.tarefa?.titulo}`} className="foto-mini" style={{ width: 48, height: 48 }} /></a>}
         {cat && <span className="pilula" style={{ background: fundo, color: letra }}>{cat.nome}</span>}
+        {editarHref && <Link prefetch={false} className="btn sec peq icone lapis" href={editarHref} aria-label={`Editar ${oc.tarefa?.titulo}`} title="Editar"><Icone nome="lapis" tam={18} /></Link>}
       </div>
 
       {dono && (

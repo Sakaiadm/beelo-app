@@ -5,7 +5,7 @@ const sess = (tok) => 'base64-' + Buffer.from(JSON.stringify({ access_token: tok
 const E = '00000000-0000-0000-0000-000000000003';
 const T = '00000000-0000-0000-0000-000000000030';
 const casos = {
-  'tok-pai': ['/', '/painel', '/hoje', '/tarefas', '/tarefas?ok=1', '/tarefas/nova', `/tarefas/${T}`, `/tarefas/${T}/editar`, '/agenda', '/agenda?v=dia', '/agenda?v=semana', '/agenda?v=mes', `/agenda?v=semana&m=${E}`,
+  'tok-pai': ['/', '/painel', '/hoje', '/tarefas', '/tarefas?d=2026-11-19', '/tarefas/nova', `/tarefas/${T}`, `/tarefas/${T}/editar`, '/agenda', '/agenda?v=dia', '/agenda?v=semana', '/agenda?v=mes', `/agenda?v=semana&m=${E}`,
     '/notificacoes', '/tela', `/tela?m=${E}`, '/relatorios', '/relatorios?per=hoje', '/relatorios?per=semana', '/relatorios?per=30d', '/relatorios?per=livre&de=2026-10-01&ate=2026-11-30',
     `/relatorios?m=${E}&st=atrasada`, '/relatorios?st=cumprida&hor=com&origem=pais', '/relatorios?cat=00000000-0000-0000-0000-000000000020', '/config', '/config?nova=1', '/config/pessoas', '/config/pessoas/nova', `/config/pessoas/${E}`, '/config/categorias', '/config/ajustes', '/config/familias', '/config/familias/nova', '/config/familias/11111111-1111-1111-1111-111111111111', '/config/familias/00000000-0000-0000-0000-000000000700', '/perfil', '/admin', '/privacidade'],
   'tok-filho': ['/', '/hoje', '/tarefas', '/tarefas/nova', '/agenda', '/agenda?v=dia', '/agenda?v=mes', '/notificacoes', '/tela', '/relatorios', '/painel', '/config', '/config/pessoas', '/config/familias', '/perfil', '/admin', `/tarefas/${T}`, `/tarefas/${T}/editar`],

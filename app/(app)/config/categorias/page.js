@@ -1,6 +1,7 @@
 import { exigirGestor } from '@/lib/sessao';
 import Form from '@/components/Form';
 import Voltar from '@/components/Voltar';
+import ConfirmarBotao from '@/components/ConfirmarBotao';
 import { salvarCategoria, editarCategoria, excluirCategoria } from '@/app/acoes';
 import { CORES_CAT, NOMES_CORES } from '@/lib/util';
 
@@ -21,7 +22,7 @@ function CategoriaForm({ c }) {
           <button className="btn sec peq">Salvar</button>
         </div>
       </Form>
-      <form action={excluirCategoria}><input type="hidden" name="id" value={c.id} /><button className="btn sec peq" title="As tarefas desta categoria ficam sem categoria">Excluir</button></form>
+      <ConfirmarBotao acao={excluirCategoria} campos={{ id: c.id }} rotulo="Excluir" titulo="As tarefas desta categoria ficam sem categoria" pergunta="Tem certeza? As tarefas ficam sem categoria." sim="Sim, excluir" />
     </div>
   );
 }

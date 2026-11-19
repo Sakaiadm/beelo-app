@@ -2,10 +2,12 @@ import { notFound } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { hojeISO } from '@/lib/util';
 import TarefaForm from '@/components/TarefaForm';
-import { excluirTarefa } from '@/app/acoes';
+import ExcluirTarefa from '@/components/ExcluirTarefa';
 
-export default async function Editar({ params }) {
+export default async function Editar({ params, searchParams }) {
   const { id } = await params;
+  const sp = await searchParams;
+  const voltar = /^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : '';
   const { supabase, membros, gestor, eu } = await exigirMembro();
   const { data: t } = await supabase.from('ra_tarefas').select('*').eq('id', id).maybeSingle();
   if (!t) notFound();
@@ -16,12 +18,8 @@ export default async function Editar({ params }) {
   return (
     <main className="estreito">
       <div className="cab"><h1 className="titulo">Editar tarefa</h1></div>
-      <TarefaForm t={t} filhos={filhos} categorias={categorias || []} gestor={gestor} hoje={hojeISO()} />
-      <form action={excluirTarefa} className="card">
-        <input type="hidden" name="id" value={t.id} />
-        <p style={{ margin: '0 0 10px', fontSize: 14, color: 'var(--cinza)' }}>Excluir para de gerar a tarefa daqui para frente. O histórico já feito continua nos relatórios.</p>
-        <button className="btn perigo">Excluir tarefa</button>
-      </form>
+      <TarefaForm t={t} filhos={filhos} categorias={categorias || []} gestor={gestor} hoje={hojeISO()} voltar={voltar} />
+      <ExcluirTarefa id={t.id} voltar={voltar} />
     </main>
   );
 }

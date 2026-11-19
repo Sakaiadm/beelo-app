@@ -1,3 +1,4 @@
+import ConfirmarBotao from '@/components/ConfirmarBotao';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { exigirGestor } from '@/lib/sessao';
@@ -34,8 +35,9 @@ export default async function Familias() {
               </span>
             </Link>
             {f.id !== minha.id && (
-              <form action={adminAtivarFamilia}><input type="hidden" name="id" value={f.id} /><input type="hidden" name="ativa" value={f.ativa ? '0' : '1'} />
-                <button className="btn sec peq">{f.ativa ? 'Desativar' : 'Reativar'}</button></form>
+              f.ativa
+                ? <ConfirmarBotao acao={adminAtivarFamilia} campos={{ id: f.id, ativa: '0' }} rotulo="Desativar" pergunta="Tem certeza? A família perde o acesso." sim="Sim, desativar" />
+                : <form action={adminAtivarFamilia}><input type="hidden" name="id" value={f.id} /><input type="hidden" name="ativa" value="1" /><button className="btn sec peq">Reativar</button></form>
             )}
           </div>
         );

@@ -30,7 +30,7 @@ function opcaoInicial(t) {
   return d === SEG_SEX.join() ? 'semana' : 'pers';
 }
 
-export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
+export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar }) {
   const [opcao, setOpcao] = useState(opcaoInicial(t));
   const [dias, setDias] = useState(t?.recorrencia === 'dias_semana' && t.dias_semana?.length ? [...t.dias_semana] : SEG_SEX);
   const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
@@ -63,6 +63,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
   return (
     <Form acao={salvarTarefa} className="card">
       {t?.id && <input type="hidden" name="id" value={t.id} />}
+      {voltar && <input type="hidden" name="voltar" value={voltar} />}
       <input type="hidden" name="tipo" value={uma ? 'pontual' : 'recorrente'} />
       <input type="hidden" name="recorrencia" value={opcao === 'semana' || opcao === 'pers' ? 'dias_semana' : opcao === 'uma' ? '' : opcao} />
       {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
