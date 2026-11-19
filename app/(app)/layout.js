@@ -1,4 +1,5 @@
 import { exigirMembro } from '@/lib/sessao';
+import Link from 'next/link';
 import Icone from '@/components/Icone';
 import Tema from '@/components/Tema';
 import Menu from '@/components/Menu';
@@ -19,16 +20,17 @@ export default async function AppLayout({ children }) {
     <>
       <header className="topo">
         <div className="topo-in">
-          <a className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</a>
+          <Link className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</Link>
           <Menu itens={itens} />
           <div className="quem">
             <Tema />
-            <a className="icone-btn" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
+            <Link className="icone-btn" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
               <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
-            </a>
-            <a href="/perfil" title="Meu perfil" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none' }}>
+            </Link>
+            <Link className="icone-btn" href="/ajuda" aria-label="Ajuda" title="Ajuda" style={{ fontWeight: 800, fontSize: 18, color: '#fff', textDecoration: 'none' }}>?</Link>
+            <Link href="/perfil" title="Meu perfil" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none' }}>
               <Avatar nome={eu.nome} cor={eu.cor} url={urls[eu.avatar]} avatar={eu.avatar} /><span className="nome">{eu.nome}</span>
-            </a>
+            </Link>
             <form action="/auth/sair" method="post"><button className="icone-btn" aria-label="Sair" title="Sair"><Icone nome="sair" cor="#fff" tam={20} /></button></form>
           </div>
         </div>

@@ -153,3 +153,8 @@ tr.clicavel { position: relative; cursor: pointer; }
 tr.clicavel:hover { background: color-mix(in srgb, var(--azul) 6%, transparent); }
 tr.clicavel a.cobre::after { content: ''; position: absolute; inset: 0; }
 tr.clicavel .acao-linha { position: relative; z-index: 1; }
+
+/* Esqueleto de carregamento ao trocar de tela */
+.esqueleto { background: var(--campo); border-radius: 12px; margin-bottom: 12px; animation: pulsa 1.1s ease-in-out infinite; }
+@keyframes pulsa { 50% { opacity: .55; } }
+@media (prefers-reduced-motion: reduce) { .esqueleto { animation: none; } }
