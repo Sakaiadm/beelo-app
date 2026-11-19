@@ -35,30 +35,29 @@ export default async function Agenda({ searchParams }) {
   const passo = v === 'dia' ? 1 : v === 'semana' ? 7 : 31;
 
   return (
-    <main>
-      <div className="cab">
-        <div><h1 className="titulo">Agenda</h1><p className="sub">{dataExtensa(d)}</p></div>
-        <div className="acoes">
-          <div className="abas">
-            <Link prefetch={false} href={qs({ v: 'dia' })} className={v === 'dia' ? 'ativo' : ''}>Dia</Link>
-            <Link prefetch={false} href={qs({ v: 'semana' })} className={v === 'semana' ? 'ativo' : ''}>Semana</Link>
-            <Link prefetch={false} href={qs({ v: 'mes' })} className={v === 'mes' ? 'ativo' : ''}>Mês</Link>
-          </div>
-          {v !== 'mes' && <>
-            <Link prefetch={false} className="btn sec peq" href={qs({ d: addDias(d, -passo) })} aria-label="Anterior">‹</Link>
-            <Link prefetch={false} className="btn sec peq" href={qs({ d: hoje })}>Hoje</Link>
-            <Link prefetch={false} className="btn sec peq" href={qs({ d: addDias(d, passo) })} aria-label="Próximo">›</Link>
-          </>}
-        </div>
+    <main className="agenda-tela">
+      <div className="cab"><div><h1 className="titulo">Agenda</h1>{v === 'mes' && <p className="sub">{dataExtensa(d)}</p>}</div></div>
+      <div className="seg" role="tablist" aria-label="Visão">
+        <Link prefetch={false} href={qs({ v: 'dia' })} className={v === 'dia' ? 'on' : ''}>Dia</Link>
+        <Link prefetch={false} href={qs({ v: 'semana' })} className={v === 'semana' ? 'on' : ''}>Semana</Link>
+        <Link prefetch={false} href={qs({ v: 'mes' })} className={v === 'mes' ? 'on' : ''}>Mês</Link>
       </div>
-      <div className="acoes" style={{ marginBottom: 14 }}>
-        <Link prefetch={false} className="btn" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={18} cor="#fff" />Adicionar tarefa</Link>
-        <Link prefetch={false} className="btn sec" href="/tarefas">Ver todas as tarefas</Link>
+      {v !== 'mes' && (
+        <div className="nv">
+          <Link prefetch={false} className="b" href={qs({ d: addDias(d, -passo) })} aria-label="Anterior">‹</Link>
+          <Link prefetch={false} className="b" href={qs({ d: hoje })}>Hoje</Link>
+          <Link prefetch={false} className="b" href={qs({ d: addDias(d, passo) })} aria-label="Próximo">›</Link>
+          <span className="dt">{dataExtensa(d)}</span>
+        </div>
+      )}
+      <div className="dois">
+        <Link prefetch={false} className="bt az" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={16} cor="#fff" />Adicionar tarefa</Link>
+        <Link prefetch={false} className="bt" href="/tarefas">Ver todas as tarefas</Link>
       </div>
       {gestor && (
-        <div className="abas" style={{ marginBottom: 14 }}>
-          <Link prefetch={false} href={`/agenda?v=${v}&d=${d}`} className={!filtroM ? 'ativo' : ''}>Todos</Link>
-          {filhos.map((f) => <Link prefetch={false} key={f.id} href={`/agenda?v=${v}&d=${d}&m=${f.id}`} className={filtroM === f.id ? 'ativo' : ''}>{f.nome}</Link>)}
+        <div className="seg" aria-label="Pessoa">
+          <Link prefetch={false} href={`/agenda?v=${v}&d=${d}`} className={!filtroM ? 'on' : ''}>Todos</Link>
+          {filhos.map((f) => <Link prefetch={false} key={f.id} href={`/agenda?v=${v}&d=${d}&m=${f.id}`} className={filtroM === f.id ? 'on' : ''}>{f.nome}</Link>)}
         </div>
       )}
 

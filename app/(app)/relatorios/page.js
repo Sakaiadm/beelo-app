@@ -1,8 +1,9 @@
 import { exigirMembro } from '@/lib/sessao';
 import { lerFiltros, dadosRelatorio } from '@/lib/relatorio';
 import { telaResumo, totalReal } from '@/lib/tela';
-import { dataCurta, fmtMin, STATUS_TXT, CORES_CAT, inicioSemana, DIAS, hhmm } from '@/lib/util';
+import { dataComAno, dataCurta, fmtMin, STATUS_TXT, CORES_CAT, inicioSemana, DIAS, hhmm } from '@/lib/util';
 import Imprimir from '@/components/Imprimir';
+import FiltroPeriodo from '@/components/FiltroPeriodo';
 
 export const dynamic = 'force-dynamic';
 const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
@@ -53,16 +54,13 @@ export default async function Relatorios({ searchParams }) {
   return (
     <main>
       <div className="cab">
-        <div><h1 className="titulo">{gestor ? 'Relatórios' : 'Minha evolução'}</h1><p className="sub">{dataCurta(f.de)} a {dataCurta(f.ate)}{f.m ? ` · ${nome[f.m]}` : gestor ? ' · todos os filhos' : ''}</p></div>
+        <div><h1 className="titulo">{gestor ? 'Relatórios' : 'Minha evolução'}</h1></div>
         <div className="acoes nao-imprimir"><Imprimir /></div>
       </div>
 
       <form className="card filtros nao-imprimir" method="get">
-        <div><label htmlFor="per">Período</label><select id="per" name="per" defaultValue={f.per}>
-          <option value="hoje">Hoje</option><option value="semana">Esta semana</option><option value="mes">Este mês</option><option value="30d">Últimos 30 dias</option><option value="livre">Escolher datas</option></select></div>
-        <div><label htmlFor="de">De</label><input id="de" type="date" name="de" defaultValue={f.de} /></div>
-        <div><label htmlFor="ate">Até</label><input id="ate" type="date" name="ate" defaultValue={f.ate} /></div>
-        {gestor && <div><label htmlFor="m">Filho</label><select id="m" name="m" defaultValue={f.m}><option value="">Todos</option>{filhos.map((x) => <option key={x.id} value={x.id}>{x.nome}</option>)}</select></div>}
+        <FiltroPeriodo per={f.per} de={f.de} ate={f.ate} />
+        {gestor && <div><label htmlFor="m">Pessoa</label><select id="m" name="m" defaultValue={f.m}><option value="">Todas</option>{filhos.map((x) => <option key={x.id} value={x.id}>{x.nome}</option>)}</select></div>}
         <div><label htmlFor="cat">Categoria</label><select id="cat" name="cat" defaultValue={f.cat}><option value="">Todas</option>{(categorias || []).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select></div>
         <div><label htmlFor="st">Status</label><select id="st" name="st" defaultValue={f.st}><option value="">Todos</option>
           {['cumprida', 'cumprida_atraso', 'atrasada', 'nao_cumprida', 'justificada', 'adiada', 'pendente'].map((k) => <option key={k} value={k}>{STATUS_TXT[k]}</option>)}</select></div>
@@ -70,7 +68,7 @@ export default async function Relatorios({ searchParams }) {
         <div><label htmlFor="hor">Horário</label><select id="hor" name="hor" defaultValue={f.hor}><option value="">Com e sem</option><option value="com">Com horário</option><option value="sem">Sem horário</option></select></div>
         <div><button className="btn" style={{ width: '100%' }}>Filtrar</button></div>
       </form>
-      <p className="sub nao-imprimir" style={{ marginTop: -6, marginBottom: 14, fontSize: 13 }}>As datas “De” e “Até” valem quando o período é “Escolher datas”.</p>
+      <p className="leg-rel">Mostrando de <b>{dataComAno(f.de)}</b> a <b>{dataComAno(f.ate)}</b> · {f.m ? nome[f.m] : gestor ? 'todas as pessoas' : eu.nome}</p>
 
       <div className="kpis">
         <div className="kpi destaque"><small>Cumprimento</small><strong>{pct(feitas.length, validas.length)}<span style={{ fontSize: 16 }}>%</span></strong>
@@ -103,9 +101,9 @@ export default async function Relatorios({ searchParams }) {
             </tbody></table></div>)}
       </div>
 
-      <div className="card"><h2>{gestor ? 'Por filho' : 'Resumo'}</h2>
+      <div className="card"><h2>{gestor ? 'Por pessoa' : 'Resumo'}</h2>
         <div className="rolavel"><table>
-          <thead><tr><th>Filho</th><th className="num">Cumpridas</th><th className="num">Com atraso</th><th className="num">Justificativas</th><th className="num">Adiamentos (aprovados)</th><th className="num">Criadas por ele(a)</th><th className="num">Sequência</th><th className="num">Tela prev. x real</th></tr></thead>
+          <thead><tr><th>Pessoa</th><th className="num">Cumpridas</th><th className="num">Com atraso</th><th className="num">Justificativas</th><th className="num">Adiamentos (aprovados)</th><th className="num">Criadas por ele(a)</th><th className="num">Sequência</th><th className="num">Tela prev. x real</th></tr></thead>
           <tbody>{linhas.map((l) => {
             const t = telas[l.id] || [];
             const prev = t.reduce((a, r) => a + (r.previsto?.min_total || 0), 0), real = t.reduce((a, r) => a + totalReal(r), 0);
@@ -120,7 +118,7 @@ export default async function Relatorios({ searchParams }) {
 
       {Object.keys(telas).length > 0 && (
         <div className="card"><h2>Tempo de tela: previsto x realizado</h2>
-          <div className="rolavel"><table><thead><tr><th>Dia</th>{gestor && <th>Filho</th>}<th className="num">Previsto</th><th className="num">Realizado</th><th className="num">Celular</th><th className="num">Computador</th><th className="num">Diferença</th></tr></thead>
+          <div className="rolavel"><table><thead><tr><th>Dia</th>{gestor && <th>Pessoa</th>}<th className="num">Previsto</th><th className="num">Realizado</th><th className="num">Celular</th><th className="num">Computador</th><th className="num">Diferença</th></tr></thead>
             <tbody>{Object.entries(telas).flatMap(([id, rs]) => rs.map((r) => {
               const real = totalReal(r), prev = r.previsto?.min_total, dif = prev != null ? real - prev : null;
               return (<tr key={r.id}><td>{dataCurta(r.data)}</td>{gestor && <td>{nome[id]}</td>}<td className="num">{prev != null ? fmtMin(prev) : '—'}</td><td className="num">{fmtMin(real)}</td>
@@ -131,7 +129,7 @@ export default async function Relatorios({ searchParams }) {
       )}
 
       <div className="card"><h2>Tarefas no período ({lista.length})</h2>
-        <div className="rolavel"><table><thead><tr><th>Dia</th>{gestor && <th>Filho</th>}<th>Tarefa</th><th>Categoria</th><th>Horário</th><th>Status</th><th>Justificativa</th></tr></thead>
+        <div className="rolavel"><table><thead><tr><th>Dia</th>{gestor && <th>Pessoa</th>}<th>Tarefa</th><th>Categoria</th><th>Horário</th><th>Status</th><th>Justificativa</th></tr></thead>
           <tbody>{lista.slice().reverse().slice(0, 300).map(({ o, st }) => (
             <tr key={o.id}><td>{dataCurta(o.data)}</td>{gestor && <td>{nome[o.membro_id]}</td>}<td>{o.tarefa?.titulo}</td><td>{o.tarefa?.categoria?.nome || '—'}</td>
               <td>{o.hora_inicio ? hhmm(o.hora_inicio) : 'Sem horário'}</td><td>{STATUS_TXT[st]}</td><td style={{ fontSize: 13 }}>{o.justificativa || ''}</td></tr>))}

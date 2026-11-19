@@ -16,7 +16,15 @@ export default async function Painel() {
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
   const nome = Object.fromEntries(membros.map((m) => [m.id, m.nome]));
   const de = [inicioMes(hoje), inicioSemana(hoje), addDias(hoje, -7)].sort()[0];
-  const lista = (await ocorrencias(supabase, { de, ate: fimMes(hoje), membros: filhos.map((f) => f.id) })).map((o) => ({ o, st: statusExibido(o, hoje) }));
+  const telaFilhos = filhos.filter((f) => f.tela_ativo);
+  // Tudo ao mesmo tempo: antes cada consulta esperava a anterior terminar.
+  const [ocs, { data: adiamentos }, { data: propostas }, telaRes] = await Promise.all([
+    ocorrencias(supabase, { de, ate: fimMes(hoje), membros: filhos.map((f) => f.id) }),
+    supabase.from('ra_adiamentos').select('*, oc:ra_ocorrencias(data, hora_inicio, tarefa:ra_tarefas(titulo))').eq('status', 'pendente').order('criado_em'),
+    supabase.from('ra_tela_proposta').select('*').eq('status', 'pendente').order('criado_em'),
+    Promise.all(telaFilhos.map((f) => telaResumo(supabase, f.id, addDias(hoje, -1), addDias(hoje, -1)))),
+  ]);
+  const lista = ocs.map((o) => ({ o, st: statusExibido(o, hoje) }));
   const conta = (arr) => ({ total: arr.filter((x) => x.st !== 'adiada').length, feitas: arr.filter((x) => x.st.startsWith('cumprida')).length });
   const doDia = lista.filter((x) => x.o.data === hoje);
   const kHoje = conta(doDia);
@@ -25,13 +33,11 @@ export default async function Painel() {
   const atrasadas = lista.filter((x) => x.o.data <= hoje && x.o.data >= addDias(hoje, -7) && x.st === 'atrasada');
   const justif = lista.filter((x) => x.o.justificativa_status === 'pendente');
   const paraConferir = lista.filter((x) => x.st.startsWith('cumprida') && x.o.foto_path && !x.o.conferido && x.o.data >= addDias(hoje, -3));
-  const { data: adiamentos } = await supabase.from('ra_adiamentos').select('*, oc:ra_ocorrencias(data, hora_inicio, tarefa:ra_tarefas(titulo))').eq('status', 'pendente').order('criado_em');
-  const { data: propostas } = await supabase.from('ra_tela_proposta').select('*').eq('status', 'pendente').order('criado_em');
   const fotos = await urlsFotos(supabase, paraConferir.map((x) => x.o.foto_path));
   const porDia = {};
   lista.forEach(({ o, st }) => { if (st === 'adiada') return; const x = (porDia[o.data] ||= { total: 0, feitas: 0 }); x.total++; if (st.startsWith('cumprida') || st === 'justificada') x.feitas++; });
   const telas = {};
-  for (const f of filhos.filter((f) => f.tela_ativo)) telas[f.id] = (await telaResumo(supabase, f.id, addDias(hoje, -1), addDias(hoje, -1)))[0];
+  telaFilhos.forEach((f, i) => { telas[f.id] = telaRes[i][0]; });
   const pend = (adiamentos?.length || 0) + justif.length + (propostas?.length || 0);
 
   return (

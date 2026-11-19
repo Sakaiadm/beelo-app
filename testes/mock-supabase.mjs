@@ -6,9 +6,9 @@ const FAM = '11111111-1111-1111-1111-111111111111';
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`;
 const G = id(1), M = id(2), E = id(3), A = id(4);
 const membros = [
-  { id: G, familia_id: FAM, nome: 'Thomas', papel: 'gestor', cor: '#0f4fae', email: 'pai@t.l', ativo: true, tela_ativo: true, user_id: id(91) },
+  { id: G, familia_id: FAM, nome: 'Thomas', papel: 'gestor', cor: '#0f4fae', email: 'pai@t.com', ativo: true, tela_ativo: true, user_id: id(91) },
   { id: M, familia_id: FAM, nome: 'Mãe', papel: 'gestor', cor: '#7a3fb0', email: null, ativo: true, tela_ativo: true, user_id: null },
-  { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', cor: '#1a6fe0', email: 'edu@t.l', ativo: true, tela_ativo: true, user_id: id(92) },
+  { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92) },
   { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: null, ativo: true, tela_ativo: false, user_id: null },
 ];
 const cats = [{ id: id(20), familia_id: FAM, nome: 'Estudo', cor: 'indigo', ordem: 1 }, { id: id(21), familia_id: FAM, nome: 'Casa', cor: 'laranja', ordem: 2 }];
@@ -33,8 +33,8 @@ const ocorr = [
 ];
 const familias = [{ id: FAM, nome: 'Família Sakai', avatar: null, ativa: true, foto_max_horas: 2, criado_em: dia(-40) + 'T12:00:00Z' }];
 const adminFamilias = [
-  { ...familias[0], gestores: 'Thomas <pai@t.l>, Mãe', n_gestores: 2, n_filhos: 2, n_ativos: 2, tarefas: 3, oc_30d: 10, cumpridas_30d: 3, ultima_acao: new Date().toISOString() },
-  { id: id(700), nome: 'Família Teste', avatar: `${id(700)}/familia/avatar-1.jpg`, ativa: false, criado_em: dia(-5) + 'T12:00:00Z', gestores: 'Ana <ana@t.l>', n_gestores: 1, n_filhos: 0, n_ativos: 0, tarefas: 0, oc_30d: 0, cumpridas_30d: 0, ultima_acao: null },
+  { ...familias[0], gestores: 'Thomas <pai@t.com>, Mãe', n_gestores: 2, n_filhos: 2, n_ativos: 2, tarefas: 3, oc_30d: 10, cumpridas_30d: 3, ultima_acao: new Date().toISOString() },
+  { id: id(700), nome: 'Família Teste', avatar: `${id(700)}/familia/avatar-1.jpg`, ativa: false, criado_em: dia(-5) + 'T12:00:00Z', gestores: 'Ana <ana@t.com>', n_gestores: 1, n_filhos: 0, n_ativos: 0, tarefas: 0, oc_30d: 0, cumpridas_30d: 0, ultima_acao: null },
 ];
 const tabelas = {
   ra_familias: familias, ra_membros: membros, ra_categorias: cats, ra_tarefas: tarefas, ra_ocorrencias: ocorr,
@@ -44,7 +44,7 @@ const tabelas = {
   ra_tela_proposta: [{ id: id(500), familia_id: FAM, membro_id: E, data: dia(1), min_celular: null, min_computador: 180, min_total: null, motivo: 'Trabalho da faculdade', status: 'pendente', criado_em: new Date().toISOString() }],
   ra_tela_real: [{ id: id(600), familia_id: FAM, membro_id: E, data: dia(-2), min_celular: 185, min_computador: 65, min_total: 250, foto_celular: `${FAM}/${E}/uso.jpg`, foto_computador: null, obs: null }],
 };
-export const usuarios = { 'tok-pai': { id: id(91), email: 'pai@t.l', eu: membros[0] }, 'tok-filho': { id: id(92), email: 'edu@t.l', eu: membros[2] }, 'tok-estranho': { id: id(93), email: 'x@t.l', eu: null } };
+export const usuarios = { 'tok-pai': { id: id(91), email: 'pai@t.com', eu: membros[0] }, 'tok-filho': { id: id(92), email: 'edu@t.com', eu: membros[2] }, 'tok-estranho': { id: id(93), email: 'x@t.com', eu: null } };
 export const log = [];
 function filtrar(rows, params) {
   let out = rows;
@@ -81,6 +81,7 @@ http.createServer((req, res) => {
       if (m[2] === 'ra_eu' || m[2] === 'ra_vincular') return send(200, usr?.eu || null);
       if (m[2] === 'ra_sou_super') return send(200, tok === 'tok-pai');
       if (m[2] === 'ra_admin_familias') return tok === 'tok-pai' ? send(200, adminFamilias) : send(400, { message: 'Apenas o administrador geral' });
+      if (m[2] === 'ra_admin_membros') return tok === 'tok-pai' ? send(200, [{ id: id(701), nome: 'Ana', email: 'ana@t.com', funcao: 'mae', papel: 'gestor', ativo: true, entrou: false, responsavel: true }]) : send(400, { message: 'Apenas o administrador geral' });
       if (m[2] === 'ra_tela_previsto_dia') return send(200, [{ formato: 'aparelho', min_celular: 120, min_computador: 60, min_total: 180, fixado: true }]);
       return send(200, null);
     }

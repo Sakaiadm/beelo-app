@@ -8,7 +8,17 @@ import { SUGESTOES, IDADES, resumoSugestao } from '@/lib/sugestoes';
 const SEG_SEX = [1, 2, 3, 4, 5];
 const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 const DIAS_ABREV = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
-const ROTULO = { uma: 'Uma vez', diaria: 'Diariamente', semana: 'Seg. a Sex.', semanal: 'Toda semana (mesmo dia do início)', mensal: 'Todo mês (mesmo dia do início)' };
+const NOME_CURTO = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', 'sábado'];
+const ARTIGO = ['no', 'na', 'na', 'na', 'na', 'na', 'no'];
+function rotulos(inicio) {
+  const dt = /^\d{4}-\d{2}-\d{2}$/.test(inicio || '') ? new Date(inicio + 'T12:00:00Z') : null;
+  const ds = dt ? dt.getUTCDay() : null;
+  return {
+    uma: 'Uma vez', diaria: 'Diariamente', semana: 'Seg. a Sex.',
+    semanal: ds == null ? 'Toda semana' : `Toda semana, ${ARTIGO[ds]} ${NOME_CURTO[ds]}`,
+    mensal: dt ? `Todo mês, no dia ${dt.getUTCDate()}` : 'Todo mês',
+  };
+}
 
 function opcaoInicial(t) {
   if (!t) return 'diaria';
@@ -33,6 +43,8 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
   const [foto, setFoto] = useState(!!t?.exige_foto);
   const [fCat, setFCat] = useState('Casa');
   const [fIdade, setFIdade] = useState('');
+  const [inicio, setInicio] = useState(t?.data_inicio || hoje);
+  const ROTULO = rotulos(inicio);
   const uma = opcao === 'uma';
   const diasEnviados = opcao === 'semana' ? SEG_SEX : opcao === 'pers' ? dias : [];
   const resumo = opcao === 'pers'
@@ -42,7 +54,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
   const alternarDia = (d) => setDias((x) => (x.includes(d) ? x.filter((y) => y !== d) : [...x, d]));
   const usar = (x) => {
     setTitulo(x.nome); setOpcao(x.rec); setDias(x.dias || SEG_SEX); setFoto(!!x.foto);
-    setCat(categorias.find((c) => c.nome.toLowerCase() === x.cat.toLowerCase())?.id || '');
+    setCat(categorias.find((c) => c.nome.toLowerCase().startsWith(x.cat.toLowerCase()))?.id || '');
     setComHora(!!x.hora); setHoraIni(x.hora || ''); setHoraFim(''); setFolha(null);
   };
   const catsSug = [...new Set(SUGESTOES.map((x) => x.cat))];
@@ -75,7 +87,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
       <button id="repetir" type="button" className="campo-botao" onClick={() => setFolha('repetir')}><span>{resumo}</span><span aria-hidden="true">›</span></button>
       <div className="linha">
         <div><label htmlFor="data_inicio">{uma ? 'Data' : 'Começa em'}</label>
-          <input id="data_inicio" type="date" name="data_inicio" defaultValue={t?.data_inicio || hoje} required /></div>
+          <input id="data_inicio" type="date" name="data_inicio" value={inicio} onChange={(e) => setInicio(e.target.value)} required /></div>
         {!uma && (
           <div><label htmlFor="fim_data">Termina em</label>
             {fim ? (
@@ -84,7 +96,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
                 <button type="button" className="btn sec peq" onClick={() => setFim('')} aria-label="Nunca termina">Nunca</button>
               </div>
             ) : (
-              <button id="fim_data" type="button" className="campo-botao" onClick={() => setFim(t?.data_inicio || hoje)}><span>Nunca</span><span aria-hidden="true">›</span></button>
+              <button id="fim_data" type="button" className="campo-botao" onClick={() => setFim(inicio)}><span>Nunca</span><span aria-hidden="true">›</span></button>
             )}</div>
         )}
       </div>
@@ -92,11 +104,11 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
         <div className="folha" role="dialog" aria-modal="true" aria-label="Sugestões">
           <div className="folha-in">
             <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(null)}>←</button><h2>Sugestões</h2></div>
-            <div className="chips" role="group" aria-label="Categoria">
+            <div className="chips uma-linha" role="group" aria-label="Categoria">
               {catsSug.map((c) => <button key={c} type="button" className={fCat === c ? 'on' : ''} aria-pressed={fCat === c} onClick={() => setFCat(c)}>{c}</button>)}
             </div>
-            <div className="chips" role="group" aria-label="Idade">
-              <button type="button" className={fIdade === '' ? 'on' : ''} aria-pressed={fIdade === ''} onClick={() => setFIdade('')}>Todas as idades</button>
+            <div className="seg" role="group" aria-label="Idade">
+              <button type="button" className={fIdade === '' ? 'on' : ''} aria-pressed={fIdade === ''} onClick={() => setFIdade('')}>Todas</button>
               {IDADES.map(([k, n]) => <button key={k} type="button" className={fIdade === k ? 'on' : ''} aria-pressed={fIdade === k} onClick={() => setFIdade(k)}>{n}</button>)}
             </div>
             <div className="folha-lista">

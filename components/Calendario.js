@@ -10,7 +10,7 @@ export default function Calendario({ mes, porDia, hoje, sel, link }) {
     const x = porDia[d];
     if (!x || !x.total || d > hoje) return '';
     const p = x.feitas / x.total;
-    return p >= 1 ? 'n4' : p >= 0.75 ? 'n3' : p >= 0.4 ? 'n2' : 'n1';
+    return p >= 1 ? 'n4' : 'n1';
   };
   return (
     <div>
@@ -34,9 +34,7 @@ export default function Calendario({ mes, porDia, hoje, sel, link }) {
       </div>
       <div className="legenda">
         <span><i style={{ background: '#1a6fe0' }} />Tudo feito</span>
-        <span><i style={{ background: '#9cc4f5' }} />Quase tudo</span>
-        <span><i style={{ background: '#dceafc' }} />Metade</span>
-        <span><i style={{ background: '#fbe3e5' }} />Pouco</span>
+        <span><i style={{ background: '#fbe3e5', border: '1px solid #f3cfd2' }} />Falta</span>
       </div>
     </div>
   );

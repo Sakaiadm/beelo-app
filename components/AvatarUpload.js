@@ -5,7 +5,7 @@ import Avatar from './Avatar';
 import { MODERNOS, DIVERTIDOS } from '@/lib/avatares';
 
 // Recorta no centro (quadrado), reduz para 400px e remove os metadados.
-async function preparar(arquivo) {
+export async function preparar(arquivo) {
   const img = await createImageBitmap(arquivo);
   const lado = Math.min(img.width, img.height), sx = (img.width - lado) / 2, sy = (img.height - lado) / 2;
   const c = document.createElement('canvas'); c.width = 400; c.height = 400;

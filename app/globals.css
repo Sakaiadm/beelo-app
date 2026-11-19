@@ -222,3 +222,60 @@ section:first-child > .ajuda-sec { margin-top: 0; }
 .chips { display: flex; flex-wrap: wrap; gap: 8px; }
 .chips button { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--campo); background: var(--cartao); color: var(--texto); font: inherit; font-size: 14px; cursor: pointer; }
 .chips button.on { background: var(--azul); border-color: var(--azul); color: #fff; font-weight: 700; }
+
+/* ===== Agenda e Sugestões organizadas ===== */
+.seg { display: flex; background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px; padding: 3px; gap: 2px; width: 100%; box-sizing: border-box; margin-bottom: 12px; }
+.seg > a, .seg > button { flex: 1; text-align: center; padding: 10px 4px; border-radius: 9px; font: inherit; font-size: 14px; color: var(--cinza); white-space: nowrap; text-decoration: none; border: 0; background: transparent; cursor: pointer; overflow: hidden; text-overflow: ellipsis; min-height: 40px; display: flex; align-items: center; justify-content: center; }
+.seg > .on { background: #1a6fe0; color: #fff; font-weight: 700; }
+.nv { display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 12px; }
+.nv .b { border: 1.5px solid #1a6fe0; color: #1a6fe0; border-radius: 10px; padding: 8px 12px; font-weight: 700; font-size: 14px; background: var(--cartao); text-decoration: none; }
+.nv .dt { flex: 1; text-align: right; font-size: 14px; font-weight: 600; }
+.dois { display: flex; gap: 8px; width: 100%; margin-bottom: 12px; }
+.dois .bt { flex: 1; display: flex; gap: 6px; align-items: center; justify-content: center; text-align: center; border-radius: 12px; padding: 12px 6px; min-height: 46px; font-size: 14px; font-weight: 700; border: 1.5px solid #1a6fe0; color: #1a6fe0; background: var(--cartao); box-sizing: border-box; text-decoration: none; font-family: inherit; cursor: pointer; }
+.dois .bt.az { background: #1a6fe0; color: #fff; }
+.chips.uma-linha { flex-wrap: nowrap; overflow-x: auto; padding-bottom: 6px; margin-bottom: 12px; scrollbar-width: thin; }
+.chips.uma-linha button { flex: none; white-space: nowrap; }
+.folha-in .seg { margin-bottom: 14px; }
+
+/* ===== Chaves (liga/desliga) ===== */
+.chave { flex: none; width: 46px; height: 28px; border-radius: 999px; border: 0; background: #cfd8e6; position: relative; cursor: pointer; padding: 0; transition: background .15s; }
+.chave::after { content: ''; position: absolute; left: 3px; top: 3px; width: 22px; height: 22px; border-radius: 50%; background: #fff; box-shadow: 0 1px 3px rgba(0,0,0,.25); transition: left .15s; }
+.chave.on { background: #1a6fe0; }
+.chave.on::after { left: 21px; }
+.chave:disabled { cursor: default; }
+.chave:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+.lin-chave { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 12px 6px; border-top: 1px solid var(--borda); font-size: 15px; }
+.lin-chave small { display: block; color: var(--cinza); font-size: 12.5px; }
+.lin-chave.destaque { background: color-mix(in srgb, var(--azul) 10%, transparent); border-radius: 12px; border: 0; padding: 12px 14px; margin-bottom: 4px; }
+.leg-rel { margin: 0 0 14px; padding: 10px 14px; border-radius: 12px; background: color-mix(in srgb, var(--azul) 10%, transparent); font-size: 14px; }
+
+/* ===== Cadastros em cartões ===== */
+.cartao-l { display: flex; gap: 12px; align-items: center; background: color-mix(in srgb, var(--texto) 5%, var(--cartao)); border: 1px solid var(--borda); border-radius: 14px; padding: 12px 14px; margin-bottom: 10px; color: var(--texto); text-decoration: none; }
+a.cartao-l:hover { border-color: var(--azul); }
+.cartao-l > .corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.cartao-l > .corpo b { font-size: 16px; }
+.cartao-l .seta { color: var(--cinza); font-size: 20px; }
+.cartao-l.apagado { opacity: .6; }
+.peq-cinza { display: block; color: var(--cinza); font-size: 12.5px; margin: 2px 0 0; }
+.icone-cad { width: 40px; height: 40px; border-radius: 12px; background: var(--azul-claro); color: var(--azul); display: inline-flex; align-items: center; justify-content: center; flex: none; }
+.vt { display: flex; align-items: center; gap: 8px; margin-bottom: 14px; }
+.vt a.volta { width: 40px; height: 40px; border-radius: 12px; display: inline-flex; align-items: center; justify-content: center; color: var(--azul); font-size: 26px; text-decoration: none; }
+.vt h1 { margin: 0; font-size: 24px; font-weight: 800; letter-spacing: -.02em; }
+.vt .sub { margin: 0; }
+.campo-ok { position: relative; }
+.campo-ok input { width: 100%; padding-right: 40px; }
+.campo-ok.ok input { border-color: #2c9a5b; }
+.campo-ok.erro input { border-color: var(--erro); }
+.campo-ok .certo { position: absolute; right: 12px; top: 50%; transform: translateY(-50%); color: #2c9a5b; font-weight: 800; font-size: 20px; }
+.erro-campo { color: var(--erro); font-size: 13px; margin: 6px 0 0; }
+.sug-campo { font-size: 13px; margin: 6px 0 0; }
+.sug-campo button { background: none; border: 0; color: var(--azul); font-weight: 700; padding: 0; cursor: pointer; text-decoration: underline; }
+.caixa-papel { margin-top: 10px; padding: 12px 14px; border-radius: 12px; background: var(--azul-claro); font-size: 14px; line-height: 1.45; }
+.bolinha-cor { width: 22px; height: 22px; border-radius: 50%; display: inline-block; }
+.grade-cores { display: grid; grid-template-columns: repeat(6, 1fr); gap: 12px; padding: 4px 2px; }
+.grade-cores button { aspect-ratio: 1; border-radius: 50%; border: 0; cursor: pointer; max-width: 48px; }
+.grade-cores button.sel { outline: 3px solid var(--texto); outline-offset: 3px; }
+.grade-cores button.usada { opacity: .35; }
+.btn.bloco[disabled] { opacity: .5; cursor: default; }
+.cam-badge { position: absolute; right: -6px; bottom: -6px; width: 24px; height: 24px; border-radius: 50%; background: var(--cartao); border: 1px solid var(--campo); color: var(--azul); display: inline-flex; align-items: center; justify-content: center; cursor: pointer; padding: 0; }
+.link-btn { background: none; border: 0; color: var(--azul); font-weight: 700; font-size: 14px; cursor: pointer; padding: 6px; }

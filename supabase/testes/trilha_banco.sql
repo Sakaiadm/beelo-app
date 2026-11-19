@@ -346,5 +346,51 @@ begin
   select count(*) into n from public.ra_push_inscricoes;
   if n = 0 then nok := nok + 1; r := r || E'OK  8.10 Aparelho que não existe mais (recusado pelo celular) é removido\n'; else nfalha := nfalha + 1; r := r || E'FALHA 8.10\n'; end if;
 
+
+  -- ===== 9. Papéis, famílias e cadastros =====
+  execute 'reset role';
+  perform set_config('request.jwt.claims', json_build_object('sub', gU, 'email', 'teste-pai@teste.local', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from public.ra_categorias where familia_id = fam and nome = 'Trabalho/Estágio';
+  if n = 0 then nok := nok + 1; r := r || E'OK  9.1 Categoria Trabalho/Estágio virou Trabalho\n'; else nfalha := nfalha + 1; r := r || E'FALHA 9.1\n'; end if;
+  perform public.ra_editar_familia(fam, 'Família Nova', null, false);
+  select count(*) into n from public.ra_familias where id = fam and nome = 'Família Nova';
+  if n = 1 then nok := nok + 1; r := r || E'OK  9.2 Pai edita o nome da própria família\n'; else nfalha := nfalha + 1; r := r || E'FALHA 9.2\n'; end if;
+  begin perform public.ra_editar_familia(fam, 'X', 'outra/pasta/a.jpg', true); nfalha := nfalha + 1; r := r || E'FALHA 9.3 aceitou imagem de outra pasta\n';
+  exception when others then nok := nok + 1; r := r || E'OK  9.3 Imagem de outra pasta é recusada\n'; end;
+  perform public.ra_definir_responsavel(fam, G, null, null);
+  select count(*) into n from public.ra_familias where id = fam and responsavel_id = G;
+  if n = 1 then nok := nok + 1; r := r || E'OK  9.4 Pai define o responsável da família\n'; else nfalha := nfalha + 1; r := r || E'FALHA 9.4\n'; end if;
+  begin perform public.ra_definir_responsavel(fam, F1, null, null); nfalha := nfalha + 1; r := r || E'FALHA 9.5 filho virou responsável\n';
+  exception when others then nok := nok + 1; r := r || E'OK  9.5 Só pai ou mãe pode ser responsável\n'; end;
+  begin perform public.ra_definir_responsavel(fam, null, 'Novo', 'sem-arroba'); nfalha := nfalha + 1; r := r || E'FALHA 9.6 e-mail inválido aceito\n';
+  exception when others then nok := nok + 1; r := r || E'OK  9.6 E-mail inválido é recusado ao trocar o responsável\n'; end;
+  begin perform public.ra_excluir_membro(G); nfalha := nfalha + 1; r := r || E'FALHA 9.7 excluiu a si mesmo\n';
+  exception when others then nok := nok + 1; r := r || E'OK  9.7 Ninguém exclui a si mesmo\n'; end;
+  perform public.ra_excluir_membro(F2);
+  select count(*) into n from public.ra_membros where id = F2;
+  if n = 0 then nok := nok + 1; r := r || E'OK  9.8 Pai exclui uma pessoa da família\n'; else nfalha := nfalha + 1; r := r || E'FALHA 9.8\n'; end if;
+  begin perform * from public.ra_admin_membros(fam); nfalha := nfalha + 1; r := r || E'FALHA 9.9 pai viu função do administrador\n';
+  exception when others then nok := nok + 1; r := r || E'OK  9.9 Lista de pessoas de outras famílias é só do administrador geral\n'; end;
+  execute 'reset role';
+  perform set_config('request.jwt.claims', json_build_object('sub', f1U, 'email', 'teste-f1@teste.local', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  begin perform public.ra_excluir_membro(F1); nfalha := nfalha + 1; r := r || E'FALHA 9.10 filho excluiu pessoa\n';
+  exception when others then nok := nok + 1; r := r || E'OK  9.10 Filho não exclui pessoas\n'; end;
+  begin perform public.ra_editar_familia(fam, 'Hack', null, false); nfalha := nfalha + 1; r := r || E'FALHA 9.11 filho editou família\n';
+  exception when others then nok := nok + 1; r := r || E'OK  9.11 Filho não edita a família\n'; end;
+  execute 'reset role';
+  perform set_config('request.jwt.claims', json_build_object('sub', gen_random_uuid(), 'email', 'sakaiadm2@gmail.com', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  select count(*) into n from public.ra_admin_membros(fam);
+  if n >= 2 then nok := nok + 1; r := r || E'OK  9.12 Administrador geral lista as pessoas de qualquer família\n'; else nfalha := nfalha + 1; r := r || 'FALHA 9.12 n=' || n || E'\n'; end if;
+  perform public.ra_editar_familia(fam2, 'Família do Admin', null, false);
+  nok := nok + 1; r := r || E'OK  9.13 Administrador geral edita qualquer família\n';
+  perform public.ra_definir_responsavel(fam, null, 'Responsável Novo', 'novo-resp@teste.local');
+  execute 'reset role';
+  select count(*) into n from public.ra_membros where familia_id = fam and email = 'novo-resp@teste.local' and papel = 'gestor';
+  if n = 1 then nok := nok + 1; r := r || E'OK  9.14 Administrador troca o responsável por uma pessoa nova (entra como gestor)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 9.14\n'; end if;
+  execute 'reset role';
+
   raise exception E'RELATORIO_TESTES\nAprovados: %  Falhas: %\n%', nok, nfalha, r;
 end $$;

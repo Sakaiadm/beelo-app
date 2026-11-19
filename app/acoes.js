@@ -3,6 +3,8 @@ import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
 import { parseMin, hojeISO, addDias, CORES_CAT } from '@/lib/util';
+import { validarEmail } from '@/lib/email';
+import { funcaoDe } from '@/lib/papeis';
 
 const txt = (fd, k, max = 500) => { const v = fd.get(k); return v == null ? null : String(v).trim().slice(0, max) || null; };
 const uuid = (v) => (/^[0-9a-f-]{36}$/i.test(String(v || '')) ? String(v) : null);
@@ -96,14 +98,19 @@ export async function excluirTarefa(fd) {
   redirect('/tarefas');
 }
 
-export async function salvarMembro(_, fd) {
+export async function salvarPessoa(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
   if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
-  const email = txt(fd, 'email', 120)?.toLowerCase() || null;
-  if (email && !/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(email)) return { erro: 'E-mail inválido' };
+  const bruto = txt(fd, 'email', 120);
+  const v = bruto ? validarEmail(bruto) : { ok: true, email: null };
+  if (!v.ok) return { erro: v.msg || 'E-mail inválido' };
+  const f = funcaoDe(fd.get('funcao'));
+  if (!f) return { erro: 'Escolha o papel da pessoa' };
+  const permissoes = {};
+  f.chaves.forEach(([k]) => { permissoes[k] = fd.get(`perm_${k}`) === '1'; });
   const reg = {
-    nome: txt(fd, 'nome', 60), email, papel: fd.get('papel') === 'gestor' ? 'gestor' : 'filho',
+    nome: txt(fd, 'nome', 60), email: v.email || null, papel: f.papel, funcao: f.id, permissoes,
     ativo: fd.get('ativo') === '1', tela_ativo: fd.get('tela_ativo') === '1',
     cor: /^#[0-9a-f]{6}$/i.test(fd.get('cor') || '') ? fd.get('cor') : '#1a6fe0',
   };
@@ -121,7 +128,44 @@ export async function salvarMembro(_, fd) {
     : await supabase.from('ra_membros').insert({ ...reg, familia_id: eu.familia_id });
   if (error) return { erro: error.message.includes('duplicate') ? 'Este e-mail já está cadastrado' : error.message };
   revalidatePath('/', 'layout');
+  if (!id) redirect('/config/pessoas');
   return { ok: true };
+}
+
+export async function alternarPessoa(fd) {
+  const supabase = await supabaseServer();
+  const { data: eu } = await supabase.rpc('ra_eu');
+  const id = uuid(fd.get('id'));
+  if (eu?.papel !== 'gestor' || !id || id === eu.id) return;
+  await supabase.from('ra_membros').update({ ativo: fd.get('ativo') === '1' }).eq('id', id);
+  revalidatePath('/', 'layout');
+}
+
+export async function excluirPessoa(fd) {
+  const supabase = await supabaseServer();
+  await supabase.rpc('ra_excluir_membro', { p_id: uuid(fd.get('id')) });
+  revalidatePath('/', 'layout');
+  redirect('/config/pessoas');
+}
+
+export async function editarFamilia(_, fd) {
+  const id = uuid(fd.get('id'));
+  const nome = txt(fd, 'nome', 60);
+  if (!nome) return { erro: 'Informe o nome da família' };
+  const mudar = fd.has('avatar');
+  const a = mudar ? String(fd.get('avatar') || '') : '';
+  if (mudar && a && !(caminhoAvatar(a) && (a.startsWith('preset:') || a.startsWith(`${id}/familia/`)))) return { erro: 'Imagem inválida' };
+  return rpc('ra_editar_familia', { p_id: id, p_nome: nome, p_avatar: a || null, p_mudar_avatar: mudar });
+}
+
+export async function trocarResponsavel(_, fd) {
+  const familia = uuid(fd.get('familia'));
+  const membro = uuid(fd.get('membro'));
+  if (membro) return rpc('ra_definir_responsavel', { p_familia: familia, p_membro: membro, p_nome: null, p_email: null });
+  const v = validarEmail(txt(fd, 'email', 120));
+  if (!v.ok) return { erro: v.msg || 'Informe o e-mail do novo responsável' };
+  if (!txt(fd, 'nome', 60)) return { erro: 'Informe o nome do novo responsável' };
+  return rpc('ra_definir_responsavel', { p_familia: familia, p_membro: null, p_nome: txt(fd, 'nome', 60), p_email: v.email });
 }
 
 export async function salvarCategoria(_, fd) {
@@ -131,7 +175,7 @@ export async function salvarCategoria(_, fd) {
   if (!nome) return { erro: 'Informe o nome' };
   const { error } = await supabase.from('ra_categorias').insert({ familia_id: eu.familia_id, nome, cor: txt(fd, 'cor', 20) || 'azul', ordem: 50 });
   if (error) return { erro: error.message };
-  revalidatePath('/config');
+  revalidatePath('/', 'layout');
   return { ok: true };
 }
 
@@ -214,23 +258,6 @@ export async function marcarLidas() {
 // ===== Cadastros =====
 const caminhoAvatar = (v) => (/^([0-9a-f-]{36}\/[0-9a-z-]{6,36}\/avatar-\d+\.jpg|preset:[md]\d{1,2})$/.test(String(v || '')) ? String(v) : null);
 
-export async function salvarFamilia(_, fd) {
-  const supabase = await supabaseServer();
-  const { data: eu } = await supabase.rpc('ra_eu');
-  if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
-  const reg = { nome: txt(fd, 'nome', 60) };
-  if (!reg.nome) return { erro: 'Informe o nome da família' };
-  if (fd.has('avatar')) {
-    const a = String(fd.get('avatar') || '');
-    if (a && !(caminhoAvatar(a) && (a.startsWith('preset:') || a.startsWith(`${eu.familia_id}/familia/`)))) return { erro: 'Imagem inválida' };
-    reg.avatar = a || null;
-  }
-  const { error } = await supabase.from('ra_familias').update(reg).eq('id', eu.familia_id);
-  if (error) return { erro: error.message };
-  revalidatePath('/', 'layout');
-  return { ok: true };
-}
-
 export async function editarCategoria(_, fd) {
   const supabase = await supabaseServer();
   const nome = txt(fd, 'nome', 30);
@@ -257,9 +284,9 @@ export async function salvarPerfil(_, fd) {
 }
 
 export async function salvarAvisos(_, fd) {
-  const c = fd.get('concluida');
+  const concluir = fd.get('concluir') === '1';
   return rpc('ra_minhas_notif', { p_prefs: {
-    concluida: ['todas', 'com_foto', 'nenhuma'].includes(c) ? c : 'todas',
+    concluida: !concluir ? 'nenhuma' : fd.get('so_foto') === '1' ? 'com_foto' : 'todas',
     justificativa: fd.get('justificativa') === '1', adiamento: fd.get('adiamento') === '1',
     tela: fd.get('tela') === '1', tarefa_filho: fd.get('tarefa_filho') === '1',
   } });
@@ -284,11 +311,15 @@ export async function criarFamilia(_, fd) {
 }
 
 export async function adminCriarFamilia(_, fd) {
-  return rpc('ra_admin_criar_familia', { p_nome: txt(fd, 'familia', 60), p_gestor_nome: txt(fd, 'nome', 60), p_gestor_email: txt(fd, 'email', 120) });
+  const v = validarEmail(txt(fd, 'email', 120));
+  if (!v.ok) return { erro: v.msg || 'Informe o e-mail do responsável' };
+  const r = await rpc('ra_admin_criar_familia', { p_nome: txt(fd, 'familia', 60), p_gestor_nome: txt(fd, 'nome', 60), p_gestor_email: v.email });
+  if (r?.ok) redirect('/config/familias');
+  return r;
 }
 
 export async function adminAtivarFamilia(fd) {
   const supabase = await supabaseServer();
   await supabase.rpc('ra_admin_ativar_familia', { p_id: uuid(fd.get('id')), p_ativa: fd.get('ativa') === '1' });
-  revalidatePath('/admin');
+  revalidatePath('/', 'layout');
 }
