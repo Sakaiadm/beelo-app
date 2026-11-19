@@ -35,15 +35,17 @@ const ADMIN = [
   ['Quando alguém novo entra sozinho', 'Quem entra com um e-mail que não está cadastrado cai em uma tela que permite criar a própria família. Ela aparece depois em Admin.'],
 ];
 
-function Secao({ titulo, itens, aberta }) {
+const TOM = { pais: 'ajuda-pais', filho: 'ajuda-filho', admin: 'ajuda-admin' };
+
+function Secao({ tom, emoji, titulo, subtitulo, itens, aberta }) {
   return (
-    <details className="card" open={aberta}>
-      <summary style={{ cursor: 'pointer', fontWeight: 700, fontSize: 18 }}>{titulo}</summary>
-      <div style={{ display: 'grid', gap: 14, marginTop: 14 }}>
+    <details className={`ajuda ${TOM[tom]}`} open={aberta}>
+      <summary><span className="ajuda-emoji" aria-hidden="true">{emoji}</span><span><strong>{titulo}</strong><small>{subtitulo}</small></span></summary>
+      <ol className="ajuda-lista">
         {itens.map(([t, d]) => (
-          <div key={t}><h3 style={{ margin: '0 0 4px', fontSize: 16 }}>{t}</h3><p style={{ margin: 0, lineHeight: 1.5 }}>{d}</p></div>
+          <li key={t}><h3>{t}</h3><p>{d}</p></li>
         ))}
-      </div>
+      </ol>
     </details>
   );
 }
@@ -53,13 +55,9 @@ export default async function Ajuda() {
   return (
     <main className="estreito">
       <div className="cab"><div><h1 className="titulo">Ajuda</h1><p className="sub">Como usar o Rotina Ativa. Toque em um título para abrir.</p></div></div>
-      {gestor ? <>
-        <Secao titulo="Para pai e mãe" itens={PAIS} aberta />
-        <Secao titulo="Para os filhos (o que eles veem)" itens={FILHO} />
-        {superAdmin && <Secao titulo="Administrador geral" itens={ADMIN} />}
-      </> : <>
-        <Secao titulo="Para os filhos" itens={FILHO} aberta />
-      </>}
+      {superAdmin && <Secao tom="admin" emoji="🛠️" titulo="Administrador geral" subtitulo="Só você vê esta parte" itens={ADMIN} />}
+      {gestor && <Secao tom="pais" emoji="👨‍👩‍👧" titulo="Para pai e mãe" subtitulo="Cadastros, tarefas, conferência e relatórios" itens={PAIS} aberta={!superAdmin} />}
+      <Secao tom="filho" emoji="⭐" titulo={gestor ? 'O que os filhos veem' : 'Como usar o app'} subtitulo={gestor ? 'Para você saber explicar a eles' : 'Tarefas, fotos, adiar e avisos'} itens={FILHO} aberta={!gestor} />
     </main>
   );
 }

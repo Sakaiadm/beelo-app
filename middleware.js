@@ -16,7 +16,9 @@ export async function middleware(request) {
       },
     },
   });
-  const { data: { user } } = await supabase.auth.getUser();
+  // Só lê (e renova, se vencida) a sessão guardada, sem ir ao Supabase a cada toque. Os dados continuam protegidos pelo banco (RLS).
+  const { data: { session } } = await supabase.auth.getSession();
+  const user = session?.access_token ? true : null;
   const caminho = request.nextUrl.pathname;
   if (!user && !PUBLICAS.some((p) => caminho.startsWith(p))) {
     return NextResponse.redirect(new URL('/login', origem(request)));
