@@ -72,6 +72,7 @@ http.createServer((req, res) => {
     const send = (code, obj, headers = {}) => { res.writeHead(code, { 'content-type': 'application/json', ...cors, ...headers }); res.end(obj === undefined ? '' : JSON.stringify(obj)); };
     if (req.method === 'OPTIONS') return send(204);
     if (u.pathname === '/auth/v1/user') return usr ? send(200, { id: usr.id, email: usr.email, aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} }) : send(401, { message: 'invalid' });
+    if (u.pathname === '/auth/v1/verify') { const b = JSON.parse(body || '{}'); return b.token_hash === 'ok-hash' ? send(200, { access_token: 'tok-pai', token_type: 'bearer', expires_in: 3600, expires_at: 4102444800, refresh_token: 'r', user: { id: 'x', email: 'pai@t.com', aud: 'authenticated', role: 'authenticated' } }) : send(403, { code: 403, error_code: 'otp_expired', msg: 'expired' }); }
     if (u.pathname === '/auth/v1/logout') return send(204);
     if (u.pathname.startsWith('/storage/v1/object/sign/')) { const b = JSON.parse(body || '{}'); return send(200, (b.paths || []).map((p) => ({ path: p, signedURL: '/object/sign/x?token=t', error: null }))); }
     if (u.pathname.startsWith('/storage/v1/object/') && req.method === 'POST') return send(200, { Key: u.pathname.slice(19), Id: 'x' });

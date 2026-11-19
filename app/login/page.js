@@ -10,6 +10,7 @@ export default function Login() {
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
     if (q.get('email')) setEmail(q.get('email'));
+    if (q.get('erro')) setMsg({ tipo: 'erro', txt: 'Esse link não vale mais (ele só funciona uma vez e por pouco tempo). Peça um novo link de acesso abaixo.' });
     if (q.get('ja')) setAviso('Você já tem cadastro. Entre com sua conta.');
     else if (q.get('convite')) setAviso('Você foi convidado. Confirme seu e-mail e toque em Enviar link de acesso.');
   }, []);
@@ -26,7 +27,7 @@ export default function Login() {
     const { error } = await supabaseBrowser().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { emailRedirectTo: volta(), shouldCreateUser: true } });
     setCarregando(false);
     setMsg(error ? { tipo: 'erro', txt: 'Não foi possível enviar o link agora. Tente de novo em alguns minutos.' }
-                 : { tipo: 'ok', txt: 'Enviamos um link de acesso para o seu e-mail. Abra no mesmo aparelho.' });
+                 : { tipo: 'ok', txt: 'Enviamos um link de acesso para o seu e-mail. Abra o link no seu celular ou computador.' });
   }
 
   return (
