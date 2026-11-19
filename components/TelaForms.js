@@ -3,20 +3,38 @@ import { useState } from 'react';
 import Form from './Form';
 import Foto from './Foto';
 import { salvarPrevisto, salvarTelaReal, proporTela } from '@/app/acoes';
-import { DIAS_CURTO, fmtMin } from '@/lib/util';
+import { fmtMin } from '@/lib/util';
 
 const v = (m) => (m == null ? '' : fmtMin(m));
 
+const SEG_SEX = [1, 2, 3, 4, 5];
+const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+const DIAS_ABREV = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
+const ROTULO = { uma: 'Uma vez', diaria: 'Diariamente', semana: 'Seg. a Sex.' };
+
 export function PrevistoForm({ membro, hoje }) {
   const [formato, setFormato] = useState('aparelho');
-  const [modo, setModo] = useState('dias');
+  const [opcao, setOpcao] = useState('semana'); // uma | diaria | semana | pers
+  const [dias, setDias] = useState(SEG_SEX);
+  const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
+  const [inicio, setInicio] = useState(hoje);
+  const [fim, setFim] = useState('');
+  const uma = opcao === 'uma';
+  const modo = uma ? 'dia' : opcao === 'diaria' ? 'semana' : 'dias';
+  const diasEnviados = opcao === 'semana' ? SEG_SEX : opcao === 'pers' ? dias : [];
+  const resumo = opcao === 'pers' ? [...dias].sort().map((d) => DIAS_ABREV[d]).join(', ').replace(/, ([^,]*)$/, ' e $1') : ROTULO[opcao];
+  const escolher = (o) => { setOpcao(o); setFolha(null); };
+  const alternarDia = (d) => setDias((x) => (x.includes(d) ? x.filter((y) => y !== d) : [...x, d]));
+  const voltarPers = () => { if (dias.length === 0) setDias(SEG_SEX); setOpcao('pers'); setFolha('repetir'); };
   return (
-    <Form acao={salvarPrevisto} okTxt="Previsto salvo." limpar>
+    <Form acao={salvarPrevisto} okTxt="Previsto salvo.">
       <input type="hidden" name="membro" value={membro} />
-      <label>Formato</label>
-      <div className="abas" role="radiogroup">
-        <a href="#" role="radio" aria-checked={formato === 'aparelho'} className={formato === 'aparelho' ? 'ativo' : ''} onClick={(e) => { e.preventDefault(); setFormato('aparelho'); }}>Por aparelho</a>
-        <a href="#" role="radio" aria-checked={formato === 'total'} className={formato === 'total' ? 'ativo' : ''} onClick={(e) => { e.preventDefault(); setFormato('total'); }}>Só o total</a>
+      <input type="hidden" name="modo" value={modo} />
+      <input type="hidden" name="fim" value={uma ? '' : fim} />
+      {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
+      <div className="seg" role="radiogroup" aria-label="Formato">
+        <button type="button" role="radio" aria-checked={formato === 'aparelho'} className={formato === 'aparelho' ? 'on' : ''} onClick={() => setFormato('aparelho')}>Celular e computador</button>
+        <button type="button" role="radio" aria-checked={formato === 'total'} className={formato === 'total' ? 'on' : ''} onClick={() => setFormato('total')}>Só o total</button>
       </div>
       <input type="hidden" name="formato" value={formato} />
       {formato === 'aparelho' ? (
@@ -27,22 +45,52 @@ export function PrevistoForm({ membro, hoje }) {
       ) : (
         <><label htmlFor={`pt-${membro}`}>Total do dia</label><input id={`pt-${membro}`} name="total" placeholder="3h00" required /></>
       )}
-      <label htmlFor={`modo-${membro}`}>Vale para</label>
-      <select id={`modo-${membro}`} name="modo" value={modo} onChange={(e) => setModo(e.target.value)}>
-        <option value="dia">Um dia</option><option value="dias">Dias da semana escolhidos</option><option value="semana">Semana inteira</option>
-      </select>
-      {modo === 'dia' && <><label htmlFor={`pd-${membro}`}>Dia</label><input id={`pd-${membro}`} type="date" name="data" min={hoje} defaultValue={hoje} required /></>}
-      {modo === 'dias' && (
-        <div style={{ display: 'flex', gap: 6, marginTop: 10, flexWrap: 'wrap' }} role="group" aria-label="Dias da semana">
-          {DIAS_CURTO.map((d, i) => (
-            <label key={i} className="check" style={{ margin: 0, border: '1px solid var(--campo)', borderRadius: 10, padding: '6px 10px' }}>
-              <input type="checkbox" name="dias" value={i} defaultChecked={i > 0 && i < 6} />{d}
-            </label>
-          ))}
+      <label htmlFor="repetir-tela">Repetir</label>
+      <button id="repetir-tela" type="button" className="campo-botao" onClick={() => setFolha('repetir')}><span>{resumo}</span><span aria-hidden="true">›</span></button>
+      <div className="linha">
+        <div><label htmlFor={`pi-${membro}`}>{uma ? 'Dia' : 'Começa em'}</label><input id={`pi-${membro}`} type="date" name="inicio" min={hoje} value={inicio} onChange={(e) => setInicio(e.target.value)} required /></div>
+        {!uma && (
+          <div><label htmlFor={`pf-${membro}`}>Termina em</label>
+            {fim ? (
+              <div style={{ display: 'flex', gap: 8 }}>
+                <input id={`pf-${membro}`} type="date" value={fim} min={inicio} onChange={(e) => setFim(e.target.value)} />
+                <button type="button" className="btn sec peq" onClick={() => setFim('')} aria-label="Nunca termina">Nunca</button>
+              </div>
+            ) : (
+              <button id={`pf-${membro}`} type="button" className="campo-botao" onClick={() => setFim(inicio)}><span>Nunca</span><span aria-hidden="true">›</span></button>
+            )}</div>
+        )}
+      </div>
+      {(folha === 'repetir' || folha === 'pers') && (
+        <div className="folha" role="dialog" aria-modal="true" aria-label={folha === 'pers' ? 'Personalizar' : 'Repetir'}>
+          <div className="folha-in">
+            <div className="folha-cab">
+              <button type="button" className="folha-volta" aria-label="Voltar" onClick={folha === 'pers' ? voltarPers : () => setFolha(null)}>←</button>
+              <h2>{folha === 'pers' ? 'Personalizar' : 'Repetir'}</h2>
+            </div>
+            {folha === 'repetir' && (
+              <div className="folha-lista">
+                {['uma', 'diaria', 'semana'].map((o) => (
+                  <button key={o} type="button" className={opcao === o ? 'sel' : ''} onClick={() => escolher(o)}>{ROTULO[o]}</button>
+                ))}
+                <button type="button" className={opcao === 'pers' ? 'sel' : ''} onClick={() => { if (dias.length === 0) setDias(SEG_SEX); setFolha('pers'); }}>
+                  <span>Personalizar{opcao === 'pers' ? ` · ${resumo}` : ''}</span><span aria-hidden="true">›</span>
+                </button>
+              </div>
+            )}
+            {folha === 'pers' && (
+              <div className="folha-lista">
+                {DIAS_NOME.map((n, i) => ({ n, i })).sort((x, y) => ((x.i + 6) % 7) - ((y.i + 6) % 7)).map(({ n, i }) => (
+                  <button key={i} type="button" role="checkbox" aria-checked={dias.includes(i)} onClick={() => alternarDia(i)}>
+                    <span>{n}</span><span className={`bolinha ${dias.includes(i) ? 'on' : ''}`} aria-hidden="true">{dias.includes(i) ? '✓' : ''}</span>
+                  </button>
+                ))}
+              </div>
+            )}
+          </div>
         </div>
       )}
-      {modo !== 'dia' && <label className="check" style={{ marginTop: 12 }}><input type="checkbox" name="fixado" value="1" defaultChecked />Fixar (repete toda semana até eu mudar)</label>}
-      <button className="btn" style={{ marginTop: 14 }}>Salvar previsto</button>
+      <button className="btn bloco" style={{ marginTop: 14 }}>Salvar previsto</button>
     </Form>
   );
 }

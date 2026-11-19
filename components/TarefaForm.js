@@ -139,11 +139,6 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
                     <span>Personalizar{opcao === 'pers' ? ` · ${resumo}` : ''}</span><span aria-hidden="true">›</span>
                   </button>
                 </div>
-                <div className="folha-lista">
-                  {['semanal', 'mensal'].map((o) => (
-                    <button key={o} type="button" className={opcao === o ? 'sel' : ''} onClick={() => escolher(o)}>{ROTULO[o]}</button>
-                  ))}
-                </div>
               </>
             )}
             {folha === 'pers' && (

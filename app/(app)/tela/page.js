@@ -74,7 +74,7 @@ export default async function Tela({ searchParams }) {
         <div className="abas">{filhos.map((f) => <Link prefetch={false} key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.nome}</Link>)}</div></div>
       <div className="duas">
         <div className="lado">
-          <div className="card"><h2>Novo previsto para {alvo.nome}</h2><PrevistoForm membro={alvo.id} hoje={hoje} /></div>
+          <div className="card"><h2>Tempo de tela de {alvo.nome}</h2><p className="sub" style={{ marginTop: 0, marginBottom: 12 }}>Defina quanto tempo {alvo.nome} pode usar por dia.</p><PrevistoForm membro={alvo.id} hoje={hoje} /></div>
         </div>
         <div className="grande">
           {(propostas || []).length > 0 && <div className="card"><h2>Propostas para validar</h2>

@@ -115,6 +115,7 @@ export async function salvarPessoa(_, fd) {
   f.chaves.forEach(([k]) => { permissoes[k] = fd.get(`perm_${k}`) === '1'; });
   const reg = {
     nome: txt(fd, 'nome', 60), email: v.email || null, papel: f.papel, funcao: f.id, permissoes,
+    sexo: f.ga && ['m', 'f'].includes(fd.get('sexo')) ? fd.get('sexo') : null,
     ativo: fd.get('ativo') === '1', tela_ativo: fd.get('tela_ativo') === '1',
     cor: /^#[0-9a-f]{6}$/i.test(fd.get('cor') || '') ? fd.get('cor') : '#1a6fe0',
   };
@@ -200,20 +201,21 @@ export async function salvarPrevisto(_, fd) {
   if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
   const formato = fd.get('formato') === 'total' ? 'total' : 'aparelho';
   const m = lerMinutos(fd, formato); if (m.erro) return m;
-  const modo = fd.get('modo');
+  const modo = ['dia', 'dias', 'semana'].includes(fd.get('modo')) ? fd.get('modo') : 'dias';
   const hoje = hojeISO();
+  const inicio = data(fd.get('inicio')) || hoje;
   let dias, ini, fim;
   if (modo === 'dia') {
-    const d = data(fd.get('data')); if (!d) return { erro: 'Escolha o dia' };
-    dias = [new Date(d + 'T12:00:00Z').getUTCDay()]; ini = d; fim = d;
+    dias = [new Date(inicio + 'T12:00:00Z').getUTCDay()]; ini = inicio; fim = inicio;
   } else {
     dias = modo === 'semana' ? [0, 1, 2, 3, 4, 5, 6] : fd.getAll('dias').map(Number).filter((n) => n >= 0 && n <= 6);
     if (!dias.length) return { erro: 'Escolha os dias da semana' };
-    ini = hoje; fim = fd.get('fixado') === '1' ? null : (() => { const d = new Date(hoje + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + (6 - d.getUTCDay())); return d.toISOString().slice(0, 10); })();
+    ini = inicio; fim = data(fd.get('fim'));
+    if (fim && fim < ini) return { erro: 'O fim deve ser depois do início' };
   }
   const { error } = await supabase.from('ra_tela_previsto').insert({
     familia_id: eu.familia_id, membro_id: uuid(fd.get('membro')), formato, dias_semana: dias, vigencia_inicio: ini, vigencia_fim: fim,
-    fixado: modo !== 'dia' && fd.get('fixado') === '1', ...m, criado_por: eu.id,
+    fixado: modo !== 'dia' && !fim, ...m, criado_por: eu.id,
   });
   if (error) return { erro: error.message };
   revalidatePath('/tela');

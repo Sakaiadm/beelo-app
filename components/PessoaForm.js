@@ -6,13 +6,14 @@ import AvatarUpload from './AvatarUpload';
 import Avatar from './Avatar';
 import { salvarPessoa, excluirPessoa } from '@/app/acoes';
 import { validarEmail } from '@/lib/email';
-import { FUNCOES, funcaoDe, chavesIniciais } from '@/lib/papeis';
+import { FUNCOES, funcaoDe, chavesIniciais, rotuloFuncao } from '@/lib/papeis';
 import { CORES_PESSOA } from '@/lib/cores';
 
 export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId }) {
   const [nome, setNome] = useState(m?.nome || '');
   const [email, setEmail] = useState(m?.email || '');
   const [funcao, setFuncao] = useState(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''));
+  const [sexo, setSexo] = useState(m?.sexo || '');
   const [cor, setCor] = useState(m?.cor || corInicial || '#1a6fe0');
   const [ativo, setAtivo] = useState(m ? m.ativo : true);
   const [tela, setTela] = useState(m ? m.tela_ativo : true);
@@ -37,7 +38,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {m ? (
           <div style={{ marginBottom: 12 }}><AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={nome || m.nome} cor={cor} /></div>
         ) : (
-          <div className="cartao-l" style={{ marginBottom: 12 }}><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f?.nome || 'Escolha o papel'}</small></span></div>
+          <div className="cartao-l" style={{ marginBottom: 12 }}><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f ? rotuloFuncao(f.id, sexo) : 'Escolha o papel'}</small></span></div>
         )}
         <label htmlFor="p-nome">Nome</label>
         <input id="p-nome" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} required maxLength={60} placeholder="Ex.: Tia Ana" />
@@ -52,11 +53,20 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         <label htmlFor="p-papel">Papel</label>
         <select id="p-papel" value={funcao} onChange={(e) => mudaFuncao(e.target.value)} required>
           <option value="" disabled>Selecione</option>
-          {FUNCOES.map((x) => <option key={x.id} value={x.id}>{x.nome}</option>)}
+          {FUNCOES.map((x) => <option key={x.id} value={x.id}>{x.ga ? `${x.nome}(a)` : x.nome}</option>)}
         </select>
+        {f?.ga && (
+          <>
+            <input type="hidden" name="sexo" value={sexo} />
+            <div className="seg" role="radiogroup" aria-label="Masculino ou feminino" style={{ marginTop: 10, marginBottom: 0 }}>
+              <button type="button" role="radio" aria-checked={sexo === 'm'} className={sexo === 'm' ? 'on' : ''} onClick={() => setSexo('m')}>Masculino</button>
+              <button type="button" role="radio" aria-checked={sexo === 'f'} className={sexo === 'f' ? 'on' : ''} onClick={() => setSexo('f')}>Feminino</button>
+            </div>
+          </>
+        )}
         {f && (
           <>
-            <div className="caixa-papel"><b>{f.nome}:</b> {f.desc}</div>
+            <div className="caixa-papel"><b>{rotuloFuncao(f.id, sexo)}:</b> {f.desc}</div>
             {f.chaves.length > 0 && (
               <>
                 <p className="peq-cinza" style={{ margin: '12px 0 2px' }}>O que ele pode fazer</p>
@@ -82,7 +92,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
           <div className="folha" role="dialog" aria-modal="true" aria-label="Cor">
             <div className="folha-in">
               <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(false)}>←</button><h2>Cor</h2></div>
-              <div className="cartao-l"><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f?.nome || ''}</small></span></div>
+              <div className="cartao-l"><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f ? rotuloFuncao(f.id, sexo) : ''}</small></span></div>
               <p style={{ fontWeight: 700, margin: '4px 0 0' }}>Cores sugeridas</p>
               <div className="grade-cores">
                 {CORES_PESSOA.map((c) => (
