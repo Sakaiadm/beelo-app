@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
 import { parseMin, hojeISO, addDias, CORES_CAT } from '@/lib/util';
 import { validarEmail } from '@/lib/email';
-import { funcaoDe } from '@/lib/papeis';
+import { funcaoDe, nomeFuncao } from '@/lib/papeis';
 import { emailConfigurado, enviarEmailConvite } from '@/lib/convite';
 import { esquecerSessoes } from '@/lib/sessao';
 
@@ -133,8 +133,8 @@ export async function salvarPessoa(_, fd) {
   }
   if (id === eu.id && (!reg.ativo || reg.papel !== 'gestor')) return { erro: 'Você não pode tirar o seu próprio acesso de pai/mãe' };
   const { data: salvo, error } = id
-    ? await supabase.from('ra_membros').update(reg).eq('id', id).select('id, nome, email, user_id').maybeSingle()
-    : await supabase.from('ra_membros').insert({ ...reg, familia_id: eu.familia_id }).select('id, nome, email, user_id').maybeSingle();
+    ? await supabase.from('ra_membros').update(reg).eq('id', id).select('id, nome, email, user_id, funcao, papel').maybeSingle()
+    : await supabase.from('ra_membros').insert({ ...reg, familia_id: eu.familia_id }).select('id, nome, email, user_id, funcao, papel').maybeSingle();
   if (error) return { erro: error.message.includes('duplicate') ? 'Este e-mail já está cadastrado' : error.message };
   revalidar();
   let aviso = '';
@@ -153,7 +153,7 @@ async function mandarConvite(supabase, eu, m) {
   if (!emailConfigurado()) return { erro: 'O e-mail de envio ainda não foi configurado no servidor.' };
   const { data: fam } = await supabase.from('ra_familias').select('nome').eq('id', eu.familia_id).maybeSingle();
   try {
-    await enviarEmailConvite({ para: m.email, nomePessoa: m.nome, nomeFamilia: fam?.nome || 'da família', quemConvida: eu.nome, ja: !!m.user_id });
+    await enviarEmailConvite({ para: m.email, nomePessoa: m.nome, nomeFamilia: fam?.nome || 'do grupo', quemConvida: eu.nome, ja: !!m.user_id, papel: nomeFuncao(m) });
   } catch (e) {
     return { erro: 'Não foi possível enviar o e-mail (' + String(e.message || e).slice(0, 80) + ').' };
   }
@@ -166,7 +166,7 @@ export async function reenviarConvite(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
   if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
-  const { data: m } = await supabase.from('ra_membros').select('id, nome, email, user_id').eq('id', uuid(fd.get('id'))).eq('familia_id', eu.familia_id).maybeSingle();
+  const { data: m } = await supabase.from('ra_membros').select('id, nome, email, user_id, funcao, papel').eq('id', uuid(fd.get('id'))).eq('familia_id', eu.familia_id).maybeSingle();
   if (!m) return { erro: 'Pessoa não encontrada' };
   const r = await mandarConvite(supabase, eu, m);
   return r.ok ? { ok: true, msg: m.user_id ? 'E-mail enviado.' : 'Convite enviado.' } : r;
