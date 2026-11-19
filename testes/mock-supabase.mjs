@@ -9,7 +9,7 @@ const membros = [
   { id: G, familia_id: FAM, nome: 'Thomas', papel: 'gestor', cor: '#0f4fae', email: 'pai@t.com', ativo: true, tela_ativo: true, user_id: id(91) },
   { id: M, familia_id: FAM, nome: 'Mãe', papel: 'gestor', cor: '#7a3fb0', email: null, ativo: true, tela_ativo: true, user_id: null },
   { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92) },
-  { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: null, ativo: true, tela_ativo: false, user_id: null },
+  { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: 'alice@t.com', ativo: true, tela_ativo: false, user_id: null },
 ];
 const cats = [{ id: id(20), familia_id: FAM, nome: 'Estudo', cor: 'indigo', ordem: 1 }, { id: id(21), familia_id: FAM, nome: 'Casa', cor: 'laranja', ordem: 2 }];
 const tarefas = [
@@ -88,6 +88,11 @@ http.createServer((req, res) => {
     const rows = filtrar(tabelas[m[2]] || [], u.searchParams);
     if (req.method === 'HEAD' || (req.headers.prefer || '').includes('count=exact')) {
       return send(200, req.method === 'HEAD' ? undefined : rows, { 'content-range': `0-${Math.max(rows.length - 1, 0)}/${rows.length}` });
+    }
+    if (req.method !== 'GET' && m[2] === 'ra_membros' && u.searchParams.get('select')) {
+      const b = JSON.parse(body || '{}');
+      const achados = req.method === 'PATCH' ? rows : [{ id: id(999), nome: b.nome, email: b.email, user_id: null }];
+      return (req.headers.accept || '').includes('vnd.pgrst.object') ? send(200, achados[0]) : send(200, achados);
     }
     if (req.method !== 'GET') return send(201, []);
     if ((req.headers.accept || '').includes('vnd.pgrst.object')) return rows[0] ? send(200, rows[0]) : send(406, { code: 'PGRST116', message: 'no rows' });

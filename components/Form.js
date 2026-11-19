@@ -15,7 +15,7 @@ export default function Form({ acao, children, okTxt, limpar, className, style }
   return (
     <form ref={ref} onSubmit={aoEnviar} className={className} style={style} aria-busy={pendente}>
       {estado?.erro && <div className="aviso erro" role="alert">{estado.erro}</div>}
-      {estado?.ok && okTxt && <div className="aviso ok" role="status">{okTxt}</div>}
+      {estado?.ok && (estado.msg || okTxt) && <div className="aviso ok" role="status">{estado.msg || okTxt}</div>}
       <fieldset disabled={pendente} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>{children}</fieldset>
     </form>
   );

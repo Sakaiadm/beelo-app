@@ -8,6 +8,8 @@ import { salvarPessoa, excluirPessoa } from '@/app/acoes';
 import { validarEmail } from '@/lib/email';
 import { FUNCOES, funcaoDe, chavesIniciais, rotuloFuncao } from '@/lib/papeis';
 import { CORES_PESSOA } from '@/lib/cores';
+import { statusConvite } from '@/lib/statusConvite';
+import ReenviarConvite from './ReenviarConvite';
 
 export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId }) {
   const [nome, setNome] = useState(m?.nome || '');
@@ -77,6 +79,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         <div className="lin-chave"><span>Acesso ativo<small>{eu ? 'Você não pode desativar a si mesmo' : 'Desativar tira o acesso sem apagar o histórico'}</small></span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}
         <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : 'Adicionar pessoa'}</button>
+        {!m && email && v.ok && <button name="enviar" value="1" className="btn sec bloco" style={{ marginTop: 8 }} disabled={bloqueado}>Salvar e enviar convite</button>}
         {!m && <p className="peq-cinza">A foto pode ser colocada depois de salvar. O envio do convite por e-mail virá em uma próxima etapa.</p>}
         {folha && (
           <div className="folha" role="dialog" aria-modal="true" aria-label="Cor">
@@ -96,6 +99,13 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
           </div>
         )}
       </Form>
+      {m && m.email && !eu && (
+        <div className="card">
+          <b>Convite por e-mail</b>
+          <p style={{ margin: '6px 0 10px', fontSize: 14, color: 'var(--cinza)' }}>{statusConvite(m)?.txt}</p>
+          <ReenviarConvite id={m.id} rotulo={m.user_id ? 'Enviar e-mail de acesso' : m.convidado_em ? 'Reenviar convite' : 'Enviar convite'} />
+        </div>
+      )}
       {m && !eu && (
         <div className="card">
           {!excluir ? (

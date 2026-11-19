@@ -13,5 +13,11 @@ services:
       VAPID_PRIVATE_KEY: ${VAPID_PRIVATE_KEY:-}
       PUSH_SEGREDO: ${PUSH_SEGREDO:-}
       VAPID_ASSUNTO: ${VAPID_ASSUNTO:-}
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-465}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASS: ${SMTP_PASS:-}
+      SMTP_DE: ${SMTP_DE:-}
+      APP_URL: ${APP_URL:-https://rotina.sakaiadm.tech}
     ports:
       - "127.0.0.1:3010:3000"

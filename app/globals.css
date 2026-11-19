@@ -287,3 +287,7 @@ a.cartao-l:hover { border-color: var(--azul); }
 body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 @media (prefers-reduced-motion: reduce) { .progresso.on { animation: none; width: 100%; } }
 .tarefa .topo-t .lapis { flex: none; }
+
+.st-conv.ok { color: var(--ok); font-weight: 700; }
+.st-conv.espera { color: var(--aviso); font-weight: 600; }
+.st-conv.pend { color: var(--cinza); }

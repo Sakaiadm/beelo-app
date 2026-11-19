@@ -9,7 +9,7 @@ const seguranca = [
 const nextConfig = {
   output: 'standalone',
   poweredByHeader: false,
-  serverExternalPackages: ['web-push'],
+  serverExternalPackages: ['web-push', 'nodemailer'],
   experimental: { serverActions: { bodySizeLimit: '1mb' } },
   async headers() {
     return [
