@@ -391,7 +391,16 @@ begin
   select count(*) into n from public.ra_membros where familia_id = fam and email = 'novo-resp@teste.local' and papel = 'gestor';
   if n = 1 then nok := nok + 1; r := r || E'OK  9.14 Administrador troca o responsável por uma pessoa nova (entra como gestor)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 9.14\n'; end if;
   execute 'reset role';
-
+  -- 10. Tarefa de data futura não pode ser marcada
+  insert into public.ra_ocorrencias(tarefa_id, familia_id, membro_id, data)
+    select tarefa_id, familia_id, membro_id, ((now() at time zone 'America/Sao_Paulo')::date + 400) from public.ra_ocorrencias where membro_id = F1 limit 1 returning id into oc2;
+  perform set_config('request.jwt.claims', json_build_object('sub', f1U, 'email', 'teste-f1@teste.local', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  begin perform public.ra_concluir2(oc2, null, null); nfalha := nfalha + 1; r := r || E'FALHA 10.1 marcou tarefa de data futura\n';
+  exception when others then
+    if sqlerrm like '%data futura%' then nok := nok + 1; r := r || E'OK  10.1 Tarefa de data futura não pode ser marcada (mensagem clara)\n'; else nfalha := nfalha + 1; r := r || 'FALHA 10.1 ' || sqlerrm || E'\n'; end if;
+  end;
+  execute 'reset role';
 
   raise exception E'RELATORIO_TESTES\nAprovados: %  Falhas: %\n%', nok, nfalha, r;
 end $$;

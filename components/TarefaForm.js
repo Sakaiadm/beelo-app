@@ -30,7 +30,7 @@ function opcaoInicial(t) {
   return d === SEG_SEX.join() ? 'semana' : 'pers';
 }
 
-export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar }) {
+export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar, euId }) {
   const [opcao, setOpcao] = useState(opcaoInicial(t));
   const [dias, setDias] = useState(t?.recorrencia === 'dias_semana' && t.dias_semana?.length ? [...t.dias_semana] : SEG_SEX);
   const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
@@ -74,8 +74,8 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       <div className="linha">
         {gestor && (
           <div><label htmlFor="responsavel">Para quem</label>
-            <select id="responsavel" name="responsavel" defaultValue={t?.responsavel_id || filhos[0]?.id} required>
-              {filhos.map((f) => <option key={f.id} value={f.id}>{f.nome}</option>)}
+            <select id="responsavel" name="responsavel" defaultValue={t?.responsavel_id || (filhos.find((f) => f.id !== euId) || filhos[0])?.id} required>
+              {filhos.map((f) => <option key={f.id} value={f.id}>{f.id === euId ? `Eu mesmo (${f.nome})` : f.nome}</option>)}
             </select></div>
         )}
         <div><label htmlFor="categoria">Categoria</label>

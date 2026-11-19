@@ -73,6 +73,7 @@ export async function salvarTarefa(_, fd) {
     permite_adiar: eu.papel === 'gestor' ? fd.get('permite_adiar') === '1' : true,
     exige_justificativa: eu.papel === 'gestor' ? fd.get('exige_justificativa') === '1' : false,
   };
+  if (eu.papel === 'gestor' && reg.responsavel_id === eu.id) { reg.permite_adiar = false; reg.exige_justificativa = false; }
   if (!reg.titulo) return { erro: 'Dê um nome para a tarefa' };
   if (!reg.responsavel_id) return { erro: 'Escolha para quem é a tarefa' };
   if (recorrencia === 'dias_semana' && dias.length === 0) return { erro: 'Escolha pelo menos um dia da semana' };

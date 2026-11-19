@@ -15,10 +15,11 @@ export default async function Editar({ params, searchParams }) {
   if (!podeEditar) notFound();
   const { data: categorias } = await supabase.from('ra_categorias').select('*').order('ordem');
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
+  const pessoas = gestor ? [eu, ...filhos] : filhos;
   return (
     <main className="estreito">
       <div className="cab"><h1 className="titulo">Editar tarefa</h1></div>
-      <TarefaForm t={t} filhos={filhos} categorias={categorias || []} gestor={gestor} hoje={hojeISO()} voltar={voltar} />
+      <TarefaForm t={t} euId={eu.id} filhos={pessoas} categorias={categorias || []} gestor={gestor} hoje={hojeISO()} voltar={voltar} />
       <ExcluirTarefa id={t.id} voltar={voltar} />
     </main>
   );

@@ -5,7 +5,7 @@ import Icone from './Icone';
 import Form from './Form';
 import Foto from './Foto';
 import { concluir, desfazer, justificar, pedirAdiamento, definirHorario, conferir } from '@/app/acoes';
-import { CORES_CAT, STATUS_TXT, hhmm } from '@/lib/util';
+import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana } from '@/lib/util';
 
 const ICONE_STATUS = {
   cumprida: ['hoje', 'var(--ok)'], cumprida_atraso: ['hoje', 'var(--ok)'], justificada: ['hoje', 'var(--aviso)'],
@@ -13,8 +13,9 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, editarHref }) {
+export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca }) {
   const [aba, setAba] = useState(null);
+  const [aviso, setAviso] = useState('');
   const cat = oc.tarefa?.categoria;
   const [fundo, letra] = CORES_CAT[cat?.cor] || CORES_CAT.cinza;
   const feita = st === 'cumprida' || st === 'cumprida_atraso';
@@ -22,17 +23,23 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
   const [ic, cor] = ICONE_STATUS[st] || ICONE_STATUS.pendente;
   const horario = oc.hora_inicio ? `${hhmm(oc.hora_inicio)}${oc.hora_fim ? '–' + hhmm(oc.hora_fim) : ''}` : 'Sem horário';
   const podeConcluir = dono && !feita && st !== 'adiamento_pedido' && st !== 'adiada';
+  const futura = oc.data > hoje;
+  const outraPessoa = gestor && !dono;
   const alternar = (a) => setAba(aba === a ? null : a);
 
   return (
     <div className={`tarefa ${feita ? 'feita' : ''} ${atrasada ? 'atrasada' : ''}`}>
       <div className="topo-t">
-        {podeConcluir && !oc.tarefa?.exige_foto ? (
+        {futura && podeConcluir ? (
+          <button type="button" className="circulo" onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={26} /></button>
+        ) : podeConcluir && !oc.tarefa?.exige_foto ? (
           <Form acao={concluir}><input type="hidden" name="oc" value={oc.id} />
             <button className="circulo" aria-label={`Concluir ${oc.tarefa?.titulo}`} title="Marcar como feita"><Icone nome={ic} cor={cor} tam={26} /></button>
           </Form>
         ) : podeConcluir ? (
           <button className="circulo" onClick={() => alternar('concluir')} aria-label={`Concluir ${oc.tarefa?.titulo} com foto`} title="Esta tarefa pede foto"><Icone nome={ic} cor={cor} tam={26} /></button>
+        ) : outraPessoa && !feita && (st === 'pendente' || st === 'atrasada') ? (
+          <button type="button" className="circulo" onClick={() => setAviso(`Quem marca é ${quemMarca || 'a própria pessoa'}. Você confere depois que a tarefa for marcada.`)} aria-label={`Quem marca ${oc.tarefa?.titulo}`} title="Só a própria pessoa marca"><Icone nome={ic} cor={cor} tam={26} /></button>
         ) : (
           <span className="circulo"><Icone nome={ic} cor={cor} tam={26} rotulo={STATUS_TXT[st]} /></span>
         )}
@@ -57,7 +64,9 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
         {editarHref && <Link prefetch={false} className="btn sec peq icone lapis" href={editarHref} aria-label={`Editar ${oc.tarefa?.titulo}`} title="Editar"><Icone nome="lapis" tam={18} /></Link>}
       </div>
 
-      {dono && (
+      {aviso && <div className="aviso erro" role="alert" style={{ marginTop: 8 }}>{aviso}</div>}
+
+      {dono && !gestor && (
         <div className="acoes" style={{ marginTop: 8 }}>
           {atrasada && <button className="btn sec peq" onClick={() => alternar('justificar')}>Justificar</button>}
           {(st === 'pendente' || st === 'atrasada') && oc.tarefa?.permite_adiar ? <button className="btn sec peq" onClick={() => alternar('adiar')}>Adiar</button> : null}
@@ -68,7 +77,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
         </div>
       )}
 
-      {gestor && feita && (
+      {gestor && !dono && feita && (
         <div className="acoes" style={{ marginTop: 8 }}>
           <Form acao={conferir}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq" disabled={oc.conferido === 'conferido'}>Conferido</button></Form>
           <Form acao={conferir}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Pedir para refazer</button></Form>

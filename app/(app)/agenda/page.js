@@ -15,8 +15,10 @@ export default async function Agenda({ searchParams }) {
   const v = ['dia', 'semana', 'mes'].includes(sp.v) ? sp.v : 'semana';
   const d = /^\d{4}-\d{2}-\d{2}$/.test(sp.d || '') ? sp.d : hoje;
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
-  const filtroM = gestor ? (filhos.find((f) => f.id === sp.m)?.id || '') : eu.id;
-  const alvo = filtroM ? [filtroM] : filhos.map((f) => f.id);
+  // O pai/mãe também pode ter tarefas próprias: "Eu" entra junto com as pessoas.
+  const pessoas = gestor ? [eu, ...filhos] : [eu];
+  const filtroM = gestor ? (pessoas.find((f) => f.id === sp.m)?.id || '') : eu.id;
+  const alvo = filtroM ? [filtroM] : pessoas.map((f) => f.id);
   const nome = Object.fromEntries(membros.map((m) => [m.id, m.nome]));
 
   // A semana começa no dia escolhido (por padrão, hoje).
@@ -56,7 +58,7 @@ export default async function Agenda({ searchParams }) {
       {gestor && (
         <div className="seg" aria-label="Pessoa">
           <Link prefetch={false} href={`/agenda?v=${v}&d=${d}`} className={!filtroM ? 'on' : ''}>Todos</Link>
-          {filhos.map((f) => <Link prefetch={false} key={f.id} href={`/agenda?v=${v}&d=${d}&m=${f.id}`} className={filtroM === f.id ? 'on' : ''}>{f.nome}</Link>)}
+          {pessoas.map((f) => <Link prefetch={false} key={f.id} href={`/agenda?v=${v}&d=${d}&m=${f.id}`} className={filtroM === f.id ? 'on' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
         </div>
       )}
 
@@ -91,7 +93,7 @@ export default async function Agenda({ searchParams }) {
         <div style={{ maxWidth: 680 }}>
           {lista.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
           {lista.map((x) => (
-            <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={!gestor && x.o.membro_id === eu.id} gestor={gestor} familia={eu.familia_id}
+            <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={x.o.membro_id === eu.id} quemMarca={nome[x.o.membro_id]} gestor={gestor} familia={eu.familia_id}
               editarHref={gestor || (x.o.tarefa?.criada_por === eu.id && x.o.membro_id === eu.id) ? `/tarefas/${x.o.tarefa_id}/editar?d=${d}` : null} fotoUrl={fotos[x.o.foto_path]} nomeMembro={gestor && !filtroM ? nome[x.o.membro_id] : null} hoje={hoje} />
           ))}
         </div>
