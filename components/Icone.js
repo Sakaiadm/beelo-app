@@ -20,6 +20,7 @@ const P = {
   galeria: <><rect x="3" y="3" width="18" height="18" rx="2" /><circle cx="9" cy="9" r="2" /><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21" /></>,
   esq: <path d="m15 18-6-6 6-6" />,
   dir: <path d="m9 18 6-6-6-6" />,
+  escudo: <><path d="M12 3 5 5.8v5.5c0 4.3 2.9 7.7 7 9.2 4.1-1.5 7-4.9 7-9.2V5.8z" /><path d="m9 12 2.2 2.2L15.5 10" /></>,
   sair: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5M21 12H9" /></>,
 };
 export default function Icone({ nome, tam = 22, cor = 'currentColor', larg = 2, rotulo }) {

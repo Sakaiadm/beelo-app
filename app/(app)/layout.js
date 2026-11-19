@@ -1,19 +1,19 @@
 import { exigirMembro } from '@/lib/sessao';
 import Link from 'next/link';
 import Icone from '@/components/Icone';
-import Tema from '@/components/Tema';
+import MenuUsuario from '@/components/MenuUsuario';
 import Menu from '@/components/Menu';
 import Avatar from '@/components/Avatar';
 import Selo from '@/components/Selo';
 import { urlsAvatares } from '@/lib/avatar';
 
 export default async function AppLayout({ children }) {
-  const { supabase, eu, naoLidas, gestor, superAdmin } = await exigirMembro();
+  const { supabase, eu, naoLidas, gestor, superAdmin, familia } = await exigirMembro();
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const itens = gestor
     ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' }, { href: '/tarefas', txt: 'Tarefas', icone: 'lista' },
        { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' }, { href: '/tela', txt: 'Tela', icone: 'tela' }, { href: '/config', txt: 'Cadastros', icone: 'config' },
-       ...(superAdmin ? [{ href: '/admin', txt: 'Admin', icone: 'painel' }] : [])]
+       ...(superAdmin ? [{ href: '/admin', txt: 'Admin', icone: 'escudo' }] : [])]
     : [{ href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' }, { href: '/tarefas', txt: 'Minhas', icone: 'lista' },
        ...(eu.tela_ativo ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: 'Evolução', icone: 'grafico' }];
   return (
@@ -22,17 +22,12 @@ export default async function AppLayout({ children }) {
         <div className="topo-in">
           <Link className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</Link>
           <Menu itens={itens} />
-          <div className="quem">
-            <Tema />
-            <Link className="icone-btn" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
-              <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
-            </Link>
-            <Link className="icone-btn" href="/ajuda" aria-label="Ajuda" title="Ajuda" style={{ fontWeight: 800, fontSize: 18, color: '#fff', textDecoration: 'none' }}>?</Link>
-            <Link href="/perfil" title="Meu perfil" style={{ display: 'flex', alignItems: 'center', gap: 8, color: 'inherit', textDecoration: 'none' }}>
-              <Avatar nome={eu.nome} cor={eu.cor} url={urls[eu.avatar]} avatar={eu.avatar} /><span className="nome">{eu.nome}</span>
-            </Link>
-            <form action="/auth/sair" method="post"><button className="icone-btn" aria-label="Sair" title="Sair"><Icone nome="sair" cor="#fff" tam={20} /></button></form>
-          </div>
+          <Link className="icone-btn sino" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
+            <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
+          </Link>
+          <MenuUsuario nome={eu.nome} familia={familia.nome}>
+            <Avatar nome={eu.nome} cor={eu.cor} url={urls[eu.avatar]} avatar={eu.avatar} tam={28} />
+          </MenuUsuario>
         </div>
       </header>
       <Selo n={naoLidas} />

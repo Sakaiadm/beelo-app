@@ -145,7 +145,11 @@ dialog::backdrop { background: rgba(10, 20, 40, .6); }
   .navbaixo a.ativo { color: var(--azul); font-weight: 800; }
   main { padding: 16px 14px 96px; }
   h1.titulo { font-size: 24px; }
-  .quem .nome { display: none; }
+  .topo-in { padding: 10px 14px 12px; }
+  .marca { flex: 1; }
+  .usuario { order: 3; flex: 1 0 100%; }
+  .usuario-btn { width: 100%; justify-content: space-between; height: 44px; }
+  .usuario-menu { left: 0; right: 0; width: auto; }
 }
 @media print { .topo, .navbaixo, .nao-imprimir { display: none !important; } body { background: #fff; } .card { break-inside: avoid; } }
 /* Linha de tarefa inteira clicável (link esticado) */
@@ -168,3 +172,19 @@ section:first-child > .ajuda-sec { margin-top: 0; }
 .ajuda-item summary::after { content: "+"; color: var(--cinza); font-weight: 400; font-size: 20px; line-height: 1; }
 .ajuda-item[open] summary::after { content: "–"; }
 .ajuda-item p { margin: 0; padding: 0 0 14px; line-height: 1.6; text-align: justify; hyphens: auto; }
+
+/* Topo: botão com o nome e menu */
+.usuario { position: relative; }
+.usuario-btn { display: flex; align-items: center; gap: 10px; height: 44px; padding: 0 12px 0 8px; border-radius: 999px; border: 0; background: rgba(255,255,255,.18); color: #fff; font: inherit; font-weight: 600; font-size: 15px; cursor: pointer; }
+.usuario-nome { flex: 1; text-align: left; min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.usuario-nome small { font-weight: 400; opacity: .85; font-size: 13px; }
+.usuario-seta { font-size: 12px; opacity: .9; }
+.usuario-menu { position: absolute; right: 0; top: calc(100% + 6px); width: 240px; background: var(--cartao); color: var(--texto); border: 1px solid var(--borda); border-radius: 14px; box-shadow: 0 10px 28px rgba(0,0,0,.22); padding: 6px; z-index: 40; display: flex; flex-direction: column; }
+.usuario-menu a, .usuario-menu button { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; padding: 12px; border-radius: 9px; border: 0; background: transparent; color: var(--texto); font: inherit; font-size: 15px; text-decoration: none; cursor: pointer; text-align: left; }
+.usuario-menu a:hover, .usuario-menu button:hover { background: var(--trilho); }
+.usuario-menu .sair { color: var(--erro); justify-content: flex-start; border-top: 1px solid var(--borda); border-radius: 0 0 9px 9px; margin-top: 4px; }
+.usuario-menu .chave { width: 38px; height: 22px; border-radius: 999px; background: var(--campo); position: relative; flex: none; }
+.usuario-menu .chave::after { content: ""; position: absolute; left: 2px; top: 2px; width: 18px; height: 18px; border-radius: 50%; background: #fff; transition: transform .15s; }
+.usuario-menu .chave.on { background: var(--azul); }
+.usuario-menu .chave.on::after { transform: translateX(16px); }
+@media (min-width: 761px) { .topo-in { flex-wrap: nowrap; } .marca { margin-right: auto; } }

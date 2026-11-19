@@ -50,7 +50,7 @@ const casos = [
   ['pai', 'Detalhes mostram a foto da tarefa feita', '/tarefas/00000000-0000-0000-0000-000000000031', async (p) => { if (!(await p.locator('img[alt^="Foto de"]').count())) throw new Error('sem foto'); }, null],
   ['pai', 'Clicar no aviso marca como lido', '/notificacoes', async (p) => { await p.getByText('Eduardo pediu adiamento').first().click(); await p.waitForURL(/\/painel/, { timeout: 8000 }); }, /PATCH \/rest\/v1\/ra_notificacoes .*"lida":true/],
   ['pai', 'Filtros do relatório', '/relatorios', async (p) => { await p.locator('select[name=per]').selectOption('30d'); await p.getByRole('button', { name: 'Filtrar' }).click(); await p.waitForURL(/per=30d/, { timeout: 8000 }); }, null],
-  ['pai', 'Tema escuro', '/painel', async (p) => { await p.locator('.tema-btn').click(); await p.waitForTimeout(500); if ((await p.locator('html').getAttribute('data-theme')) !== 'escuro') throw new Error('tema não mudou'); }, null],
+  ['pai', 'Tema escuro', '/painel', async (p) => { await p.locator('.usuario-btn').click(); await p.getByRole('menuitem', { name: 'Modo escuro' }).click(); await p.waitForTimeout(500); if ((await p.locator('html').getAttribute('data-theme')) !== 'escuro') throw new Error('tema não mudou'); }, null],
 ];
 const browser = await chromium.launch();
 const out = []; let falhas = 0;
