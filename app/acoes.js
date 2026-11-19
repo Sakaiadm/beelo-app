@@ -115,7 +115,6 @@ export async function salvarPessoa(_, fd) {
   f.chaves.forEach(([k]) => { permissoes[k] = fd.get(`perm_${k}`) === '1'; });
   const reg = {
     nome: txt(fd, 'nome', 60), email: v.email || null, papel: f.papel, funcao: f.id, permissoes,
-    sexo: f.ga && ['m', 'f'].includes(fd.get('sexo')) ? fd.get('sexo') : null,
     ativo: fd.get('ativo') === '1', tela_ativo: fd.get('tela_ativo') === '1',
     cor: /^#[0-9a-f]{6}$/i.test(fd.get('cor') || '') ? fd.get('cor') : '#1a6fe0',
   };

@@ -392,11 +392,6 @@ begin
   if n = 1 then nok := nok + 1; r := r || E'OK  9.14 Administrador troca o responsável por uma pessoa nova (entra como gestor)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 9.14\n'; end if;
   execute 'reset role';
 
-  execute 'reset role';
-  begin update public.ra_membros set sexo = 'x' where id = G; nfalha := nfalha + 1; r := r || E'FALHA 9.15 sexo inválido aceito\n';
-  exception when others then nok := nok + 1; r := r || E'OK  9.15 Sexo só aceita masculino ou feminino\n'; end;
-  update public.ra_membros set sexo = 'f' where id = F1;
-  nok := nok + 1; r := r || E'OK  9.16 Sexo feminino é gravado na pessoa\n';
 
   raise exception E'RELATORIO_TESTES\nAprovados: %  Falhas: %\n%', nok, nfalha, r;
 end $$;
