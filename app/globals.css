@@ -216,3 +216,9 @@ section:first-child > .ajuda-sec { margin-top: 0; }
 .folha-lista button.sel span:first-child { flex: 1; }
 .bolinha { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--campo); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; }
 .bolinha.on { background: var(--azul); border-color: var(--azul); }
+
+/* Sugestões de atividades */
+.sugestao-btn { border-style: dashed; justify-content: center; margin-bottom: 4px; }
+.chips { display: flex; flex-wrap: wrap; gap: 8px; }
+.chips button { min-height: 40px; padding: 0 14px; border-radius: 999px; border: 1.5px solid var(--campo); background: var(--cartao); color: var(--texto); font: inherit; font-size: 14px; cursor: pointer; }
+.chips button.on { background: var(--azul); border-color: var(--azul); color: #fff; font-weight: 700; }

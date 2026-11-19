@@ -2,7 +2,8 @@
 import { useState } from 'react';
 import Form from './Form';
 import { salvarTarefa } from '@/app/acoes';
-import { DIAS_CURTO, hhmm } from '@/lib/util';
+import { hhmm } from '@/lib/util';
+import { SUGESTOES, IDADES, resumoSugestao } from '@/lib/sugestoes';
 
 const SEG_SEX = [1, 2, 3, 4, 5];
 const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
@@ -25,6 +26,13 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
   const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
   const [fim, setFim] = useState(t?.data_fim || '');
   const [comHora, setComHora] = useState(!!t?.hora_inicio);
+  const [titulo, setTitulo] = useState(t?.titulo || '');
+  const [cat, setCat] = useState(t?.categoria_id || '');
+  const [horaIni, setHoraIni] = useState(hhmm(t?.hora_inicio));
+  const [horaFim, setHoraFim] = useState(hhmm(t?.hora_fim));
+  const [foto, setFoto] = useState(!!t?.exige_foto);
+  const [fCat, setFCat] = useState('Casa');
+  const [fIdade, setFIdade] = useState('');
   const uma = opcao === 'uma';
   const diasEnviados = opcao === 'semana' ? SEG_SEX : opcao === 'pers' ? dias : [];
   const resumo = opcao === 'pers'
@@ -32,6 +40,13 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
     : ROTULO[opcao];
   const escolher = (o) => { setOpcao(o); setFolha(null); };
   const alternarDia = (d) => setDias((x) => (x.includes(d) ? x.filter((y) => y !== d) : [...x, d]));
+  const usar = (x) => {
+    setTitulo(x.nome); setOpcao(x.rec); setDias(x.dias || SEG_SEX); setFoto(!!x.foto);
+    setCat(categorias.find((c) => c.nome.toLowerCase() === x.cat.toLowerCase())?.id || '');
+    setComHora(!!x.hora); setHoraIni(x.hora || ''); setHoraFim(''); setFolha(null);
+  };
+  const catsSug = [...new Set(SUGESTOES.map((x) => x.cat))];
+  const listaSug = SUGESTOES.filter((x) => x.cat === fCat && (!fIdade || x.idade.includes(fIdade)));
   const voltarPers = () => { if (dias.length === 0) setDias(SEG_SEX); setOpcao('pers'); setFolha('repetir'); };
   return (
     <Form acao={salvarTarefa} className="card">
@@ -40,8 +55,9 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
       <input type="hidden" name="recorrencia" value={opcao === 'semana' || opcao === 'pers' ? 'dias_semana' : opcao === 'uma' ? '' : opcao} />
       {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
       <input type="hidden" name="data_fim" value={uma ? '' : fim} />
+      {!t?.id && <button type="button" className="btn sec bloco sugestao-btn" onClick={() => setFolha('sug')}>✨ Escolher uma sugestão</button>}
       <label htmlFor="titulo">Tarefa</label>
-      <input id="titulo" name="titulo" required maxLength={100} defaultValue={t?.titulo} placeholder="Ex.: Arrumar o quarto" />
+      <input id="titulo" name="titulo" required maxLength={100} value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Arrumar o quarto" />
       <div className="linha">
         {gestor && (
           <div><label htmlFor="responsavel">Para quem</label>
@@ -50,7 +66,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
             </select></div>
         )}
         <div><label htmlFor="categoria">Categoria</label>
-          <select id="categoria" name="categoria" defaultValue={t?.categoria_id || ''}>
+          <select id="categoria" name="categoria" value={cat} onChange={(e) => setCat(e.target.value)}>
             <option value="">Sem categoria</option>
             {categorias.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
           </select></div>
@@ -72,7 +88,29 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
             )}</div>
         )}
       </div>
-      {folha && (
+      {folha === 'sug' && (
+        <div className="folha" role="dialog" aria-modal="true" aria-label="Sugestões">
+          <div className="folha-in">
+            <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(null)}>←</button><h2>Sugestões</h2></div>
+            <div className="chips" role="group" aria-label="Categoria">
+              {catsSug.map((c) => <button key={c} type="button" className={fCat === c ? 'on' : ''} aria-pressed={fCat === c} onClick={() => setFCat(c)}>{c}</button>)}
+            </div>
+            <div className="chips" role="group" aria-label="Idade">
+              <button type="button" className={fIdade === '' ? 'on' : ''} aria-pressed={fIdade === ''} onClick={() => setFIdade('')}>Todas as idades</button>
+              {IDADES.map(([k, n]) => <button key={k} type="button" className={fIdade === k ? 'on' : ''} aria-pressed={fIdade === k} onClick={() => setFIdade(k)}>{n}</button>)}
+            </div>
+            <div className="folha-lista">
+              {listaSug.length === 0 && <div style={{ padding: 16, color: 'var(--cinza)' }}>Nenhuma sugestão para essa idade nesta categoria.</div>}
+              {listaSug.map((x) => (
+                <button key={x.nome} type="button" onClick={() => usar(x)}>
+                  <span>{x.nome}<small style={{ display: 'block', color: 'var(--cinza)', fontSize: 13 }}>{resumoSugestao(x)}</small></span><span aria-hidden="true">›</span>
+                </button>
+              ))}
+            </div>
+          </div>
+        </div>
+      )}
+      {(folha === 'repetir' || folha === 'pers') && (
         <div className="folha" role="dialog" aria-modal="true" aria-label={folha === 'pers' ? 'Personalizar' : 'Repetir'}>
           <div className="folha-in">
             <div className="folha-cab">
@@ -114,8 +152,8 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
       <input type="hidden" name="com_horario" value={comHora ? '1' : '0'} />
       {comHora ? (
         <div className="linha">
-          <div><label htmlFor="hora_inicio">Início</label><input id="hora_inicio" type="time" name="hora_inicio" required defaultValue={hhmm(t?.hora_inicio)} /></div>
-          <div><label htmlFor="hora_fim">Fim (opcional)</label><input id="hora_fim" type="time" name="hora_fim" defaultValue={hhmm(t?.hora_fim)} /></div>
+          <div><label htmlFor="hora_inicio">Início</label><input id="hora_inicio" type="time" name="hora_inicio" required value={horaIni} onChange={(e) => setHoraIni(e.target.value)} /></div>
+          <div><label htmlFor="hora_fim">Fim (opcional)</label><input id="hora_fim" type="time" name="hora_fim" value={horaFim} onChange={(e) => setHoraFim(e.target.value)} /></div>
         </div>
       ) : (
         <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '6px 0 0' }}>
@@ -123,7 +161,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje }) {
         </p>
       )}
       <div style={{ display: 'grid', gap: 12, marginTop: 16 }}>
-        <label className="check"><input type="checkbox" name="exige_foto" value="1" defaultChecked={t?.exige_foto} />Exige foto para concluir</label>
+        <label className="check"><input type="checkbox" name="exige_foto" value="1" checked={foto} onChange={(e) => setFoto(e.target.checked)} />Exige foto para concluir</label>
         {gestor && <label className="check"><input type="checkbox" name="permite_adiar" value="1" defaultChecked={t?.permite_adiar} />Pode adiar</label>}
         {gestor && <label className="check"><input type="checkbox" name="exige_justificativa" value="1" defaultChecked={t?.exige_justificativa} />Exige justificativa se atrasar</label>}
       </div>
