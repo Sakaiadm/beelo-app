@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
-import { parseMin, hojeISO, CORES_CAT } from '@/lib/util';
+import { parseMin, hojeISO, addDias, CORES_CAT } from '@/lib/util';
 
 const txt = (fd, k, max = 500) => { const v = fd.get(k); return v == null ? null : String(v).trim().slice(0, max) || null; };
 const uuid = (v) => (/^[0-9a-f-]{36}$/i.test(String(v || '')) ? String(v) : null);
@@ -80,6 +80,8 @@ export async function salvarTarefa(_, fd) {
     ({ error } = await supabase.from('ra_tarefas').insert({ ...reg, familia_id: eu.familia_id, criada_por: eu.id }));
   }
   if (error) return { erro: 'Não foi possível salvar: ' + error.message };
+  // Gera já as ocorrências dos próximos dias, para a tarefa aparecer na hora na Agenda.
+  await supabase.rpc('ra_gerar_ocorrencias', { p_de: addDias(hojeISO(), -7), p_ate: addDias(hojeISO(), 54) });
   revalidatePath('/', 'layout');
   redirect('/tarefas?ok=1');
 }

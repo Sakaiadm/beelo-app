@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import { telaResumo, totalReal } from '@/lib/tela';
@@ -37,7 +38,7 @@ export default async function Painel() {
     <main>
       <div className="cab">
         <div><h1 className="titulo">{familia.nome}</h1><p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(hoje)}</p></div>
-        <a className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</a>
+        <Link prefetch={false} className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
       </div>
       <div className="kpis">
         <div className="kpi destaque"><small>Cumpridas hoje</small><strong>{kHoje.feitas} <span style={{ fontSize: 16 }}>de {kHoje.total}</span></strong>
@@ -108,13 +109,13 @@ export default async function Painel() {
                 const t = telas[f.id];
                 const real = t ? totalReal(t) : null, prev = t?.previsto?.min_total;
                 return (
-                  <a key={f.id} href={`/hoje?m=${f.id}`} className="tarefa" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
+                  <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}`} className="tarefa" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}><span>{f.nome}</span><span style={{ color: 'var(--azul)' }}>{k.feitas} de {k.total}</span></div>
                     <div className="barra" style={{ marginTop: 8 }}><div style={{ width: `${k.total ? (k.feitas / k.total) * 100 : 0}%` }} /></div>
                     <div className="meta" style={{ marginTop: 8 }}>{falta.length ? `Falta: ${falta.slice(0, 3).join(', ')}${falta.length > 3 ? '…' : ''}` : 'Tudo feito'}</div>
                     {f.tela_ativo && <div className="meta"><strong>Tela ontem:</strong> {t ? `${prev != null ? `previsto ${fmtMin(prev)} · ` : ''}realizado ${fmtMin(real)}` : 'não lançado'}
                       {t && prev != null && <span style={{ fontWeight: 700, color: real > prev ? 'var(--erro)' : 'var(--ok)' }}> ({real > prev ? '+' : ''}{fmtMin(real - prev)})</span>}</div>}
-                  </a>
+                  </Link>
                 );
               })}
             </div>

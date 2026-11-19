@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { notFound } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
@@ -30,8 +31,8 @@ export default async function Detalhes({ params }) {
       <div className="cab">
         <div><h1 className="titulo">{t.titulo}</h1><p className="sub">{resp?.nome} · {quando} · {horario}</p></div>
         <div className="acoes">
-          <a className="btn sec peq" href="/tarefas">Voltar</a>
-          {pode && <a className="btn peq icone" href={`/tarefas/${t.id}/editar`} aria-label="Editar tarefa" title="Editar"><Icone nome="lapis" tam={18} cor="#fff" /></a>}
+          <Link prefetch={false} className="btn sec peq" href="/tarefas">Voltar</Link>
+          {pode && <Link prefetch={false} className="btn peq icone" href={`/tarefas/${t.id}/editar`} aria-label="Editar tarefa" title="Editar"><Icone nome="lapis" tam={18} cor="#fff" /></Link>}
         </div>
       </div>
       <div className="card">

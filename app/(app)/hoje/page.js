@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import { hojeISO, addDias, dataLonga, statusExibido } from '@/lib/util';
@@ -39,15 +40,15 @@ export default async function Hoje({ searchParams }) {
           <p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(dia)}</p>
         </div>
         <div className="acoes">
-          <a className="btn sec peq" href={`/hoje?d=${addDias(dia, -1)}${gestor ? `&m=${alvo.id}` : ''}`} aria-label="Dia anterior"><Icone nome="esq" tam={18} /></a>
-          {dia !== hoje && <a className="btn sec peq" href={`/hoje${gestor ? `?m=${alvo.id}` : ''}`}>Hoje</a>}
-          <a className="btn sec peq" href={`/hoje?d=${addDias(dia, 1)}${gestor ? `&m=${alvo.id}` : ''}`} aria-label="Próximo dia"><Icone nome="dir" tam={18} /></a>
+          <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, -1)}${gestor ? `&m=${alvo.id}` : ''}`} aria-label="Dia anterior"><Icone nome="esq" tam={18} /></Link>
+          {dia !== hoje && <Link prefetch={false} className="btn sec peq" href={`/hoje${gestor ? `?m=${alvo.id}` : ''}`}>Hoje</Link>}
+          <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, 1)}${gestor ? `&m=${alvo.id}` : ''}`} aria-label="Próximo dia"><Icone nome="dir" tam={18} /></Link>
         </div>
       </div>
 
       {gestor && filhos.length > 1 && (
         <div className="abas" style={{ marginBottom: 14 }}>
-          {filhos.map((f) => <a key={f.id} href={`/hoje?m=${f.id}&d=${dia}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.nome}</a>)}
+          {filhos.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}&d=${dia}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.nome}</Link>)}
         </div>
       )}
 
@@ -57,7 +58,7 @@ export default async function Hoje({ searchParams }) {
         <div className="barra" style={{ marginTop: 10, background: 'rgba(255,255,255,.25)' }}><div style={{ width: `${total ? (feitas / total) * 100 : 0}%`, background: '#fff' }} /></div>
       </div>
 
-      {lembrarTela && <div className="aviso info">Falta lançar o tempo de tela de ontem. <a href="/tela">Lançar agora</a></div>}
+      {lembrarTela && <div className="aviso info">Falta lançar o tempo de tela de ontem. <Link prefetch={false} href="/tela">Lançar agora</Link></div>}
 
       {pendentesAntes.length > 0 && <>
         <div className="grupo-titulo">Atrasadas de dias anteriores</div>
@@ -74,7 +75,7 @@ export default async function Hoje({ searchParams }) {
       </>}
       {doDia.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
 
-      <a className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href="/tarefas/nova"><Icone nome="mais" tam={18} />{gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'}</a>
+      <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href="/tarefas/nova"><Icone nome="mais" tam={18} />{gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'}</Link>
     </main>
   );
 }

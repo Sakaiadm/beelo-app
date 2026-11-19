@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { addDias, diaSemana, inicioMes, fimMes, mesAno, DIAS_CURTO } from '@/lib/util';
 
 export default function Calendario({ mes, porDia, hoje, sel, link }) {
@@ -14,9 +15,9 @@ export default function Calendario({ mes, porDia, hoje, sel, link }) {
   return (
     <div>
       <div className="cal-cab">
-        <a href={link(addDias(ini, -1).slice(0, 8) + '01')} aria-label="Mês anterior">‹</a>
+        <Link prefetch={false} href={link(addDias(ini, -1).slice(0, 8) + '01')} aria-label="Mês anterior">‹</Link>
         <strong>{mesAno(ini)}</strong>
-        <a href={link(addDias(fim, 1))} aria-label="Próximo mês">›</a>
+        <Link prefetch={false} href={link(addDias(fim, 1))} aria-label="Próximo mês">›</Link>
       </div>
       <div className="cal">
         {DIAS_CURTO.map((d, i) => <span key={i} className="dsem">{d}</span>)}
@@ -24,10 +25,10 @@ export default function Calendario({ mes, porDia, hoje, sel, link }) {
         {dias.map((d) => {
           const x = porDia[d];
           return (
-            <a key={d} href={link(d, true)} className={`${nivel(d)} ${d === hoje ? 'hoje' : ''} ${d === sel ? 'sel' : ''}`}
+            <Link prefetch={false} key={d} href={link(d, true)} className={`${nivel(d)} ${d === hoje ? 'hoje' : ''} ${d === sel ? 'sel' : ''}`}
                aria-label={`${Number(d.slice(8))}${x ? `: ${x.feitas} de ${x.total} feitas` : ''}`}>
               {Number(d.slice(8))}{x?.total ? <small>{x.feitas}/{x.total}</small> : null}
-            </a>
+            </Link>
           );
         })}
       </div>

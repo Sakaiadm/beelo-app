@@ -188,3 +188,31 @@ section:first-child > .ajuda-sec { margin-top: 0; }
 .usuario-menu .chave.on { background: var(--azul); }
 .usuario-menu .chave.on::after { transform: translateX(16px); }
 @media (min-width: 761px) { .topo-in { flex-wrap: nowrap; } .marca { margin-right: auto; } }
+
+/* Lista de tarefas em linhas (sem tabela, nada fica cortado no celular) */
+.lista-tarefas { display: flex; flex-direction: column; }
+.linha-tarefa { position: relative; display: flex; align-items: center; gap: 12px; padding: 12px 4px; border-top: 1px solid var(--borda); }
+.linha-tarefa:first-child { border-top: 0; }
+.linha-tarefa:hover { background: color-mix(in srgb, var(--azul) 6%, transparent); }
+.linha-tarefa .lapis { position: relative; z-index: 1; flex: none; }
+.linha-tarefa .texto { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.linha-tarefa .cobre { font-weight: 700; color: var(--texto); text-decoration: none; }
+.linha-tarefa .cobre::after { content: ''; position: absolute; inset: 0; }
+.linha-tarefa small { color: var(--cinza); font-size: 13px; }
+.linha-tarefa .pilula { flex: none; }
+
+/* Campo Repetir e telas Repetir / Personalizar */
+.campo-botao { width: 100%; display: flex; align-items: center; justify-content: space-between; gap: 10px; text-align: left; min-height: 48px; padding: 0 14px; border-radius: 14px; border: 1.5px solid var(--campo); background: var(--cartao); color: var(--texto); font: inherit; cursor: pointer; }
+.folha { position: fixed; inset: 0; z-index: 60; background: var(--fundo); overflow-y: auto; padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom); }
+.folha-in { max-width: 560px; margin: 0 auto; padding: 16px 14px 40px; display: flex; flex-direction: column; gap: 14px; }
+.folha-cab { display: flex; align-items: center; gap: 12px; }
+.folha-cab h2 { margin: 0; font-size: 22px; }
+.folha-volta { width: 44px; height: 44px; border-radius: 12px; border: 0; background: transparent; color: var(--texto); font-size: 26px; cursor: pointer; }
+.folha-lista { background: var(--cartao); border: 1px solid var(--borda); border-radius: 16px; overflow: hidden; display: flex; flex-direction: column; }
+.folha-lista button { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 16px; min-height: 56px; border: 0; border-top: 1px solid var(--borda); background: transparent; color: var(--texto); font: inherit; font-size: 17px; text-align: left; cursor: pointer; }
+.folha-lista button:first-child { border-top: 0; }
+.folha-lista button.sel { color: var(--azul); font-weight: 700; }
+.folha-lista button.sel::before { content: "✓"; margin-right: 10px; }
+.folha-lista button.sel span:first-child { flex: 1; }
+.bolinha { width: 26px; height: 26px; border-radius: 50%; border: 2px solid var(--campo); flex: none; display: flex; align-items: center; justify-content: center; color: #fff; font-size: 15px; }
+.bolinha.on { background: var(--azul); border-color: var(--azul); }

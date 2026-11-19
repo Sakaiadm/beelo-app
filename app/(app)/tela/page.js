@@ -1,3 +1,4 @@
+import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
 import { telaResumo, totalReal } from '@/lib/tela';
 import { hojeISO, addDias, dataCurta, dataLonga, fmtMin, DIAS_CURTO } from '@/lib/util';
@@ -43,7 +44,7 @@ export default async function Tela({ searchParams }) {
     return (
       <main className="estreito">
         <div className="cab"><div><h1 className="titulo">Tempo de tela</h1><p className="sub">Realizado de {dataLonga(dia)}</p></div>
-          <div className="abas"><a href="/tela" className={dia === ontem ? 'ativo' : ''}>Ontem</a><a href={`/tela?d=${hoje}`} className={dia === hoje ? 'ativo' : ''}>Hoje</a></div></div>
+          <div className="abas"><Link prefetch={false} href="/tela" className={dia === ontem ? 'ativo' : ''}>Ontem</Link><Link prefetch={false} href={`/tela?d=${hoje}`} className={dia === hoje ? 'ativo' : ''}>Hoje</Link></div></div>
         <div className="card">
           <p style={{ margin: '0 0 6px', fontSize: 14, color: 'var(--cinza)' }}>Copie o total do relatório de uso do aparelho (Bem-estar digital no Android, Tempo de Uso no iPhone). A foto é opcional.</p>
           <RealForm eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={dia} previsto={p?.[0]} atual={atual} />
@@ -63,14 +64,14 @@ export default async function Tela({ searchParams }) {
 
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo && m.tela_ativo);
   const alvo = filhos.find((f) => f.id === sp.m) || filhos[0];
-  if (!alvo) return <main className="estreito"><div className="card">O tempo de tela está desligado para todos os filhos. Ligue em <a href="/config">Família</a>.</div></main>;
+  if (!alvo) return <main className="estreito"><div className="card">O tempo de tela está desligado para todos os filhos. Ligue em <Link prefetch={false} href="/config">Família</Link>.</div></main>;
   const { data: regras } = await supabase.from('ra_tela_previsto').select('*').eq('membro_id', alvo.id).or(`vigencia_fim.is.null,vigencia_fim.gte.${hoje}`).order('criado_em', { ascending: false });
   const { data: propostas } = await supabase.from('ra_tela_proposta').select('*').eq('membro_id', alvo.id).eq('status', 'pendente');
   const hist = await telaResumo(supabase, alvo.id, addDias(hoje, -14), hoje);
   return (
     <main>
       <div className="cab"><div><h1 className="titulo">Tempo de tela</h1><p className="sub">Defina o previsto e acompanhe o realizado.</p></div>
-        <div className="abas">{filhos.map((f) => <a key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.nome}</a>)}</div></div>
+        <div className="abas">{filhos.map((f) => <Link prefetch={false} key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.nome}</Link>)}</div></div>
       <div className="duas">
         <div className="lado">
           <div className="card"><h2>Novo previsto para {alvo.nome}</h2><PrevistoForm membro={alvo.id} hoje={hoje} /></div>

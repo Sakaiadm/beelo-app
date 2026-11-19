@@ -1,6 +1,8 @@
 import { exigirMembro } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
-import { hojeISO, addDias, inicioSemana, inicioMes, fimMes, dataLonga, statusExibido, hhmm, DIAS } from '@/lib/util';
+import Link from 'next/link';
+import { hojeISO, addDias, inicioMes, fimMes, dataExtensa, diaSemana, statusExibido, hhmm, DIAS } from '@/lib/util';
+import Icone from '@/components/Icone';
 import Calendario from '@/components/Calendario';
 import Tarefa from '@/components/Tarefa';
 
@@ -17,8 +19,9 @@ export default async function Agenda({ searchParams }) {
   const alvo = filtroM ? [filtroM] : filhos.map((f) => f.id);
   const nome = Object.fromEntries(membros.map((m) => [m.id, m.nome]));
 
-  const de = v === 'dia' ? d : v === 'semana' ? inicioSemana(d) : inicioMes(d);
-  const ate = v === 'dia' ? d : v === 'semana' ? addDias(inicioSemana(d), 6) : fimMes(d);
+  // A semana começa no dia escolhido (por padrão, hoje).
+  const de = v === 'dia' ? d : v === 'semana' ? d : inicioMes(d);
+  const ate = v === 'dia' ? d : v === 'semana' ? addDias(d, 6) : fimMes(d);
   const lista = (await ocorrencias(supabase, { de, ate, membros: alvo })).map((o) => ({ o, st: statusExibido(o, hoje) }));
   const qs = (o) => { const p = new URLSearchParams({ v, d, ...(filtroM && gestor ? { m: filtroM } : {}), ...o }); return `/agenda?${p}`; };
 
@@ -34,31 +37,35 @@ export default async function Agenda({ searchParams }) {
   return (
     <main>
       <div className="cab">
-        <div><h1 className="titulo">Agenda</h1><p className="sub" style={{ textTransform: 'capitalize' }}>{v === 'dia' ? dataLonga(d) : v === 'semana' ? `Semana de ${dataLonga(de)}` : ''}</p></div>
+        <div><h1 className="titulo">Agenda</h1><p className="sub">{dataExtensa(d)}</p></div>
         <div className="acoes">
           <div className="abas">
-            <a href={qs({ v: 'dia' })} className={v === 'dia' ? 'ativo' : ''}>Dia</a>
-            <a href={qs({ v: 'semana' })} className={v === 'semana' ? 'ativo' : ''}>Semana</a>
-            <a href={qs({ v: 'mes' })} className={v === 'mes' ? 'ativo' : ''}>Mês</a>
+            <Link prefetch={false} href={qs({ v: 'dia' })} className={v === 'dia' ? 'ativo' : ''}>Dia</Link>
+            <Link prefetch={false} href={qs({ v: 'semana' })} className={v === 'semana' ? 'ativo' : ''}>Semana</Link>
+            <Link prefetch={false} href={qs({ v: 'mes' })} className={v === 'mes' ? 'ativo' : ''}>Mês</Link>
           </div>
           {v !== 'mes' && <>
-            <a className="btn sec peq" href={qs({ d: addDias(d, -passo) })} aria-label="Anterior">‹</a>
-            <a className="btn sec peq" href={qs({ d: hoje })}>Hoje</a>
-            <a className="btn sec peq" href={qs({ d: addDias(d, passo) })} aria-label="Próximo">›</a>
+            <Link prefetch={false} className="btn sec peq" href={qs({ d: addDias(d, -passo) })} aria-label="Anterior">‹</Link>
+            <Link prefetch={false} className="btn sec peq" href={qs({ d: hoje })}>Hoje</Link>
+            <Link prefetch={false} className="btn sec peq" href={qs({ d: addDias(d, passo) })} aria-label="Próximo">›</Link>
           </>}
         </div>
       </div>
+      <div className="acoes" style={{ marginBottom: 14 }}>
+        <Link prefetch={false} className="btn" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={18} cor="#fff" />Adicionar tarefa</Link>
+        <Link prefetch={false} className="btn sec" href="/tarefas">Ver todas as tarefas</Link>
+      </div>
       {gestor && (
         <div className="abas" style={{ marginBottom: 14 }}>
-          <a href={`/agenda?v=${v}&d=${d}`} className={!filtroM ? 'ativo' : ''}>Todos</a>
-          {filhos.map((f) => <a key={f.id} href={`/agenda?v=${v}&d=${d}&m=${f.id}`} className={filtroM === f.id ? 'ativo' : ''}>{f.nome}</a>)}
+          <Link prefetch={false} href={`/agenda?v=${v}&d=${d}`} className={!filtroM ? 'ativo' : ''}>Todos</Link>
+          {filhos.map((f) => <Link prefetch={false} key={f.id} href={`/agenda?v=${v}&d=${d}&m=${f.id}`} className={filtroM === f.id ? 'ativo' : ''}>{f.nome}</Link>)}
         </div>
       )}
 
       {v === 'mes' && (
         <div className="card" style={{ maxWidth: 560 }}>
           <Calendario mes={d} porDia={porDia} hoje={hoje} sel={d}
-            link={(x, dia) => (dia ? qs({ v: 'dia', d: x }) : qs({ d: x }))} />
+            link={(x, dia) => (dia ? `/tarefas?d=${x}${filtroM && gestor ? `&m=${filtroM}` : ''}` : qs({ d: x }))} />
         </div>
       )}
 
@@ -69,7 +76,7 @@ export default async function Agenda({ searchParams }) {
             const itens = lista.filter((x) => x.o.data === dia && x.st !== 'adiada');
             return (
               <div className="dia" key={dia} style={dia === hoje ? { outline: '2px solid var(--azul)' } : undefined}>
-                <h3><a href={qs({ v: 'dia', d: dia })} style={{ color: 'var(--texto)', textDecoration: 'none' }}>{DIAS[i].slice(0, 3)} {dia.slice(8)}</a></h3>
+                <h3><Link prefetch={false} href={`/tarefas?d=${dia}${filtroM && gestor ? `&m=${filtroM}` : ''}`} style={{ color: 'var(--texto)', textDecoration: 'none' }}>{DIAS[diaSemana(dia)].slice(0, 3)} {dia.slice(8)}</Link></h3>
                 {itens.length === 0 && <div style={{ fontSize: 12, color: 'var(--cinza)' }}>Livre</div>}
                 {itens.map(({ o, st }) => (
                   <div key={o.id} className={`mini ${st.startsWith('cumprida') ? 'ok' : st === 'atrasada' || st === 'nao_cumprida' ? 'atr' : ''}`}>
