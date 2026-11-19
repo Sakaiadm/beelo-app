@@ -5,6 +5,10 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { parseMin, hojeISO, addDias, CORES_CAT } from '@/lib/util';
 import { validarEmail } from '@/lib/email';
 import { funcaoDe } from '@/lib/papeis';
+import { esquecerSessoes } from '@/lib/sessao';
+
+// Depois de qualquer alteração: limpa o que estava guardado e manda as telas buscarem de novo.
+function revalidar() { esquecerSessoes(); revalidatePath('/', 'layout'); }
 
 const txt = (fd, k, max = 500) => { const v = fd.get(k); return v == null ? null : String(v).trim().slice(0, max) || null; };
 const uuid = (v) => (/^[0-9a-f-]{36}$/i.test(String(v || '')) ? String(v) : null);
@@ -16,7 +20,7 @@ async function rpc(nome, args) {
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc(nome, args);
   if (error) return { erro: error.message.replace(/^.*?:\s*/, '') };
-  revalidatePath('/', 'layout');
+  revalidar();
   return { ok: true };
 }
 
@@ -84,7 +88,7 @@ export async function salvarTarefa(_, fd) {
   if (error) return { erro: 'Não foi possível salvar: ' + error.message };
   // Gera já as ocorrências dos próximos dias, para a tarefa aparecer na hora na Agenda.
   await supabase.rpc('ra_gerar_ocorrencias', { p_de: addDias(hojeISO(), -7), p_ate: addDias(hojeISO(), 54) });
-  revalidatePath('/', 'layout');
+  revalidar();
   redirect('/tarefas?ok=1');
 }
 
@@ -94,7 +98,7 @@ export async function excluirTarefa(fd) {
   // Mantém histórico: desativa a tarefa e cancela ocorrências futuras pendentes.
   await supabase.from('ra_tarefas').update({ ativa: false }).eq('id', id);
   await supabase.from('ra_ocorrencias').update({ status: 'cancelada' }).eq('tarefa_id', id).eq('status', 'pendente').gte('data', hojeISO());
-  revalidatePath('/', 'layout');
+  revalidar();
   redirect('/tarefas');
 }
 
@@ -127,7 +131,7 @@ export async function salvarPessoa(_, fd) {
     ? await supabase.from('ra_membros').update(reg).eq('id', id)
     : await supabase.from('ra_membros').insert({ ...reg, familia_id: eu.familia_id });
   if (error) return { erro: error.message.includes('duplicate') ? 'Este e-mail já está cadastrado' : error.message };
-  revalidatePath('/', 'layout');
+  revalidar();
   if (!id) redirect('/config/pessoas');
   return { ok: true };
 }
@@ -138,13 +142,13 @@ export async function alternarPessoa(fd) {
   const id = uuid(fd.get('id'));
   if (eu?.papel !== 'gestor' || !id || id === eu.id) return;
   await supabase.from('ra_membros').update({ ativo: fd.get('ativo') === '1' }).eq('id', id);
-  revalidatePath('/', 'layout');
+  revalidar();
 }
 
 export async function excluirPessoa(fd) {
   const supabase = await supabaseServer();
   await supabase.rpc('ra_excluir_membro', { p_id: uuid(fd.get('id')) });
-  revalidatePath('/', 'layout');
+  revalidar();
   redirect('/config/pessoas');
 }
 
@@ -175,7 +179,7 @@ export async function salvarCategoria(_, fd) {
   if (!nome) return { erro: 'Informe o nome' };
   const { error } = await supabase.from('ra_categorias').insert({ familia_id: eu.familia_id, nome, cor: txt(fd, 'cor', 20) || 'azul', ordem: 50 });
   if (error) return { erro: error.message };
-  revalidatePath('/', 'layout');
+  revalidar();
   return { ok: true };
 }
 
@@ -236,7 +240,7 @@ export async function salvarTelaReal(_, fd) {
     foto_celular: caminhoFoto(fd.get('foto_celular')), foto_computador: caminhoFoto(fd.get('foto_computador')), obs: txt(fd, 'obs', 300),
   }, { onConflict: 'membro_id,data' });
   if (error) return { erro: error.message.replace(/^.*?:\s*/, '') };
-  revalidatePath('/', 'layout');
+  revalidar();
   return { ok: true };
 }
 
@@ -251,7 +255,7 @@ export async function responderTela(_, fd) { return rpc('ra_responder_tela', { p
 export async function marcarLidas() {
   const supabase = await supabaseServer();
   await supabase.from('ra_notificacoes').update({ lida: true }).eq('lida', false);
-  revalidatePath('/', 'layout');
+  revalidar();
 }
 
 
@@ -265,14 +269,14 @@ export async function editarCategoria(_, fd) {
   const cor = CORES_CAT[fd.get('cor')] ? fd.get('cor') : 'azul';
   const { error } = await supabase.from('ra_categorias').update({ nome, cor }).eq('id', uuid(fd.get('id')));
   if (error) return { erro: error.message };
-  revalidatePath('/', 'layout');
+  revalidar();
   return { ok: true };
 }
 
 export async function excluirCategoria(fd) {
   const supabase = await supabaseServer();
   await supabase.from('ra_categorias').delete().eq('id', uuid(fd.get('id')));
-  revalidatePath('/', 'layout');
+  revalidar();
 }
 
 // ===== Perfil =====
@@ -306,7 +310,7 @@ export async function criarFamilia(_, fd) {
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc('ra_criar_familia', { p_nome: txt(fd, 'familia', 60), p_meu_nome: txt(fd, 'nome', 60) });
   if (error) return { erro: error.message.replace(/^.*?:\s*/, '') };
-  revalidatePath('/', 'layout');
+  revalidar();
   redirect('/config?nova=1');
 }
 
@@ -321,5 +325,5 @@ export async function adminCriarFamilia(_, fd) {
 export async function adminAtivarFamilia(fd) {
   const supabase = await supabaseServer();
   await supabase.rpc('ra_admin_ativar_familia', { p_id: uuid(fd.get('id')), p_ativa: fd.get('ativa') === '1' });
-  revalidatePath('/', 'layout');
+  revalidar();
 }
