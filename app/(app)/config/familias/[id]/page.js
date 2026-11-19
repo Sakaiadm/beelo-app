@@ -20,14 +20,14 @@ export default async function Familia({ params }) {
     const gestores = membros.filter((m) => m.papel === 'gestor').sort((a, b) => String(a.criado_em).localeCompare(String(b.criado_em)));
     const respId = minha.responsavel_id || gestores[0]?.id;
     pessoas = membros.map((m) => ({ ...m, entrou: !!m.user_id, responsavel: m.id === respId }));
-    resumo = `${gestores.length} pais · ${membros.length - gestores.length} pessoas · ${membros.filter((m) => m.user_id).length} já entraram`;
+    resumo = `${gestores.length} responsáveis · ${membros.length - gestores.length} pessoas · ${membros.filter((m) => m.user_id).length} já entraram`;
   } else {
     const [{ data: lista }, { data: ps }] = await Promise.all([supabase.rpc('ra_admin_familias'), supabase.rpc('ra_admin_membros', { p_familia: id })]);
     const f = (lista || []).find((x) => x.id === id);
     if (!f) notFound();
     fam = { id: f.id, nome: f.nome, avatar: f.avatar, ativa: f.ativa };
     pessoas = ps || [];
-    resumo = `${f.n_gestores} pais · ${f.n_filhos} pessoas · ${f.n_ativos} já entraram · ${f.tarefas} tarefas`;
+    resumo = `${f.n_gestores} responsáveis · ${f.n_filhos} pessoas · ${f.n_ativos} já entraram · ${f.tarefas} tarefas`;
   }
   const urls = await urlsAvatares(supabase, [fam.avatar, ...(propria ? pessoas.map((p) => p.avatar) : [])]);
   const resp = pessoas.find((p) => p.responsavel);

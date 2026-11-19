@@ -110,7 +110,7 @@ export async function excluirTarefa(_, fd) {
 export async function salvarPessoa(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
-  if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
+  if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
   const bruto = txt(fd, 'email', 120);
   const v = bruto ? validarEmail(bruto) : { ok: true, email: null };
   if (!v.ok) return { erro: v.msg || 'E-mail inválido' };
@@ -165,7 +165,7 @@ async function mandarConvite(supabase, eu, m) {
 export async function reenviarConvite(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
-  if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
+  if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
   const { data: m } = await supabase.from('ra_membros').select('id, nome, email, user_id').eq('id', uuid(fd.get('id'))).eq('familia_id', eu.familia_id).maybeSingle();
   if (!m) return { erro: 'Pessoa não encontrada' };
   const r = await mandarConvite(supabase, eu, m);
@@ -233,7 +233,7 @@ function lerMinutos(fd, formato, prefixo = '') {
 export async function salvarPrevisto(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
-  if (eu?.papel !== 'gestor') return { erro: 'Apenas pais' };
+  if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
   const formato = fd.get('formato') === 'total' ? 'total' : 'aparelho';
   const m = lerMinutos(fd, formato); if (m.erro) return m;
   const modo = ['dia', 'dias', 'semana'].includes(fd.get('modo')) ? fd.get('modo') : 'dias';

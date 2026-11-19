@@ -51,7 +51,7 @@ export default async function Tela({ searchParams }) {
         </div>
         <div className="card">
           <h2>Previsto de hoje</h2>
-          <p style={{ margin: 0 }}>{pHoje?.[0] ? (pHoje[0].formato === 'total' ? `Total ${fmtMin(pHoje[0].min_total)}` : `Celular ${fmtMin(pHoje[0].min_celular)} · Computador ${fmtMin(pHoje[0].min_computador)}`) : 'Seus pais ainda não definiram.'}</p>
+          <p style={{ margin: 0 }}>{pHoje?.[0] ? (pHoje[0].formato === 'total' ? `Total ${fmtMin(pHoje[0].min_total)}` : `Celular ${fmtMin(pHoje[0].min_celular)} · Computador ${fmtMin(pHoje[0].min_computador)}`) : 'Seus responsáveis ainda não definiram.'}</p>
           <details style={{ marginTop: 12 }}><summary style={{ cursor: 'pointer', fontWeight: 700, color: 'var(--azul)' }}>Precisa de outro previsto?</summary>
             <PropostaForm hoje={hoje} formato={pHoje?.[0]?.formato === 'total' ? 'total' : 'aparelho'} /></details>
           {(props || []).length > 0 && <div style={{ marginTop: 12, fontSize: 13, color: 'var(--cinza)' }}>
@@ -62,9 +62,9 @@ export default async function Tela({ searchParams }) {
     );
   }
 
-  const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo && m.tela_ativo);
+  const filhos = membros.filter((m) => m.ativo && m.tela_ativo);
   const alvo = filhos.find((f) => f.id === sp.m) || filhos[0];
-  if (!alvo) return <main className="estreito"><div className="card">O tempo de tela está desligado para todos os filhos. Ligue em <Link prefetch={false} href="/config">Família</Link>.</div></main>;
+  if (!alvo) return <main className="estreito"><div className="card">O tempo de tela está desligado para todas as pessoas. Ligue em <Link prefetch={false} href="/config">Cadastros</Link>.</div></main>;
   const { data: regras } = await supabase.from('ra_tela_previsto').select('*').eq('membro_id', alvo.id).or(`vigencia_fim.is.null,vigencia_fim.gte.${hoje}`).order('criado_em', { ascending: false });
   const { data: propostas } = await supabase.from('ra_tela_proposta').select('*').eq('membro_id', alvo.id).eq('status', 'pendente');
   const hist = await telaResumo(supabase, alvo.id, addDias(hoje, -14), hoje);

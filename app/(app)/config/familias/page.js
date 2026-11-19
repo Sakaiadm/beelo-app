@@ -19,9 +19,9 @@ export default async function Familias() {
   const ativas = lista.filter((f) => f.ativa).length;
   return (
     <main className="estreito">
-      <Voltar href="/config" titulo="Famílias e grupos" sub={`${lista.length} famílias · ${ativas} ativas · ${lista.reduce((a, f) => a + f.n_ativos, 0)} pessoas usando`} />
+      <Voltar href="/config" titulo="Grupos" sub={`${lista.length} grupos · ${ativas} ativas · ${lista.reduce((a, f) => a + f.n_ativos, 0)} pessoas usando`} />
       {error && <div className="aviso erro" role="alert">{error.message}</div>}
-      <Link prefetch={false} href="/config/familias/nova" className="btn bloco" style={{ marginBottom: 14 }}>+ Nova família</Link>
+      <Link prefetch={false} href="/config/familias/nova" className="btn bloco" style={{ marginBottom: 14 }}>+ Novo grupo</Link>
       {lista.map((f) => {
         const pct = f.oc_30d ? Math.round((100 * f.cumpridas_30d) / f.oc_30d) : null;
         return (
@@ -31,7 +31,7 @@ export default async function Familias() {
               <span className="corpo">
                 <b>{f.nome}{f.id === minha.id && <span className="pilula" style={{ marginLeft: 8, fontSize: 11 }}>sua</span>}{!f.ativa && <span className="pilula" style={{ marginLeft: 8, fontSize: 11 }}>desativada</span>}</b>
                 <small className="peq-cinza">{f.gestores || 'sem gestor'}</small>
-                <small className="peq-cinza">{f.n_gestores} pais · {f.n_filhos} pessoas · {f.n_ativos} já entraram · {f.tarefas} tarefas · {pct == null ? 'sem tarefas em 30 dias' : `${pct}% cumprido em 30 dias`} · criada {fmt.format(new Date(f.criado_em))}{f.ultima_acao && ` · último uso ${fmt.format(new Date(f.ultima_acao))}`}</small>
+                <small className="peq-cinza">{f.n_gestores} responsáveis · {f.n_filhos} pessoas · {f.n_ativos} já entraram · {f.tarefas} tarefas · {pct == null ? 'sem tarefas em 30 dias' : `${pct}% cumprido em 30 dias`} · criada {fmt.format(new Date(f.criado_em))}{f.ultima_acao && ` · último uso ${fmt.format(new Date(f.ultima_acao))}`}</small>
               </span>
             </Link>
             {f.id !== minha.id && (

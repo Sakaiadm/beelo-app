@@ -14,12 +14,14 @@ export default async function Painel() {
   const { supabase, eu, membros, familia } = await exigirGestor();
   const hoje = hojeISO();
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
+  // Todas as pessoas ativas (inclui responsáveis com tarefas para si), quem é você aparece primeiro.
+  const pessoas = [...membros.filter((m) => m.ativo && m.id === eu.id), ...membros.filter((m) => m.ativo && m.id !== eu.id)];
   const nome = Object.fromEntries(membros.map((m) => [m.id, m.nome]));
   const de = [inicioMes(hoje), inicioSemana(hoje), addDias(hoje, -7)].sort()[0];
   const telaFilhos = filhos.filter((f) => f.tela_ativo);
   // Tudo ao mesmo tempo: antes cada consulta esperava a anterior terminar.
   const [ocs, { data: adiamentos }, { data: propostas }, telaRes] = await Promise.all([
-    ocorrencias(supabase, { de, ate: fimMes(hoje), membros: filhos.map((f) => f.id) }),
+    ocorrencias(supabase, { de, ate: fimMes(hoje), membros: pessoas.map((f) => f.id) }),
     supabase.from('ra_adiamentos').select('*, oc:ra_ocorrencias(data, hora_inicio, tarefa:ra_tarefas(titulo))').eq('status', 'pendente').order('criado_em'),
     supabase.from('ra_tela_proposta').select('*').eq('status', 'pendente').order('criado_em'),
     Promise.all(telaFilhos.map((f) => telaResumo(supabase, f.id, addDias(hoje, -1), addDias(hoje, -1)))),
@@ -48,7 +50,7 @@ export default async function Painel() {
       </div>
       <div className="kpis">
         <div className="kpi destaque"><small>Cumpridas hoje</small><strong>{kHoje.feitas} <span style={{ fontSize: 16 }}>de {kHoje.total}</span></strong>
-          <em>{filhos.map((f) => { const k = conta(doDia.filter((x) => x.o.membro_id === f.id)); return `${f.nome} ${k.feitas}/${k.total}`; }).join(' · ')}</em></div>
+          <em>{pessoas.map((f) => ({ f, k: conta(doDia.filter((x) => x.o.membro_id === f.id)) })).filter((x) => x.k.total > 0).map(({ f, k }) => `${f.nome} ${k.feitas}/${k.total}`).join(' · ') || 'Sem tarefas hoje'}</em></div>
         <div className="kpi"><small>Atrasadas (7 dias)</small><strong style={{ color: atrasadas.length ? 'var(--erro)' : undefined }}>{atrasadas.length}</strong><em>{justif.length} justificativa(s) para avaliar</em></div>
         <div className="kpi"><small>Pedidos aguardando</small><strong style={{ color: pend ? 'var(--aviso)' : undefined }}>{pend}</strong><em>Adiamentos e tempo de tela</em></div>
         <div className="kpi"><small>Semana</small><strong>{kSem.total ? Math.round((kSem.feitas / kSem.total) * 100) : 0}<span style={{ fontSize: 16 }}>%</span></strong>
@@ -107,24 +109,28 @@ export default async function Painel() {
           </div>
 
           <div className="card">
-            <h2>Hoje por filho</h2>
+            <h2>Hoje</h2>
             <div className="linha">
-              {filhos.map((f) => {
+              {pessoas.filter((f) => doDia.some((x) => x.o.membro_id === f.id && x.st !== 'adiada')).map((f) => {
                 const k = conta(doDia.filter((x) => x.o.membro_id === f.id));
                 const falta = doDia.filter((x) => x.o.membro_id === f.id && !x.st.startsWith('cumprida') && x.st !== 'adiada').map((x) => x.o.tarefa?.titulo);
                 const t = telas[f.id];
                 const real = t ? totalReal(t) : null, prev = t?.previsto?.min_total;
                 return (
                   <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}`} className="tarefa" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
-                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}><span>{f.nome}</span><span style={{ color: 'var(--azul)' }}>{k.feitas} de {k.total}</span></div>
+                    <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}><span>{f.nome}{f.id === eu.id ? ' (você)' : ''}</span><span style={{ color: 'var(--azul)' }}>{k.feitas} de {k.total}</span></div>
                     <div className="barra" style={{ marginTop: 8 }}><div style={{ width: `${k.total ? (k.feitas / k.total) * 100 : 0}%` }} /></div>
                     <div className="meta" style={{ marginTop: 8 }}>{falta.length ? `Falta: ${falta.slice(0, 3).join(', ')}${falta.length > 3 ? '…' : ''}` : 'Tudo feito'}</div>
-                    {f.tela_ativo && <div className="meta"><strong>Tela ontem:</strong> {t ? `${prev != null ? `previsto ${fmtMin(prev)} · ` : ''}realizado ${fmtMin(real)}` : 'não lançado'}
+                    {f.tela_ativo && f.papel === 'filho' && <div className="meta"><strong>Tela ontem:</strong> {t ? `${prev != null ? `previsto ${fmtMin(prev)} · ` : ''}realizado ${fmtMin(real)}` : 'não lançado'}
                       {t && prev != null && <span style={{ fontWeight: 700, color: real > prev ? 'var(--erro)' : 'var(--ok)' }}> ({real > prev ? '+' : ''}{fmtMin(real - prev)})</span>}</div>}
                   </Link>
                 );
               })}
             </div>
+            {(() => {
+              const sem = pessoas.filter((f) => !doDia.some((x) => x.o.membro_id === f.id && x.st !== 'adiada'));
+              return sem.length > 0 && <p className="meta" style={{ margin: '12px 0 0' }}>Sem tarefas hoje: {sem.map((f) => f.nome).join(', ')}</p>;
+            })()}
           </div>
         </div>
         <div className="lado">

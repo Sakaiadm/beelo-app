@@ -27,8 +27,8 @@ export default async function Config({ searchParams }) {
       <div className="cab"><div><h1 className="titulo">Cadastros</h1></div></div>
       {sp?.nova && <div className="aviso ok" role="status">Família criada. Agora cadastre as pessoas.</div>}
       {superAdmin
-        ? <Item href="/config/familias" icone="familia" titulo="Famílias e grupos" sub={`${adm.data?.length ?? 0} famílias · só você vê`} />
-        : <Item href={`/config/familias/${familia.id}`} icone="familia" titulo="Minha família" sub={familia.nome} />}
+        ? <Item href="/config/familias" icone="familia" titulo="Grupos" sub={`${adm.data?.length ?? 0} grupos · só você vê`} />
+        : <Item href={`/config/familias/${familia.id}`} icone="familia" titulo="Meu grupo" sub={familia.nome} />}
       <Item href="/config/pessoas" icone="pessoa" titulo="Pessoas" sub={`${n} ${n === 1 ? 'pessoa' : 'pessoas'}`} />
       <Item href="/config/categorias" icone="etiqueta" titulo="Categorias" sub={`${nCat ?? 0} categorias`} />
       <Item href="/config/ajustes" icone="ajustes" titulo="Configurações" sub="Segurança e privacidade" />

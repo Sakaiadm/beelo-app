@@ -43,8 +43,8 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
             <input ref={ref} type="file" accept="image/*" hidden onChange={escolher} />
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
-            <small className="peq-cinza" style={{ margin: 0 }}>Nome da família</small>
-            {editando ? <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={60} aria-label="Nome da família" autoFocus /> : <b style={{ fontSize: 17 }}>{nome}</b>}
+            <small className="peq-cinza" style={{ margin: 0 }}>Nome do grupo</small>
+            {editando ? <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={60} aria-label="Nome do grupo" autoFocus /> : <b style={{ fontSize: 17 }}>{nome}</b>}
           </span>
           {!editando && <button type="button" className="link-btn" onClick={() => setEditando(true)}>Editar</button>}
         </div>
@@ -66,7 +66,7 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
             <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(false)}>←</button><h2>Trocar responsável</h2></div>
             {gestores.length > 0 && (
               <>
-                <p style={{ fontWeight: 700, margin: 0 }}>Pai ou mãe da família</p>
+                <p style={{ fontWeight: 700, margin: 0 }}>Responsável pelo grupo</p>
                 {gestores.map((g) => (
                   <Form key={g.id} acao={trocarResponsavel} okTxt="Responsável trocado.">
                     <input type="hidden" name="familia" value={familia.id} /><input type="hidden" name="membro" value={g.id} />

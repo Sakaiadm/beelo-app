@@ -16,7 +16,7 @@ export default async function Relatorios({ searchParams }) {
   const { lista, ids } = await dadosRelatorio(supabase, f, s);
   const { data: categorias } = await supabase.from('ra_categorias').select('*').order('ordem');
   const nome = Object.fromEntries(membros.map((m) => [m.id, m.nome]));
-  const filhos = membros.filter((m) => m.papel === 'filho');
+  const filhos = membros.filter((m) => m.ativo || m.papel === 'filho');
 
   const validas = lista.filter((x) => !['adiada', 'adiamento_pedido', 'pendente'].includes(x.st));
   const feitas = validas.filter((x) => x.st.startsWith('cumprida'));
@@ -64,7 +64,7 @@ export default async function Relatorios({ searchParams }) {
         <div><label htmlFor="cat">Categoria</label><select id="cat" name="cat" defaultValue={f.cat}><option value="">Todas</option>{(categorias || []).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select></div>
         <div><label htmlFor="st">Status</label><select id="st" name="st" defaultValue={f.st}><option value="">Todos</option>
           {['cumprida', 'cumprida_atraso', 'atrasada', 'nao_cumprida', 'justificada', 'adiada', 'pendente'].map((k) => <option key={k} value={k}>{STATUS_TXT[k]}</option>)}</select></div>
-        <div><label htmlFor="origem">Criada por</label><select id="origem" name="origem" defaultValue={f.origem}><option value="">Pais e filhos</option><option value="pais">Pais</option><option value="filho">Filho</option></select></div>
+        <div><label htmlFor="origem">Criada por</label><select id="origem" name="origem" defaultValue={f.origem}><option value="">Todas</option><option value="pais">Responsáveis</option><option value="filho">A própria pessoa</option></select></div>
         <div><label htmlFor="hor">Horário</label><select id="hor" name="hor" defaultValue={f.hor}><option value="">Com e sem</option><option value="com">Com horário</option><option value="sem">Sem horário</option></select></div>
         <div><button className="btn" style={{ width: '100%' }}>Filtrar</button></div>
       </form>

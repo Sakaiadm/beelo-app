@@ -3,7 +3,7 @@ import { cookies } from 'next/headers';
 
 export const metadata = {
   title: 'Rotina Ativa',
-  description: 'Rotina da família: tarefas, agenda e acompanhamento.',
+  description: 'Rotina do grupo: tarefas, agenda e acompanhamento.',
   manifest: '/manifest.json',
   icons: { icon: '/icone.svg', apple: '/apple-touch-icon.png' },
   appleWebApp: { capable: true, title: 'Rotina Ativa', statusBarStyle: 'default' },
