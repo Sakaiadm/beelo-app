@@ -35,18 +35,17 @@ const ADMIN = [
   ['Quando alguém novo entra sozinho', 'Quem entra com um e-mail que não está cadastrado cai em uma tela que permite criar a própria família. Ela aparece depois em Admin.'],
 ];
 
-const TOM = { pais: 'ajuda-pais', filho: 'ajuda-filho', admin: 'ajuda-admin' };
-
-function Secao({ tom, emoji, titulo, subtitulo, itens, aberta }) {
+function Secao({ titulo, itens, abrirPrimeira }) {
   return (
-    <details className={`ajuda ${TOM[tom]}`} open={aberta}>
-      <summary><span className="ajuda-emoji" aria-hidden="true">{emoji}</span><span><strong>{titulo}</strong><small>{subtitulo}</small></span></summary>
-      <ol className="ajuda-lista">
-        {itens.map(([t, d]) => (
-          <li key={t}><h3>{t}</h3><p>{d}</p></li>
-        ))}
-      </ol>
-    </details>
+    <section>
+      <div className="ajuda-sec">{titulo}</div>
+      {itens.map(([t, d], i) => (
+        <details key={t} className="ajuda-item" open={abrirPrimeira && i === 0}>
+          <summary>{t}</summary>
+          <p>{d}</p>
+        </details>
+      ))}
+    </section>
   );
 }
 
@@ -54,10 +53,12 @@ export default async function Ajuda() {
   const { gestor, superAdmin } = await exigirMembro();
   return (
     <main className="estreito">
-      <div className="cab"><div><h1 className="titulo">Ajuda</h1><p className="sub">Como usar o Rotina Ativa. Toque em um título para abrir.</p></div></div>
-      {superAdmin && <Secao tom="admin" emoji="🛠️" titulo="Administrador geral" subtitulo="Só você vê esta parte" itens={ADMIN} />}
-      {gestor && <Secao tom="pais" emoji="👨‍👩‍👧" titulo="Para pai e mãe" subtitulo="Cadastros, tarefas, conferência e relatórios" itens={PAIS} aberta={!superAdmin} />}
-      <Secao tom="filho" emoji="⭐" titulo={gestor ? 'O que os filhos veem' : 'Como usar o app'} subtitulo={gestor ? 'Para você saber explicar a eles' : 'Tarefas, fotos, adiar e avisos'} itens={FILHO} aberta={!gestor} />
+      <div className="cab"><div><h1 className="titulo">Ajuda</h1><p className="sub">Toque em uma pergunta para ver a resposta</p></div></div>
+      <div className="card">
+        {superAdmin && <Secao titulo="Administrador geral" itens={ADMIN} />}
+        {gestor && <Secao titulo="Para pai e mãe" itens={PAIS} abrirPrimeira={!superAdmin} />}
+        <Secao titulo={gestor ? 'O que os filhos veem' : 'Como usar o app'} itens={FILHO} abrirPrimeira={!gestor} />
+      </div>
     </main>
   );
 }

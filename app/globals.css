@@ -160,21 +160,11 @@ tr.clicavel .acao-linha { position: relative; z-index: 1; }
 @media (prefers-reduced-motion: reduce) { .esqueleto { animation: none; } }
 
 /* Ajuda */
-.ajuda { --tom: #1a6fe0; --fundo-tom: #e8f1fd; background: var(--cartao); border: 1px solid var(--borda); border-left: 6px solid var(--tom); border-radius: 16px; margin-bottom: 14px; overflow: hidden; }
-.ajuda-pais { --tom: #1a6fe0; --fundo-tom: #e8f1fd; }
-.ajuda-filho { --tom: #1d8a55; --fundo-tom: #e5f6ec; }
-.ajuda-admin { --tom: #8a4fd6; --fundo-tom: #f0e8fb; }
-:root[data-theme="dark"] .ajuda-pais { --fundo-tom: #1c3358; }
-:root[data-theme="dark"] .ajuda-filho { --fundo-tom: #17382a; }
-:root[data-theme="dark"] .ajuda-admin { --fundo-tom: #33264f; }
-@media (prefers-color-scheme: dark) { :root:not([data-theme="light"]) .ajuda-pais { --fundo-tom: #1c3358; } :root:not([data-theme="light"]) .ajuda-filho { --fundo-tom: #17382a; } :root:not([data-theme="light"]) .ajuda-admin { --fundo-tom: #33264f; } }
-.ajuda summary { display: flex; align-items: center; gap: 12px; padding: 14px 16px; cursor: pointer; background: var(--fundo-tom); list-style: none; }
-.ajuda summary::-webkit-details-marker { display: none; }
-.ajuda summary strong { display: block; font-size: 18px; color: var(--tom); }
-.ajuda summary small { display: block; font-size: 13px; color: var(--cinza); }
-.ajuda-emoji { font-size: 26px; }
-.ajuda-lista { list-style: none; margin: 0; padding: 6px 16px 16px; counter-reset: passo; }
-.ajuda-lista li { padding: 14px 0; border-bottom: 1px solid var(--borda); }
-.ajuda-lista li:last-child { border-bottom: 0; }
-.ajuda-lista h3 { margin: 0 0 6px; font-size: 16px; color: var(--tom); }
-.ajuda-lista p { margin: 0; line-height: 1.6; text-align: justify; hyphens: auto; }
+.ajuda-sec { font-size: 13px; letter-spacing: .06em; text-transform: uppercase; color: var(--azul, #1a6fe0); font-weight: 800; margin: 18px 0 0; padding-bottom: 6px; border-bottom: 1px solid var(--borda); }
+section:first-child > .ajuda-sec { margin-top: 0; }
+.ajuda-item { border-bottom: 1px solid var(--borda); }
+.ajuda-item summary { cursor: pointer; padding: 14px 0; font-weight: 600; font-size: 16px; list-style: none; display: flex; justify-content: space-between; gap: 12px; }
+.ajuda-item summary::-webkit-details-marker { display: none; }
+.ajuda-item summary::after { content: "+"; color: var(--cinza); font-weight: 400; font-size: 20px; line-height: 1; }
+.ajuda-item[open] summary::after { content: "–"; }
+.ajuda-item p { margin: 0; padding: 0 0 14px; line-height: 1.6; text-align: justify; hyphens: auto; }
