@@ -31,7 +31,6 @@ export default async function Config({ searchParams }) {
         : <Item href={`/config/familias/${familia.id}`} icone="familia" titulo="Meu grupo" sub={familia.nome} />}
       <Item href="/config/pessoas" icone="pessoa" titulo="Pessoas" sub={`${n} ${n === 1 ? 'pessoa' : 'pessoas'}`} />
       <Item href="/config/categorias" icone="etiqueta" titulo="Categorias" sub={`${nCat ?? 0} categorias`} />
-      <Item href="/config/ajustes" icone="ajustes" titulo="Configurações" sub="Segurança e privacidade" />
     </main>
   );
 }

@@ -1,0 +1,23 @@
+import { exigirMembro } from '@/lib/sessao';
+import Voltar from '@/components/Voltar';
+
+export const dynamic = 'force-dynamic';
+
+// Só informação. Abre pelo menu do nome, no topo (Segurança e privacidade).
+export default async function Seguranca() {
+  await exigirMembro();
+  return (
+    <main className="estreito">
+      <Voltar href="/" titulo="Segurança e privacidade" />
+      <div className="card">
+        <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.7, fontSize: 14 }}>
+          <li>Só entra quem está cadastrado, com o e-mail cadastrado.</li>
+          <li>As permissões são conferidas no banco: cada pessoa só vê e altera o que é dela.</li>
+          <li>Fotos ficam em pasta privada e abrem só por link temporário. A localização é removida no envio.</li>
+          <li>Toda ação importante fica registrada no histórico.</li>
+        </ul>
+        <p style={{ fontSize: 13, marginBottom: 0 }}><a href="/privacidade">Aviso de privacidade</a></p>
+      </div>
+    </main>
+  );
+}
