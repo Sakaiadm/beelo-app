@@ -34,7 +34,7 @@ export default function Calendario({ mes, porDia, hoje, sel, link }) {
       </div>
       <div className="legenda">
         <span><i style={{ background: '#1a6fe0' }} />Tudo feito</span>
-        <span><i style={{ background: '#fbe3e5', border: '1px solid #f3cfd2' }} />Falta</span>
+        <span><i style={{ background: 'var(--cal-falta-fundo)', border: '1px solid var(--cal-falta-borda)' }} />Falta</span>
       </div>
     </div>
   );
