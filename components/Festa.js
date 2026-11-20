@@ -5,22 +5,16 @@ import { sortearMensagem, MENSAGEM_FINAL, tocarSom, proximaAnimacao } from '@/li
 const CORES = ['#ffd43b', '#1a6fe0', '#ff6b6b', '#51cf66', '#cc5de8', '#ff922b'];
 const parado = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
-// Monta as peças de cada animação uma vez por comemoração (posições sorteadas).
-function pecas(tipo) {
-  if (tipo === 'estrelas') {
-    return Array.from({ length: 16 }, (_, i) => {
-      const a = (i / 16) * Math.PI * 2 + Math.random() * 0.3, d = 80 + Math.random() * 90;
-      return { '--x': `${Math.cos(a) * d}px`, '--y': `${Math.sin(a) * d * 0.9}px`, '--c': CORES[i % 6] };
-    });
-  }
-  return Array.from({ length: 40 }, (_, i) => ({
-    left: `${Math.random() * 100}%`, '--x': `${Math.random() * 80 - 40}px`, '--r': `${Math.random() * 720 - 360}deg`,
-    '--d': `${1.3 + Math.random() * 1}s`, '--c': CORES[i % 6], animationDelay: `${Math.random() * 0.35}s`,
-  }));
+// Estrelinhas que saem da bolinha (posições sorteadas a cada comemoração).
+function pecas() {
+  return Array.from({ length: 16 }, (_, i) => {
+    const a = (i / 16) * Math.PI * 2 + Math.random() * 0.3, d = 80 + Math.random() * 90;
+    return { '--x': `${Math.cos(a) * d}px`, '--y': `${Math.sin(a) * d * 0.9}px`, '--c': CORES[i % 6] };
+  });
 }
 
-// Ao concluir: "plim" para todos; no modo criança, estrelinhas (som Escadinha) ou confete
-// (som Varinha mágica), alternando, mais a mensagem alegre sorteada.
+// Ao concluir: "plim" para todos; no modo criança, estrelinhas com o som Escadinha
+// e a mensagem alegre sorteada.
 export default function Festa({ crianca, nome }) {
   const [msg, setMsg] = useState(null);
   const [anim, setAnim] = useState(null);
@@ -32,9 +26,9 @@ export default function Festa({ crianca, nome }) {
       const a = proximaAnimacao();
       tocarSom(a.som);
       if (!parado()) {
-        setAnim({ tipo: a.tipo, x: x ?? window.innerWidth / 2, y: y ?? window.innerHeight / 2, pecas: pecas(a.tipo), id: Date.now() });
+        setAnim({ tipo: a.tipo, x: x ?? window.innerWidth / 2, y: y ?? window.innerHeight / 2, pecas: pecas(), id: Date.now() });
         clearTimeout(tempoAnim.current);
-        tempoAnim.current = setTimeout(() => setAnim(null), 2600);
+        tempoAnim.current = setTimeout(() => setAnim(null), 1300);
       }
       setMsg({ titulo: ultima ? MENSAGEM_FINAL : sortearMensagem(nome), sub: ultima ? 'Todas as tarefas de hoje feitas.' : 'Mais uma estrela no seu dia.', id: Date.now() });
       clearTimeout(tempo.current);
@@ -47,9 +41,7 @@ export default function Festa({ crianca, nome }) {
     <>
       {anim && (
         <div className={`festa-anim ${anim.tipo}`} key={anim.id} aria-hidden="true">
-          {anim.tipo === 'estrelas'
-            ? <div className="origem" style={{ left: anim.x, top: anim.y }}>{anim.pecas.map((s, i) => <i key={i} style={s} />)}</div>
-            : anim.pecas.map((s, i) => <i key={i} style={s} />)}
+          <div className="origem" style={{ left: anim.x, top: anim.y }}>{anim.pecas.map((s, i) => <i key={i} style={s} />)}</div>
         </div>
       )}
       {msg && (

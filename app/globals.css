@@ -392,11 +392,9 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 .festa-msg svg { flex: none; }
 @keyframes festa-sobe { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
 @media (prefers-reduced-motion: reduce) { .tarefa.festa .circulo svg, .tarefa.festa .circulo::after, .festa-msg { animation: none; } .tarefa.festa .circulo::after { display: none; } }
-/* Modo criança: estrelinhas saindo da bolinha ou confete caindo da tela toda */
+/* Modo criança: estrelinhas saindo da bolinha */
 .festa-anim { position: fixed; inset: 0; pointer-events: none; z-index: 79; overflow: hidden; }
 .festa-anim i { position: absolute; display: block; opacity: 0; background: var(--c); }
 .festa-anim .origem { position: absolute; width: 0; height: 0; }
 .festa-anim.estrelas i { left: -9px; top: -9px; width: 18px; height: 18px; clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); animation: festa-estrela 1s cubic-bezier(.2,.7,.3,1) forwards; }
 @keyframes festa-estrela { 0% { opacity: 1; transform: translate(0,0) scale(.4); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.2) rotate(180deg); } }
-.festa-anim.confete i { top: -16px; width: 9px; height: 14px; border-radius: 2px; animation: festa-confete var(--d) linear forwards; }
-@keyframes festa-confete { 0% { opacity: 1; transform: translate(0,0) rotate(0); } 85% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), 105vh) rotate(var(--r)); } }
