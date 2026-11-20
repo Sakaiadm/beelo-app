@@ -67,7 +67,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
                     <button type="button" role="switch" aria-checked={!!chaves[k]} aria-label={t} className={`chave ${chaves[k] ? 'on' : ''}`} onClick={() => setChaves((x) => ({ ...x, [k]: !x[k] }))} />
                   </div>
                 ))}
-                <p className="peq-cinza">As chaves ficam guardadas e passam a valer junto com o envio dos convites por e-mail.</p>
+                <p className="peq-cinza">As chaves ficam guardadas e passam a valer em uma próxima atualização do app.</p>
               </>
             )}
           </>
@@ -80,7 +80,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}
         <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : 'Adicionar pessoa'}</button>
         {!m && email && v.ok && <button name="enviar" value="1" className="btn sec bloco" style={{ marginTop: 8 }} disabled={bloqueado}>Salvar e enviar convite</button>}
-        {!m && <p className="peq-cinza">A foto pode ser colocada depois de salvar. O envio do convite por e-mail virá em uma próxima etapa.</p>}
+        {!m && <p className="peq-cinza">A foto pode ser colocada depois de salvar. Para mandar o convite, digite o e-mail e toque em Salvar e enviar convite.</p>}
         {folha && (
           <div className="folha" role="dialog" aria-modal="true" aria-label="Cor">
             <div className="folha-in">
