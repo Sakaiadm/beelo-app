@@ -26,6 +26,8 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const mudaFuncao = (id) => { setFuncao(id); setChaves(chavesIniciais(id, null)); };
   const eu = m && m.id === euId;
   const bloqueado = (email && !v.ok) || !nome.trim() || !funcao;
+  // Pessoa nova com e-mail válido: um botão só, que salva e já manda o convite.
+  const convidar = !m && !!email && v.ok;
   const usadasMin = usadas.map((c) => String(c).toLowerCase());
   return (
     <>
@@ -78,8 +80,8 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         <div className="lin-chave"><span>Tempo de tela ligado</span><button type="button" role="switch" aria-checked={tela} aria-label="Tempo de tela ligado" className={`chave ${tela ? 'on' : ''}`} onClick={() => setTela(!tela)} /></div>
         <div className="lin-chave"><span>Acesso ativo<small>{eu ? 'Você não pode desativar a si mesmo' : 'Desativar tira o acesso sem apagar o histórico'}</small></span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}
-        <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : 'Adicionar pessoa'}</button>
-        {!m && email && v.ok && <button name="enviar" value="1" className="btn sec bloco" style={{ marginTop: 8 }} disabled={bloqueado}>Salvar e enviar convite</button>}
+        {convidar && <input type="hidden" name="enviar" value="1" />}
+        <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : convidar ? 'Salvar e enviar convite' : 'Adicionar pessoa'}</button>
         {!m && <p className="peq-cinza">A foto pode ser colocada depois de salvar. Para mandar o convite, digite o e-mail e toque em Salvar e enviar convite.</p>}
         {folha && (
           <div className="folha" role="dialog" aria-modal="true" aria-label="Cor">
