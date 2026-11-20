@@ -1,4 +1,5 @@
 'use client';
+import Icone from './Icone';
 import { useState } from 'react';
 import Link from 'next/link';
 import Form from './Form';
@@ -86,7 +87,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {folha && (
           <div className="folha" role="dialog" aria-modal="true" aria-label="Cor">
             <div className="folha-in">
-              <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(false)}>←</button><h2>Cor</h2></div>
+              <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(false)}><Icone nome="esq" tam={26} /></button><h2>Cor</h2></div>
               <div className="cartao-l"><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f ? rotuloFuncao(f.id, null) : ''}</small></span></div>
               <p style={{ fontWeight: 700, margin: '4px 0 0' }}>Cores sugeridas</p>
               <div className="grade-cores">
@@ -101,13 +102,19 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
           </div>
         )}
       </Form>
-      {m && m.email && !eu && (
+      {m && m.email && !eu && (m.user_id ? (
+        <div className="card">
+          <b>Problemas para entrar?</b>
+          <p style={{ margin: '6px 0 12px', fontSize: 14, color: 'var(--cinza)', lineHeight: 1.45 }}>Se {m.nome} trocou de celular ou perdeu o link, mande um novo e-mail de acesso para o e-mail cadastrado.</p>
+          <ReenviarConvite id={m.id} rotulo="Enviar e-mail de acesso" />
+        </div>
+      ) : (
         <div className="card">
           <b>Convite por e-mail</b>
           <p style={{ margin: '6px 0 10px', fontSize: 14, color: 'var(--cinza)' }}>{statusConvite(m)?.txt}</p>
-          <ReenviarConvite id={m.id} rotulo={m.user_id ? 'Enviar e-mail de acesso' : m.convidado_em ? 'Reenviar convite' : 'Enviar convite'} />
+          <ReenviarConvite id={m.id} rotulo={m.convidado_em ? 'Reenviar convite' : 'Enviar convite'} />
         </div>
-      )}
+      ))}
       {m && !eu && (
         <div className="card">
           {!excluir ? (

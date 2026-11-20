@@ -16,6 +16,7 @@ const ICONE_STATUS = {
 export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca }) {
   const [aba, setAba] = useState(null);
   const [aviso, setAviso] = useState('');
+  const [aberto, setAberto] = useState(false);
   const cat = oc.tarefa?.categoria;
   const [fundo, letra] = CORES_CAT[cat?.cor] || CORES_CAT.cinza;
   const feita = st === 'cumprida' || st === 'cumprida_atraso';
@@ -26,6 +27,12 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
   const futura = oc.data > hoje;
   const outraPessoa = gestor && !dono;
   const alternar = (a) => setAba(aba === a ? null : a);
+  const paraConferir = gestor && !dono && feita && oc.conferido !== 'conferido';
+  const selo = atrasada ? [STATUS_TXT[st], 'erro']
+    : feita && oc.conferido === 'conferido' ? ['Conferido', 'conf']
+    : paraConferir ? ['Para conferir', 'ok']
+    : feita ? [STATUS_TXT[st], 'ok']
+    : st !== 'pendente' ? [STATUS_TXT[st], 'aviso'] : null;
 
   return (
     <div className={`tarefa ${feita ? 'feita' : ''} ${atrasada ? 'atrasada' : ''}`}>
@@ -45,24 +52,37 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="tt">{oc.tarefa?.titulo}</div>
-          <div className="meta">
-            {horario}{oc.horario_travado ? ' · definido pelos pais' : ''}
-            {nomeMembro ? ` · ${nomeMembro}` : ''}
-            {oc.data < hoje ? ` · ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}` : ''}
-            {st !== 'pendente' && !feita ? ` · ${STATUS_TXT[st]}` : ''}
-            {st === 'cumprida_atraso' ? ' · com atraso' : ''}
-            {oc.tarefa?.exige_foto && !feita ? ' · com foto' : ''}
-            {oc.tarefa?.criada_por === oc.membro_id ? ' · criada pelo filho' : ''}
-            {oc.conferido === 'conferido' ? ' · conferido' : ''}
-            {oc.foto_tirada_em ? ` · foto tirada ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', hour: '2-digit', minute: '2-digit' })}` : ''}
-          </div>
+          <div className="meta">{horario}{nomeMembro ? ` · ${nomeMembro}` : ''}</div>
+          {(selo || cat) && (
+            <div className="selos">
+              {selo && <span className={`selo-st ${selo[1]}`}>{selo[0]}</span>}
+              {cat && <span className="pilula" style={{ background: fundo, color: letra }}>{cat.nome}</span>}
+            </div>
+          )}
           {oc.tarefa?.exige_justificativa && atrasada && !oc.justificativa && dono && <div className="meta" style={{ color: 'var(--erro)', fontWeight: 600 }}>Justifique o atraso para poder concluir.</div>}
-          {oc.justificativa && <div className="meta">Justificativa: “{oc.justificativa}”{oc.justificativa_status === 'aceita' ? ' (aceita)' : oc.justificativa_status === 'recusada' ? ' (recusada)' : ''}</div>}
         </div>
-        {fotoUrl && <a href={fotoUrl} target="_blank" rel="noreferrer"><img src={fotoUrl} alt={`Foto de ${oc.tarefa?.titulo}`} className="foto-mini" style={{ width: 48, height: 48 }} /></a>}
-        {cat && <span className="pilula" style={{ background: fundo, color: letra }}>{cat.nome}</span>}
-        {editarHref && <Link prefetch={false} className="btn sec peq icone lapis" href={editarHref} aria-label={`Editar ${oc.tarefa?.titulo}`} title="Editar"><Icone nome="lapis" tam={18} /></Link>}
+        {fotoUrl && <img src={fotoUrl} alt="" className="foto-mini" style={{ width: 44, height: 44 }} />}
+        <button type="button" className={`abre ${aberto ? 'on' : ''}`} onClick={() => setAberto(!aberto)} aria-expanded={aberto}
+          aria-label={`${aberto ? 'Fechar' : 'Ver'} detalhes de ${oc.tarefa?.titulo}`} title={aberto ? 'Fechar detalhes' : 'Ver detalhes'}><Icone nome="baixo" tam={22} /></button>
       </div>
+
+      {aberto && (
+        <div className="det">
+          <div className="l"><span>Dia</span><span>{DIAS[diaSemana(oc.data)].replace(/^./, (c) => c.toUpperCase())}, {oc.data.slice(8, 10)}/{oc.data.slice(5, 7)}</span></div>
+          <div className="l"><span>Horário</span><span>{horario}{oc.horario_travado ? ' · definido pelos pais' : ''}</span></div>
+          <div className="l"><span>Situação</span><span>{STATUS_TXT[st]}{oc.conferido === 'conferido' ? ' · conferido' : oc.conferido === 'refazer' ? ' · pedido para refazer' : ''}</span></div>
+          {oc.tarefa?.exige_foto && !feita && <div className="l"><span>Foto</span><span>Precisa de foto para concluir</span></div>}
+          {oc.tarefa?.criada_por === oc.membro_id && <div className="l"><span>Origem</span><span>Criada pela própria pessoa</span></div>}
+          {oc.justificativa && <div className="l"><span>Justificativa</span><span>“{oc.justificativa}”{oc.justificativa_status === 'aceita' ? ' (aceita)' : oc.justificativa_status === 'recusada' ? ' (recusada)' : ''}</span></div>}
+          {fotoUrl && (
+            <>
+              <div className="l"><span>Foto</span><span>{oc.foto_tirada_em ? `tirada ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' })} às ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })}` : 'enviada'}</span></div>
+              <a href={fotoUrl} target="_blank" rel="noreferrer"><img src={fotoUrl} alt={`Foto de ${oc.tarefa?.titulo}`} /></a>
+            </>
+          )}
+          {editarHref && <div className="acoes"><Link prefetch={false} className="btn sec peq" href={editarHref}><Icone nome="lapis" tam={16} />Editar</Link></div>}
+        </div>
+      )}
 
       {aviso && <div className="aviso erro" role="alert" style={{ marginTop: 8 }}>{aviso}</div>}
 
@@ -77,9 +97,9 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
         </div>
       )}
 
-      {gestor && !dono && feita && (
+      {paraConferir && (
         <div className="acoes" style={{ marginTop: 8 }}>
-          <Form acao={conferir}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq" disabled={oc.conferido === 'conferido'}>Conferido</button></Form>
+          <Form acao={conferir}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq">Conferido</button></Form>
           <Form acao={conferir}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Pedir para refazer</button></Form>
         </div>
       )}

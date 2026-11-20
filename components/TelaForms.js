@@ -1,4 +1,5 @@
 'use client';
+import Icone from './Icone';
 import { useState } from 'react';
 import Form from './Form';
 import Foto from './Foto';
@@ -65,7 +66,7 @@ export function PrevistoForm({ membro, hoje }) {
         <div className="folha" role="dialog" aria-modal="true" aria-label={folha === 'pers' ? 'Personalizar' : 'Repetir'}>
           <div className="folha-in">
             <div className="folha-cab">
-              <button type="button" className="folha-volta" aria-label="Voltar" onClick={folha === 'pers' ? voltarPers : () => setFolha(null)}>←</button>
+              <button type="button" className="folha-volta" aria-label="Voltar" onClick={folha === 'pers' ? voltarPers : () => setFolha(null)}><Icone nome="esq" tam={26} /></button>
               <h2>{folha === 'pers' ? 'Personalizar' : 'Repetir'}</h2>
             </div>
             {folha === 'repetir' && (

@@ -63,7 +63,7 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
       {folha && (
         <div className="folha" role="dialog" aria-modal="true" aria-label="Trocar responsável">
           <div className="folha-in">
-            <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(false)}>←</button><h2>Trocar responsável</h2></div>
+            <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(false)}><Icone nome="esq" tam={26} /></button><h2>Trocar responsável</h2></div>
             {gestores.length > 0 && (
               <>
                 <p style={{ fontWeight: 700, margin: 0 }}>Responsável pelo grupo</p>

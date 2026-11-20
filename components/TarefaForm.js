@@ -1,4 +1,5 @@
 'use client';
+import Icone from './Icone';
 import { useState } from 'react';
 import Form from './Form';
 import { salvarTarefa } from '@/app/acoes';
@@ -104,7 +105,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       {folha === 'sug' && (
         <div className="folha" role="dialog" aria-modal="true" aria-label="Sugestões">
           <div className="folha-in">
-            <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(null)}>←</button><h2>Sugestões</h2></div>
+            <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(null)}><Icone nome="esq" tam={26} /></button><h2>Sugestões</h2></div>
             <div className="chips uma-linha" role="group" aria-label="Categoria">
               {catsSug.map((c) => <button key={c} type="button" className={fCat === c ? 'on' : ''} aria-pressed={fCat === c} onClick={() => setFCat(c)}>{c}</button>)}
             </div>
@@ -127,7 +128,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
         <div className="folha" role="dialog" aria-modal="true" aria-label={folha === 'pers' ? 'Personalizar' : 'Repetir'}>
           <div className="folha-in">
             <div className="folha-cab">
-              <button type="button" className="folha-volta" aria-label="Voltar" onClick={folha === 'pers' ? voltarPers : () => setFolha(null)}>←</button>
+              <button type="button" className="folha-volta" aria-label="Voltar" onClick={folha === 'pers' ? voltarPers : () => setFolha(null)}><Icone nome="esq" tam={26} /></button>
               <h2>{folha === 'pers' ? 'Personalizar' : 'Repetir'}</h2>
             </div>
             {folha === 'repetir' && (
