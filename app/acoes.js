@@ -213,10 +213,11 @@ export async function salvarCategoria(_, fd) {
   const { data: eu } = await supabase.rpc('ra_eu');
   const nome = txt(fd, 'nome', 30);
   if (!nome) return { erro: 'Informe o nome' };
-  const { error } = await supabase.from('ra_categorias').insert({ familia_id: eu.familia_id, nome, cor: txt(fd, 'cor', 20) || 'azul', ordem: 50 });
+  const cor = CORES_CAT[fd.get('cor')] ? fd.get('cor') : 'azul';
+  const { error } = await supabase.from('ra_categorias').insert({ familia_id: eu.familia_id, nome, cor, ordem: 50 });
   if (error) return { erro: error.message };
   revalidar();
-  return { ok: true };
+  redirect('/config/categorias?aviso=criada');
 }
 
 // ===== Tempo de tela =====
@@ -307,13 +308,14 @@ export async function editarCategoria(_, fd) {
   const { error } = await supabase.from('ra_categorias').update({ nome, cor }).eq('id', uuid(fd.get('id')));
   if (error) return { erro: error.message };
   revalidar();
-  return { ok: true };
+  redirect('/config/categorias?aviso=salva');
 }
 
 export async function excluirCategoria(fd) {
   const supabase = await supabaseServer();
   await supabase.from('ra_categorias').delete().eq('id', uuid(fd.get('id')));
   revalidar();
+  redirect('/config/categorias?aviso=excluida');
 }
 
 // ===== Perfil =====
