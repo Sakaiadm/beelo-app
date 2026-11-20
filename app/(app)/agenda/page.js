@@ -38,8 +38,8 @@ export default async function Agenda({ searchParams }) {
 
   return (
     <main className="agenda-tela">
-      <div className="cab">
-        <div><h1 className="titulo">Agenda</h1><p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(d)}</p></div>
+      <div className="cab-agenda">
+        <div className="tit"><h1 className="titulo">Agenda</h1><Link prefetch={false} className="hoje-peq" href={qs({ d: hoje })}>Hoje</Link></div>
         <Link prefetch={false} className="btn" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
       </div>
       <div className="seg" role="tablist" aria-label="Visão">
@@ -48,10 +48,10 @@ export default async function Agenda({ searchParams }) {
         <Link prefetch={false} href={qs({ v: 'mes' })} className={v === 'mes' ? 'on' : ''}>Mês</Link>
       </div>
       {v !== 'mes' && (
-        <div className="nv">
-          <Link prefetch={false} className="b" href={qs({ d: addDias(d, -passo) })} aria-label="Anterior">‹</Link>
-          <Link prefetch={false} className="b" href={qs({ d: hoje })}>Hoje</Link>
-          <Link prefetch={false} className="b" href={qs({ d: addDias(d, passo) })} aria-label="Próximo">›</Link>
+        <div className="nv-data">
+          <Link prefetch={false} className="seta" href={qs({ d: addDias(d, -passo) })} aria-label="Anterior"><Icone nome="esq" tam={26} /></Link>
+          <div className="dt">{dataLonga(d)}</div>
+          <Link prefetch={false} className="seta" href={qs({ d: addDias(d, passo) })} aria-label="Próximo"><Icone nome="dir" tam={26} /></Link>
         </div>
       )}
       {gestor && (
