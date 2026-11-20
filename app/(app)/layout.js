@@ -9,6 +9,7 @@ import { urlsAvatares } from '@/lib/avatar';
 import { Suspense } from 'react';
 import Progresso from '@/components/Progresso';
 import LembrarInicio from '@/components/LembrarInicio';
+import Conexao from '@/components/Conexao';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia } = await exigirMembro();
@@ -35,6 +36,7 @@ export default async function AppLayout({ children }) {
         </div>
       </header>
       <Selo n={naoLidas} />
+      <Conexao />
       {children}
       <Menu itens={itens} baixo />
     </>

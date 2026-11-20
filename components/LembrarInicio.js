@@ -17,6 +17,9 @@ export default function LembrarInicio({ caminho, quem, gerado }) {
     if ('serviceWorker' in navigator) navigator.serviceWorker.register('/sw.js', { scope: '/' }).catch(() => {});
   }, [caminho, quem]);
   useEffect(() => {
+    // Sem internet (ou mostrando a cópia salva por falta de rede), não tenta atualizar: a faixa
+    // "Sem internet" cuida disso quando a conexão voltar.
+    if (self.__raCopia || navigator.onLine === false) return;
     if (!atualizou && Date.now() - gerado > 10000) {
       atualizou = true;
       router.refresh();

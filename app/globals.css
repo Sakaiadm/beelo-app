@@ -74,6 +74,10 @@ input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--azul); ver
 .aviso.ok { background: var(--ok-fundo); color: var(--ok); }
 .aviso.erro { background: var(--erro-fundo); color: var(--erro); }
 .aviso.info { background: var(--aviso-fundo); color: var(--aviso); }
+/* Faixa "Sem internet" / envio do que ficou guardado no aparelho (logo abaixo do topo). */
+.faixa-rede { max-width: 1240px; margin: 12px auto 0; padding: 0 20px; display: grid; gap: 8px; }
+.faixa-rede .aviso { margin: 0; font-size: 14px; }
+.faixa-rede .aviso a { color: inherit; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 16px; }
 .kpi { background: var(--cartao); border: 1px solid var(--borda); border-radius: 16px; padding: 18px 20px; }
 .kpi.destaque { background: #1a6fe0; border-color: #1a6fe0; color: #fff; }

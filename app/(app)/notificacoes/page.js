@@ -1,4 +1,5 @@
 import { exigirMembro } from '@/lib/sessao';
+import Form from '@/components/Form';
 import { marcarLidas } from '@/app/acoes';
 
 export const dynamic = 'force-dynamic';
@@ -11,7 +12,7 @@ export default async function Notificacoes() {
   return (
     <main className="estreito">
       <div className="cab"><h1 className="titulo">Notificações</h1>
-        {lista.some((n) => !n.lida) && <form action={marcarLidas}><button className="btn sec peq">Marcar todas como lidas</button></form>}</div>
+        {lista.some((n) => !n.lida) && <Form acao={marcarLidas} simples><button className="btn sec peq">Marcar todas como lidas</button></Form>}</div>
       <div className="card">
         {lista.length === 0 && <div className="vazio">Nada por aqui ainda.</div>}
         {lista.map((n) => (

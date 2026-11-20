@@ -83,8 +83,8 @@ export default async function Tela({ searchParams }) {
                 <div className="tt">{dataCurta(p.data)}: {p.min_total != null ? `total ${fmtMin(p.min_total)}` : `celular ${fmtMin(p.min_celular)} · computador ${fmtMin(p.min_computador)}`}</div>
                 <div className="meta">“{p.motivo}”</div>
                 <div className="acoes" style={{ marginTop: 8 }}>
-                  <Form acao={responderTela}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Validar</button></Form>
-                  <Form acao={responderTela}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
+                  <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Validar</button></Form>
+                  <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
                 </div>
               </div>))}
           </div>}
@@ -99,7 +99,7 @@ export default async function Tela({ searchParams }) {
                     {r.fixado ? ' · fixo' : r.vigencia_fim && r.vigencia_inicio !== r.vigencia_fim ? ` · até ${dataCurta(r.vigencia_fim)}` : ''}{r.origem === 'proposta' ? ' · proposta aprovada' : ''}
                   </div>
                 </div>
-                <form action={encerrarPrevisto}><input type="hidden" name="id" value={r.id} /><button className="btn sec peq">Encerrar</button></form>
+                <Form acao={encerrarPrevisto} simples><input type="hidden" name="id" value={r.id} /><button className="btn sec peq">Encerrar</button></Form>
               </div>
             ))}
             <p style={{ fontSize: 13, color: 'var(--cinza)', marginBottom: 0 }}>Quando há mais de um previsto para o mesmo dia, vale o de dia específico; depois, o mais recente.</p>

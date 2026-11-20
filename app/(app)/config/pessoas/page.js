@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Form from '@/components/Form';
 import { exigirGestor } from '@/lib/sessao';
 import Avatar from '@/components/Avatar';
 import Voltar from '@/components/Voltar';
@@ -29,8 +30,8 @@ export default async function Pessoas({ searchParams }) {
           <Link prefetch={false} href={`/config/pessoas/${m.id}`} className="link-btn">Editar</Link>
           {!m.user_id && m.email && m.id !== eu.id && <ReenviarConvite id={m.id} rotulo={m.convidado_em ? 'Reenviar' : 'Convidar'} />}
           {m.id !== eu.id && (
-            <form action={alternarPessoa}><input type="hidden" name="id" value={m.id} /><input type="hidden" name="ativo" value={m.ativo ? '0' : '1'} />
-              <button className={`chave ${m.ativo ? 'on' : ''}`} role="switch" aria-checked={m.ativo} aria-label={m.ativo ? `Desativar ${m.nome}` : `Ativar ${m.nome}`} /></form>
+            <Form acao={alternarPessoa} simples><input type="hidden" name="id" value={m.id} /><input type="hidden" name="ativo" value={m.ativo ? '0' : '1'} />
+              <button className={`chave ${m.ativo ? 'on' : ''}`} role="switch" aria-checked={m.ativo} aria-label={m.ativo ? `Desativar ${m.nome}` : `Ativar ${m.nome}`} /></Form>
           )}
         </div>
       ))}

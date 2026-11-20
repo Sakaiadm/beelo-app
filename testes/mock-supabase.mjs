@@ -61,12 +61,16 @@ function filtrar(rows, params) {
 }
 // Atraso opcional em cada resposta (simula o banco lento): GET /__atraso?ms=10000
 let atraso = 0;
+// Falhas simuladas: GET /__falha?rpc=ra_concluir2&code=401&msg=JWT%20expired (só essa função)
+// ou /__falha?tudo=500 (todo o banco fora). /__falha sem nada limpa.
+let falha = {};
 http.createServer((req, res) => {
   let body = '';
   req.on('data', (c) => (body += c));
   req.on('end', () => {
     const u0 = new URL(req.url, 'http://x');
     if (u0.pathname === '/__atraso') { atraso = Number(u0.searchParams.get('ms')) || 0; res.end('ok'); return; }
+    if (u0.pathname === '/__falha') { falha = Object.fromEntries(u0.searchParams); res.end('ok'); return; }
     setTimeout(tratar, u0.pathname === '/__log' ? 0 : atraso);
   });
   function tratar() {
@@ -78,12 +82,14 @@ http.createServer((req, res) => {
     const cors = { 'access-control-allow-origin': '*', 'access-control-allow-headers': '*', 'access-control-allow-methods': '*' };
     const send = (code, obj, headers = {}) => { res.writeHead(code, { 'content-type': 'application/json', ...cors, ...headers }); res.end(obj === undefined ? '' : JSON.stringify(obj)); };
     if (req.method === 'OPTIONS') return send(204);
+    if (falha.tudo && u.pathname.startsWith('/rest/')) return send(Number(falha.tudo), { message: 'upstream connect error or disconnect/reset before headers' });
+    if (falha.rpc && u.pathname === '/rest/v1/rpc/' + falha.rpc) return send(Number(falha.code) || 400, { code: falha.code === '401' ? 'PGRST301' : 'P0001', message: falha.msg || 'erro' });
     if (u.pathname === '/auth/v1/user') return usr ? send(200, { id: usr.id, email: usr.email, aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} }) : send(401, { message: 'invalid' });
     if (u.pathname === '/auth/v1/verify') { const b = JSON.parse(body || '{}'); return b.token_hash === 'ok-hash' ? send(200, { access_token: 'tok-pai', token_type: 'bearer', expires_in: 3600, expires_at: 4102444800, refresh_token: 'r', user: { id: 'x', email: 'pai@t.com', aud: 'authenticated', role: 'authenticated' } }) : send(403, { code: 403, error_code: 'otp_expired', msg: 'expired' }); }
     if (u.pathname === '/auth/v1/logout') return send(204);
     if (u.pathname.startsWith('/storage/v1/object/sign/')) { const b = JSON.parse(body || '{}'); return send(200, (b.paths || []).map((p) => ({ path: p, signedURL: '/object/sign/x?token=t', error: null }))); }
     if (u.pathname.startsWith('/storage/v1/object/') && req.method === 'POST') return send(200, { Key: u.pathname.slice(19), Id: 'x' });
-    const m = u.pathname.match(/^\/rest\/v1\/(rpc\/)?([a-z_]+)$/);
+    const m = u.pathname.match(/^\/rest\/v1\/(rpc\/)?([a-z_0-9]+)$/);
     if (!m) return send(404, { message: 'nada' });
     if (m[1]) {
       if (m[2] === 'ra_eu' || m[2] === 'ra_vincular') return send(200, usr?.eu || null);

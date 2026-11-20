@@ -2,7 +2,7 @@
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Icone from '@/components/Icone';
-import { estadoAvisos, ativarAvisos } from '@/components/AvisosCelular';
+import { estadoAvisos, ativarAvisos, motivoAvisos } from '@/components/AvisosCelular';
 
 // Cartão que convida a ligar os avisos no celular. Aparece só enquanto eles estão desligados
 // neste aparelho e some de vez quando a pessoa ativa ou toca em "Agora não".
@@ -30,7 +30,7 @@ export default function AvisosConvite({ chavePublica, texto }) {
       guardar('respondido');
       if (r === 'ligado') { setEstado('pronto'); setTimeout(() => setEstado(null), 4000); }
       else setEstado(null);
-    } catch (e) { setMsg('Não deu certo: ' + (e.message || 'tente de novo') + '.'); }
+    } catch (e) { setMsg(motivoAvisos(e)); }
     finally { setOcupado(false); }
   }
 

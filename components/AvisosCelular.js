@@ -1,6 +1,17 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { salvarAparelho, removerAparelho, enviarTeste } from '@/app/acoes';
+import { falhaDeRede, mensagemDeErro, semRede, MSG } from '@/lib/rede';
+
+// Explica em português por que não deu para ligar os avisos.
+export function motivoAvisos(e) {
+  if (falhaDeRede(e)) return 'Sem internet. Os avisos só podem ser ligados com internet. Tente de novo quando a conexão voltar.';
+  const m = String(e?.message || '');
+  if (/permission|denied|NotAllowed/i.test(m)) return 'O celular não deu permissão para avisos. Libere as notificações do app nas configurações do celular e tente de novo.';
+  if (/push service|AbortError|registration/i.test(m)) return 'O serviço de avisos do celular não respondeu. Tente de novo em alguns minutos.';
+  return mensagemDeErro(e);
+}
+
 
 function chaveBinaria(b64) {
   const p = '='.repeat((4 - (b64.length % 4)) % 4);
@@ -30,6 +41,7 @@ export async function estadoAvisos(chavePublica) {
 
 // Pede a permissão (abre a janela do sistema) e registra este aparelho. Devolve 'ligado', 'negado' ou 'desligado'.
 export async function ativarAvisos(chavePublica) {
+  if (semRede()) throw new TypeError('Failed to fetch');
   const perm = await Notification.requestPermission();
   if (perm !== 'granted') return perm === 'denied' ? 'negado' : 'desligado';
   const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
@@ -55,7 +67,7 @@ export default function AvisosCelular({ chavePublica }) {
       const r = await ativarAvisos(chavePublica);
       if (r !== 'ligado') { setEstado(r); return; }
       setEstado('ligado'); setMsg('Pronto! Toque em "Enviar um teste" para ver chegar.');
-    } catch (e) { setMsg('Não deu certo: ' + (e.message || 'tente de novo') + '.'); }
+    } catch (e) { setMsg(motivoAvisos(e)); }
     finally { setOcupado(false); }
   }
   async function desativar() {
@@ -65,14 +77,17 @@ export default function AvisosCelular({ chavePublica }) {
       const sub = reg ? await reg.pushManager.getSubscription() : null;
       if (sub) { await removerAparelho(sub.endpoint); await sub.unsubscribe(); }
       setEstado('desligado'); setMsg('Avisos desligados neste aparelho.');
-    } catch { setMsg('Não foi possível desligar agora.'); }
+    } catch (e) { setMsg(falhaDeRede(e) ? 'Sem internet. Para desligar os avisos, conecte-se e tente de novo.' : 'Não foi possível desligar agora. Tente de novo em instantes.'); }
     finally { setOcupado(false); }
   }
   async function testar() {
     setOcupado(true);
-    const r = await enviarTeste();
-    setMsg(r?.erro ? r.erro : 'Teste enviado. Chega em até 15 segundos, mesmo com o app fechado.');
-    setOcupado(false);
+    try {
+      if (semRede()) throw new TypeError('Failed to fetch');
+      const r = await enviarTeste();
+      setMsg(r?.erro ? r.erro : 'Teste enviado. Chega em até 15 segundos, mesmo com o app fechado.');
+    } catch (e) { setMsg(falhaDeRede(e) ? MSG.semInternet : mensagemDeErro(e)); }
+    finally { setOcupado(false); }
   }
 
   const txt = { fontSize: 14, color: 'var(--cinza)', margin: '4px 0 12px' };

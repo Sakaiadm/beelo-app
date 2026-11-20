@@ -1,6 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
+import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/rede';
 import { dataDaFoto } from '@/lib/exif';
 import Icone from './Icone';
 
@@ -35,15 +36,18 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHo
       setEstado({ caminho: '', previa: '', em: '', msg: `Essa foto é de ${quando}. Use uma foto de hoje.` });
       return;
     }
+    if (semRede()) { avisarFalhaDeRede(); setEstado({ caminho: '', previa: '', em: '', msg: MSG.semInternetFoto }); return; }
     setEstado({ caminho: '', previa: '', em: '', msg: 'Enviando foto…' });
     try {
       const blob = await comprimir(arq);
       const caminho = `${familia}/${membro}/${Date.now()}-${Math.random().toString(36).slice(2, 8)}.jpg`;
-      const { error } = await supabaseBrowser().storage.from('rotina-fotos').upload(caminho, blob, { contentType: 'image/jpeg' });
-      if (error) throw error;
+      const r = await comLimite(supabaseBrowser().storage.from('rotina-fotos').upload(caminho, blob, { contentType: 'image/jpeg' }), 60000);
+      if (r.tempoEsgotado) { setEstado({ caminho: '', previa: '', msg: 'A internet está lenta e a foto não terminou de enviar. Tente de novo, de preferência no Wi-Fi.', em: '' }); return; }
+      if (r.error) throw r.error;
       setEstado({ caminho, previa: URL.createObjectURL(blob), msg: '', em: data.toISOString() });
-    } catch {
-      setEstado({ caminho: '', previa: '', msg: 'Não foi possível enviar a foto. Tente de novo.', em: '' });
+    } catch (err) {
+      if (falhaDeRede(err)) avisarFalhaDeRede();
+      setEstado({ caminho: '', previa: '', msg: falhaDeRede(err) ? MSG.semInternetFoto : 'Não foi possível enviar a foto. Tente de novo.', em: '' });
     }
   }
 

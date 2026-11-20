@@ -1,6 +1,9 @@
 'use client';
 import { useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
+import { MSG, semRede, falhaDeRede } from '@/lib/rede';
+
+const SEM_INTERNET_LOGIN = 'Sem internet. Para entrar, conecte-se ao Wi-Fi ou aos dados móveis e tente de novo.';
 
 export default function Login() {
   const [email, setEmail] = useState('');
@@ -11,22 +14,37 @@ export default function Login() {
     const q = new URLSearchParams(window.location.search);
     if (q.get('email')) setEmail(q.get('email'));
     if (q.get('erro')) setMsg({ tipo: 'erro', txt: 'Esse link não vale mais (ele só funciona uma vez e por pouco tempo). Peça um novo link de acesso abaixo.' });
+    if (q.get('expirou')) setMsg({ tipo: 'erro', txt: 'Sua sessão expirou. Entre de novo para continuar.' });
     if (q.get('ja')) setAviso('Você já tem cadastro. Entre com sua conta.');
     else if (q.get('convite')) setAviso('Você foi convidado. Confirme seu e-mail e toque em Enviar link de acesso.');
   }, []);
   const volta = () => `${window.location.origin}/auth/callback`;
 
   async function google() {
+    if (semRede()) { setMsg({ tipo: 'erro', txt: SEM_INTERNET_LOGIN }); return; }
     setCarregando(true);
-    const { error } = await supabaseBrowser().auth.signInWithOAuth({ provider: 'google', options: { redirectTo: volta() } });
-    if (error) { setMsg({ tipo: 'erro', txt: 'Login com Google ainda não está ativado. Use o link por e-mail abaixo.' }); setCarregando(false); }
+    try {
+      const { error } = await supabaseBrowser().auth.signInWithOAuth({ provider: 'google', options: { redirectTo: volta() } });
+      if (error) {
+        setMsg({ tipo: 'erro', txt: falhaDeRede(error) ? SEM_INTERNET_LOGIN : 'Não foi possível entrar com o Google agora. Use o link por e-mail abaixo.' });
+        setCarregando(false);
+      }
+    } catch (e) {
+      setMsg({ tipo: 'erro', txt: falhaDeRede(e) ? SEM_INTERNET_LOGIN : MSG.servidor });
+      setCarregando(false);
+    }
   }
   async function porEmail(e) {
     e.preventDefault();
+    if (semRede()) { setMsg({ tipo: 'erro', txt: SEM_INTERNET_LOGIN }); return; }
     setCarregando(true);
-    const { error } = await supabaseBrowser().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { emailRedirectTo: volta(), shouldCreateUser: true } });
+    let error;
+    try {
+      ({ error } = await supabaseBrowser().auth.signInWithOtp({ email: email.trim().toLowerCase(), options: { emailRedirectTo: volta(), shouldCreateUser: true } }));
+    } catch (e) { error = e; }
     setCarregando(false);
-    setMsg(error ? { tipo: 'erro', txt: 'Não foi possível enviar o link agora. Tente de novo em alguns minutos.' }
+    if (error && falhaDeRede(error)) { setMsg({ tipo: 'erro', txt: SEM_INTERNET_LOGIN }); return; }
+    setMsg(error ? { tipo: 'erro', txt: /rate|limit|seconds/i.test(error.message || '') ? 'Você pediu vários links seguidos. Espere 1 minuto e peça de novo.' : 'Não foi possível enviar o link agora. Tente de novo em alguns minutos.' }
                  : { tipo: 'ok', txt: 'Enviamos um link de acesso para o seu e-mail. Abra o link no seu celular ou computador.' });
   }
 
