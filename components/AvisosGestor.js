@@ -30,13 +30,13 @@ export default function AvisosGestor({ inicial }) {
         <button type="button" role="switch" aria-checked={tudo} aria-label="Avisar tudo" className={`chave ${tudo ? 'on' : ''}`} onClick={marcarTudo} />
       </div>
       {ITENS.map(([k, t, ajuda]) => (
-        <div className="lin-chave" key={k} style={k === 'so_foto' && !v.concluir ? { opacity: 0.5 } : undefined}>
+        <div className={`lin-chave${k === 'so_foto' ? ' detalhe' : ''}`} key={k} style={k === 'so_foto' && !v.concluir ? { opacity: 0.5 } : undefined}>
           <span>{t}{ajuda && <small>{ajuda}</small>}</span>
           <button type="button" role="switch" aria-checked={v[k]} aria-label={t} disabled={k === 'so_foto' && !v.concluir} className={`chave ${v[k] ? 'on' : ''}`} onClick={() => troca(k)} />
         </div>
       ))}
-      <p style={{ fontSize: 13, color: 'var(--cinza)' }}>Cada pai ou mãe escolhe os próprios avisos. Os avisos aparecem no sino do app.</p>
-      <button className="btn sec">Salvar avisos</button>
+      <p className="rodape-av">Cada pai ou mãe escolhe os próprios avisos. Os avisos aparecem no sino do app.</p>
+      <button className="btn cheio">Salvar avisos</button>
     </Form>
   );
 }
