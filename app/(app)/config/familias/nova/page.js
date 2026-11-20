@@ -12,7 +12,7 @@ export default async function NovaFamilia() {
     <main className="estreito">
       <Voltar href="/config/familias" titulo="Novo grupo" />
       <NovaFamiliaForm />
-      <p className="peq-cinza">O responsável entra como pai ou mãe da nova família e cadastra o resto. O envio do convite por e-mail virá em uma próxima etapa; por enquanto, avise a pessoa para entrar com esse e-mail.</p>
+      <p className="peq-cinza">O responsável entra como gestor do novo grupo e cadastra as outras pessoas. Avise o responsável para entrar no app com esse e-mail.</p>
     </main>
   );
 }
