@@ -21,7 +21,9 @@ export async function middleware(request) {
   const user = session?.access_token ? true : null;
   const caminho = request.nextUrl.pathname;
   if (!user && !PUBLICAS.some((p) => caminho.startsWith(p))) {
-    return NextResponse.redirect(new URL('/login', origem(request)));
+    const r = NextResponse.redirect(new URL('/login', origem(request)));
+    r.cookies.delete('ra_u'); // sem login: o aparelho não mostra mais a tela guardada
+    return r;
   }
   // Abrir pelo ícone: vai direto para a tela de sempre (Painel ou Hoje), sem a tela de passagem
   // que consultava o banco 5 vezes só para decidir isso. Se o papel mudar, a própria tela corrige.
