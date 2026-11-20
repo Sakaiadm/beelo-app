@@ -5,5 +5,7 @@ import { origem } from '@/lib/origem';
 export async function POST(request) {
   const supabase = await supabaseServer();
   await supabase.auth.signOut();
-  return NextResponse.redirect(new URL('/login', origem(request)), { status: 303 });
+  const r = NextResponse.redirect(new URL('/login', origem(request)), { status: 303 });
+  r.cookies.delete('inicio');
+  return r;
 }

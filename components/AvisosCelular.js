@@ -13,37 +13,47 @@ const nomeAparelho = () => {
   return `${so} · ${/Edg/.test(u) ? 'Edge' : /Chrome/.test(u) ? 'Chrome' : /Safari/.test(u) ? 'Safari' : /Firefox/.test(u) ? 'Firefox' : 'navegador'}`;
 };
 
+// Como estão os avisos no celular neste aparelho: semchave | nosuporte | ios | negado | desligado | ligado
+export async function estadoAvisos(chavePublica) {
+  if (!chavePublica) return 'semchave';
+  const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
+  const instalado = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  if (ios && !instalado) return 'ios';
+  if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return 'nosuporte';
+  if (Notification.permission === 'denied') return 'negado';
+  try {
+    const reg = await navigator.serviceWorker.getRegistration('/');
+    const sub = reg ? await reg.pushManager.getSubscription() : null;
+    return sub && Notification.permission === 'granted' ? 'ligado' : 'desligado';
+  } catch { return 'desligado'; }
+}
+
+// Pede a permissão (abre a janela do sistema) e registra este aparelho. Devolve 'ligado', 'negado' ou 'desligado'.
+export async function ativarAvisos(chavePublica) {
+  const perm = await Notification.requestPermission();
+  if (perm !== 'granted') return perm === 'denied' ? 'negado' : 'desligado';
+  const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
+  await navigator.serviceWorker.ready;
+  let sub = await reg.pushManager.getSubscription();
+  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: chaveBinaria(chavePublica) });
+  const r = await salvarAparelho(sub.toJSON(), nomeAparelho());
+  if (r?.erro) throw new Error(r.erro);
+  return 'ligado';
+}
+
 export default function AvisosCelular({ chavePublica }) {
   const [estado, setEstado] = useState('carregando'); // carregando | semchave | nosuporte | ios | negado | desligado | ligado
   const [msg, setMsg] = useState('');
   const [ocupado, setOcupado] = useState(false);
 
-  async function ler() {
-    if (!chavePublica) return setEstado('semchave');
-    const ios = /iPhone|iPad|iPod/.test(navigator.userAgent);
-    const instalado = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
-    if (ios && !instalado) return setEstado('ios');
-    if (!('serviceWorker' in navigator) || !('PushManager' in window) || !('Notification' in window)) return setEstado('nosuporte');
-    if (Notification.permission === 'denied') return setEstado('negado');
-    try {
-      const reg = await navigator.serviceWorker.getRegistration('/');
-      const sub = reg ? await reg.pushManager.getSubscription() : null;
-      setEstado(sub && Notification.permission === 'granted' ? 'ligado' : 'desligado');
-    } catch { setEstado('desligado'); }
-  }
+  async function ler() { setEstado(await estadoAvisos(chavePublica)); }
   useEffect(() => { ler(); }, []); // eslint-disable-line react-hooks/exhaustive-deps
 
   async function ativar() {
     setOcupado(true); setMsg('');
     try {
-      const perm = await Notification.requestPermission();
-      if (perm !== 'granted') { setEstado(perm === 'denied' ? 'negado' : 'desligado'); return; }
-      const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
-      await navigator.serviceWorker.ready;
-      let sub = await reg.pushManager.getSubscription();
-      if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: chaveBinaria(chavePublica) });
-      const r = await salvarAparelho(sub.toJSON(), nomeAparelho());
-      if (r?.erro) throw new Error(r.erro);
+      const r = await ativarAvisos(chavePublica);
+      if (r !== 'ligado') { setEstado(r); return; }
       setEstado('ligado'); setMsg('Pronto! Toque em "Enviar um teste" para ver chegar.');
     } catch (e) { setMsg('Não deu certo: ' + (e.message || 'tente de novo') + '.'); }
     finally { setOcupado(false); }

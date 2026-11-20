@@ -23,7 +23,7 @@
 }
 * { box-sizing: border-box; }
 html, body { margin: 0; }
-body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--fundo); color: var(--texto); font-size: 16px; }
+body { font-family: var(--fonte, 'Plus Jakarta Sans'), system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--fundo); color: var(--texto); font-size: 16px; }
 a { color: var(--azul); }
 button, input, select, textarea { font: inherit; }
 .topo { background: var(--topo); }
@@ -317,3 +317,10 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 .cat-bt { margin-top: 16px; min-height: 46px; font-size: 15px; }
 .cat-excluir .cat-bt { margin-top: 8px; width: 100%; }
 .cat-excluir [role=alertdialog] { margin-top: 10px; }
+
+/* Cartão "Quer receber os avisos também com o app fechado?" (Painel e Hoje) */
+.avisos-conv { display: flex; gap: 12px; align-items: flex-start; background: var(--cartao); border: 1px solid var(--azul-medio); border-radius: 16px; padding: 14px 16px; margin-bottom: 16px; }
+.avisos-conv .ic { width: 40px; height: 40px; border-radius: 12px; background: var(--azul-claro); display: flex; align-items: center; justify-content: center; flex: none; }
+.avisos-conv h2 { margin: 0; font-size: 16px; font-weight: 800; }
+.avisos-conv p { margin: 4px 0 12px; font-size: 14px; color: var(--cinza); line-height: 1.45; }
+.avisos-conv .acoes { display: flex; gap: 8px; flex-wrap: wrap; }
