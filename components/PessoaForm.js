@@ -42,7 +42,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {crianca && <input type="hidden" name="modo_crianca" value="1" />}
         {Object.entries(chaves).map(([k, on]) => on && <input key={k} type="hidden" name={`perm_${k}`} value="1" />)}
         {m ? (
-          <div style={{ marginBottom: 12 }}><AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={nome || m.nome} cor={cor} /></div>
+          <div style={{ marginBottom: 12 }}><AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={nome || m.nome} cor={cor} crianca={crianca && f?.papel !== 'gestor'} /></div>
         ) : (
           <div className="cartao-l" style={{ marginBottom: 12 }}><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f ? rotuloFuncao(f.id, null) : 'Escolha o papel'}</small></span></div>
         )}
@@ -81,7 +81,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
           <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span className="bolinha-cor" style={{ background: cor }} />Cor da pessoa</span><span aria-hidden="true">›</span>
         </button>
         {f && f.papel !== 'gestor' && (
-          <div className="lin-chave"><span>Modo criança<small>Ao concluir: mensagem alegre e estrelinhas. Bom para até uns 10 anos.</small></span><button type="button" role="switch" aria-checked={crianca} aria-label="Modo criança" className={`chave ${crianca ? 'on' : ''}`} onClick={() => setCrianca(!crianca)} /></div>
+          <div className="lin-chave"><span>Modo criança<small>Ao concluir: mensagem alegre e estrelinhas. Libera os avatares de criança. Bom para até uns 10 anos.</small></span><button type="button" role="switch" aria-checked={crianca} aria-label="Modo criança" className={`chave ${crianca ? 'on' : ''}`} onClick={() => setCrianca(!crianca)} /></div>
         )}
         <div className="lin-chave"><span>Tempo de tela ligado</span><button type="button" role="switch" aria-checked={tela} aria-label="Tempo de tela ligado" className={`chave ${tela ? 'on' : ''}`} onClick={() => setTela(!tela)} /></div>
         <div className="lin-chave"><span>Acesso ativo<small>{eu ? 'Você não pode desativar a si mesmo' : 'Desativar tira o acesso sem apagar o histórico'}</small></span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>

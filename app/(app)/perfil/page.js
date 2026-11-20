@@ -12,14 +12,15 @@ export const dynamic = 'force-dynamic';
 export default async function Perfil() {
   const { supabase, eu, gestor, familia } = await exigirMembro();
   const urls = await urlsAvatares(supabase, [eu.avatar]);
+  const crianca = !gestor && !!eu.modo_crianca;
   const n = { concluida: 'todas', justificativa: true, adiamento: true, tela: true, tarefa_filho: true, ...(eu.notif || {}) };
   return (
     <main className="estreito perfil">
       <div className="cab"><div><h1 className="titulo">Meu perfil</h1><p className="sub">{eu.nome} · {familia.nome}</p></div></div>
       <div className="card"><h2>Minha foto</h2>
         <Form acao={salvarPerfil} okTxt="Foto salva.">
-          <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} atualAvatar={eu.avatar} rotulo={eu.nome} cor={eu.cor} largo />
-          <p className="ajuda">Opcional. Escolha uma foto sua ou um avatar.</p>
+          <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} atualAvatar={eu.avatar} rotulo={eu.nome} cor={eu.cor} largo crianca={crianca} />
+          <p className="ajuda">{crianca ? 'Escolha um avatar ou uma foto sua.' : 'Opcional. Escolha uma foto ou imagem do seu aparelho.'}</p>
           <button className="btn cheio">Salvar</button>
         </Form>
       </div>

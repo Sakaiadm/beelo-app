@@ -108,9 +108,16 @@ begin
   exception when others then nok := nok + 1; r := r || E'OK  4.6d Recusa foto com data no futuro\n'; end;
   begin perform public.ra_meu_avatar('fam/outro/x.jpg'); nfalha := nfalha + 1; r := r || E'FALHA 4.6e avatar de pasta alheia\n';
   exception when others then nok := nok + 1; r := r || E'OK  4.6e Recusa avatar de pasta alheia\n'; end;
-  perform public.ra_meu_avatar('preset:d2');
+  begin perform public.ra_meu_avatar('preset:k07'); nfalha := nfalha + 1; r := r || E'FALHA 4.6f aceitou avatar de criança sem o Modo criança\n';
+  exception when others then nok := nok + 1; r := r || E'OK  4.6f Recusa avatar de criança sem o Modo criança\n'; end;
+  execute 'reset role'; update public.ra_membros set modo_crianca = true where id = F1; execute 'set local role authenticated';
+  begin perform public.ra_meu_avatar('preset:d2'); nfalha := nfalha + 1; r := r || E'FALHA 4.6g aceitou avatar antigo\n';
+  exception when others then nok := nok + 1; r := r || E'OK  4.6g Recusa avatar antigo (Moderno/Divertido)\n'; end;
+  begin perform public.ra_meu_avatar('preset:k31'); nfalha := nfalha + 1; r := r || E'FALHA 4.6h aceitou avatar que não existe\n';
+  exception when others then nok := nok + 1; r := r || E'OK  4.6h Recusa avatar que não existe\n'; end;
+  perform public.ra_meu_avatar('preset:k07');
   select avatar into t from public.ra_membros where id = F1;
-  if t = 'preset:d2' then nok := nok + 1; r := r || E'OK  4.6f Filho escolhe um avatar pronto\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.6f avatar pronto\n'; end if;
+  if t = 'preset:k07' then nok := nok + 1; r := r || E'OK  4.6i Criança no Modo criança escolhe um avatar\n'; else nfalha := nfalha + 1; r := r || E'FALHA 4.6i avatar de criança\n'; end if;
   perform public.ra_concluir2(oc, fam::text || '/' || F1::text || '/foto.jpg', now() - interval '10 minutes');
   select status into t from public.ra_ocorrencias where id = oc;
   select foto_tirada_em is not null into b from public.ra_ocorrencias where id = oc;
