@@ -1,7 +1,7 @@
 import { exigirMembro } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import Link from 'next/link';
-import { hojeISO, addDias, inicioMes, fimMes, dataLonga, diaSemana, statusExibido, hhmm, DIAS } from '@/lib/util';
+import { hojeISO, addDias, inicioMes, fimMes, dataLonga, periodoSemana, diaSemana, statusExibido, hhmm, DIAS } from '@/lib/util';
 import Icone from '@/components/Icone';
 import Calendario from '@/components/Calendario';
 import Tarefa from '@/components/Tarefa';
@@ -34,12 +34,16 @@ export default async function Agenda({ searchParams }) {
     x.total++; if (st.startsWith('cumprida') || st === 'justificada') x.feitas++;
   });
   const fotos = v === 'dia' ? await urlsFotos(supabase, lista.map((x) => x.o.foto_path)) : {};
+  // "Hoje" fica azul cheio quando o período na tela é o de hoje; em outra data, só o contorno (toque volta para hoje).
+  const emHoje = v === 'mes' ? d.slice(0, 7) === hoje.slice(0, 7) : d === hoje;
   const passo = v === 'dia' ? 1 : v === 'semana' ? 7 : 31;
 
   return (
     <main className="agenda-tela">
       <div className="cab-agenda">
-        <div className="tit"><h1 className="titulo">Agenda</h1><Link prefetch={false} className="hoje-peq" href={qs({ d: hoje })}>Hoje</Link></div>
+        <div className="tit"><h1 className="titulo">Agenda</h1>{emHoje
+          ? <span className="hoje-peq on" aria-current="date" title="Você está vendo hoje">Hoje</span>
+          : <Link prefetch={false} className="hoje-peq" href={qs({ d: hoje })} title="Voltar para hoje">Hoje</Link>}</div>
         <Link prefetch={false} className="btn" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
       </div>
       <div className="seg" role="tablist" aria-label="Visão">
@@ -50,7 +54,7 @@ export default async function Agenda({ searchParams }) {
       {v !== 'mes' && (
         <div className="nv-data">
           <Link prefetch={false} className="seta" href={qs({ d: addDias(d, -passo) })} aria-label="Anterior"><Icone nome="esq" tam={26} /></Link>
-          <div className="dt">{dataLonga(d)}</div>
+          <div className="dt">{v === 'semana' ? periodoSemana(de, ate) : dataLonga(d)}</div>
           <Link prefetch={false} className="seta" href={qs({ d: addDias(d, passo) })} aria-label="Próximo"><Icone nome="dir" tam={26} /></Link>
         </div>
       )}
