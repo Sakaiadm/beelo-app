@@ -206,6 +206,7 @@ await caso('Mensagem do próprio app (conflito) aparece clara ao enviar o que es
 });
 
 await caso('Banco fora do ar ao abrir uma tela: página "Algo não deu certo" (não "sem acesso")', async (ctx, erros) => {
+  await espera(31000); // o topo das telas fica guardado 30 s no servidor; depois disso precisa do banco
   await falha('?tudo=503');
   const p = await nova(ctx, erros);
   await p.goto(BASE + '/agenda', { waitUntil: 'load' }).catch(() => {});
