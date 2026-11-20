@@ -402,5 +402,28 @@ begin
   end;
   execute 'reset role';
 
+  -- 11. Lembrete extra da tarefa prioritária
+  update public.ra_tarefas set prioritaria = true, lembrete_min = 15, ativa = true where id = (select tarefa_id from public.ra_ocorrencias where id = oc2);
+  insert into public.ra_ocorrencias(tarefa_id, familia_id, membro_id, data, hora_inicio)
+    select tarefa_id, familia_id, membro_id, (now() at time zone 'America/Sao_Paulo')::date, ((now() at time zone 'America/Sao_Paulo') + interval '10 minutes')::time
+      from public.ra_ocorrencias where id = oc2
+    on conflict (tarefa_id, data) do update set hora_inicio = excluded.hora_inicio, status = 'pendente', lembrete_em = null, membro_id = excluded.membro_id
+    returning id into oc2;
+  delete from public.ra_notificacoes where para_membro = F1 and titulo like 'Daqui a%';
+  if ((now() at time zone 'America/Sao_Paulo') + interval '10 minutes')::date = (now() at time zone 'America/Sao_Paulo')::date then
+    perform public.ra_gerar_lembretes(); perform public.ra_gerar_lembretes();
+    select count(*) into n from public.ra_notificacoes where para_membro = F1 and titulo like 'Daqui a 15 min:%';
+    if n = 1 then nok := nok + 1; r := r || E'OK  11.1 Prioritária gera um lembrete só, 15 min antes\n'; else nfalha := nfalha + 1; r := r || 'FALHA 11.1 n=' || n || E'\n'; end if;
+  else nok := nok + 1; r := r || E'OK  11.1 (pulado perto da meia-noite)\n'; end if;
+  update public.ra_ocorrencias set lembrete_em = null, hora_inicio = ((now() at time zone 'America/Sao_Paulo') + interval '40 minutes')::time where id = oc2;
+  perform public.ra_gerar_lembretes();
+  select count(*) into n from public.ra_ocorrencias where id = oc2 and lembrete_em is not null;
+  if n = 0 then nok := nok + 1; r := r || E'OK  11.2 Sem lembrete antes da hora\n'; else nfalha := nfalha + 1; r := r || E'FALHA 11.2\n'; end if;
+  perform set_config('request.jwt.claims', json_build_object('sub', f1U, 'email', 'teste-f1@teste.local', 'role', 'authenticated')::text, true);
+  execute 'set local role authenticated';
+  begin perform public.ra_gerar_lembretes(); nfalha := nfalha + 1; r := r || E'FALHA 11.3 filho chamou ra_gerar_lembretes\n';
+  exception when others then nok := nok + 1; r := r || E'OK  11.3 Só o envio de avisos cria lembretes\n'; end;
+  execute 'reset role';
+
   raise exception E'RELATORIO_TESTES\nAprovados: %  Falhas: %\n%', nok, nfalha, r;
 end $$;
