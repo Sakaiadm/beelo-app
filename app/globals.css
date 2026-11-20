@@ -3,19 +3,22 @@
   --fundo: #f4f8fe; --cartao: #ffffff; --texto: #13203a; --cinza: #5a6880; --borda: #e1e7f0; --campo: #cfd8e6;
   --erro: #b42330; --erro-fundo: #fdf0f1; --erro-borda: #f3cfd2; --ok: #1f7a45; --ok-fundo: #e6f4e9;
   --aviso-fundo: #fdf6e7; --aviso-borda: #f1dcb4; --aviso: #8a5a00; --topo: #1a6fe0; --topo-txt: #eef4fe; --trilho: #e8eef7;
+  --pend-fundo: var(--azul-claro); --pend-borda: transparent; --ok-borda: transparent; --atr-borda-mini: transparent; --dia-pend-fundo: var(--cartao); --dia-pend-borda: var(--borda); --dia-ok-fundo: var(--cartao); --dia-ok-borda: var(--borda); --cal-falta-fundo: #fbe3e5; --cal-falta-txt: #8f1c26; --cal-falta-borda: #f3cfd2;
 }
 :root[data-theme="escuro"] {
   --azul: #5b9bff; --azul-esc: #8fbaff; --azul-claro: #1b2a45; --azul-medio: #2d5ea8;
   --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --campo: #3a4d72;
-  --erro: #ff8a94; --erro-fundo: #3a1d27; --erro-borda: #6b2a36; --ok: #6fd69a; --ok-fundo: #143524;
+  --erro: #ff8a94; --erro-fundo: rgba(255,110,110,.14); --erro-borda: rgba(255,123,114,.45); --ok: #6fd69a; --ok-fundo: rgba(63,207,142,.13);
   --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d;
+  --pend-fundo: rgba(91,155,255,.13); --pend-borda: rgba(91,155,255,.40); --ok-borda: rgba(63,207,142,.40); --atr-borda-mini: var(--erro-borda); --dia-pend-fundo: var(--pend-fundo); --dia-pend-borda: var(--pend-borda); --dia-ok-fundo: var(--ok-fundo); --dia-ok-borda: var(--ok-borda); --cal-falta-fundo: var(--erro-fundo); --cal-falta-txt: #ffb3bd; --cal-falta-borda: var(--erro-borda);
 }
 @media (prefers-color-scheme: dark) {
   :root:not([data-theme="claro"]) {
     --azul: #5b9bff; --azul-esc: #8fbaff; --azul-claro: #1b2a45; --azul-medio: #2d5ea8;
     --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --campo: #3a4d72;
-    --erro: #ff8a94; --erro-fundo: #3a1d27; --erro-borda: #6b2a36; --ok: #6fd69a; --ok-fundo: #143524;
+    --erro: #ff8a94; --erro-fundo: rgba(255,110,110,.14); --erro-borda: rgba(255,123,114,.45); --ok: #6fd69a; --ok-fundo: rgba(63,207,142,.13);
     --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d;
+    --pend-fundo: rgba(91,155,255,.13); --pend-borda: rgba(91,155,255,.40); --ok-borda: rgba(63,207,142,.40); --atr-borda-mini: var(--erro-borda); --dia-pend-fundo: var(--pend-fundo); --dia-pend-borda: var(--pend-borda); --dia-ok-fundo: var(--ok-fundo); --dia-ok-borda: var(--ok-borda); --cal-falta-fundo: var(--erro-fundo); --cal-falta-txt: #ffb3bd; --cal-falta-borda: var(--erro-borda);
   }
 }
 * { box-sizing: border-box; }
@@ -104,7 +107,7 @@ input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--azul); ver
 .cal a, .cal span.fora { min-height: 46px; border-radius: 10px; border: 1px solid var(--borda); display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px; text-decoration: none; font-size: 14px; font-weight: 700; color: var(--texto); background: var(--cartao); }
 .cal a small { font-size: 10px; font-weight: 600; }
 .cal span.fora { border-color: transparent; background: transparent; }
-.cal a.n1 { background: #fbe3e5; color: #8f1c26; border-color: #f3cfd2; }
+.cal a.n1 { background: var(--cal-falta-fundo); color: var(--cal-falta-txt); border-color: var(--cal-falta-borda); }
 .cal a.n2 { background: #dceafc; color: #1a4a8f; border-color: #c4dbf8; }
 .cal a.n3 { background: #9cc4f5; color: #0c2c5c; border-color: #9cc4f5; }
 .cal a.n4 { background: #1a6fe0; color: #fff; border-color: #1a6fe0; }
@@ -121,9 +124,13 @@ td.num, th.num { text-align: right; white-space: nowrap; }
 .semana { display: grid; grid-template-columns: repeat(7, minmax(140px, 1fr)); gap: 8px; }
 .semana .dia { background: var(--cartao); border: 1px solid var(--borda); border-radius: 12px; padding: 8px; min-height: 140px; }
 .semana .dia h3 { margin: 0 0 6px; font-size: 13px; text-transform: capitalize; }
-.mini { font-size: 12px; padding: 5px 7px; border-radius: 8px; background: var(--azul-claro); margin-bottom: 4px; }
-.mini.ok { background: var(--ok-fundo); text-decoration: line-through; }
-.mini.atr { background: var(--erro-fundo); }
+.mini { font-size: 12px; padding: 5px 7px; border-radius: 8px; background: var(--pend-fundo); box-shadow: inset 0 0 0 1px var(--pend-borda); margin-bottom: 4px; }
+.mini.ok { background: var(--ok-fundo); box-shadow: inset 0 0 0 1px var(--ok-borda); text-decoration: line-through; }
+.mini.atr { background: var(--erro-fundo); box-shadow: inset 0 0 0 1px var(--atr-borda-mini); }
+/* Agenda > Dia: destaque de cada tarefa (no modo claro fica como antes) */
+.agenda-tela .tarefa { background: var(--dia-pend-fundo); border-color: var(--dia-pend-borda); }
+.agenda-tela .tarefa.feita { background: var(--dia-ok-fundo); border-color: var(--dia-ok-borda); }
+.agenda-tela .tarefa.atrasada { background: var(--erro-fundo); border-color: var(--erro-borda); }
 .filtros { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; align-items: end; }
 .filtros label { margin-top: 0; }
 .barras-h { display: flex; flex-direction: column; gap: 9px; font-size: 14px; }
