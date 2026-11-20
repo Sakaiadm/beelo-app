@@ -1,3 +1,4 @@
+import AvisosConvite from '@/components/AvisosConvite';
 import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
@@ -45,6 +46,8 @@ export default async function Hoje({ searchParams }) {
           <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, 1)}${gestor ? `&m=${alvo.id}` : ''}`} aria-label="Próximo dia"><Icone nome="dir" tam={18} /></Link>
         </div>
       </div>
+
+      <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto={gestor ? 'Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar.' : 'Receba um aviso quando tiver novidade nas suas tarefas.'} />
 
       {gestor && filhos.length > 1 && (
         <div className="abas" style={{ marginBottom: 14 }}>

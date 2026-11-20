@@ -23,6 +23,16 @@ export async function middleware(request) {
   if (!user && !PUBLICAS.some((p) => caminho.startsWith(p))) {
     return NextResponse.redirect(new URL('/login', origem(request)));
   }
+  // Abrir pelo ícone: vai direto para a tela de sempre (Painel ou Hoje), sem a tela de passagem
+  // que consultava o banco 5 vezes só para decidir isso. Se o papel mudar, a própria tela corrige.
+  const inicio = request.cookies.get('inicio')?.value;
+  // Só quando o navegador abre a página inteira; as trocas de tela internas seguem o caminho normal.
+  const pagina = request.headers.get('sec-fetch-dest') === 'document';
+  if (user && caminho === '/' && pagina && (inicio === '/painel' || inicio === '/hoje')) {
+    const destino = NextResponse.redirect(new URL(inicio, origem(request)));
+    resposta.cookies.getAll().forEach((c) => destino.cookies.set(c));
+    return destino;
+  }
   return resposta;
 }
 

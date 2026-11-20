@@ -8,6 +8,7 @@ import Selo from '@/components/Selo';
 import { urlsAvatares } from '@/lib/avatar';
 import { Suspense } from 'react';
 import Progresso from '@/components/Progresso';
+import LembrarInicio from '@/components/LembrarInicio';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia } = await exigirMembro();
@@ -20,6 +21,7 @@ export default async function AppLayout({ children }) {
   return (
     <>
       <Suspense fallback={null}><Progresso /></Suspense>
+      <LembrarInicio caminho={gestor ? '/painel' : '/hoje'} />
       <header className="topo">
         <div className="topo-in">
           <Link className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</Link>

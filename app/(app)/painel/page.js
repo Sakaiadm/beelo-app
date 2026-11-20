@@ -1,3 +1,4 @@
+import AvisosConvite from '@/components/AvisosConvite';
 import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
@@ -48,6 +49,7 @@ export default async function Painel() {
         <div><h1 className="titulo">{familia.nome}</h1><p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(hoje)}</p></div>
         <Link prefetch={false} className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
       </div>
+      <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto="Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar." />
       <div className="kpis">
         <div className="kpi destaque"><small>Cumpridas hoje</small><strong>{kHoje.feitas} <span style={{ fontSize: 16 }}>de {kHoje.total}</span></strong>
           <em>{pessoas.map((f) => ({ f, k: conta(doDia.filter((x) => x.o.membro_id === f.id)) })).filter((x) => x.k.total > 0).map(({ f, k }) => `${f.nome} ${k.feitas}/${k.total}`).join(' · ') || 'Sem tarefas hoje'}</em></div>

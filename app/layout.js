@@ -1,5 +1,9 @@
 import './globals.css';
 import { cookies } from 'next/headers';
+import { Plus_Jakarta_Sans } from 'next/font/google';
+
+// A letra do app vem junto com o app (baixada na hora de montar), sem esperar o site do Google ao abrir.
+const fonte = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], display: 'swap', variable: '--fonte' });
 
 export const metadata = {
   title: 'Rotina Ativa',
@@ -13,12 +17,7 @@ export const viewport = { themeColor: '#1a6fe0', width: 'device-width', initialS
 export default async function RootLayout({ children }) {
   const tema = (await cookies()).get('tema')?.value;
   return (
-    <html lang="pt-BR" data-theme={tema === 'escuro' || tema === 'claro' ? tema : undefined}>
-      <head>
-        <link rel="preconnect" href="https://fonts.googleapis.com" />
-        <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="" />
-        <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&display=swap" rel="stylesheet" />
-      </head>
+    <html lang="pt-BR" className={fonte.variable} data-theme={tema === 'escuro' || tema === 'claro' ? tema : undefined}>
       <body>{children}</body>
     </html>
   );
