@@ -2,7 +2,7 @@
 import { useRef, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import Avatar from './Avatar';
-import { MODERNOS, DIVERTIDOS } from '@/lib/avatares';
+import { CRIANCAS } from '@/lib/avatares';
 
 // Recorta no centro (quadrado), reduz para 400px e remove os metadados.
 export async function preparar(arquivo) {
@@ -13,7 +13,8 @@ export async function preparar(arquivo) {
   return await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.85));
 }
 
-export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl, atualAvatar, rotulo, cor, quadrado, largo }) {
+// crianca: mostra o botão Avatar com os desenhos de criança. Para os demais, só foto ou imagem.
+export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl, atualAvatar, rotulo, cor, quadrado, largo, crianca = false }) {
   const ref = useRef(null);
   const [st, setSt] = useState({ caminho: undefined, previa: atualUrl || '', preset: atualAvatar?.startsWith('preset:') ? atualAvatar : '', msg: '' });
   const [aberto, setAberto] = useState(false);
@@ -37,23 +38,20 @@ export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl
       {(() => {
         const bc = largo ? 'btn sec' : 'btn sec peq';
         const botoes = <>
-          <button type="button" className={bc} onClick={() => ref.current.click()}>Foto</button>
-          <button type="button" className={bc} aria-expanded={aberto} onClick={() => setAberto(!aberto)}>Avatar</button>
+          <button type="button" className={bc} onClick={() => ref.current.click()}>{crianca ? 'Foto' : 'Foto ou imagem'}</button>
+          {crianca && <button type="button" className={bc} aria-expanded={aberto} onClick={() => setAberto(!aberto)}>Avatar</button>}
           {(st.previa || st.preset || st.caminho) && <button type="button" className={bc} onClick={() => setSt({ caminho: '', previa: '', preset: '', msg: 'Removido. Toque em Salvar.' })}>Remover</button>}
         </>;
         return largo ? <div className="dupla">{botoes}</div> : botoes;
       })()}
       {st.msg && <span style={{ fontSize: 13, color: 'var(--cinza)', flexBasis: largo ? '100%' : undefined }}>{st.msg}</span>}
-      {aberto && (
+      {crianca && aberto && (
         <div style={{ flexBasis: '100%' }}>
-          {[['Moderno', MODERNOS.map((m) => m[0])], ['Divertido', DIVERTIDOS.map((d) => d[0])]].map(([titulo, ids]) => (
-            <div key={titulo}><div style={{ fontSize: 13, fontWeight: 700, color: 'var(--cinza)', marginTop: 8 }}>{titulo}</div>
-              <div className="avatares">{ids.map((id) => (
-                <button type="button" key={id} aria-label={`Avatar ${titulo} ${id}`} aria-pressed={st.caminho === `preset:${id}`}
-                  onClick={() => setSt({ caminho: `preset:${id}`, previa: '', preset: '', msg: 'Avatar escolhido. Toque em Salvar.' })}>
-                  <Avatar avatar={`preset:${id}`} tam={44} quadrado={quadrado} />
-                </button>))}</div></div>
-          ))}
+          <div className="avatares">{CRIANCAS.map(([id, desc]) => (
+            <button type="button" key={id} aria-label={`Avatar ${Number(id.slice(1))}: ${desc}`} aria-pressed={(st.caminho ?? st.preset) === `preset:${id}`}
+              onClick={() => setSt({ caminho: `preset:${id}`, previa: '', preset: '', msg: 'Avatar escolhido. Toque em Salvar.' })}>
+              <Avatar avatar={`preset:${id}`} tam={48} quadrado={quadrado} />
+            </button>))}</div>
         </div>
       )}
     </div>

@@ -139,6 +139,7 @@ export async function salvarPessoa(_, fd) {
     const a = String(fd.get('avatar') || '');
     if (a && !a.startsWith('preset:') && !a.startsWith(`${eu.familia_id}/${id}/avatar-`)) return { erro: 'Imagem inválida' };
     if (a && !caminhoAvatar(a)) return { erro: 'Imagem inválida' };
+    if (a.startsWith('preset:') && !reg.modo_crianca) return { erro: 'Os avatares são só para quem tem o Modo criança ligado. Use uma foto ou imagem.' };
     reg.avatar = a || null;
   }
   if (id === eu.id && (!reg.ativo || reg.papel !== 'gestor')) return { erro: 'Você não pode tirar o seu próprio acesso de pai/mãe' };
@@ -310,7 +311,7 @@ export async function marcarLidas() {
 
 
 // ===== Cadastros =====
-const caminhoAvatar = (v) => (/^([0-9a-f-]{36}\/[0-9a-z-]{6,36}\/avatar-\d+\.jpg|preset:[md]\d{1,2})$/.test(String(v || '')) ? String(v) : null);
+const caminhoAvatar = (v) => (/^([0-9a-f-]{36}\/[0-9a-z-]{6,36}\/avatar-\d+\.jpg|preset:k\d{2})$/.test(String(v || '')) ? String(v) : null);
 
 export async function editarCategoria(_, fd) {
   const supabase = await supabaseServer();
