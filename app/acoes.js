@@ -52,6 +52,11 @@ export async function conferir(_, fd) {
   return rpc('ra_conferir', { p_oc: uuid(fd.get('oc')), p_valor: v });
 }
 
+// Enquanto o banco ainda não recebeu a 0009 (prioritária e modo criança), salva sem esses campos em vez de dar erro.
+const NOVAS = ['prioritaria', 'lembrete_min', 'modo_crianca'];
+const semColuna = (e) => !!e && NOVAS.some((c) => String(e.message || '').includes(c));
+const semNovas = (reg) => Object.fromEntries(Object.entries(reg).filter(([k]) => !NOVAS.includes(k)));
+
 // Depois de salvar ou excluir, volta para o dia que estava aberto na Agenda.
 const voltarAgenda = (fd) => (/^\d{4}-\d{2}-\d{2}$/.test(fd.get('voltar') || '') ? `/agenda?v=dia&d=${fd.get('voltar')}` : '/agenda?v=dia');
 
@@ -72,7 +77,9 @@ export async function salvarTarefa(_, fd) {
     exige_foto: fd.get('exige_foto') === '1',
     permite_adiar: eu.papel === 'gestor' ? fd.get('permite_adiar') === '1' : true,
     exige_justificativa: eu.papel === 'gestor' ? fd.get('exige_justificativa') === '1' : false,
+    prioritaria: fd.get('prioritaria') === '1',
   };
+  reg.lembrete_min = reg.prioritaria && reg.hora_inicio && [15, 30, 60].includes(Number(fd.get('lembrete_min'))) ? Number(fd.get('lembrete_min')) : null;
   if (eu.papel === 'gestor' && reg.responsavel_id === eu.id) { reg.permite_adiar = false; reg.exige_justificativa = false; }
   if (!reg.titulo) return { erro: 'Dê um nome para a tarefa' };
   if (!reg.responsavel_id) return { erro: 'Escolha para quem é a tarefa' };
@@ -82,6 +89,7 @@ export async function salvarTarefa(_, fd) {
   let error;
   if (id) {
     ({ error } = await supabase.from('ra_tarefas').update(reg).eq('id', id));
+    if (semColuna(error)) ({ error } = await supabase.from('ra_tarefas').update(semNovas(reg)).eq('id', id));
     if (!error) {
       // Atualiza ocorrências futuras ainda pendentes com o novo horário.
       await supabase.from('ra_ocorrencias').update({ hora_inicio: reg.hora_inicio, hora_fim: reg.hora_fim, membro_id: reg.responsavel_id })
@@ -89,6 +97,7 @@ export async function salvarTarefa(_, fd) {
     }
   } else {
     ({ error } = await supabase.from('ra_tarefas').insert({ ...reg, familia_id: eu.familia_id, criada_por: eu.id }));
+    if (semColuna(error)) ({ error } = await supabase.from('ra_tarefas').insert({ ...semNovas(reg), familia_id: eu.familia_id, criada_por: eu.id }));
   }
   if (error) return { erro: 'Não foi possível salvar: ' + error.message };
   // Gera já as ocorrências dos próximos dias, para a tarefa aparecer na hora na Agenda.
@@ -121,6 +130,7 @@ export async function salvarPessoa(_, fd) {
   const reg = {
     nome: txt(fd, 'nome', 60), email: v.email || null, papel: f.papel, funcao: f.id, permissoes,
     ativo: fd.get('ativo') === '1', tela_ativo: fd.get('tela_ativo') === '1',
+    modo_crianca: f.papel !== 'gestor' && fd.get('modo_crianca') === '1',
     cor: /^#[0-9a-f]{6}$/i.test(fd.get('cor') || '') ? fd.get('cor') : '#1a6fe0',
   };
   if (!reg.nome) return { erro: 'Informe o nome' };
@@ -132,9 +142,11 @@ export async function salvarPessoa(_, fd) {
     reg.avatar = a || null;
   }
   if (id === eu.id && (!reg.ativo || reg.papel !== 'gestor')) return { erro: 'Você não pode tirar o seu próprio acesso de pai/mãe' };
-  const { data: salvo, error } = id
-    ? await supabase.from('ra_membros').update(reg).eq('id', id).select('id, nome, email, user_id, funcao, papel').maybeSingle()
-    : await supabase.from('ra_membros').insert({ ...reg, familia_id: eu.familia_id }).select('id, nome, email, user_id, funcao, papel').maybeSingle();
+  const gravar = (r) => (id
+    ? supabase.from('ra_membros').update(r).eq('id', id).select('id, nome, email, user_id, funcao, papel').maybeSingle()
+    : supabase.from('ra_membros').insert({ ...r, familia_id: eu.familia_id }).select('id, nome, email, user_id, funcao, papel').maybeSingle());
+  let { data: salvo, error } = await gravar(reg);
+  if (semColuna(error)) ({ data: salvo, error } = await gravar(semNovas(reg)));
   if (error) return { erro: error.message.includes('duplicate') ? 'Este e-mail já está cadastrado' : error.message };
   revalidar();
   let aviso = '';

@@ -19,6 +19,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const [cor, setCor] = useState(m?.cor || corInicial || '#1a6fe0');
   const [ativo, setAtivo] = useState(m ? m.ativo : true);
   const [tela, setTela] = useState(m ? m.tela_ativo : true);
+  const [crianca, setCrianca] = useState(!!m?.modo_crianca);
   const [chaves, setChaves] = useState(chavesIniciais(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''), m?.permissoes));
   const [folha, setFolha] = useState(false);
   const [excluir, setExcluir] = useState(false);
@@ -38,6 +39,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         <input type="hidden" name="cor" value={cor} />
         {ativo && <input type="hidden" name="ativo" value="1" />}
         {tela && <input type="hidden" name="tela_ativo" value="1" />}
+        {crianca && <input type="hidden" name="modo_crianca" value="1" />}
         {Object.entries(chaves).map(([k, on]) => on && <input key={k} type="hidden" name={`perm_${k}`} value="1" />)}
         {m ? (
           <div style={{ marginBottom: 12 }}><AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={nome || m.nome} cor={cor} /></div>
@@ -78,6 +80,9 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         <button type="button" className="campo-botao" style={{ marginTop: 14 }} onClick={() => setFolha(true)}>
           <span style={{ display: 'flex', alignItems: 'center', gap: 10 }}><span className="bolinha-cor" style={{ background: cor }} />Cor da pessoa</span><span aria-hidden="true">›</span>
         </button>
+        {f && f.papel !== 'gestor' && (
+          <div className="lin-chave"><span>Modo criança<small>Ao concluir: mensagem alegre e estrelinhas. Bom para até uns 10 anos.</small></span><button type="button" role="switch" aria-checked={crianca} aria-label="Modo criança" className={`chave ${crianca ? 'on' : ''}`} onClick={() => setCrianca(!crianca)} /></div>
+        )}
         <div className="lin-chave"><span>Tempo de tela ligado</span><button type="button" role="switch" aria-checked={tela} aria-label="Tempo de tela ligado" className={`chave ${tela ? 'on' : ''}`} onClick={() => setTela(!tela)} /></div>
         <div className="lin-chave"><span>Acesso ativo<small>{eu ? 'Você não pode desativar a si mesmo' : 'Desativar tira o acesso sem apagar o histórico'}</small></span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}

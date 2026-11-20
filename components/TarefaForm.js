@@ -42,6 +42,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
   const [horaIni, setHoraIni] = useState(hhmm(t?.hora_inicio));
   const [horaFim, setHoraFim] = useState(hhmm(t?.hora_fim));
   const [foto, setFoto] = useState(!!t?.exige_foto);
+  const [prio, setPrio] = useState(!!t?.prioritaria);
   const [fCat, setFCat] = useState('Casa');
   const [fIdade, setFIdade] = useState('');
   const [inicio, setInicio] = useState(t?.data_inicio || hoje);
@@ -173,6 +174,18 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
         <label className="check"><input type="checkbox" name="exige_foto" value="1" checked={foto} onChange={(e) => setFoto(e.target.checked)} />Exige foto para concluir</label>
         {gestor && <label className="check"><input type="checkbox" name="permite_adiar" value="1" defaultChecked={t?.permite_adiar} />Pode adiar</label>}
         {gestor && <label className="check"><input type="checkbox" name="exige_justificativa" value="1" defaultChecked={t?.exige_justificativa} />Exige justificativa se atrasar</label>}
+        <label className="check"><input type="checkbox" name="prioritaria" value="1" checked={prio} onChange={(e) => setPrio(e.target.checked)} />Prioritária <Icone nome="bandeira" tam={16} cor="var(--prio)" /></label>
+        {prio && (comHora ? (
+          <div>
+            <label htmlFor="lembrete_min" style={{ marginTop: 0 }}>Lembrete extra</label>
+            <select id="lembrete_min" name="lembrete_min" defaultValue={t?.lembrete_min || 15}>
+              <option value="15">15 min antes do horário</option>
+              <option value="30">30 min antes do horário</option>
+              <option value="60">1 h antes do horário</option>
+              <option value="0">Sem lembrete extra</option>
+            </select>
+          </div>
+        ) : <p className="ajuda" style={{ margin: 0 }}>Ganha a bandeirinha e vem primeiro na lista. O lembrete extra só vale para tarefa com horário.</p>)}
       </div>
       <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '8px 0 0' }}>Tudo desligado: o filho conclui com um toque, sem foto, e não pode adiar. Foto: precisa ser de hoje. Justificativa: sem ela, a tarefa atrasada não conclui.</p>
       <label htmlFor="descricao">Detalhes (opcional)</label>

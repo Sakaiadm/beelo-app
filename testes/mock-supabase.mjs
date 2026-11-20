@@ -8,17 +8,17 @@ const G = id(1), M = id(2), E = id(3), A = id(4);
 const membros = [
   { id: G, familia_id: FAM, nome: 'Thomas', papel: 'gestor', cor: '#0f4fae', email: 'pai@t.com', ativo: true, tela_ativo: true, user_id: id(91) },
   { id: M, familia_id: FAM, nome: 'Mãe', papel: 'gestor', cor: '#7a3fb0', email: null, ativo: true, tela_ativo: true, user_id: null },
-  { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92) },
+  { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', modo_crianca: process.env.MOCK_CRIANCA === '1', cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92) },
   { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: 'alice@t.com', ativo: true, tela_ativo: false, user_id: null },
 ];
 const cats = [{ id: id(20), familia_id: FAM, nome: 'Estudo', cor: 'indigo', ordem: 1 }, { id: id(21), familia_id: FAM, nome: 'Casa', cor: 'laranja', ordem: 2 }];
 const tarefas = [
-  { id: id(30), familia_id: FAM, titulo: 'Estudar 1h', descricao: 'Matemática', categoria_id: id(20), responsavel_id: E, tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [], data_inicio: dia(-10), data_fim: null, hora_inicio: '19:00:00', hora_fim: '20:00:00', exige_foto: false, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, categoria: cats[0] },
+  { id: id(30), familia_id: FAM, titulo: 'Estudar 1h', descricao: 'Matemática', categoria_id: id(20), responsavel_id: E, tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [], data_inicio: dia(-10), data_fim: null, hora_inicio: '19:00:00', hora_fim: '20:00:00', exige_foto: false, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, prioritaria: true, lembrete_min: 15, categoria: cats[0] },
   { id: id(31), familia_id: FAM, titulo: 'Arrumar quarto', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: null, hora_fim: null, exige_foto: true, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, categoria: cats[1] },
   { id: id(32), familia_id: FAM, titulo: 'Violão', descricao: null, categoria_id: null, responsavel_id: A, tipo: 'recorrente', recorrencia: 'dias_semana', dias_semana: [1, 3], data_inicio: dia(-10), data_fim: dia(30), hora_inicio: '15:00:00', hora_fim: null, exige_foto: false, permite_adiar: true, exige_justificativa: false, criada_por: A, ativa: true, categoria: null },
 ];
 tarefas.push({ id: id(34), familia_id: FAM, titulo: 'Lavar a louça', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: '23:30:00', hora_fim: null, exige_foto: true, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, categoria: cats[1] });
-const tRef = (t) => ({ id: t.id, titulo: t.titulo, descricao: t.descricao, exige_foto: t.exige_foto, permite_adiar: t.permite_adiar, exige_justificativa: t.exige_justificativa, criada_por: t.criada_por, tipo: t.tipo, categoria: t.categoria });
+const tRef = (t) => ({ id: t.id, prioritaria: !!t.prioritaria, titulo: t.titulo, descricao: t.descricao, exige_foto: t.exige_foto, permite_adiar: t.permite_adiar, exige_justificativa: t.exige_justificativa, criada_por: t.criada_por, tipo: t.tipo, categoria: t.categoria });
 const oc = (n, t, d, extra = {}) => ({ id: id(100 + n), tarefa_id: t.id, familia_id: FAM, membro_id: t.responsavel_id, data: d, hora_inicio: t.hora_inicio, hora_fim: t.hora_fim, horario_travado: t.criada_por !== t.responsavel_id, status: 'pendente', concluida_em: null, foto_path: null, conferido: null, justificativa: null, justificativa_status: null, tarefa: tRef(t), ...extra });
 const ocorr = [
   oc(1, tarefas[0], dia(-3), { status: 'cumprida', concluida_em: dia(-3) + 'T22:00:00Z' }),
@@ -83,7 +83,7 @@ http.createServer((req, res) => {
     if (u.pathname === '/auth/v1/logout') return send(204);
     if (u.pathname.startsWith('/storage/v1/object/sign/')) { const b = JSON.parse(body || '{}'); return send(200, (b.paths || []).map((p) => ({ path: p, signedURL: '/object/sign/x?token=t', error: null }))); }
     if (u.pathname.startsWith('/storage/v1/object/') && req.method === 'POST') return send(200, { Key: u.pathname.slice(19), Id: 'x' });
-    const m = u.pathname.match(/^\/rest\/v1\/(rpc\/)?([a-z_]+)$/);
+    const m = u.pathname.match(/^\/rest\/v1\/(rpc\/)?([a-z0-9_]+)$/);
     if (!m) return send(404, { message: 'nada' });
     if (m[1]) {
       if (m[2] === 'ra_eu' || m[2] === 'ra_vincular') return send(200, usr?.eu || null);
