@@ -21,7 +21,7 @@ export default async function AppLayout({ children }) {
   return (
     <>
       <Suspense fallback={null}><Progresso /></Suspense>
-      <LembrarInicio caminho={gestor ? '/painel' : '/hoje'} />
+      <LembrarInicio caminho={gestor ? '/painel' : '/hoje'} quem={eu.id} gerado={Date.now()} />
       <header className="topo">
         <div className="topo-in">
           <Link className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</Link>

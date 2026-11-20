@@ -13,13 +13,13 @@ export default async function Perfil() {
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const n = { concluida: 'todas', justificativa: true, adiamento: true, tela: true, tarefa_filho: true, ...(eu.notif || {}) };
   return (
-    <main className="estreito">
+    <main className="estreito perfil">
       <div className="cab"><div><h1 className="titulo">Meu perfil</h1><p className="sub">{eu.nome} · {familia.nome}</p></div></div>
       <div className="card"><h2>Minha foto</h2>
         <Form acao={salvarPerfil} okTxt="Foto salva.">
-          <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} atualAvatar={eu.avatar} rotulo={eu.nome} cor={eu.cor} />
-          <p style={{ fontSize: 13, color: 'var(--cinza)' }}>Opcional. Escolha uma foto sua ou um avatar.</p>
-          <button className="btn sec">Salvar</button>
+          <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} atualAvatar={eu.avatar} rotulo={eu.nome} cor={eu.cor} largo />
+          <p className="ajuda">Opcional. Escolha uma foto sua ou um avatar.</p>
+          <button className="btn cheio">Salvar</button>
         </Form>
       </div>
       <div className="card"><h2>Avisos no celular</h2>

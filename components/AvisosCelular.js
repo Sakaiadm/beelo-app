@@ -94,9 +94,9 @@ export default function AvisosCelular({ chavePublica }) {
       {estado === 'desligado' && <><p style={txt}>Receba um aviso no celular quando algo acontecer, mesmo com o app fechado.</p><button type="button" className="btn" disabled={ocupado} onClick={ativar}>Ativar avisos neste aparelho</button></>}
       {estado === 'ligado' && (
         <>
-          <p style={{ ...txt, color: 'var(--ok)', fontWeight: 600 }}>Avisos ativados neste aparelho.</p>
-          <div className="acoes"><button type="button" className="btn sec" disabled={ocupado} onClick={testar}>Enviar um teste</button>
+          <div className="status-aviso"><p><i aria-hidden="true" />Avisos ativados neste aparelho.</p>
             <button type="button" className="btn sec" disabled={ocupado} onClick={desativar}>Desligar</button></div>
+          <button type="button" className="link-teste" disabled={ocupado} onClick={testar}>Enviar um teste</button>
         </>
       )}
       {msg && <p style={{ ...txt, marginTop: 10 }} role="status">{msg}</p>}

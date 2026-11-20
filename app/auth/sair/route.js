@@ -7,5 +7,6 @@ export async function POST(request) {
   await supabase.auth.signOut();
   const r = NextResponse.redirect(new URL('/login', origem(request)), { status: 303 });
   r.cookies.delete('inicio');
+  r.cookies.delete('ra_u');
   return r;
 }
