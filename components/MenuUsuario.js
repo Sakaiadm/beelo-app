@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import Icone from './Icone';
 
-// Botão com o nome da pessoa no topo. Abre: Meu perfil, Ajuda, modo escuro e Sair.
+// Botão com o nome da pessoa no topo. Abre: Meu perfil, Ajuda, Segurança e privacidade, modo escuro e Sair.
 export default function MenuUsuario({ nome, familia, children }) {
   const [aberto, setAberto] = useState(false);
   const [escuro, setEscuro] = useState(false);
@@ -37,6 +37,7 @@ export default function MenuUsuario({ nome, familia, children }) {
         <div className="usuario-menu" role="menu">
           <Link role="menuitem" href="/perfil" prefetch={false} onClick={() => setAberto(false)}>Meu perfil</Link>
           <Link role="menuitem" href="/ajuda" prefetch={false} onClick={() => setAberto(false)}>Ajuda</Link>
+          <Link role="menuitem" href="/seguranca" prefetch={false} onClick={() => setAberto(false)}>Segurança e privacidade</Link>
           <button role="menuitem" type="button" onClick={alternar}>Modo escuro<span className={`chave ${escuro ? 'on' : ''}`} aria-hidden="true" /></button>
           <form action="/auth/sair" method="post"><button role="menuitem" className="sair"><Icone nome="sair" tam={18} /> Sair</button></form>
         </div>
