@@ -59,10 +59,17 @@ function filtrar(rows, params) {
   }
   return out;
 }
+// Atraso opcional em cada resposta (simula o banco lento): GET /__atraso?ms=10000
+let atraso = 0;
 http.createServer((req, res) => {
   let body = '';
   req.on('data', (c) => (body += c));
   req.on('end', () => {
+    const u0 = new URL(req.url, 'http://x');
+    if (u0.pathname === '/__atraso') { atraso = Number(u0.searchParams.get('ms')) || 0; res.end('ok'); return; }
+    setTimeout(tratar, u0.pathname === '/__log' ? 0 : atraso);
+  });
+  function tratar() {
     const u = new URL(req.url, 'http://x');
     const tok = (req.headers.authorization || '').replace('Bearer ', '');
     const usr = usuarios[tok];
@@ -98,5 +105,5 @@ http.createServer((req, res) => {
     if (req.method !== 'GET') return send(201, []);
     if ((req.headers.accept || '').includes('vnd.pgrst.object')) return rows[0] ? send(200, rows[0]) : send(406, { code: 'PGRST116', message: 'no rows' });
     return send(200, rows);
-  });
+  }
 }).listen(54321, () => console.log('mock pronto'));
