@@ -13,7 +13,7 @@ export async function preparar(arquivo) {
   return await new Promise((ok) => c.toBlob(ok, 'image/jpeg', 0.85));
 }
 
-export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl, atualAvatar, rotulo, cor, quadrado }) {
+export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl, atualAvatar, rotulo, cor, quadrado, largo }) {
   const ref = useRef(null);
   const [st, setSt] = useState({ caminho: undefined, previa: atualUrl || '', preset: atualAvatar?.startsWith('preset:') ? atualAvatar : '', msg: '' });
   const [aberto, setAberto] = useState(false);
@@ -30,14 +30,20 @@ export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl
     e.target.value = '';
   }
   return (
-    <div style={{ display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+    <div className={largo ? 'foto-lin' : undefined} style={largo ? undefined : { display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
       {st.caminho !== undefined && <input type="hidden" name={nome} value={st.caminho} />}
-      <Avatar nome={rotulo} cor={cor} url={st.previa} avatar={st.caminho === undefined ? st.preset : st.caminho?.startsWith('preset:') ? st.caminho : ''} tam={56} quadrado={quadrado} />
+      <Avatar nome={rotulo} cor={cor} url={st.previa} avatar={st.caminho === undefined ? st.preset : st.caminho?.startsWith('preset:') ? st.caminho : ''} tam={largo ? 64 : 56} quadrado={quadrado} />
       <input ref={ref} type="file" accept="image/*" hidden onChange={escolher} />
-      <button type="button" className="btn sec peq" onClick={() => ref.current.click()}>Foto</button>
-      <button type="button" className="btn sec peq" aria-expanded={aberto} onClick={() => setAberto(!aberto)}>Avatar</button>
-      {(st.previa || st.preset || st.caminho) && <button type="button" className="btn sec peq" onClick={() => setSt({ caminho: '', previa: '', preset: '', msg: 'Removido. Toque em Salvar.' })}>Remover</button>}
-      {st.msg && <span style={{ fontSize: 13, color: 'var(--cinza)' }}>{st.msg}</span>}
+      {(() => {
+        const bc = largo ? 'btn sec' : 'btn sec peq';
+        const botoes = <>
+          <button type="button" className={bc} onClick={() => ref.current.click()}>Foto</button>
+          <button type="button" className={bc} aria-expanded={aberto} onClick={() => setAberto(!aberto)}>Avatar</button>
+          {(st.previa || st.preset || st.caminho) && <button type="button" className={bc} onClick={() => setSt({ caminho: '', previa: '', preset: '', msg: 'Removido. Toque em Salvar.' })}>Remover</button>}
+        </>;
+        return largo ? <div className="dupla">{botoes}</div> : botoes;
+      })()}
+      {st.msg && <span style={{ fontSize: 13, color: 'var(--cinza)', flexBasis: largo ? '100%' : undefined }}>{st.msg}</span>}
       {aberto && (
         <div style={{ flexBasis: '100%' }}>
           {[['Moderno', MODERNOS.map((m) => m[0])], ['Divertido', DIVERTIDOS.map((d) => d[0])]].map(([titulo, ids]) => (
