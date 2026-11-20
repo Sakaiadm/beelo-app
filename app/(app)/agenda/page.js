@@ -1,7 +1,7 @@
 import { exigirMembro } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import Link from 'next/link';
-import { hojeISO, addDias, inicioMes, fimMes, dataExtensa, diaSemana, statusExibido, hhmm, DIAS } from '@/lib/util';
+import { hojeISO, addDias, inicioMes, fimMes, dataLonga, diaSemana, statusExibido, hhmm, DIAS } from '@/lib/util';
 import Icone from '@/components/Icone';
 import Calendario from '@/components/Calendario';
 import Tarefa from '@/components/Tarefa';
@@ -38,7 +38,10 @@ export default async function Agenda({ searchParams }) {
 
   return (
     <main className="agenda-tela">
-      <div className="cab"><div><h1 className="titulo">Agenda</h1>{v === 'mes' && <p className="sub">{dataExtensa(d)}</p>}</div></div>
+      <div className="cab">
+        <div><h1 className="titulo">Agenda</h1><p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(d)}</p></div>
+        <Link prefetch={false} className="btn" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
+      </div>
       <div className="seg" role="tablist" aria-label="Visão">
         <Link prefetch={false} href={qs({ v: 'dia' })} className={v === 'dia' ? 'on' : ''}>Dia</Link>
         <Link prefetch={false} href={qs({ v: 'semana' })} className={v === 'semana' ? 'on' : ''}>Semana</Link>
@@ -49,12 +52,8 @@ export default async function Agenda({ searchParams }) {
           <Link prefetch={false} className="b" href={qs({ d: addDias(d, -passo) })} aria-label="Anterior">‹</Link>
           <Link prefetch={false} className="b" href={qs({ d: hoje })}>Hoje</Link>
           <Link prefetch={false} className="b" href={qs({ d: addDias(d, passo) })} aria-label="Próximo">›</Link>
-          <span className="dt">{dataExtensa(d)}</span>
         </div>
       )}
-      <div className="dois">
-        <Link prefetch={false} className="bt az" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={16} cor="#fff" />Adicionar tarefa</Link>
-      </div>
       {gestor && (
         <div className="seg" aria-label="Pessoa">
           <Link prefetch={false} href={`/agenda?v=${v}&d=${d}`} className={!filtroM ? 'on' : ''}>Todos</Link>
