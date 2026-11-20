@@ -1,5 +1,5 @@
 'use client';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
 import Link from 'next/link';
 import Icone from './Icone';
 import Form from './Form';
@@ -18,7 +18,12 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
   const [aba, setAba] = useState(null);
   const [festa, setFesta] = useState(false);
   // Concluiu: animação discreta na bolinha, som curtinho e (modo criança) a mensagem alegre.
-  const festejar = () => { setAba(null); setFesta(true); setTimeout(() => setFesta(false), 1000); comemorar({ ultima }); };
+  const ref = useRef(null);
+  const festejar = () => {
+    const r = ref.current?.querySelector('.circulo')?.getBoundingClientRect();
+    setAba(null); setFesta(true); setTimeout(() => setFesta(false), 1000);
+    comemorar({ ultima, x: r ? r.left + r.width / 2 : null, y: r ? r.top + r.height / 2 : null });
+  };
   const [aviso, setAviso] = useState('');
   const [aberto, setAberto] = useState(false);
   const cat = oc.tarefa?.categoria;
@@ -39,7 +44,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
     : st !== 'pendente' ? [STATUS_TXT[st], 'aviso'] : null;
 
   return (
-    <div className={`tarefa ${feita ? 'feita' : ''} ${atrasada ? 'atrasada' : ''} ${festa ? 'festa' : ''}`}>
+    <div ref={ref} className={`tarefa ${feita ? 'feita' : ''} ${atrasada ? 'atrasada' : ''} ${festa ? 'festa' : ''}`}>
       <div className="topo-t">
         {futura && podeConcluir ? (
           <button type="button" className="circulo" onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={26} /></button>

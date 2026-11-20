@@ -12,7 +12,7 @@ export default function SomConcluir() {
   };
   return (
     <div className="lin-chave" style={{ borderTop: 0 }}>
-      <span>Som ao concluir uma tarefa<small>Um "plim" curtinho. Vale para este aparelho. No iPhone, não toca no modo silencioso.</small></span>
+      <span>Som ao concluir uma tarefa<small>Um som curtinho (no modo criança, o da comemoração). Vale para este aparelho. No iPhone, não toca no modo silencioso.</small></span>
       <button type="button" role="switch" aria-checked={on} aria-label="Som ao concluir uma tarefa" className={`chave ${on ? 'on' : ''}`} onClick={mudar} />
     </div>
   );
