@@ -20,7 +20,7 @@ export default function TelaErro({ reset, tipo }) {
   const [titulo, texto] = tipo === 'naoEncontrada'
     ? ['Página não encontrada', 'Este endereço não existe ou o item foi apagado. Volte para o início e continue de lá.']
     : offline
-      ? ['Sem internet', 'O aparelho está sem conexão, então esta tela não pôde ser aberta. Confira o Wi-Fi ou os dados móveis. Quando a internet voltar, a tela abre sozinha.']
+      ? ['Sem internet', 'O aparelho está sem conexão, então esta tela não pôde ser aberta. Confira o Wi-Fi ou os dados móveis. Assim que a internet voltar, o app abre esta tela automaticamente.']
       : ['Algo não deu certo', 'Não foi possível abrir esta tela agora. Isso costuma ser passageiro. Toque em Tentar de novo. Se continuar, feche o app e abra de novo daqui a alguns minutos.'];
   return (
     <main className="estreito" style={{ paddingTop: 60 }}>
