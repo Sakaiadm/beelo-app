@@ -13,6 +13,12 @@ import { traduzirErro } from '@/lib/rede';
 function revalidar() { esquecerSessoes(); revalidatePath('/', 'layout'); }
 
 const txt = (fd, k, max = 500) => { const v = fd.get(k); return v == null ? null : String(v).trim().slice(0, max) || null; };
+// Compara nomes sem diferença de maiúsculas, acentos e espaços (para avisar de nome repetido).
+const mesmoNome = (a, b) => { const n = (x) => String(x || '').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/\s+/g, ' ').trim().toLowerCase(); return n(a) === n(b); };
+async function nomeRepetido(supabase, tabela, familia, nome, exceto) {
+  const { data } = await supabase.from(tabela).select('id, nome').eq('familia_id', familia);
+  return (data || []).some((x) => x.id !== exceto && mesmoNome(x.nome, nome));
+}
 const uuid = (v) => (/^[0-9a-f-]{36}$/i.test(String(v || '')) ? String(v) : null);
 const data = (v) => (/^\d{4}-\d{2}-\d{2}$/.test(String(v || '')) ? String(v) : null);
 const hora = (v) => (/^\d{2}:\d{2}$/.test(String(v || '')) ? String(v) : null);
@@ -136,12 +142,16 @@ export async function salvarPessoa(_, fd) {
   };
   if (!reg.nome) return { erro: 'Informe o nome' };
   const id = uuid(fd.get('id'));
+  if (await nomeRepetido(supabase, 'ra_membros', eu.familia_id, reg.nome, id)) return { erro: 'Já existe uma pessoa com esse nome neste grupo. Use outro nome, por exemplo com o sobrenome.' };
   if (id && fd.has('avatar')) {
     const a = String(fd.get('avatar') || '');
     if (a && !a.startsWith('preset:') && !a.startsWith(`${eu.familia_id}/${id}/avatar-`)) return { erro: 'Imagem inválida' };
     if (a && !caminhoAvatar(a)) return { erro: 'Imagem inválida' };
-    if (a.startsWith('preset:') && !reg.modo_crianca) return { erro: 'Os avatares são só para quem tem o Modo criança ligado. Use uma foto ou imagem.' };
-    reg.avatar = a || null;
+    // Modo criança desligado: avatar de criança não vale mais, então fica sem avatar (letra com a cor).
+    reg.avatar = a.startsWith('preset:') && !reg.modo_crianca ? null : a || null;
+  } else if (id && !reg.modo_crianca) {
+    const { data: atual } = await supabase.from('ra_membros').select('avatar').eq('id', id).maybeSingle();
+    if (atual?.avatar?.startsWith('preset:')) reg.avatar = null;
   }
   if (id === eu.id && (!reg.ativo || reg.papel !== 'gestor')) return { erro: 'Você não pode tirar o seu próprio acesso de pai/mãe' };
   const gravar = (r) => (id
@@ -232,6 +242,7 @@ export async function salvarCategoria(_, fd) {
   const { data: eu } = await supabase.rpc('ra_eu');
   const nome = txt(fd, 'nome', 30);
   if (!nome) return { erro: 'Informe o nome' };
+  if (await nomeRepetido(supabase, 'ra_categorias', eu.familia_id, nome)) return { erro: 'Já existe uma categoria com esse nome.' };
   const cor = CORES_CAT[fd.get('cor')] ? fd.get('cor') : 'azul';
   const { error } = await supabase.from('ra_categorias').insert({ familia_id: eu.familia_id, nome, cor, ordem: 50 });
   if (error) return traduzirErro(error);
@@ -321,8 +332,10 @@ const caminhoAvatar = (v) => (/^([0-9a-f-]{36}\/[0-9a-z-]{6,36}\/avatar-\d+\.jpg
 
 export async function editarCategoria(_, fd) {
   const supabase = await supabaseServer();
+  const { data: eu } = await supabase.rpc('ra_eu');
   const nome = txt(fd, 'nome', 30);
   if (!nome) return { erro: 'Informe o nome' };
+  if (eu && await nomeRepetido(supabase, 'ra_categorias', eu.familia_id, nome, uuid(fd.get('id')))) return { erro: 'Já existe uma categoria com esse nome.' };
   const cor = CORES_CAT[fd.get('cor')] ? fd.get('cor') : 'azul';
   const { error } = await supabase.from('ra_categorias').update({ nome, cor }).eq('id', uuid(fd.get('id')));
   if (error) return traduzirErro(error);
@@ -342,7 +355,9 @@ export async function salvarPerfil(_, fd) {
   if (!fd.has('avatar')) return { ok: true };
   const a = String(fd.get('avatar') || '');
   if (a && !caminhoAvatar(a)) return { erro: 'Imagem inválida' };
-  return rpc('ra_meu_avatar', { p_caminho: a || null });
+  const r = await rpc('ra_meu_avatar', { p_caminho: a || null });
+  // Avatar de criança: "Avatar salvo."; foto ou imagem: "Foto salva." (texto padrão do formulário).
+  return r?.ok && a.startsWith('preset:') ? { ok: true, msg: 'Avatar salvo.' } : r;
 }
 
 export async function salvarAvisos(_, fd) {
