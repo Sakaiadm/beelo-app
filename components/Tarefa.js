@@ -55,6 +55,8 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, familia, foto
       <div className="topo-t">
         {futura && podeConcluir ? (
           <button type="button" className="circulo" onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={26} /></button>
+        ) : podeConcluir && oc.tarefa?.especial === 'tela' ? (
+          <Link prefetch={false} className="circulo" href="/tela" aria-label="Lançar tempo de tela" title="Lançar tempo de tela"><Icone nome={ic} cor={cor} tam={26} /></Link>
         ) : podeConcluir && !oc.tarefa?.exige_foto ? (
           <Form acao={concluir} fila="concluir" rotulo={`Concluir “${t}”`} discreto aoConcluir={festejar}><input type="hidden" name="oc" value={oc.id} />
             <button className="circulo" onPointerDown={prepararSom} onKeyDown={prepararSom} aria-label={`Concluir ${oc.tarefa?.titulo}`} title="Marcar como feita"><Icone nome={ic} cor={cor} tam={26} /></button>
@@ -68,7 +70,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, familia, foto
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="tt">{oc.tarefa?.prioritaria && <span className="prio-ic" title="Prioritária"><Icone nome="bandeira" tam={15} cor="var(--prio)" rotulo="Prioritária" /></span>}{oc.tarefa?.titulo}</div>
-          <div className="meta">{horario}{nomeMembro ? ` · ${nomeMembro}` : ''}</div>
+          <div className="meta">{horario}{oc.tarefa?.especial === 'tela' ? ' · tempo de ontem' : ''}{nomeMembro ? ` · ${nomeMembro}` : ''}</div>
           {(selo || cat) && (
             <div className="selos">
               {selo && <span className={`selo-st ${selo[1]}`}>{selo[0]}</span>}

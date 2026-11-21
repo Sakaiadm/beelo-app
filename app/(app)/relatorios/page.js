@@ -1,7 +1,7 @@
 import { exigirMembro } from '@/lib/sessao';
 import { lerFiltros, dadosRelatorio } from '@/lib/relatorio';
 import { telaResumo, totalReal } from '@/lib/tela';
-import { dataComAno, dataCurta, fmtMin, STATUS_TXT, CORES_CAT, inicioSemana, DIAS, hhmm } from '@/lib/util';
+import { dataComAno, dataCurta, fmtMin, STATUS_TXT, CORES_CAT, inicioSemana, DIAS, hhmm, addDias } from '@/lib/util';
 import Imprimir from '@/components/Imprimir';
 import FiltroPeriodo from '@/components/FiltroPeriodo';
 
@@ -49,6 +49,26 @@ export default async function Relatorios({ searchParams }) {
   });
   const telas = {};
   for (const id of ids) { const m = membros.find((x) => x.id === id); if (m?.tela_ativo) telas[id] = await telaResumo(supabase, id, f.de, f.ate); }
+  // Tempo de tela: evolução (seção 64). Dentro do previsto, média, tendência contra o período anterior,
+  // lançou no horário (tarefa "Lançar tempo de tela") e média por dia em cada semana.
+  const diasPer = Math.round((new Date(f.ate) - new Date(f.de)) / 86400000) + 1;
+  const media = (rs) => (rs.length ? Math.round(rs.reduce((a, r) => a + totalReal(r), 0) / rs.length) : null);
+  const evolucao = await Promise.all(Object.entries(telas).filter(([, rs]) => rs.length).map(async ([id, rs]) => {
+    const comPrev = rs.filter((r) => r.previsto?.min_total != null);
+    const dentro = comPrev.filter((r) => totalReal(r) <= r.previsto.min_total).length;
+    const antes = await telaResumo(supabase, id, addDias(f.de, -diasPer), addDias(f.de, -1));
+    const m = media(rs), ma = media(antes);
+    const tend = ma ? Math.round(((m - ma) / ma) * 100) : null;
+    const tarefasTela = lista.filter((x) => x.o.membro_id === id && x.o.tarefa?.especial === 'tela' && !['pendente', 'adiada', 'cancelada'].includes(x.st));
+    const semanas = [...new Set(rs.map((r) => inicioSemana(r.data)))].sort().map((w) => {
+      const daSem = rs.filter((r) => inicioSemana(r.data) === w), pv = daSem.filter((r) => r.previsto?.min_total != null);
+      return { w, real: media(daSem), prev: pv.length ? Math.round(pv.reduce((a, r) => a + r.previsto.min_total, 0) / pv.length) : null };
+    });
+    return { id, n: rs.length, comPrev: comPrev.length, dentro, m, prevMedio: comPrev.length ? Math.round(comPrev.reduce((a, r) => a + r.previsto.min_total, 0) / comPrev.length) : null,
+      tend, noHorario: tarefasTela.filter((x) => x.st === 'cumprida').length, totTarefas: tarefasTela.length, semanas };
+  }));
+  const maxSem = Math.max(1, ...evolucao.flatMap((e) => e.semanas.flatMap((x) => [x.real || 0, x.prev || 0])));
+
   const qs = new URLSearchParams(Object.entries({ per: f.per, de: f.de, ate: f.ate, m: f.m, cat: f.cat, st: f.st, origem: f.origem, hor: f.hor }).filter(([, v]) => v)).toString();
 
   return (
@@ -115,6 +135,24 @@ export default async function Relatorios({ searchParams }) {
           })}</tbody>
         </table></div>
       </div>
+
+      {evolucao.map((e) => (
+        <div className="card" key={e.id}><h2>Tempo de tela: evolução{gestor ? ` · ${e.id === eu.id ? 'Eu' : nome[e.id]}` : ''}</h2>
+          <div className="kpis">
+            <div className="kpi destaque"><small>Dentro do previsto</small><strong>{e.dentro} de {e.comPrev}</strong><em>dias com previsto no período</em></div>
+            <div className="kpi"><small>Média por dia</small><strong>{fmtMin(e.m)}</strong><em>{e.prevMedio != null ? `previsto ${fmtMin(e.prevMedio)}` : 'sem previsto'}</em></div>
+            {e.tend != null && <div className="kpi"><small>Tendência</small><strong style={{ color: e.tend <= 0 ? 'var(--ok)' : 'var(--erro)' }}>{e.tend <= 0 ? '↓' : '↑'} {Math.abs(e.tend)}%</strong><em>{e.tend < 0 ? 'está reduzindo' : e.tend > 0 ? 'aumentou' : 'igual'} em relação ao período anterior</em></div>}
+            {e.totTarefas > 0 && <div className="kpi"><small>Lançou no horário</small><strong>{e.noHorario} de {e.totTarefas}</strong><em>{e.totTarefas - e.noHorario > 0 ? `${e.totTarefas - e.noHorario} com atraso ou sem lançar` : 'todos no horário'}</em></div>}
+          </div>
+          {e.semanas.length > 0 && (<>
+            <div className="grupo-titulo">Média por dia, por semana</div>
+            <div className="barras-h">{e.semanas.map((x) => (
+              <div className="l" key={x.w}><span>{dataCurta(x.w)} a {dataCurta(addDias(x.w, 6))}</span>
+                <div className="barra"><div style={{ width: `${Math.round(((x.real || 0) / maxSem) * 100)}%`, background: x.prev != null && x.real > x.prev ? 'var(--erro)' : 'var(--azul)' }} /></div>
+                <span>{fmtMin(x.real)}</span></div>))}</div>
+          </>)}
+        </div>
+      ))}
 
       {Object.keys(telas).length > 0 && (
         <div className="card"><h2>Tempo de tela: previsto x realizado</h2>
