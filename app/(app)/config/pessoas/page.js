@@ -20,6 +20,8 @@ export default async function Pessoas({ searchParams }) {
     <main className="estreito">
       <Voltar href="/config" titulo="Pessoas" sub={`${membros.length} ${membros.length === 1 ? 'pessoa' : 'pessoas'}`} />
       {sp?.aviso === 'convite' && <div className="aviso ok" role="status">Pessoa adicionada e convite enviado.</div>}
+      {sp?.aviso?.startsWith('reconvite:') && <div className="aviso ok" role="status">{sp.aviso.slice(10)} já está no grupo. Convite enviado.</div>}
+      {sp?.aviso?.startsWith('acesso:') && <div className="aviso ok" role="status">{sp.aviso.slice(7)} já está no grupo. E-mail de acesso enviado.</div>}
       {sp?.aviso?.startsWith('semconvite:') && <div className="aviso erro" role="alert">Pessoa adicionada, mas {sp.aviso.slice(11).replace(/^./, (c) => c.toLowerCase())}</div>}
       <Link prefetch={false} href="/config/pessoas/nova" className="btn bloco" style={{ marginBottom: 14 }}>+ Adicionar pessoa</Link>
       {membros.map((m) => (

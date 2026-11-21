@@ -130,6 +130,12 @@ export async function salvarPessoa(_, fd) {
   const bruto = txt(fd, 'email', 120);
   const v = bruto ? validarEmail(bruto) : { ok: true, email: null };
   if (!v.ok) return { erro: v.msg || 'E-mail inválido' };
+  // "Adicionar pessoa" com o e-mail de alguém que já está neste grupo: não cria outra pessoa,
+  // só manda o convite (ou o e-mail de acesso) para quem já está cadastrado.
+  if (!fd.get('id') && v.email) {
+    const ja = await pessoaDoGrupo(supabase, eu.familia_id, v.email);
+    if (ja) return convidarExistente(supabase, eu, ja);
+  }
   const f = funcaoDe(fd.get('funcao'));
   if (!f) return { erro: 'Escolha o papel da pessoa' };
   const permissoes = {};
@@ -159,7 +165,13 @@ export async function salvarPessoa(_, fd) {
     : supabase.from('ra_membros').insert({ ...r, familia_id: eu.familia_id }).select('id, nome, email, user_id, funcao, papel').maybeSingle());
   let { data: salvo, error } = await gravar(reg);
   if (semColuna(error)) ({ data: salvo, error } = await gravar(semNovas(reg)));
-  if (error) return error.message.includes('duplicate') ? { erro: 'Este e-mail já está cadastrado' } : traduzirErro(error);
+  if (error) {
+    if (!error.message.includes('duplicate')) return traduzirErro(error);
+    // O e-mail é de alguém deste grupo (ex.: cadastrado entre a abertura da tela e o toque no botão).
+    const ja = !id && reg.email ? await pessoaDoGrupo(supabase, eu.familia_id, reg.email) : null;
+    if (ja) return convidarExistente(supabase, eu, ja);
+    return { erro: 'Este e-mail já está cadastrado em outro grupo' };
+  }
   revalidar();
   let aviso = '';
   if (fd.get('enviar') === '1' && salvo) {
@@ -169,6 +181,18 @@ export async function salvarPessoa(_, fd) {
   if (!id) redirect('/config/pessoas' + (aviso ? `?aviso=${encodeURIComponent(aviso)}` : ''));
   if (aviso.startsWith('semconvite:')) return { erro: 'Pessoa salva, mas ' + aviso.slice(11).replace(/^./, (c) => c.toLowerCase()) };
   return { ok: true, msg: aviso ? 'Salvo e convite enviado.' : undefined };
+}
+
+// Pessoa deste grupo que já usa o e-mail informado.
+async function pessoaDoGrupo(supabase, familia, email) {
+  const { data } = await supabase.from('ra_membros').select('id, nome, email, user_id, funcao, papel').eq('familia_id', familia).eq('email', email).limit(1);
+  return data?.[0] || null;
+}
+
+async function convidarExistente(supabase, eu, ja) {
+  const r = await mandarConvite(supabase, eu, ja);
+  if (!r.ok) return { erro: `${ja.nome} já está neste grupo, mas ` + r.erro.replace(/^./, (c) => c.toLowerCase()) };
+  redirect('/config/pessoas?aviso=' + encodeURIComponent((ja.user_id ? 'acesso:' : 'reconvite:') + ja.nome));
 }
 
 // Manda (ou manda de novo) o e-mail do convite.
