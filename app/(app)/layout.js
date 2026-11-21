@@ -10,6 +10,7 @@ import { Suspense } from 'react';
 import Progresso from '@/components/Progresso';
 import LembrarInicio from '@/components/LembrarInicio';
 import Conexao from '@/components/Conexao';
+import Festa from '@/components/Festa';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia } = await exigirMembro();
@@ -38,6 +39,7 @@ export default async function AppLayout({ children }) {
       <Selo n={naoLidas} />
       <Conexao />
       {children}
+      <Festa crianca={!gestor && !!eu.modo_crianca} nome={(eu.nome || '').split(' ')[0]} />
       <Menu itens={itens} baixo />
     </>
   );

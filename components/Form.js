@@ -12,7 +12,7 @@ const LIMITE_MS = 25000; // depois disso o botão para de "girar" e a pessoa rec
 // enviadas depois; as outras avisam em português, sem perder o que foi digitado.
 // `discreto`: não mostra o aviso de "salvo no aparelho" (a própria tela já mostra).
 // `simples`: a ação recebe só os dados (formato das ações usadas direto em <form action>).
-export default function Form({ acao, children, okTxt, limpar, className, style, fila, rotulo, simples, discreto, msgSemInternet }) {
+export default function Form({ acao, children, okTxt, limpar, className, style, fila, rotulo, simples, discreto, msgSemInternet, aoConcluir }) {
   // Estado próprio (e não useActionState): assim o aviso de "internet lenta" aparece mesmo enquanto o
   // envio ainda está preso na rede. Com useActionState, o React só mostrava o resultado quando a rede respondia.
   const [estado, setEstado] = useState(null);
@@ -50,6 +50,7 @@ export default function Form({ acao, children, okTxt, limpar, className, style, 
   }
 
   const aoEnviar = async (e) => {
+  useEffect(() => { if (estado?.ok) aoConcluir?.(); }, [estado]); // eslint-disable-line react-hooks/exhaustive-deps
     e.preventDefault();
     if (pendente) return;
     const dados = new FormData(e.currentTarget, e.nativeEvent.submitter);

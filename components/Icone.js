@@ -25,6 +25,7 @@ const P = {
   esq: <path d="m15 18-6-6 6-6" />,
   dir: <path d="m9 18 6-6-6-6" />,
   baixo: <path d="m6 9 6 6 6-6" />,
+  bandeira: <path d="M5 21V4h12l-2.5 4 2.5 4H5" fill="var(--prio)" />,
   escudo: <><path d="M12 3 5 5.8v5.5c0 4.3 2.9 7.7 7 9.2 4.1-1.5 7-4.9 7-9.2V5.8z" /><path d="m9 12 2.2 2.2L15.5 10" /></>,
   sair: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5M21 12H9" /></>,
 };

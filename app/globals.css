@@ -2,14 +2,14 @@
   --azul: #1a6fe0; --azul-esc: #0f4fae; --azul-claro: #dceafc; --azul-medio: #9cc4f5;
   --fundo: #f4f8fe; --cartao: #ffffff; --texto: #13203a; --cinza: #5a6880; --borda: #e1e7f0; --campo: #cfd8e6;
   --erro: #b42330; --erro-fundo: #fdf0f1; --erro-borda: #f3cfd2; --ok: #1f7a45; --ok-fundo: #e6f4e9;
-  --aviso-fundo: #fdf6e7; --aviso-borda: #f1dcb4; --aviso: #8a5a00; --topo: #1a6fe0; --topo-txt: #eef4fe; --trilho: #e8eef7;
+  --aviso-fundo: #fdf6e7; --aviso-borda: #f1dcb4; --aviso: #8a5a00; --topo: #1a6fe0; --topo-txt: #eef4fe; --trilho: #e8eef7; --prio: #d9480f;
   --pend-fundo: var(--azul-claro); --pend-borda: transparent; --ok-borda: transparent; --atr-borda-mini: transparent; --dia-pend-fundo: var(--cartao); --dia-pend-borda: var(--borda); --dia-ok-fundo: var(--cartao); --dia-ok-borda: var(--borda); --cal-falta-fundo: #fbe3e5; --cal-falta-txt: #8f1c26; --cal-falta-borda: #f3cfd2;
 }
 :root[data-theme="escuro"] {
   --azul: #5b9bff; --azul-esc: #8fbaff; --azul-claro: #1b2a45; --azul-medio: #2d5ea8;
   --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --campo: #3a4d72;
   --erro: #ff8a94; --erro-fundo: rgba(255,110,110,.14); --erro-borda: rgba(255,123,114,.45); --ok: #6fd69a; --ok-fundo: rgba(63,207,142,.13);
-  --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d;
+  --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d; --prio: #ffa94d;
   --pend-fundo: rgba(91,155,255,.13); --pend-borda: rgba(91,155,255,.40); --ok-borda: rgba(63,207,142,.40); --atr-borda-mini: var(--erro-borda); --dia-pend-fundo: var(--pend-fundo); --dia-pend-borda: var(--pend-borda); --dia-ok-fundo: var(--ok-fundo); --dia-ok-borda: var(--ok-borda); --cal-falta-fundo: var(--erro-fundo); --cal-falta-txt: #ffb3bd; --cal-falta-borda: var(--erro-borda);
 }
 @media (prefers-color-scheme: dark) {
@@ -17,7 +17,7 @@
     --azul: #5b9bff; --azul-esc: #8fbaff; --azul-claro: #1b2a45; --azul-medio: #2d5ea8;
     --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --campo: #3a4d72;
     --erro: #ff8a94; --erro-fundo: rgba(255,110,110,.14); --erro-borda: rgba(255,123,114,.45); --ok: #6fd69a; --ok-fundo: rgba(63,207,142,.13);
-    --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d;
+    --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d; --prio: #ffa94d;
     --pend-fundo: rgba(91,155,255,.13); --pend-borda: rgba(91,155,255,.40); --ok-borda: rgba(63,207,142,.40); --atr-borda-mini: var(--erro-borda); --dia-pend-fundo: var(--pend-fundo); --dia-pend-borda: var(--pend-borda); --dia-ok-fundo: var(--ok-fundo); --dia-ok-borda: var(--ok-borda); --cal-falta-fundo: var(--erro-fundo); --cal-falta-txt: #ffb3bd; --cal-falta-borda: var(--erro-borda);
   }
 }
@@ -370,3 +370,35 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 .tarefa .det .l span:first-child { width: 92px; flex: none; color: var(--cinza); }
 .tarefa .det img { width: 120px; height: 120px; object-fit: cover; border-radius: 12px; border: 1px solid var(--borda); display: block; }
 @media (prefers-reduced-motion: reduce) { .tarefa .abre svg { transition: none; } }
+
+/* Tarefa prioritária: bandeirinha antes do nome */
+.tarefa .tt .prio-ic { display: inline-block; vertical-align: -2px; margin-right: 6px; }
+/* Quadro azul da tela Hoje: estrelas (modo criança) e semana */
+.kpi .estrelas { display: flex; align-items: center; gap: 4px; margin-top: 12px; }
+.kpi .estrelas svg { fill: rgba(255,255,255,.28); }
+.kpi .estrelas svg.on { fill: #ffd43b; }
+.kpi .estrelas span { margin-left: 6px; font-size: 13px; font-weight: 600; color: #e6f0fe; }
+.kpi .semana-kpi { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.25); }
+.kpi .semana-kpi .l { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 600; color: #e6f0fe; }
+.kpi .semana-kpi .l b { font-size: 15px; color: #fff; }
+.kpi .semana-kpi .barra { height: 7px; margin-top: 7px; background: rgba(255,255,255,.25); }
+.kpi .semana-kpi .barra > div { background: #fff; }
+/* Concluiu: a bolinha dá um pulinho e sai uma ondinha verde (meio segundo) */
+.tarefa .circulo { position: relative; }
+.tarefa.festa .circulo svg { animation: festa-pulo .45s cubic-bezier(.3,1.6,.5,1); }
+.tarefa.festa .circulo::after { content: ''; position: absolute; left: 50%; top: 50%; width: 26px; height: 26px; margin: -13px 0 0 -13px; border-radius: 50%; border: 2px solid var(--ok); animation: festa-onda .6s ease-out forwards; pointer-events: none; }
+@keyframes festa-pulo { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
+@keyframes festa-onda { from { opacity: .7; transform: scale(1); } to { opacity: 0; transform: scale(2.2); } }
+/* Modo criança: mensagem alegre que sobe de baixo */
+.festa-msg { position: fixed; left: 14px; right: 14px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 80; max-width: 480px; margin: 0 auto; background: var(--cartao); color: var(--texto); border: 2px solid #ffd43b; border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; box-shadow: 0 10px 28px rgba(0,0,0,.22); animation: festa-sobe .35s cubic-bezier(.3,1.4,.5,1); }
+.festa-msg b { display: block; font-size: 16px; }
+.festa-msg small { color: var(--cinza); font-size: 13px; }
+.festa-msg svg { flex: none; }
+@keyframes festa-sobe { from { opacity: 0; transform: translateY(40px); } to { opacity: 1; transform: none; } }
+@media (prefers-reduced-motion: reduce) { .tarefa.festa .circulo svg, .tarefa.festa .circulo::after, .festa-msg { animation: none; } .tarefa.festa .circulo::after { display: none; } }
+/* Modo criança: estrelinhas saindo da bolinha */
+.festa-anim { position: fixed; inset: 0; pointer-events: none; z-index: 79; overflow: hidden; }
+.festa-anim i { position: absolute; display: block; opacity: 0; background: var(--c); }
+.festa-anim .origem { position: absolute; width: 0; height: 0; }
+.festa-anim.estrelas i { left: -9px; top: -9px; width: 18px; height: 18px; clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); animation: festa-estrela 1s cubic-bezier(.2,.7,.3,1) forwards; }
+@keyframes festa-estrela { 0% { opacity: 1; transform: translate(0,0) scale(.4); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.2) rotate(180deg); } }
