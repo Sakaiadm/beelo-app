@@ -11,6 +11,15 @@ const nextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ['web-push', 'nodemailer'],
   experimental: { serverActions: { bodySizeLimit: '1mb' } },
+  // Manuais ilustrados públicos, um por perfil: /manual (Pai, Mãe e Supervisor; também para parceiros e clientes),
+  // /manual/pessoa (filhos, sobrinhos, alunos) e /manual/crianca (modo criança).
+  async rewrites() {
+    return [
+      { source: '/manual', destination: '/manual.html' },
+      { source: '/manual/pessoa', destination: '/manual-pessoa.html' },
+      { source: '/manual/crianca', destination: '/manual-crianca.html' },
+    ];
+  },
   async headers() {
     return [
       { source: '/(.*)', headers: seguranca },
