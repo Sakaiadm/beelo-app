@@ -4,7 +4,7 @@ import { useState } from 'react';
 import Form from './Form';
 import { salvarTarefa } from '@/app/acoes';
 import { hhmm } from '@/lib/util';
-import { SUGESTOES, IDADES, resumoSugestao } from '@/lib/sugestoes';
+import { SUGESTOES, IDADES, ICONE_CAT, resumoSugestao } from '@/lib/sugestoes';
 
 const SEG_SEX = [1, 2, 3, 4, 5];
 const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
@@ -116,8 +116,8 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
         <div className="folha" role="dialog" aria-modal="true" aria-label="Sugestões">
           <div className="folha-in">
             <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(null)}><Icone nome="esq" tam={26} /></button><h2>Sugestões</h2></div>
-            <div className="chips uma-linha" role="group" aria-label="Categoria">
-              {catsSug.map((c) => <button key={c} type="button" className={fCat === c ? 'on' : ''} aria-pressed={fCat === c} onClick={() => setFCat(c)}>{c}</button>)}
+            <div className="grade-cat" role="group" aria-label="Categoria">
+              {catsSug.map((c) => <button key={c} type="button" className={fCat === c ? 'on' : ''} aria-pressed={fCat === c} onClick={() => setFCat(c)}><Icone nome={ICONE_CAT[c] || 'etiqueta'} tam={22} larg={1.8} /><span>{c}</span></button>)}
             </div>
             <div className="seg" role="group" aria-label="Idade">
               <button type="button" className={fIdade === '' ? 'on' : ''} aria-pressed={fIdade === ''} onClick={() => setFIdade('')}>Todas</button>
