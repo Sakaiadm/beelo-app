@@ -49,8 +49,9 @@ export default function Form({ acao, children, okTxt, limpar, className, style, 
     }
   }
 
-  const aoEnviar = async (e) => {
   useEffect(() => { if (estado?.ok) aoConcluir?.(); }, [estado]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  const aoEnviar = async (e) => {
     e.preventDefault();
     if (pendente) return;
     const dados = new FormData(e.currentTarget, e.nativeEvent.submitter);
