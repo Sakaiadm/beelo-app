@@ -13,7 +13,7 @@ import { statusConvite } from '@/lib/statusConvite';
 import ReenviarConvite from './ReenviarConvite';
 import ConfirmarBotao from './ConfirmarBotao';
 
-export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId }) {
+export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId, existentes = [] }) {
   const [nome, setNome] = useState(m?.nome || '');
   const [email, setEmail] = useState(m?.email || '');
   const [funcao, setFuncao] = useState(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''));
@@ -27,9 +27,13 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const f = funcaoDe(funcao);
   const mudaFuncao = (id) => { setFuncao(id); setChaves(chavesIniciais(id, null)); };
   const eu = m && m.id === euId;
-  const bloqueado = (email && !v.ok) || !nome.trim() || !funcao;
+  // Em "Adicionar pessoa", o e-mail digitado já é de alguém deste grupo (ex.: o responsável
+  // cadastrado junto com o grupo): não dá erro, o botão só manda o convite para essa pessoa.
+  const ja = !m && v.ok ? existentes.find((x) => x.email && x.email.toLowerCase() === v.email) : null;
+  const bloqueado = !ja && ((email && !v.ok) || !nome.trim() || !funcao);
   // Pessoa nova com e-mail válido: um botão só, que salva e já manda o convite.
   const convidar = !m && !!email && v.ok;
+  const rotuloJa = ja ? (ja.user_id ? 'Enviar e-mail de acesso' : ja.convidado_em ? 'Reenviar convite' : 'Enviar convite') : '';
   const usadasMin = usadas.map((c) => String(c).toLowerCase());
   return (
     <>
@@ -47,7 +51,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
           <div className="cartao-l" style={{ marginBottom: 12 }}><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f ? rotuloFuncao(f.id, null) : 'Escolha o papel'}</small></span></div>
         )}
         <label htmlFor="p-nome">Nome</label>
-        <input id="p-nome" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} required maxLength={60} placeholder="Ex.: Tia Ana" />
+        <input id="p-nome" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} required={!ja} maxLength={60} placeholder="Ex.: Tia Ana" />
         <label htmlFor="p-email">E-mail Google</label>
         <div className={`campo-ok ${email ? (v.ok ? 'ok' : 'erro') : ''}`}>
           <input id="p-email" type="text" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} name="email" value={email}
@@ -57,7 +61,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {email && !v.ok && <p className="erro-campo" role="alert">{v.msg}</p>}
         {v.ok && v.sugestao && <p className="sug-campo">Você quis dizer <button type="button" onClick={() => setEmail(v.sugestao)}>{v.sugestao}</button>? Toque para corrigir.</p>}
         <label htmlFor="p-papel">Papel</label>
-        <select id="p-papel" value={funcao} onChange={(e) => mudaFuncao(e.target.value)} required>
+        <select id="p-papel" value={funcao} onChange={(e) => mudaFuncao(e.target.value)} required={!ja}>
           <option value="" disabled>Selecione</option>
           {FUNCOES.map((x) => <option key={x.id} value={x.id}>{x.ga ? `${x.nome}(a)` : x.nome}</option>)}
         </select>
@@ -87,8 +91,10 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         <div className="lin-chave"><span>Acesso ativo<small>{eu ? 'Você não pode desativar a si mesmo' : 'Desativar tira o acesso sem apagar o histórico'}</small></span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}
         {convidar && <input type="hidden" name="enviar" value="1" />}
-        <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : convidar ? 'Salvar e enviar convite' : 'Adicionar pessoa'}</button>
-        {!m && <p className="peq-cinza">A foto pode ser colocada depois de salvar. Para mandar o convite, digite o e-mail e toque em Salvar e enviar convite.</p>}
+        {ja && <input type="hidden" name="existente" value={ja.id} />}
+        {ja && <div className="caixa-papel" role="status" style={{ marginTop: 12 }}><b>{ja.nome}</b> já está neste grupo com este e-mail. {ja.user_id ? 'Toque abaixo para mandar um novo e-mail de acesso.' : 'Toque abaixo para mandar o convite.'}</div>}
+        <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : ja ? rotuloJa : convidar ? 'Salvar e enviar convite' : 'Adicionar pessoa'}</button>
+        {!m && !ja && <p className="peq-cinza">A foto pode ser colocada depois de salvar. Para mandar o convite, digite o e-mail e toque em Salvar e enviar convite.</p>}
         {folha && (
           <div className="folha" role="dialog" aria-modal="true" aria-label="Cor">
             <div className="folha-in">
