@@ -7,6 +7,7 @@ import { validarEmail } from '@/lib/email';
 import { funcaoDe, nomeFuncao } from '@/lib/papeis';
 import { emailConfigurado, enviarEmailConvite } from '@/lib/convite';
 import { esquecerSessoes } from '@/lib/sessao';
+import { traduzirErro } from '@/lib/rede';
 
 // Depois de qualquer alteração: limpa o que estava guardado e manda as telas buscarem de novo.
 function revalidar() { esquecerSessoes(); revalidatePath('/', 'layout'); }
@@ -20,7 +21,7 @@ const caminhoFoto = (v) => (/^[0-9a-f-]{36}\/[0-9a-f-]{36}\/[0-9a-zA-Z_.-]{1,80}
 async function rpc(nome, args) {
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc(nome, args);
-  if (error) return { erro: error.message.replace(/^.*?:\s*/, '') };
+  if (error) return traduzirErro(error);
   revalidar();
   return { ok: true };
 }
@@ -99,7 +100,7 @@ export async function salvarTarefa(_, fd) {
     ({ error } = await supabase.from('ra_tarefas').insert({ ...reg, familia_id: eu.familia_id, criada_por: eu.id }));
     if (semColuna(error)) ({ error } = await supabase.from('ra_tarefas').insert({ ...semNovas(reg), familia_id: eu.familia_id, criada_por: eu.id }));
   }
-  if (error) return { erro: 'Não foi possível salvar: ' + error.message };
+  if (error) return traduzirErro(error);
   // Gera já as ocorrências dos próximos dias, para a tarefa aparecer na hora na Agenda.
   await supabase.rpc('ra_gerar_ocorrencias', { p_de: addDias(hojeISO(), -7), p_ate: addDias(hojeISO(), 54) });
   revalidar();
@@ -148,7 +149,7 @@ export async function salvarPessoa(_, fd) {
     : supabase.from('ra_membros').insert({ ...r, familia_id: eu.familia_id }).select('id, nome, email, user_id, funcao, papel').maybeSingle());
   let { data: salvo, error } = await gravar(reg);
   if (semColuna(error)) ({ data: salvo, error } = await gravar(semNovas(reg)));
-  if (error) return { erro: error.message.includes('duplicate') ? 'Este e-mail já está cadastrado' : error.message };
+  if (error) return error.message.includes('duplicate') ? { erro: 'Este e-mail já está cadastrado' } : traduzirErro(error);
   revalidar();
   let aviso = '';
   if (fd.get('enviar') === '1' && salvo) {
@@ -168,7 +169,12 @@ async function mandarConvite(supabase, eu, m) {
   try {
     await enviarEmailConvite({ para: m.email, nomePessoa: m.nome, nomeFamilia: fam?.nome || 'do grupo', quemConvida: eu.nome, ja: !!m.user_id, papel: nomeFuncao(m) });
   } catch (e) {
-    return { erro: 'Não foi possível enviar o e-mail (' + String(e.message || e).slice(0, 80) + ').' };
+    console.error('convite: falha ao enviar e-mail', e);
+    const m = String(e?.message || e);
+    if (/auth|login|credential|535|534/i.test(m)) return { erro: 'O servidor de e-mail recusou o envio (usuário ou senha do e-mail de envio). Confira a configuração do e-mail no servidor.' };
+    if (/ECONN|ETIMEDOUT|ENOTFOUND|timeout|socket/i.test(m)) return { erro: 'O servidor de e-mail não respondeu. Tente de novo em alguns minutos.' };
+    if (/recipient|address|550|553/i.test(m)) return { erro: 'O e-mail desta pessoa foi recusado. Confira se ele está escrito certo.' };
+    return { erro: 'Não foi possível enviar o e-mail agora. Tente de novo em alguns minutos.' };
   }
   if (!m.user_id) await supabase.from('ra_membros').update({ convidado_em: new Date().toISOString() }).eq('id', m.id);
   revalidar();
@@ -228,7 +234,7 @@ export async function salvarCategoria(_, fd) {
   if (!nome) return { erro: 'Informe o nome' };
   const cor = CORES_CAT[fd.get('cor')] ? fd.get('cor') : 'azul';
   const { error } = await supabase.from('ra_categorias').insert({ familia_id: eu.familia_id, nome, cor, ordem: 50 });
-  if (error) return { erro: error.message };
+  if (error) return traduzirErro(error);
   revalidar();
   redirect('/config/categorias?aviso=criada');
 }
@@ -266,7 +272,7 @@ export async function salvarPrevisto(_, fd) {
     familia_id: eu.familia_id, membro_id: uuid(fd.get('membro')), formato, dias_semana: dias, vigencia_inicio: ini, vigencia_fim: fim,
     fixado: modo !== 'dia' && !fim, ...m, criado_por: eu.id,
   });
-  if (error) return { erro: error.message };
+  if (error) return traduzirErro(error);
   revalidatePath('/tela');
   return { ok: true };
 }
@@ -290,7 +296,7 @@ export async function salvarTelaReal(_, fd) {
     familia_id: eu.familia_id, membro_id: membro, data: d, ...m,
     foto_celular: caminhoFoto(fd.get('foto_celular')), foto_computador: caminhoFoto(fd.get('foto_computador')), obs: txt(fd, 'obs', 300),
   }, { onConflict: 'membro_id,data' });
-  if (error) return { erro: error.message.replace(/^.*?:\s*/, '') };
+  if (error) return traduzirErro(error);
   revalidar();
   return { ok: true };
 }
@@ -319,7 +325,7 @@ export async function editarCategoria(_, fd) {
   if (!nome) return { erro: 'Informe o nome' };
   const cor = CORES_CAT[fd.get('cor')] ? fd.get('cor') : 'azul';
   const { error } = await supabase.from('ra_categorias').update({ nome, cor }).eq('id', uuid(fd.get('id')));
-  if (error) return { erro: error.message };
+  if (error) return traduzirErro(error);
   revalidar();
   redirect('/config/categorias?aviso=salva');
 }
@@ -361,7 +367,7 @@ export async function enviarTeste() { return rpc('ra_push_teste', {}); }
 export async function criarFamilia(_, fd) {
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc('ra_criar_familia', { p_nome: txt(fd, 'familia', 60), p_meu_nome: txt(fd, 'nome', 60) });
-  if (error) return { erro: error.message.replace(/^.*?:\s*/, '') };
+  if (error) return traduzirErro(error);
   revalidar();
   redirect('/config?nova=1');
 }

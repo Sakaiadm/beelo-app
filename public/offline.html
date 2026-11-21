@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="theme-color" content="#1a6fe0">
+<title>Sem internet · Rotina Ativa</title>
+<script>try { var t = (document.cookie.match(/(?:^|; )tema=(escuro|claro)/) || [])[1]; if (t) document.documentElement.setAttribute('data-theme', t); } catch (e) {}</script>
+<style>
+  :root { --azul: #1a6fe0; --fundo: #f4f8fe; --cartao: #fff; --texto: #13203a; --cinza: #5a6880; --borda: #e1e7f0; --topo: #1a6fe0; --aviso-fundo: #fdf6e7; --aviso: #8a5a00; }
+  :root[data-theme="escuro"] { --azul: #5b9bff; --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --topo: #122038; --aviso-fundo: #3a2c12; --aviso: #f5c26b; }
+  @media (prefers-color-scheme: dark) { :root:not([data-theme="claro"]) { --azul: #5b9bff; --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --topo: #122038; --aviso-fundo: #3a2c12; --aviso: #f5c26b; } }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--fundo); color: var(--texto); font-size: 16px; }
+  header { background: var(--topo); color: #fff; }
+  .topo-in { max-width: 640px; margin: 0 auto; padding: 14px 20px; display: flex; align-items: center; gap: 10px; font-weight: 800; font-size: 18px; }
+  .logo { width: 34px; height: 34px; border-radius: 11px; background: rgba(255,255,255,.22); display: inline-flex; align-items: center; justify-content: center; }
+  main { max-width: 640px; margin: 0 auto; padding: 40px 20px 90px; }
+  .card { background: var(--cartao); border: 1px solid var(--borda); border-radius: 16px; padding: 20px 22px; }
+  h1 { margin: 0; font-size: 28px; line-height: 1.1; font-weight: 800; letter-spacing: -.02em; }
+  p { margin: 10px 0 0; color: var(--cinza); font-size: 15px; line-height: 1.5; }
+  .aviso { margin-top: 16px; padding: 12px 16px; border-radius: 12px; font-weight: 600; font-size: 15px; background: var(--aviso-fundo); color: var(--aviso); }
+  .btn { display: inline-flex; align-items: center; justify-content: center; min-height: 44px; padding: 0 18px; border: 0; border-radius: 12px; font-size: 15px; font-weight: 700; background: #1a6fe0; color: #fff; cursor: pointer; margin-top: 16px; font-family: inherit; }
+</style>
+</head>
+<body>
+<header><div class="topo-in"><span class="logo"><svg aria-hidden="true" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#fff" stroke-width="2.4" stroke-linecap="round" stroke-linejoin="round"><path d="M20 6 9 17l-5-5"/></svg></span>Rotina Ativa</div></header>
+<main>
+  <div class="card" role="alert">
+    <h1>Sem internet</h1>
+    <p>O aparelho está sem conexão e esta tela ainda não tinha sido guardada nele. Confira o Wi-Fi ou os dados móveis.</p>
+    <p>As telas de <b>Hoje</b> e do <b>Painel</b> que você já abriu continuam disponíveis sem internet.</p>
+    <div class="aviso" id="estado" role="status">Quando a internet voltar, esta tela abre sozinha.</div>
+    <button class="btn" type="button" onclick="tentar()">Tentar de novo</button>
+  </div>
+</main>
+<script>
+  function tentar() {
+    if (navigator.onLine === false) { document.getElementById('estado').textContent = 'Ainda sem internet. Confira o Wi-Fi ou os dados móveis.'; return; }
+    document.getElementById('estado').textContent = 'Tentando abrir…';
+    location.reload();
+  }
+  window.addEventListener('online', function () { setTimeout(function () { location.reload(); }, 800); });
+</script>
+</body>
+</html>

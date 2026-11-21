@@ -2,7 +2,7 @@ import { origem } from '@/lib/origem';
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
 
-const PUBLICAS = ['/login', '/auth', '/manifest.json', '/icone.svg', '/icone-', '/apple-touch-icon.png', '/sw.js', '/privacidade'];
+const PUBLICAS = ['/login', '/auth', '/offline.html', '/manifest.json', '/icone.svg', '/icone-', '/apple-touch-icon.png', '/sw.js', '/privacidade'];
 
 export async function middleware(request) {
   let resposta = NextResponse.next({ request });

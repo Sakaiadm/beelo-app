@@ -9,6 +9,7 @@ import { urlsAvatares } from '@/lib/avatar';
 import { Suspense } from 'react';
 import Progresso from '@/components/Progresso';
 import LembrarInicio from '@/components/LembrarInicio';
+import Conexao from '@/components/Conexao';
 import Festa from '@/components/Festa';
 
 export default async function AppLayout({ children }) {
@@ -36,6 +37,7 @@ export default async function AppLayout({ children }) {
         </div>
       </header>
       <Selo n={naoLidas} />
+      <Conexao />
       {children}
       <Festa crianca={!gestor && !!eu.modo_crianca} nome={(eu.nome || '').split(' ')[0]} />
       <Menu itens={itens} baixo />

@@ -69,8 +69,8 @@ export default async function Painel() {
                 <div className="tt">{nome[a.membro_id]} pediu adiamento: {a.oc?.tarefa?.titulo}</div>
                 <div className="meta">{dataCurta(a.oc?.data || hoje)} → {dataCurta(a.nova_data)}{a.nova_hora ? ' ' + a.nova_hora.slice(0, 5) : ''} · “{a.motivo}”</div>
                 <div className="acoes" style={{ marginTop: 8 }}>
-                  <Form acao={responderAdiamento}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Aprovar</button></Form>
-                  <Form acao={responderAdiamento}><input type="hidden" name="id" value={a.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
+                  <Form acao={responderAdiamento} fila="responderAdiamento" rotulo="Resposta ao pedido de adiamento"><input type="hidden" name="id" value={a.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Aprovar</button></Form>
+                  <Form acao={responderAdiamento} fila="responderAdiamento" rotulo="Resposta ao pedido de adiamento"><input type="hidden" name="id" value={a.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
                 </div>
               </div>
             ))}
@@ -79,8 +79,8 @@ export default async function Painel() {
                 <div className="tt">{nome[p.membro_id]} propôs outro tempo de tela para {dataCurta(p.data)}</div>
                 <div className="meta">{p.min_total != null ? `Total ${fmtMin(p.min_total)}` : `Celular ${fmtMin(p.min_celular)} · Computador ${fmtMin(p.min_computador)}`} · “{p.motivo}”</div>
                 <div className="acoes" style={{ marginTop: 8 }}>
-                  <Form acao={responderTela}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Validar</button></Form>
-                  <Form acao={responderTela}><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
+                  <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Validar</button></Form>
+                  <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
                 </div>
               </div>
             ))}
@@ -89,8 +89,8 @@ export default async function Painel() {
                 <div className="tt">{nome[o.membro_id]} justificou: {o.tarefa?.titulo}</div>
                 <div className="meta">{dataCurta(o.data)} · “{o.justificativa}”</div>
                 <div className="acoes" style={{ marginTop: 8 }}>
-                  <Form acao={avaliarJustificativa}><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="aceitar" value="1" /><button className="btn peq">Aceitar</button></Form>
-                  <Form acao={avaliarJustificativa}><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="aceitar" value="0" /><button className="btn perigo peq">Não aceitar</button></Form>
+                  <Form acao={avaliarJustificativa} fila="avaliarJustificativa" rotulo="Resposta à justificativa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="aceitar" value="1" /><button className="btn peq">Aceitar</button></Form>
+                  <Form acao={avaliarJustificativa} fila="avaliarJustificativa" rotulo="Resposta à justificativa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="aceitar" value="0" /><button className="btn perigo peq">Não aceitar</button></Form>
                 </div>
               </div>
             ))}
@@ -98,8 +98,8 @@ export default async function Painel() {
               <div key={o.id} className="tarefa" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
                 {fotos[o.foto_path] && <a href={fotos[o.foto_path]} target="_blank" rel="noreferrer"><img className="foto-mini" src={fotos[o.foto_path]} alt={`Foto de ${o.tarefa?.titulo}`} /></a>}
                 <div style={{ flex: 1 }}><div className="tt">{nome[o.membro_id]} concluiu com foto: {o.tarefa?.titulo}</div><div className="meta">{dataCurta(o.data)}</div></div>
-                <Form acao={conferir}><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq">Conferido</button></Form>
-                <Form acao={conferir}><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Refazer</button></Form>
+                <Form acao={conferir} fila="conferir" rotulo="Conferência de tarefa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq">Conferido</button></Form>
+                <Form acao={conferir} fila="conferir" rotulo="Conferência de tarefa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Refazer</button></Form>
               </div>
             ))}
             {atrasadas.map(({ o }) => (

@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import Form from '@/components/Form';
 import { notFound } from 'next/navigation';
 import { exigirGestor } from '@/lib/sessao';
 import Voltar from '@/components/Voltar';
@@ -37,11 +38,11 @@ export default async function Familia({ params }) {
       <Voltar href={superAdmin ? '/config/familias' : '/config'} titulo={fam.nome} />
       <FamiliaEditor key={fam.nome + (fam.avatar || '')} familia={{ id: fam.id, nome: fam.nome }} url={urls[fam.avatar]} resp={resp} gestores={gestores} resumo={resumo} />
       {superAdmin && !propria && (
-        <form action={adminAtivarFamilia} className="lin-chave" style={{ border: 0 }}>
+        <Form simples acao={adminAtivarFamilia} className="lin-chave" style={{ border: 0 }}>
           <input type="hidden" name="id" value={fam.id} /><input type="hidden" name="ativa" value={fam.ativa ? '0' : '1'} />
           <span>Família ativa<small>Desativar bloqueia o acesso sem apagar nada</small></span>
           <button className={`chave ${fam.ativa ? 'on' : ''}`} role="switch" aria-checked={fam.ativa} aria-label="Família ativa" />
-        </form>
+        </Form>
       )}
       <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '14px 0 6px' }}>Pessoas desta família</p>
       {pessoas.map((p) => {

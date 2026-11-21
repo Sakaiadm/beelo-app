@@ -4,6 +4,7 @@ import Form from './Form';
 import FamiliaAvatar from './FamiliaAvatar';
 import Icone from './Icone';
 import { preparar } from './AvatarUpload';
+import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/rede';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { editarFamilia, trocarResponsavel } from '@/app/acoes';
 import { validarEmail } from '@/lib/email';
@@ -19,14 +20,16 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
   const v = validarEmail(re);
   async function escolher(e) {
     const arq = e.target.files?.[0]; if (!arq) return;
+    if (semRede()) { avisarFalhaDeRede(); setFoto((f) => ({ ...f, msg: MSG.semInternetFoto })); e.target.value = ''; return; }
     setFoto((f) => ({ ...f, msg: 'Enviando…' }));
     try {
       const blob = await preparar(arq);
       const caminho = `${familia.id}/familia/avatar-${Date.now()}.jpg`;
-      const { error } = await supabaseBrowser().storage.from('rotina-avatares').upload(caminho, blob, { contentType: 'image/jpeg' });
-      if (error) throw error;
+      const r = await comLimite(supabaseBrowser().storage.from('rotina-avatares').upload(caminho, blob, { contentType: 'image/jpeg' }), 60000);
+      if (r.tempoEsgotado) throw new Error('timeout');
+      if (r.error) throw r.error;
       setFoto({ caminho, previa: URL.createObjectURL(blob), msg: 'Foto pronta. Toque em Salvar.' });
-    } catch { setFoto((f) => ({ ...f, msg: 'Não foi possível enviar a foto.' })); }
+    } catch (err) { setFoto((f) => ({ ...f, msg: falhaDeRede(err) ? MSG.semInternetFoto : 'Não foi possível enviar a foto. Tente de novo.' })); }
     e.target.value = '';
   }
   const sujo = editando || foto.caminho !== undefined;

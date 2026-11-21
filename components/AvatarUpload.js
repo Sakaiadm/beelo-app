@@ -1,5 +1,6 @@
 'use client';
 import { useRef, useState } from 'react';
+import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/rede';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import Avatar from './Avatar';
 import { CRIANCAS } from '@/lib/avatares';
@@ -20,14 +21,16 @@ export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl
   const [aberto, setAberto] = useState(false);
   async function escolher(e) {
     const arq = e.target.files?.[0]; if (!arq) return;
+    if (semRede()) { avisarFalhaDeRede(); setSt((s) => ({ ...s, msg: MSG.semInternetFoto })); e.target.value = ''; return; }
     setSt((s) => ({ ...s, msg: 'Enviando…' }));
     try {
       const blob = await preparar(arq);
       const caminho = `${familia}/${pasta}/avatar-${Date.now()}.jpg`;
-      const { error } = await supabaseBrowser().storage.from('rotina-avatares').upload(caminho, blob, { contentType: 'image/jpeg' });
-      if (error) throw error;
+      const r = await comLimite(supabaseBrowser().storage.from('rotina-avatares').upload(caminho, blob, { contentType: 'image/jpeg' }), 60000);
+      if (r.tempoEsgotado) throw new Error('timeout');
+      if (r.error) throw r.error;
       setSt({ caminho, previa: URL.createObjectURL(blob), preset: '', msg: 'Imagem pronta. Clique em Salvar.' });
-    } catch { setSt((s) => ({ ...s, msg: 'Não foi possível enviar a imagem.' })); }
+    } catch (err) { setSt((s) => ({ ...s, msg: falhaDeRede(err) ? MSG.semInternetFoto : 'Não foi possível enviar a imagem. Tente de novo.' })); }
     e.target.value = '';
   }
   return (

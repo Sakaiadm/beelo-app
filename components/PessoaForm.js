@@ -125,11 +125,11 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
           {!excluir ? (
             <button type="button" className="btn perigo sec" onClick={() => setExcluir(true)}>Excluir pessoa</button>
           ) : (
-            <form action={excluirPessoa}>
+            <Form acao={excluirPessoa} simples>
               <input type="hidden" name="id" value={m.id} />
               <p style={{ margin: '0 0 10px' }}>Excluir <b>{m.nome}</b> apaga também as tarefas e o histórico dela. Se só quiser tirar o acesso, desligue “Acesso ativo”.</p>
               <div className="acoes"><button className="btn perigo">Sim, excluir</button><button type="button" className="btn sec" onClick={() => setExcluir(false)}>Cancelar</button></div>
-            </form>
+            </Form>
           )}
         </div>
       )}

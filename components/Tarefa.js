@@ -6,6 +6,7 @@ import Form from './Form';
 import Foto from './Foto';
 import { concluir, desfazer, justificar, pedirAdiamento, definirHorario, conferir } from '@/app/acoes';
 import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana } from '@/lib/util';
+import { useFila } from '@/lib/fila';
 import { prepararSom, comemorar } from '@/lib/festa';
 
 const ICONE_STATUS = {
@@ -14,9 +15,14 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima }) {
+export default function Tarefa({ oc, st: stServidor, dono, gestor, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima }) {
   const [aba, setAba] = useState(null);
   const [festa, setFesta] = useState(false);
+  // Sem internet: o que foi feito e está guardado no aparelho já aparece na tela, com o selo "Aguardando internet".
+  const guardados = useFila().filter((x) => x.dados?.oc === oc.id);
+  const ultimo = [...guardados].reverse().find((x) => x.tipo === 'concluir' || x.tipo === 'desfazer');
+  const st = ultimo?.tipo === 'concluir' ? 'cumprida' : ultimo?.tipo === 'desfazer' ? 'pendente' : stServidor;
+  const t = oc.tarefa?.titulo || 'tarefa';
   // Concluiu: animação discreta na bolinha, som curtinho e (modo criança) a mensagem alegre.
   const ref = useRef(null);
   const festejar = () => {
@@ -37,7 +43,8 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
   const outraPessoa = gestor && !dono;
   const alternar = (a) => setAba(aba === a ? null : a);
   const paraConferir = gestor && !dono && feita && oc.conferido !== 'conferido';
-  const selo = atrasada ? [STATUS_TXT[st], 'erro']
+  const selo = guardados.length ? ['Aguardando internet', 'aviso']
+    : atrasada ? [STATUS_TXT[st], 'erro']
     : feita && oc.conferido === 'conferido' ? ['Conferido', 'conf']
     : paraConferir ? ['Para conferir', 'ok']
     : feita ? [STATUS_TXT[st], 'ok']
@@ -49,7 +56,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
         {futura && podeConcluir ? (
           <button type="button" className="circulo" onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={26} /></button>
         ) : podeConcluir && !oc.tarefa?.exige_foto ? (
-          <Form acao={concluir} aoConcluir={festejar}><input type="hidden" name="oc" value={oc.id} />
+          <Form acao={concluir} fila="concluir" rotulo={`Concluir “${t}”`} discreto aoConcluir={festejar}><input type="hidden" name="oc" value={oc.id} />
             <button className="circulo" onPointerDown={prepararSom} onKeyDown={prepararSom} aria-label={`Concluir ${oc.tarefa?.titulo}`} title="Marcar como feita"><Icone nome={ic} cor={cor} tam={26} /></button>
           </Form>
         ) : podeConcluir ? (
@@ -101,21 +108,21 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
           {(st === 'pendente' || st === 'atrasada') && oc.tarefa?.permite_adiar ? <button className="btn sec peq" onClick={() => alternar('adiar')}>Adiar</button> : null}
           {!feita && !oc.horario_travado && <button className="btn sec peq" onClick={() => alternar('horario')}>Horário</button>}
           {feita && !oc.conferido && (
-            <Form acao={desfazer}><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Desfazer</button></Form>
+            <Form acao={desfazer} fila="desfazer" rotulo={`Desfazer “${t}”`} discreto><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Desfazer</button></Form>
           )}
         </div>
       )}
 
       {paraConferir && (
         <div className="acoes" style={{ marginTop: 8 }}>
-          <Form acao={conferir}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq">Conferido</button></Form>
-          <Form acao={conferir}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Pedir para refazer</button></Form>
+          <Form acao={conferir} fila="conferir" rotulo={`Conferir “${t}”`}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq">Conferido</button></Form>
+          <Form acao={conferir} fila="conferir" rotulo={`Pedir para refazer “${t}”`}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Pedir para refazer</button></Form>
         </div>
       )}
 
       {aba === 'concluir' && (
         <div className="painel-acao">
-          <Form acao={concluir} aoConcluir={festejar}>
+          <Form acao={concluir} aoConcluir={festejar} msgSemInternet="Sem internet. Tarefas com foto só podem ser concluídas com internet. Tente de novo quando a conexão voltar.">
             <input type="hidden" name="oc" value={oc.id} />
             <Foto familia={familia} membro={oc.membro_id} obrigatoria={oc.tarefa?.exige_foto} soHoje />
             <button className="btn icone" onPointerDown={prepararSom} onKeyDown={prepararSom} style={{ marginTop: 10, width: 56 }} aria-label="Concluir" title="Concluir"><Icone nome="check" tam={24} cor="#fff" /></button>
@@ -124,7 +131,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
       )}
       {aba === 'justificar' && (
         <div className="painel-acao">
-          <Form acao={justificar} okTxt="Justificativa enviada aos pais.">
+          <Form acao={justificar} fila="justificar" rotulo={`Justificativa de “${t}”`} okTxt="Justificativa enviada aos pais.">
             <input type="hidden" name="oc" value={oc.id} />
             <label htmlFor={`j-${oc.id}`}>Por que atrasou?</label>
             <textarea id={`j-${oc.id}`} name="texto" required minLength={3} maxLength={500} />
@@ -134,7 +141,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
       )}
       {aba === 'adiar' && (
         <div className="painel-acao">
-          <Form acao={pedirAdiamento} okTxt="Pedido enviado. Os pais vão responder.">
+          <Form acao={pedirAdiamento} fila="pedirAdiamento" rotulo={`Pedido para adiar “${t}”`} okTxt="Pedido enviado. Os pais vão responder.">
             <input type="hidden" name="oc" value={oc.id} />
             <div className="linha">
               <div><label htmlFor={`d-${oc.id}`}>Nova data</label><input id={`d-${oc.id}`} type="date" name="data" min={hoje} required /></div>
@@ -148,7 +155,7 @@ export default function Tarefa({ oc, st, dono, gestor, familia, fotoUrl, nomeMem
       )}
       {aba === 'horario' && (
         <div className="painel-acao">
-          <Form acao={definirHorario} okTxt="Horário salvo.">
+          <Form acao={definirHorario} fila="definirHorario" rotulo={`Horário de “${t}”`} okTxt="Horário salvo.">
             <input type="hidden" name="oc" value={oc.id} />
             <div className="linha">
               <div><label htmlFor={`i-${oc.id}`}>Início</label><input id={`i-${oc.id}`} type="time" name="inicio" defaultValue={hhmm(oc.hora_inicio)} /></div>
