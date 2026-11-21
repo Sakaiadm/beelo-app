@@ -37,7 +37,9 @@ export default async function Familias() {
             </Link>
             {f.id !== minha.id && (
               f.ativa
-                ? <ConfirmarBotao acao={adminAtivarFamilia} campos={{ id: f.id, ativa: '0' }} rotulo="Desativar" pergunta="Tem certeza? A família perde o acesso." sim="Sim, desativar" />
+                ? <ConfirmarBotao acao={adminAtivarFamilia} campos={{ id: f.id, ativa: '0' }} rotulo="Desativar"
+                    titulo="Desativar grupo?" nome={f.nome} detalhe={f.gestores || undefined} avatar={<FamiliaAvatar url={urls[f.avatar]} tam={40} />} icone="bloquear"
+                    pergunta="Tem certeza? A família perde o acesso. Nada é apagado: dá para reativar depois." sim="Sim, desativar" nao="Não" />
                 : <Form simples acao={adminAtivarFamilia}><input type="hidden" name="id" value={f.id} /><input type="hidden" name="ativa" value="1" /><button className="btn sec peq">Reativar</button></Form>
             )}
           </div>

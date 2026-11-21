@@ -3,7 +3,7 @@ import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import { telaResumo, totalReal } from '@/lib/tela';
-import { hojeISO, addDias, inicioMes, fimMes, inicioSemana, dataLonga, dataCurta, statusExibido, fmtMin } from '@/lib/util';
+import { hojeISO, addDias, inicioMes, fimMes, inicioSemana, dataTitulo, dataCurta, statusExibido, fmtMin } from '@/lib/util';
 import Calendario from '@/components/Calendario';
 import Form from '@/components/Form';
 import Icone from '@/components/Icone';
@@ -46,7 +46,7 @@ export default async function Painel() {
   return (
     <main>
       <div className="cab">
-        <div><h1 className="titulo">{familia.nome}</h1><p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(hoje)}</p></div>
+        <div><h1 className="titulo">{familia.nome}</h1><p className="sub">{dataTitulo(hoje)}</p></div>
         <Link prefetch={false} className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
       </div>
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto="Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar." />

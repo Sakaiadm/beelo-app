@@ -402,3 +402,20 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 .festa-anim .origem { position: absolute; width: 0; height: 0; }
 .festa-anim.estrelas i { left: -9px; top: -9px; width: 18px; height: 18px; clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); animation: festa-estrela 1s cubic-bezier(.2,.7,.3,1) forwards; }
 @keyframes festa-estrela { 0% { opacity: 1; transform: translate(0,0) scale(.4); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.2) rotate(180deg); } }
+
+/* Balão de confirmação (excluir / desativar) */
+.balao-fundo { position: fixed; inset: 0; z-index: 1000; background: rgba(12, 20, 36, .55); display: flex; align-items: flex-end; justify-content: center; padding: 16px; padding-bottom: max(16px, env(safe-area-inset-bottom)); animation: balao-f .18s ease-out; }
+.balao { background: var(--cartao); color: var(--texto); border-radius: 20px; padding: 20px 18px 16px; width: 100%; max-width: 420px; display: flex; flex-direction: column; gap: 12px; box-shadow: 0 18px 40px rgba(12, 20, 36, .35); animation: balao-s .22s ease-out; max-height: calc(100dvh - 32px); overflow-y: auto; }
+.balao-ic { width: 48px; height: 48px; border-radius: 50%; background: var(--erro-fundo); color: var(--erro); display: grid; place-items: center; align-self: center; flex: none; }
+.balao h2 { margin: 0; font-size: 18px; text-align: center; }
+.balao p { margin: 0; font-size: 15px; line-height: 1.5; text-align: center; }
+.balao-quem { display: flex; align-items: center; gap: 10px; background: var(--erro-fundo); border: 1px solid var(--erro-borda); border-radius: 14px; padding: 9px 12px; text-align: left; }
+.balao-quem b { display: block; font-size: 16px; overflow-wrap: anywhere; }
+.balao-quem small { display: block; color: var(--cinza); font-size: 13px; }
+.balao-bts { display: flex; flex-direction: column; gap: 8px; margin-top: 2px; }
+.balao-bts .btn { width: 100%; min-height: 48px; }
+.balao-bts .btn:disabled { opacity: .6; cursor: default; }
+@media (min-width: 640px) { .balao-fundo { align-items: center; } }
+@keyframes balao-f { from { opacity: 0; } to { opacity: 1; } }
+@keyframes balao-s { from { transform: translateY(24px); opacity: 0; } to { transform: none; opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .balao-fundo, .balao { animation: none; } }
