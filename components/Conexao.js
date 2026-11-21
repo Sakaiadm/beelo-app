@@ -81,9 +81,12 @@ export default function Conexao() {
   return (
     <div className="faixa-rede">
       {semRede && (
-        <div className="aviso info" role="status">
-          Sem internet.{quando ? ` Você está vendo a tela salva ${quando}.` : ''}
-          {guardadas || ' O que você marcar fica guardado no aparelho sempre que possível.'}
+        <div className="aviso rede" role="status">
+          <IconeSemRede />
+          <span>
+            <b>Sem internet</b>{quando ? ` · tela salva ${quando}` : ''}
+            <small>{guardadas.trim() || 'O que você marcar é enviado quando a internet voltar.'}</small>
+          </span>
         </div>
       )}
       {!semRede && enviando && <div className="aviso info" role="status">Internet de volta. Enviando o que ficou guardado no aparelho…</div>}
@@ -102,6 +105,16 @@ export default function Conexao() {
         </div>
       )}
     </div>
+  );
+}
+
+// Wi-Fi cortado: o mesmo ícone da página "Sem internet" (public/offline.html).
+function IconeSemRede() {
+  return (
+    <svg className="ic-rede" aria-hidden="true" viewBox="0 0 24 24" width="22" height="22" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+      <path d="M2 8.5a15 15 0 0 1 20 0M5 12a10 10 0 0 1 14 0M8.5 15.5a5 5 0 0 1 7 0M3 3l18 18" />
+      <circle cx="12" cy="19" r="1" fill="currentColor" />
+    </svg>
   );
 }
 

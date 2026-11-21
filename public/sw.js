@@ -6,7 +6,7 @@
 // cópia, uma página própria em português no lugar da página de erro do navegador.
 const TELAS = 'ra-telas-v1';
 const ARQUIVOS = 'ra-arquivos-v1';
-const OFFLINE = 'ra-offline-v4'; // trocar a versão sempre que mudar o offline.html
+const OFFLINE = 'ra-offline-v5'; // trocar a versão sempre que mudar o offline.html
 const PAGINA_OFFLINE = '/offline.html';
 const INICIAIS = ['/painel', '/hoje'];
 const NAO_GUARDAR = ['/login', '/auth', '/sem-acesso', '/notificacoes/abrir', '/privacidade', '/offline.html'];
