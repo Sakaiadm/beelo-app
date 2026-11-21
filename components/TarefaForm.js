@@ -75,8 +75,12 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       <input type="hidden" name="recorrencia" value={opcao === 'semana' || opcao === 'pers' ? 'dias_semana' : opcao === 'uma' ? '' : opcao} />
       {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
       <input type="hidden" name="data_fim" value={uma ? '' : fim} />
-      {!t?.id && <button type="button" className="btn sec bloco sugestao-btn" onClick={() => setFolha('sug')}>✨ Escolher uma sugestão</button>}
-      <label htmlFor="titulo">Tarefa</label>
+      {t?.id ? <label htmlFor="titulo">Tarefa</label> : (
+        <div className="rot-sug">
+          <label htmlFor="titulo">Tarefa</label>
+          <button type="button" className="btn peq sugestao-btn" onClick={() => setFolha('sug')}><Icone nome="lampada" tam={18} cor="#fff" />Sugestões</button>
+        </div>
+      )}
       <input id="titulo" name="titulo" required maxLength={100} value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Arrumar o quarto" />
       <div className="linha">
         {gestor && (
