@@ -95,11 +95,15 @@ export default async function Painel() {
               </div>
             ))}
             {paraConferir.map(({ o }) => (
-              <div key={o.id} className="tarefa" style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
-                {fotos[o.foto_path] && <a href={fotos[o.foto_path]} target="_blank" rel="noreferrer"><img className="foto-mini" src={fotos[o.foto_path]} alt={`Foto de ${o.tarefa?.titulo}`} /></a>}
-                <div style={{ flex: 1 }}><div className="tt">{nome[o.membro_id]} concluiu com foto: {o.tarefa?.titulo}</div><div className="meta">{dataCurta(o.data)}</div></div>
+              <div key={o.id} className="tarefa">
+                <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
+                  {fotos[o.foto_path] && <a href={fotos[o.foto_path]} target="_blank" rel="noreferrer" style={{ flexShrink: 0 }}><img className="foto-mini" src={fotos[o.foto_path]} alt={`Foto de ${o.tarefa?.titulo}`} /></a>}
+                  <div style={{ flex: 1, minWidth: 0 }}><div className="tt">{nome[o.membro_id]} concluiu com foto: {o.tarefa?.titulo}</div><div className="meta">{dataCurta(o.data)}</div></div>
+                </div>
+                <div className="acoes" style={{ marginTop: 8 }}>
                 <Form acao={conferir} fila="conferir" rotulo="Conferência de tarefa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq">Conferido</button></Form>
                 <Form acao={conferir} fila="conferir" rotulo="Conferência de tarefa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Refazer</button></Form>
+                </div>
               </div>
             ))}
             {atrasadas.map(({ o }) => (

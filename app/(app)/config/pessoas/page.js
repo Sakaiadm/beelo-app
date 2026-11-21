@@ -8,6 +8,7 @@ import { urlsAvatares } from '@/lib/avatar';
 import { nomeFuncao } from '@/lib/papeis';
 import { statusConvite } from '@/lib/statusConvite';
 import ReenviarConvite from '@/components/ReenviarConvite';
+import ConfirmarBotao from '@/components/ConfirmarBotao';
 
 export const dynamic = 'force-dynamic';
 
@@ -29,10 +30,18 @@ export default async function Pessoas({ searchParams }) {
           </Link>
           <Link prefetch={false} href={`/config/pessoas/${m.id}`} className="link-btn">Editar</Link>
           {!m.user_id && m.email && m.id !== eu.id && <ReenviarConvite id={m.id} rotulo={m.convidado_em ? 'Reenviar' : 'Convidar'} />}
-          {m.id !== eu.id && (
-            <Form acao={alternarPessoa} simples><input type="hidden" name="id" value={m.id} /><input type="hidden" name="ativo" value={m.ativo ? '0' : '1'} />
-              <button className={`chave ${m.ativo ? 'on' : ''}`} role="switch" aria-checked={m.ativo} aria-label={m.ativo ? `Desativar ${m.nome}` : `Ativar ${m.nome}`} /></Form>
-          )}
+          {m.id !== eu.id && (m.ativo ? (
+            // Desativar pergunta antes (balão), como todos os outros lugares de excluir e desativar.
+            <ConfirmarBotao acao={alternarPessoa} campos={{ id: m.id, ativo: '0' }} rotulo={null} classe="chave on"
+              gatilho={{ role: 'switch', 'aria-checked': true, 'aria-label': `Desativar ${m.nome}` }}
+              titulo="Desativar pessoa?" nome={m.nome} detalhe={nomeFuncao(m)} icone="bloquear"
+              avatar={<Avatar nome={m.nome} cor={m.cor} url={urls[m.avatar]} avatar={m.avatar} tam={40} />}
+              pergunta={<>Tem certeza? <b>{m.nome}</b> perde o acesso ao app. Nada é apagado: dá para reativar depois.</>}
+              sim="Sim, desativar" nao="Cancelar" />
+          ) : (
+            <Form acao={alternarPessoa} simples><input type="hidden" name="id" value={m.id} /><input type="hidden" name="ativo" value="1" />
+              <button className="chave" role="switch" aria-checked={false} aria-label={`Ativar ${m.nome}`} /></Form>
+          ))}
         </div>
       ))}
     </main>

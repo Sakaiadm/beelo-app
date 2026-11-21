@@ -53,7 +53,12 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
     ? [...dias].sort().map((d) => DIAS_ABREV[d]).join(', ').replace(/, ([^,]*)$/, ' e $1')
     : ROTULO[opcao];
   const escolher = (o) => { setOpcao(o); setFolha(null); };
-  const alternarDia = (d) => setDias((x) => (x.includes(d) ? x.filter((y) => y !== d) : [...x, d]));
+  // Personalizar precisa de pelo menos um dia: o último não desmarca (e a tela explica).
+  const [umDia, setUmDia] = useState(false);
+  const alternarDia = (d) => {
+    if (dias.includes(d) && dias.length === 1) { setUmDia(true); return; }
+    setUmDia(false); setDias((x) => (x.includes(d) ? x.filter((y) => y !== d) : [...x, d]));
+  };
   const usar = (x) => {
     setTitulo(x.nome); setOpcao(x.rec); setDias(x.dias || SEG_SEX); setFoto(!!x.foto);
     setCat(categorias.find((c) => c.nome.toLowerCase().startsWith(x.cat.toLowerCase()))?.id || '');
@@ -151,6 +156,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
                     <span>{n}</span><span className={`bolinha ${dias.includes(i) ? 'on' : ''}`} aria-hidden="true">{dias.includes(i) ? '✓' : ''}</span>
                   </button>
                 ))}
+                {umDia && <p className="ajuda" role="status" style={{ padding: '8px 16px', margin: 0 }}>Escolha pelo menos um dia.</p>}
               </div>
             )}
           </div>
