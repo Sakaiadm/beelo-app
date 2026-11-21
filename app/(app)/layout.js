@@ -20,6 +20,8 @@ export default async function AppLayout({ children }) {
        { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' }, { href: '/tela', txt: 'Tela', icone: 'tela' }, { href: '/config', txt: 'Cadastros', icone: 'config' }]
     : [{ href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
        ...(eu.tela_ativo ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: 'Evolução', icone: 'grafico' }];
+  // Ícone do manual: cada perfil abre o seu (Pai, Mãe e Supervisor, o completo).
+  const manual = gestor || eu.funcao === 'supervisor' ? '/manual' : eu.modo_crianca ? '/manual/crianca' : '/manual/pessoa';
   return (
     <>
       <Suspense fallback={null}><Progresso /></Suspense>
@@ -28,6 +30,9 @@ export default async function AppLayout({ children }) {
         <div className="topo-in">
           <Link className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</Link>
           <Menu itens={itens} />
+          <a className="icone-btn manual" href={manual} target="_blank" rel="noopener" aria-label="Manual do app" title="Manual do app">
+            <Icone nome="livro" cor="#fff" />
+          </a>
           <Link className="icone-btn sino" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
             <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
           </Link>
