@@ -11,6 +11,10 @@ const nextConfig = {
   poweredByHeader: false,
   serverExternalPackages: ['web-push', 'nodemailer'],
   experimental: { serverActions: { bodySizeLimit: '1mb' } },
+  // Manual ilustrado público (para mandar a parceiros e clientes): rotina.sakaiadm.tech/manual
+  async rewrites() {
+    return [{ source: '/manual', destination: '/manual.html' }];
+  },
   async headers() {
     return [
       { source: '/(.*)', headers: seguranca },

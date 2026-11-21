@@ -8,8 +8,9 @@ const TELAS = 'ra-telas-v1';
 const ARQUIVOS = 'ra-arquivos-v1';
 const OFFLINE = 'ra-offline-v5'; // trocar a versão sempre que mudar o offline.html
 const PAGINA_OFFLINE = '/offline.html';
+const MANUAL = 'ra-manual-v1'; // última cópia do manual público (/manual), para abrir mesmo sem internet
 const INICIAIS = ['/painel', '/hoje'];
-const NAO_GUARDAR = ['/login', '/auth', '/sem-acesso', '/notificacoes/abrir', '/privacidade', '/offline.html'];
+const NAO_GUARDAR = ['/login', '/auth', '/sem-acesso', '/notificacoes/abrir', '/privacidade', '/offline.html', '/manual'];
 const VALIDADE = 7 * 24 * 3600 * 1000; // cópia guardada vale no máximo 7 dias
 const MAX_TELAS = 60;
 const servidas = new Map(); // tela -> quando a cópia foi mostrada (evita mostrar a cópia duas vezes seguidas)
@@ -69,8 +70,21 @@ async function guardar(cache, chave, r) {
   for (const k of chaves.slice(0, Math.max(0, chaves.length - MAX_TELAS))) await cache.delete(k);
 }
 
+// Manual: sempre busca o mais novo; sem internet, mostra a última cópia guardada (uma só, para todos do aparelho).
+async function manual(event) {
+  const cache = await caches.open(MANUAL);
+  try {
+    const r = await fetch(event.request);
+    if (r.status === 200 && r.type === 'basic') event.waitUntil(cache.put('/manual', r.clone()).catch(() => {}));
+    return r;
+  } catch {
+    return (await cache.match('/manual')) || paginaOffline();
+  }
+}
+
 async function navegar(event, url) {
   const req = event.request;
+  if (url.pathname === '/manual' || url.pathname === '/manual.html') return manual(event);
   const quem = self.cookieStore ? await lerCookie('ra_u') : null;
   if (url.pathname === '/' && quem) {
     // Ícone do app: vai direto para a tela inicial desta pessoa, sem esperar o servidor.
