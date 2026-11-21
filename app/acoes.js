@@ -172,7 +172,9 @@ export async function salvarPessoa(_, fd) {
     if (ja) return convidarExistente(supabase, eu, ja);
     return { erro: 'Este e-mail já está cadastrado em outro grupo' };
   }
+  const erroTela = salvo ? await sincronizarTarefaTela(supabase, eu, salvo.id, reg.tela_ativo, fd) : '';
   revalidar();
+  if (erroTela) return { erro: erroTela };
   let aviso = '';
   if (fd.get('enviar') === '1' && salvo) {
     const r = await mandarConvite(supabase, eu, salvo);
@@ -181,6 +183,55 @@ export async function salvarPessoa(_, fd) {
   if (!id) redirect('/config/pessoas' + (aviso ? `?aviso=${encodeURIComponent(aviso)}` : ''));
   if (aviso.startsWith('semconvite:')) return { erro: 'Pessoa salva, mas ' + aviso.slice(11).replace(/^./, (c) => c.toLowerCase()) };
   return { ok: true, msg: aviso ? 'Salvo e convite enviado.' : undefined };
+}
+
+// Tarefa "Lançar tempo de tela" (seção 64): existe enquanto o tempo de tela da pessoa está ligado,
+// com os dias e o horário escolhidos no cadastro. Desligando, para de ser gerada e o histórico fica.
+async function sincronizarTarefaTela(supabase, eu, membroId, ligado, fd) {
+  const { data: atual, error: e1 } = await supabase.from('ra_tarefas').select('id').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
+  if (e1) return String(e1.message || '').includes('especial') ? 'Pessoa salva. Para a tarefa “Lançar tempo de tela” aparecer, rode o SQL 0011 no Supabase.' : traduzirErro(e1).erro;
+  const hoje = hojeISO();
+  if (!ligado) {
+    if (atual) {
+      await supabase.from('ra_tarefas').update({ ativa: false }).eq('id', atual.id);
+      await supabase.from('ra_ocorrencias').update({ status: 'cancelada' }).eq('tarefa_id', atual.id).eq('status', 'pendente').gte('data', hoje);
+    }
+    return '';
+  }
+  if (!fd.has('tela_opcao')) return '';
+  const opcao = ['uma', 'diaria', 'semana', 'pers'].includes(fd.get('tela_opcao')) ? fd.get('tela_opcao') : 'diaria';
+  const dias = fd.getAll('tela_dias').map(Number).filter((n) => n >= 0 && n <= 6);
+  const h = hora(fd.get('tela_hora'));
+  if (!h) return 'Escolha o horário de lançar o tempo de tela';
+  if (opcao === 'pers' && !dias.length) return 'Escolha pelo menos um dia para lançar o tempo de tela';
+  const uma = opcao === 'uma';
+  const reg = {
+    titulo: 'Lançar tempo de tela', categoria_id: null, responsavel_id: membroId, especial: 'tela',
+    tipo: uma ? 'pontual' : 'recorrente', recorrencia: uma ? null : opcao === 'diaria' ? 'diaria' : 'dias_semana',
+    dias_semana: uma || opcao === 'diaria' ? [] : opcao === 'semana' ? [1, 2, 3, 4, 5] : dias,
+    data_inicio: uma ? (data(fd.get('tela_data')) || hoje) : hoje, data_fim: null,
+    hora_inicio: h, hora_fim: null, exige_foto: false, permite_adiar: false, exige_justificativa: false,
+  };
+  let error;
+  if (atual) {
+    ({ error } = await supabase.from('ra_tarefas').update(reg).eq('id', atual.id));
+    // Mudou dias ou horário: as próximas pendentes saem e voltam só nos dias escolhidos, com o novo horário.
+    if (!error) await supabase.from('ra_ocorrencias').update({ status: 'cancelada' }).eq('tarefa_id', atual.id).eq('status', 'pendente').gte('data', hoje);
+  } else {
+    ({ error } = await supabase.from('ra_tarefas').insert({ ...reg, familia_id: eu.familia_id, criada_por: eu.id }));
+  }
+  if (error) return traduzirErro(error).erro;
+  await supabase.rpc('ra_gerar_ocorrencias', { p_de: hoje, p_ate: addDias(hoje, 54) });
+  if (atual) {
+    const datas = [];
+    for (let i = 0; i <= 54; i++) {
+      const d = addDias(hoje, i), dow = new Date(d + 'T12:00:00Z').getUTCDay();
+      if (uma ? d === reg.data_inicio : reg.recorrencia === 'diaria' || reg.dias_semana.includes(dow)) datas.push(d);
+    }
+    if (datas.length) await supabase.from('ra_ocorrencias').update({ status: 'pendente', hora_inicio: h, hora_fim: null, horario_travado: membroId !== eu.id })
+      .eq('tarefa_id', atual.id).eq('status', 'cancelada').in('data', datas);
+  }
+  return '';
 }
 
 // Pessoa deste grupo que já usa o e-mail informado.

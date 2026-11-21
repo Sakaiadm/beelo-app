@@ -11,6 +11,8 @@ import Progresso from '@/components/Progresso';
 import LembrarInicio from '@/components/LembrarInicio';
 import Conexao from '@/components/Conexao';
 import Festa from '@/components/Festa';
+import LampadaBtn from '@/components/LampadaBtn';
+import { hojeISO } from '@/lib/util';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia } = await exigirMembro();
@@ -30,6 +32,7 @@ export default async function AppLayout({ children }) {
         <div className="topo-in">
           <Link className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</Link>
           <Menu itens={itens} />
+          <LampadaBtn membro={eu.id} hoje={hojeISO()} />
           <a className="icone-btn manual" href={`${manual}?app=1`} aria-label="Manual do app" title="Manual do app">
             <Icone nome="livro" cor="#fff" />
           </a>

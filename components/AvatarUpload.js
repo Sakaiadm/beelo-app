@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/rede';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import Avatar from './Avatar';
+import Icone from './Icone';
 import { CRIANCAS } from '@/lib/avatares';
 
 // Recorta no centro (quadrado), reduz para 400px e remove os metadados.
@@ -16,7 +17,7 @@ export async function preparar(arquivo) {
 
 // crianca: mostra o botão Avatar com os desenhos de criança. Para os demais, só foto ou imagem.
 export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl, atualAvatar, rotulo, cor, quadrado, largo, crianca = false }) {
-  const ref = useRef(null);
+  const ref = useRef(null), cam = useRef(null);
   const [st, setSt] = useState({ caminho: undefined, previa: atualUrl || '', preset: atualAvatar?.startsWith('preset:') ? atualAvatar : '', msg: '' });
   const [aberto, setAberto] = useState(false);
   async function escolher(e) {
@@ -34,20 +35,20 @@ export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl
     e.target.value = '';
   }
   return (
-    <div className={largo ? 'foto-lin' : undefined} style={largo ? undefined : { display: 'flex', alignItems: 'center', gap: 12, flexWrap: 'wrap' }}>
+    <div style={{ display: 'flex', alignItems: 'center', gap: largo ? 14 : 12, flexWrap: 'wrap' }}>
       {st.caminho !== undefined && <input type="hidden" name={nome} value={st.caminho} />}
-      <Avatar nome={rotulo} cor={cor} url={st.previa} avatar={st.caminho === undefined ? st.preset : st.caminho?.startsWith('preset:') ? st.caminho : ''} tam={largo ? 64 : 56} quadrado={quadrado} />
+      <span style={{ position: 'relative', flex: 'none', display: 'inline-flex' }}>
+        <Avatar nome={rotulo} cor={cor} url={st.previa} avatar={st.caminho === undefined ? st.preset : st.caminho?.startsWith('preset:') ? st.caminho : ''} tam={largo ? 64 : 56} quadrado={quadrado} />
+        {(st.previa || st.preset || st.caminho) && <button type="button" className="x-badge" aria-label="Remover foto" title="Remover foto" onClick={() => setSt({ caminho: '', previa: '', preset: '', msg: 'Removido. Toque em Salvar.' })}><Icone nome="x" tam={13} /></button>}
+      </span>
+      <input ref={cam} type="file" accept="image/*" capture={largo ? 'user' : 'environment'} hidden onChange={escolher} />
       <input ref={ref} type="file" accept="image/*" hidden onChange={escolher} />
-      {(() => {
-        const bc = largo ? 'btn sec' : 'btn sec peq';
-        const botoes = <>
-          <button type="button" className={bc} onClick={() => ref.current.click()}>{crianca ? 'Foto' : 'Foto ou imagem'}</button>
-          {crianca && <button type="button" className={bc} aria-expanded={aberto} onClick={() => setAberto(!aberto)}>Avatar</button>}
-          {(st.previa || st.preset || st.caminho) && <button type="button" className={bc} onClick={() => setSt({ caminho: '', previa: '', preset: '', msg: 'Removido. Toque em Salvar.' })}>Remover</button>}
-        </>;
-        return largo ? <div className="dupla">{botoes}</div> : botoes;
-      })()}
-      {st.msg && <span style={{ fontSize: 13, color: 'var(--cinza)', flexBasis: largo ? '100%' : undefined }}>{st.msg}</span>}
+      <span style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
+        <button type="button" className="btn peq icone" aria-label="Tirar foto" title="Tirar foto" onClick={() => cam.current.click()}><Icone nome="camera" tam={20} /></button>
+        <button type="button" className="btn peq icone" aria-label="Escolher imagem" title="Escolher imagem" onClick={() => ref.current.click()}><Icone nome="galeria" tam={20} /></button>
+        {crianca && <button type="button" className="btn peq" aria-expanded={aberto} onClick={() => setAberto(!aberto)}>Avatar</button>}
+      </span>
+      {st.msg && <span style={{ fontSize: 13, color: 'var(--cinza)', flexBasis: '100%' }}>{st.msg}</span>}
       {crianca && aberto && (
         <div style={{ flexBasis: '100%' }}>
           <div className="avatares">{CRIANCAS.map(([id, desc]) => (
