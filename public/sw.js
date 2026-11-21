@@ -6,7 +6,7 @@
 // cópia, uma página própria em português no lugar da página de erro do navegador.
 const TELAS = 'ra-telas-v1';
 const ARQUIVOS = 'ra-arquivos-v1';
-const OFFLINE = 'ra-offline-v2';
+const OFFLINE = 'ra-offline-v3';
 const PAGINA_OFFLINE = '/offline.html';
 const INICIAIS = ['/painel', '/hoje'];
 const NAO_GUARDAR = ['/login', '/auth', '/sem-acesso', '/notificacoes/abrir', '/privacidade', '/offline.html'];
@@ -43,7 +43,7 @@ async function arquivo(req) {
 
 // Página própria "Sem internet" (guardada na instalação).
 async function paginaOffline() {
-  const r = await caches.match(PAGINA_OFFLINE);
+  const r = await caches.match(PAGINA_OFFLINE).catch(() => null);
   if (r) return r;
   return new Response('<!doctype html><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Sem internet</title><body style="font-family:system-ui;padding:40px 20px;color:#13203a;background:#f4f8fe"><h1>Sem internet</h1><p>Confira o Wi-Fi ou os dados móveis. Quando a internet voltar, toque em Tentar de novo.</p><button onclick="location.reload()">Tentar de novo</button>',
     { status: 503, headers: { 'content-type': 'text/html; charset=utf-8' } });
@@ -54,12 +54,15 @@ async function copiaSemRede(copia) {
   const quando = Number(copia.headers.get('x-ra-guardado') || 0);
   const html = (await copia.text()).replace(/<\/body>/i, `<script>self.__raCopia=${quando}</script></body>`);
   const h = new Headers(copia.headers);
+  ['content-encoding', 'content-length', 'transfer-encoding'].forEach((k) => h.delete(k));
   h.set('content-type', 'text/html; charset=utf-8');
   return new Response(html, { status: 200, headers: h });
 }
 
 async function guardar(cache, chave, r) {
   const h = new Headers(r.headers);
+  // O corpo guardado já vem descompactado: tira os cabeçalhos de compressão e tamanho para não confundir o navegador.
+  ['content-encoding', 'content-length', 'transfer-encoding'].forEach((k) => h.delete(k));
   h.set('x-ra-guardado', String(Date.now()));
   await cache.put(chave, new Response(await r.blob(), { status: 200, headers: h }));
   const chaves = await cache.keys();
@@ -120,7 +123,8 @@ self.addEventListener('fetch', (event) => {
   const url = new URL(req.url);
   if (url.origin !== self.location.origin) return;
   if (url.pathname.startsWith('/_next/static/')) { event.respondWith(arquivo(req)); return; }
-  if (req.mode === 'navigate') event.respondWith(navegar(event, url));
+  // Qualquer imprevisto vira a página "Sem internet" em português, nunca a página de erro do navegador.
+  if (req.mode === 'navigate') event.respondWith(navegar(event, url).catch(() => paginaOffline()));
 });
 
 self.addEventListener('push', (event) => {
