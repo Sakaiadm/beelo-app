@@ -1,3 +1,4 @@
+import ConfirmarBotao from '@/components/ConfirmarBotao';
 import Link from 'next/link';
 import Form from '@/components/Form';
 import { notFound } from 'next/navigation';
@@ -37,13 +38,21 @@ export default async function Familia({ params }) {
     <main className="estreito">
       <Voltar href={superAdmin ? '/config/familias' : '/config'} titulo={fam.nome} />
       <FamiliaEditor key={fam.nome + (fam.avatar || '')} familia={{ id: fam.id, nome: fam.nome }} url={urls[fam.avatar]} resp={resp} gestores={gestores} resumo={resumo} />
-      {superAdmin && !propria && (
-        <Form simples acao={adminAtivarFamilia} className="lin-chave" style={{ border: 0 }}>
-          <input type="hidden" name="id" value={fam.id} /><input type="hidden" name="ativa" value={fam.ativa ? '0' : '1'} />
+      {superAdmin && !propria && (fam.ativa ? (
+        <div className="lin-chave" style={{ border: 0 }}>
           <span>Família ativa<small>Desativar bloqueia o acesso sem apagar nada</small></span>
-          <button className={`chave ${fam.ativa ? 'on' : ''}`} role="switch" aria-checked={fam.ativa} aria-label="Família ativa" />
+          <ConfirmarBotao acao={adminAtivarFamilia} campos={{ id: fam.id, ativa: '0' }} rotulo={null} classe="chave on"
+            gatilho={{ role: 'switch', 'aria-checked': true, 'aria-label': 'Família ativa' }}
+            titulo="Desativar grupo?" nome={fam.nome} icone="bloquear"
+            pergunta="Tem certeza? A família perde o acesso. Nada é apagado: dá para reativar depois." sim="Sim, desativar" nao="Não" />
+        </div>
+      ) : (
+        <Form simples acao={adminAtivarFamilia} className="lin-chave" style={{ border: 0 }}>
+          <input type="hidden" name="id" value={fam.id} /><input type="hidden" name="ativa" value="1" />
+          <span>Família ativa<small>Desativar bloqueia o acesso sem apagar nada</small></span>
+          <button className="chave" role="switch" aria-checked={false} aria-label="Família ativa" />
         </Form>
-      )}
+      ))}
       <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '14px 0 6px' }}>Pessoas desta família</p>
       {pessoas.map((p) => {
         const dentro = (

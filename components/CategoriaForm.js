@@ -30,7 +30,7 @@ export default function CategoriaForm({ c }) {
       {c && (
         <div className="cat-excluir">
           <ConfirmarBotao acao={excluirCategoria} campos={{ id: c.id }} rotulo="Excluir categoria" classe="btn perigo bloco cat-bt"
-            pergunta="Tem certeza? As tarefas desta categoria ficam sem categoria." sim="Sim, excluir" />
+            titulo="Excluir categoria?" nome={c.nome} pergunta="Tem certeza? As tarefas desta categoria ficam sem categoria." sim="Sim, excluir" nao="Não" />
         </div>
       )}
     </div>

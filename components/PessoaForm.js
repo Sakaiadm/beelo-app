@@ -7,10 +7,11 @@ import AvatarUpload from './AvatarUpload';
 import Avatar from './Avatar';
 import { salvarPessoa, excluirPessoa } from '@/app/acoes';
 import { validarEmail } from '@/lib/email';
-import { FUNCOES, funcaoDe, chavesIniciais, rotuloFuncao } from '@/lib/papeis';
+import { FUNCOES, funcaoDe, chavesIniciais, rotuloFuncao, nomeFuncao } from '@/lib/papeis';
 import { CORES_PESSOA } from '@/lib/cores';
 import { statusConvite } from '@/lib/statusConvite';
 import ReenviarConvite from './ReenviarConvite';
+import ConfirmarBotao from './ConfirmarBotao';
 
 export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId }) {
   const [nome, setNome] = useState(m?.nome || '');
@@ -22,7 +23,6 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const [crianca, setCrianca] = useState(!!m?.modo_crianca);
   const [chaves, setChaves] = useState(chavesIniciais(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''), m?.permissoes));
   const [folha, setFolha] = useState(false);
-  const [excluir, setExcluir] = useState(false);
   const v = validarEmail(email);
   const f = funcaoDe(funcao);
   const mudaFuncao = (id) => { setFuncao(id); setChaves(chavesIniciais(id, null)); };
@@ -122,15 +122,11 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
       ))}
       {m && !eu && (
         <div className="card">
-          {!excluir ? (
-            <button type="button" className="btn perigo sec" onClick={() => setExcluir(true)}>Excluir pessoa</button>
-          ) : (
-            <Form acao={excluirPessoa} simples>
-              <input type="hidden" name="id" value={m.id} />
-              <p style={{ margin: '0 0 10px' }}>Excluir <b>{m.nome}</b> apaga também as tarefas e o histórico dela. Se só quiser tirar o acesso, desligue “Acesso ativo”.</p>
-              <div className="acoes"><button className="btn perigo">Sim, excluir</button><button type="button" className="btn sec" onClick={() => setExcluir(false)}>Cancelar</button></div>
-            </Form>
-          )}
+          <ConfirmarBotao acao={excluirPessoa} campos={{ id: m.id }} rotulo="Excluir pessoa" classe="btn perigo sec"
+            titulo="Excluir pessoa?" nome={m.nome} detalhe={nomeFuncao(m)}
+            avatar={<Avatar nome={m.nome} cor={m.cor || '#1a6fe0'} url={url} avatar={m.avatar} tam={40} />}
+            pergunta={<>Excluir <b>{m.nome}</b> apaga também as tarefas e o histórico dela. Se só quiser tirar o acesso, desligue “Acesso ativo”.</>}
+            sim="Sim, excluir" nao="Cancelar" />
         </div>
       )}
     </>

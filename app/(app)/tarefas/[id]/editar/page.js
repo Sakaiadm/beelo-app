@@ -20,7 +20,7 @@ export default async function Editar({ params, searchParams }) {
     <main className="estreito">
       <div className="cab"><h1 className="titulo">Editar tarefa</h1></div>
       <TarefaForm t={t} euId={eu.id} filhos={pessoas} categorias={categorias || []} gestor={gestor} hoje={hojeISO()} voltar={voltar} />
-      <ExcluirTarefa id={t.id} voltar={voltar} />
+      <ExcluirTarefa id={t.id} voltar={voltar} titulo={t.titulo} detalhe={membros.find((m) => m.id === t.responsavel_id)?.nome} />
     </main>
   );
 }

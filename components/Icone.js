@@ -28,6 +28,8 @@ const P = {
   bandeira: <path d="M5 21V4h12l-2.5 4 2.5 4H5" fill="var(--prio)" />,
   escudo: <><path d="M12 3 5 5.8v5.5c0 4.3 2.9 7.7 7 9.2 4.1-1.5 7-4.9 7-9.2V5.8z" /><path d="m9 12 2.2 2.2L15.5 10" /></>,
   sair: <><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4" /><path d="m16 17 5-5-5-5M21 12H9" /></>,
+  lixeira: <path d="M4 7h16M9 7V4h6v3M6 7l1 13h10l1-13M10 11v6M14 11v6" />,
+  bloquear: <><circle cx="12" cy="12" r="9" /><path d="m5.6 5.6 12.8 12.8" /></>,
 };
 export default function Icone({ nome, tam = 22, cor = 'currentColor', larg = 2, rotulo }) {
   return (

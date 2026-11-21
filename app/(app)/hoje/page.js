@@ -2,7 +2,7 @@ import AvisosConvite from '@/components/AvisosConvite';
 import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
-import { hojeISO, addDias, dataLonga, statusExibido, diaSemana } from '@/lib/util';
+import { hojeISO, addDias, dataTitulo, statusExibido, diaSemana } from '@/lib/util';
 import Tarefa from '@/components/Tarefa';
 import Icone from '@/components/Icone';
 
@@ -45,7 +45,7 @@ export default async function Hoje({ searchParams }) {
       <div className="cab">
         <div>
           <h1 className="titulo">{gestor ? `Dia de ${alvo.nome}` : `Olá, ${eu.nome}`}</h1>
-          <p className="sub" style={{ textTransform: 'capitalize' }}>{dataLonga(dia)}</p>
+          <p className="sub">{dataTitulo(dia)}</p>
         </div>
         <div className="acoes">
           <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, -1)}${gestor ? `&m=${alvo.id}` : ''}`} aria-label="Dia anterior"><Icone nome="esq" tam={18} /></Link>

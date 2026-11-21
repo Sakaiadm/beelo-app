@@ -12,7 +12,7 @@ const LIMITE_MS = 25000; // depois disso o botão para de "girar" e a pessoa rec
 // enviadas depois; as outras avisam em português, sem perder o que foi digitado.
 // `discreto`: não mostra o aviso de "salvo no aparelho" (a própria tela já mostra).
 // `simples`: a ação recebe só os dados (formato das ações usadas direto em <form action>).
-export default function Form({ acao, children, okTxt, limpar, className, style, fila, rotulo, simples, discreto, msgSemInternet, aoConcluir }) {
+export default function Form({ acao, children, okTxt, limpar, className, style, fila, rotulo, simples, discreto, msgSemInternet, aoConcluir, aoErro, aoEnviado }) {
   // Estado próprio (e não useActionState): assim o aviso de "internet lenta" aparece mesmo enquanto o
   // envio ainda está preso na rede. Com useActionState, o React só mostrava o resultado quando a rede respondia.
   const [estado, setEstado] = useState(null);
@@ -49,7 +49,7 @@ export default function Form({ acao, children, okTxt, limpar, className, style, 
     }
   }
 
-  useEffect(() => { if (estado?.ok) aoConcluir?.(); }, [estado]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (estado?.ok) aoConcluir?.(); else if (estado?.erro) aoErro?.(); }, [estado]); // eslint-disable-line react-hooks/exhaustive-deps
 
   const aoEnviar = async (e) => {
     e.preventDefault();
@@ -60,6 +60,7 @@ export default function Form({ acao, children, okTxt, limpar, className, style, 
     if (!vivo.current) return;
     if (r?.navegando) { setTimeout(() => vivo.current && setPendente(false), LIMITE_MS); return; } // continua "enviando" até a nova tela abrir
     setEstado(r); setPendente(false);
+    if (!r?.erro) aoEnviado?.(); // terminou sem erro (mesmo quando a ação não devolve nada)
   };
   return (
     <form ref={ref} onSubmit={aoEnviar} className={className} style={style} aria-busy={pendente}>
