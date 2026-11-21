@@ -2,14 +2,14 @@
   --azul: #1a6fe0; --azul-esc: #0f4fae; --azul-claro: #dceafc; --azul-medio: #9cc4f5;
   --fundo: #f4f8fe; --cartao: #ffffff; --texto: #13203a; --cinza: #5a6880; --borda: #e1e7f0; --campo: #cfd8e6;
   --erro: #b42330; --erro-fundo: #fdf0f1; --erro-borda: #f3cfd2; --ok: #1f7a45; --ok-fundo: #e6f4e9;
-  --aviso-fundo: #fdf6e7; --aviso-borda: #f1dcb4; --aviso: #8a5a00; --topo: #1a6fe0; --topo-txt: #eef4fe; --trilho: #e8eef7; --prio: #d9480f;
+  --aviso-fundo: #fdf6e7; --aviso-borda: #f1dcb4; --aviso: #8a5a00; --rede-fundo: #fdefd3; --rede-txt: #5c3500; --rede-borda: #d98a00; --topo: #1a6fe0; --topo-txt: #eef4fe; --trilho: #e8eef7; --prio: #d9480f;
   --pend-fundo: var(--azul-claro); --pend-borda: transparent; --ok-borda: transparent; --atr-borda-mini: transparent; --dia-pend-fundo: var(--cartao); --dia-pend-borda: var(--borda); --dia-ok-fundo: var(--cartao); --dia-ok-borda: var(--borda); --cal-falta-fundo: #fbe3e5; --cal-falta-txt: #8f1c26; --cal-falta-borda: #f3cfd2;
 }
 :root[data-theme="escuro"] {
   --azul: #5b9bff; --azul-esc: #8fbaff; --azul-claro: #1b2a45; --azul-medio: #2d5ea8;
   --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --campo: #3a4d72;
   --erro: #ff8a94; --erro-fundo: rgba(255,110,110,.14); --erro-borda: rgba(255,123,114,.45); --ok: #6fd69a; --ok-fundo: rgba(63,207,142,.13);
-  --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d; --prio: #ffa94d;
+  --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --rede-fundo: #3a2a0e; --rede-txt: #ffd58a; --rede-borda: #e09a1a; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d; --prio: #ffa94d;
   --pend-fundo: rgba(91,155,255,.13); --pend-borda: rgba(91,155,255,.40); --ok-borda: rgba(63,207,142,.40); --atr-borda-mini: var(--erro-borda); --dia-pend-fundo: var(--pend-fundo); --dia-pend-borda: var(--pend-borda); --dia-ok-fundo: var(--ok-fundo); --dia-ok-borda: var(--ok-borda); --cal-falta-fundo: var(--erro-fundo); --cal-falta-txt: #ffb3bd; --cal-falta-borda: var(--erro-borda);
 }
 @media (prefers-color-scheme: dark) {
@@ -17,7 +17,7 @@
     --azul: #5b9bff; --azul-esc: #8fbaff; --azul-claro: #1b2a45; --azul-medio: #2d5ea8;
     --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --campo: #3a4d72;
     --erro: #ff8a94; --erro-fundo: rgba(255,110,110,.14); --erro-borda: rgba(255,123,114,.45); --ok: #6fd69a; --ok-fundo: rgba(63,207,142,.13);
-    --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d; --prio: #ffa94d;
+    --aviso-fundo: #3a2c12; --aviso-borda: #6b5222; --aviso: #f5c26b; --rede-fundo: #3a2a0e; --rede-txt: #ffd58a; --rede-borda: #e09a1a; --topo: #122038; --topo-txt: #c9d6ea; --trilho: #23314d; --prio: #ffa94d;
     --pend-fundo: rgba(91,155,255,.13); --pend-borda: rgba(91,155,255,.40); --ok-borda: rgba(63,207,142,.40); --atr-borda-mini: var(--erro-borda); --dia-pend-fundo: var(--pend-fundo); --dia-pend-borda: var(--pend-borda); --dia-ok-fundo: var(--ok-fundo); --dia-ok-borda: var(--ok-borda); --cal-falta-fundo: var(--erro-fundo); --cal-falta-txt: #ffb3bd; --cal-falta-borda: var(--erro-borda);
   }
 }
@@ -78,6 +78,11 @@ input[type=checkbox] { width: 20px; height: 20px; accent-color: var(--azul); ver
 .faixa-rede { max-width: 1240px; margin: 12px auto 0; padding: 0 20px; display: grid; gap: 8px; }
 .faixa-rede .aviso { margin: 0; font-size: 14px; }
 .faixa-rede .aviso a { color: inherit; }
+/* Aviso "Sem internet" (opção B da seção 57): ícone de Wi-Fi cortado, texto escuro e barra laranja ao lado. */
+.aviso.rede { display: flex; gap: 10px; align-items: flex-start; background: var(--rede-fundo); color: var(--rede-txt); border-left: 4px solid var(--rede-borda); line-height: 1.4; font-weight: 500; }
+.aviso.rede b { font-weight: 800; }
+.aviso.rede small { display: block; font-size: 13px; font-weight: 500; margin-top: 2px; opacity: .92; }
+.aviso.rede .ic-rede { flex: none; margin-top: 1px; }
 .kpis { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: 14px; margin-bottom: 16px; }
 .kpi { background: var(--cartao); border: 1px solid var(--borda); border-radius: 16px; padding: 18px 20px; }
 .kpi.destaque { background: #1a6fe0; border-color: #1a6fe0; color: #fff; }

@@ -57,7 +57,7 @@ await caso('Abrir pelo ícone sem internet mostra a última tela e a faixa "Sem 
   await p.goto(BASE + '/', { waitUntil: 'load' }).catch(() => {});
   await p.waitForTimeout(5000);
   await semIngles(p);
-  await p.getByText('Sem internet.').first().waitFor({ timeout: 3000 });
+  await p.getByText('Sem internet', { exact: true }).first().waitFor({ timeout: 3000 });
   if (!(await p.getByText('Estudar 1h').count())) throw new Error('não mostrou as tarefas');
   await tela(p, '1-abrir-sem-internet');
 });
@@ -132,7 +132,7 @@ await caso('Trocar de tela sem internet (Agenda já aberta antes) mostra a cópi
   await p.waitForTimeout(4000);
   await semIngles(p);
   if (!/\/agenda/.test(p.url())) throw new Error('não abriu a agenda: ' + p.url());
-  await p.getByText('Sem internet.').first().waitFor({ timeout: 3000 });
+  await p.getByText('Sem internet', { exact: true }).first().waitFor({ timeout: 3000 });
 });
 
 await caso('Internet cai com o app aberto (falha de rede no envio): guarda e não quebra a tela', async (ctx, erros) => {
