@@ -5,6 +5,7 @@ import { salvarPerfil } from '@/app/acoes';
 import AvisosGestor from '@/components/AvisosGestor';
 import { urlsAvatares } from '@/lib/avatar';
 import AvisosCelular from '@/components/AvisosCelular';
+import DicasInterruptor from '@/components/DicasInterruptor';
 import SomConcluir from '@/components/SomConcluir';
 
 export const dynamic = 'force-dynamic';
@@ -26,6 +27,9 @@ export default async function Perfil() {
       </div>
       <div className="card"><h2>Som</h2>
         <SomConcluir />
+      </div>
+      <div className="card"><h2>Ideias</h2>
+        <DicasInterruptor membro={eu.id} />
       </div>
       <div className="card"><h2>Avisos no celular</h2>
         <AvisosCelular chavePublica={process.env.VAPID_PUBLIC_KEY || ''} />

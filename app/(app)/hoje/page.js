@@ -5,6 +5,8 @@ import { ocorrencias, urlsFotos } from '@/lib/dados';
 import { hojeISO, addDias, dataTitulo, statusExibido, diaSemana } from '@/lib/util';
 import Tarefa from '@/components/Tarefa';
 import Icone from '@/components/Icone';
+import DicaFaixa from '@/components/DicaFaixa';
+import { fatos, candidatosFilho } from '@/lib/dicas';
 
 export const dynamic = 'force-dynamic';
 
@@ -46,6 +48,7 @@ export default async function Hoje({ searchParams }) {
 
   return (
     <main className="estreito">
+      {!gestor && dia === hoje && <DicaFaixa membro={eu.id} hoje={hoje} cands={candidatosFilho(fatos(comSt, eu.id, hoje), hoje)} />}
       <div className="cab">
         <div>
           <h1 className="titulo">{gestor ? `Dia de ${alvo.nome}` : `Olá, ${eu.nome}`}</h1>

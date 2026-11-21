@@ -7,6 +7,8 @@ import { hojeISO, addDias, inicioMes, fimMes, inicioSemana, dataTitulo, dataCurt
 import Calendario from '@/components/Calendario';
 import Form from '@/components/Form';
 import Icone from '@/components/Icone';
+import DicaFaixa from '@/components/DicaFaixa';
+import { fatos, candidatosPais } from '@/lib/dicas';
 import { responderAdiamento, avaliarJustificativa, conferir, responderTela } from '@/app/acoes';
 
 export const dynamic = 'force-dynamic';
@@ -41,10 +43,12 @@ export default async function Painel() {
   lista.forEach(({ o, st }) => { if (st === 'adiada') return; const x = (porDia[o.data] ||= { total: 0, feitas: 0 }); x.total++; if (st.startsWith('cumprida') || st === 'justificada') x.feitas++; });
   const telas = {};
   telaFilhos.forEach((f, i) => { telas[f.id] = telaRes[i][0]; });
+  const dicas = candidatosPais(filhos.map((f) => ({ nome: f.nome, fatos: fatos(lista, f.id, hoje) })), hoje);
   const pend = (adiamentos?.length || 0) + justif.length + (propostas?.length || 0);
 
   return (
     <main>
+      {filhos.length > 0 && <DicaFaixa membro={eu.id} hoje={hoje} cands={dicas} />}
       <div className="cab">
         <div><h1 className="titulo">{familia.nome}</h1><p className="sub">{dataTitulo(hoje)}</p></div>
         <Link prefetch={false} className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
