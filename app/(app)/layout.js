@@ -30,7 +30,7 @@ export default async function AppLayout({ children }) {
         <div className="topo-in">
           <Link className="marca" href="/"><span className="logo"><Icone nome="check" tam={20} cor="#fff" /></span>Rotina Ativa</Link>
           <Menu itens={itens} />
-          <a className="icone-btn manual" href={manual} target="_blank" rel="noopener" aria-label="Manual do app" title="Manual do app">
+          <a className="icone-btn manual" href={`${manual}?app=1`} aria-label="Manual do app" title="Manual do app">
             <Icone nome="livro" cor="#fff" />
           </a>
           <Link className="icone-btn sino" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
