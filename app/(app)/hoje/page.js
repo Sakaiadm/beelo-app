@@ -35,8 +35,12 @@ export default async function Hoje({ searchParams }) {
   const estrelas = alvo.modo_crianca && total ? Math.round((feitas / total) * 5) : null;
   let lembrarTela = false;
   if (!gestor && eu.tela_ativo && dia === hoje) {
-    const { data } = await supabase.from('ra_tela_real').select('id').eq('membro_id', eu.id).eq('data', addDias(hoje, -1)).maybeSingle();
-    lembrarTela = !data;
+    // Com a tarefa "Lançar tempo de tela" (SQL 0011), a própria tarefa lembra; a faixa fica só para quem ainda não tem a tarefa.
+    const { data: tt, error: e } = await supabase.from('ra_tarefas').select('id').eq('responsavel_id', eu.id).eq('especial', 'tela').eq('ativa', true).limit(1);
+    if (e || !tt?.length) {
+      const { data } = await supabase.from('ra_tela_real').select('id').eq('membro_id', eu.id).eq('data', addDias(hoje, -1)).maybeSingle();
+      lembrarTela = !data;
+    }
   }
   const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1 });
 

@@ -62,19 +62,27 @@ export default async function Tela({ searchParams }) {
     );
   }
 
-  const filhos = membros.filter((m) => m.ativo && m.tela_ativo);
+  // Pai ou Mãe com o tempo de tela ligado para si: aparece primeiro, na aba "Eu".
+  const filhos = membros.filter((m) => m.ativo && m.tela_ativo).sort((a, b) => (a.id === eu.id ? -1 : b.id === eu.id ? 1 : 0));
   const alvo = filhos.find((f) => f.id === sp.m) || filhos[0];
+  const souEu = alvo?.id === eu.id;
   if (!alvo) return <main className="estreito"><div className="card">O tempo de tela está desligado para todas as pessoas. Ligue em <Link prefetch={false} href="/config">Cadastros</Link>.</div></main>;
   const { data: regras } = await supabase.from('ra_tela_previsto').select('*').eq('membro_id', alvo.id).or(`vigencia_fim.is.null,vigencia_fim.gte.${hoje}`).order('criado_em', { ascending: false });
   const { data: propostas } = await supabase.from('ra_tela_proposta').select('*').eq('membro_id', alvo.id).eq('status', 'pendente');
   const hist = await telaResumo(supabase, alvo.id, addDias(hoje, -14), hoje);
+  let meuPrev = null, meuAtual = null;
+  if (souEu) {
+    ({ data: meuPrev } = await supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: ontem }));
+    ({ data: meuAtual } = await supabase.from('ra_tela_real').select('*').eq('membro_id', eu.id).eq('data', ontem).maybeSingle());
+  }
   return (
     <main>
       <div className="cab"><div><h1 className="titulo">Tempo de tela</h1><p className="sub">Defina o previsto e acompanhe o realizado.</p></div>
-        <div className="abas">{filhos.map((f) => <Link prefetch={false} key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.nome}</Link>)}</div></div>
+        <div className="abas">{filhos.map((f) => <Link prefetch={false} key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}</div></div>
       <div className="duas">
         <div className="lado">
-          <div className="card"><h2>Tempo de tela de {alvo.nome}</h2><p className="sub" style={{ marginTop: 0, marginBottom: 12 }}>Defina quanto tempo {alvo.nome} pode usar por dia.</p><PrevistoForm membro={alvo.id} hoje={hoje} /></div>
+          {souEu && <div className="card"><h2>Meu tempo de ontem</h2><RealForm eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={ontem} previsto={meuPrev?.[0]} atual={meuAtual} /></div>}
+          <div className="card"><h2>{souEu ? 'Meu previsto' : `Tempo de tela de ${alvo.nome}`}</h2><p className="sub" style={{ marginTop: 0, marginBottom: 12 }}>{souEu ? 'Defina quanto tempo você quer usar por dia.' : `Defina quanto tempo ${alvo.nome} pode usar por dia.`}</p><PrevistoForm membro={alvo.id} hoje={hoje} /></div>
         </div>
         <div className="grande">
           {(propostas || []).length > 0 && <div className="card"><h2>Propostas para validar</h2>

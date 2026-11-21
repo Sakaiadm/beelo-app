@@ -105,7 +105,7 @@ export function RealForm({ eu, data, previsto, atual, membroId, familia }) {
       <input type="hidden" name="membro" value={membroId} />
       {formato === 'total' ? (
         <div className="linha">
-          <div><label>Previsto pelos pais</label><input value={previsto ? fmtMin(previsto.min_total) : 'Não definido'} readOnly disabled /></div>
+          <div><label>Total previsto</label><input value={previsto ? fmtMin(previsto.min_total) : 'Não definido'} readOnly disabled /></div>
           <div><label htmlFor="rt">Realizado (total)</label><input id="rt" name="total" placeholder="ex.: 2h30" defaultValue={v(atual?.min_total)} required /></div>
         </div>
       ) : (
