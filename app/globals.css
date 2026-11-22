@@ -468,7 +468,7 @@ main.ideias { max-width: 600px; }
 .tm-cab small { color: var(--cinza); font-size: 12.5px; font-weight: 500; margin-left: auto; }
 .tm-ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; }
 
-/* Beelo: mel só em destaques (ideias) */
+/* beelo: mel só em destaques (ideias) */
 .icone-btn.ideias .selo { background: #f5b82e; color: #13203a; }
 
 /* Entrada: selo da versão beta e links de Privacidade, Termos e contato (seção 72) */

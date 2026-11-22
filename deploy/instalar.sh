@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Instala/atualiza o Beelo (antigo Rotina Ativa) na VPS. Uso (como root):
+# Instala/atualiza o beelo (antigo Rotina Ativa) na VPS. Uso (como root):
 #   bash deploy/instalar.sh rotina.sakaiadm.tech
 set -euo pipefail
 DOMINIO="${1:-rotina.sakaiadm.tech}"

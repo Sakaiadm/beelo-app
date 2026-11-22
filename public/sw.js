@@ -1,14 +1,14 @@
-// Serviço de fundo do Beelo: recebe os avisos (push) e mostra no celular.
+// Serviço de fundo do beelo: recebe os avisos (push) e mostra no celular.
 // Também faz o app abrir na hora pelo ícone: mostra a última versão guardada da tela inicial
 // (Painel ou Hoje) enquanto busca a nova por trás. Assim a tela azul de abertura não fica
 // esperando o banco responder (às vezes ele demora mais de 10 segundos).
 // Sem internet: mostra a última cópia guardada da tela (com a faixa "Sem internet") ou, se não houver
 // cópia, uma página própria em português no lugar da página de erro do navegador.
-const TELAS = 'ra-telas-v2'; // v2: marca Beelo (descarta as cópias com o topo antigo)
+const TELAS = 'ra-telas-v3'; // v3: nome beelo em minúsculo (descarta as cópias antigas)
 const ARQUIVOS = 'ra-arquivos-v1';
-const OFFLINE = 'ra-offline-v6'; // trocar a versão sempre que mudar o offline.html
+const OFFLINE = 'ra-offline-v7'; // trocar a versão sempre que mudar o offline.html
 const PAGINA_OFFLINE = '/offline.html';
-const MANUAL = 'ra-manual-v2'; // última cópia de cada manual público (/manual, /manual/pessoa, /manual/crianca), para abrir mesmo sem internet
+const MANUAL = 'ra-manual-v3'; // última cópia de cada manual público (/manual, /manual/pessoa, /manual/crianca), para abrir mesmo sem internet
 const INICIAIS = ['/painel', '/hoje'];
 const NAO_GUARDAR = ['/login', '/auth', '/sem-acesso', '/notificacoes/abrir', '/privacidade', '/offline.html', '/manual'];
 const VALIDADE = 7 * 24 * 3600 * 1000; // cópia guardada vale no máximo 7 dias
@@ -146,7 +146,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   let d = {};
   try { d = event.data ? event.data.json() : {}; } catch { d = { corpo: event.data ? event.data.text() : '' }; }
-  const titulo = d.titulo || 'Beelo';
+  const titulo = d.titulo || 'beelo';
   const tarefas = [
     self.registration.showNotification(titulo, {
       body: d.corpo || '',

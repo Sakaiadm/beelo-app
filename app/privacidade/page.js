@@ -1,7 +1,7 @@
 import { CONTATO, ATUALIZADO_EM } from '@/lib/contato';
 import Preencher from '@/components/Preencher';
 
-export const metadata = { title: 'Privacidade · Beelo' };
+export const metadata = { title: 'Privacidade · beelo' };
 
 const C = {
   quem: <Preencher valor={CONTATO.responsavel} rotulo="nome do responsável" />,
@@ -17,7 +17,7 @@ export default function Privacidade() {
       <div className="card texto-legal">
         <h2>Em poucas palavras</h2>
         <ul>
-          <li>Guardamos só o que o Beelo precisa para organizar as tarefas do seu grupo.</li>
+          <li>Guardamos só o que o beelo precisa para organizar as tarefas do seu grupo.</li>
           <li>Quem vê tudo do grupo são os responsáveis (Pai, Mãe ou quem eles autorizarem). Cada pessoa vê o que é seu.</li>
           <li>Não vendemos dados, não mostramos anúncios e não usamos ferramentas de rastreamento.</li>
           <li>Você pode pedir para ver, corrigir ou apagar seus dados a qualquer momento.</li>
@@ -32,7 +32,7 @@ export default function Privacidade() {
           <li><b>Grupo:</b> nome e foto do grupo e as categorias de tarefas.</li>
           <li><b>Tarefas:</b> nome, descrição, dia, horário, repetição, para quem é e quem criou.</li>
           <li><b>O dia a dia:</b> quando cada tarefa foi concluída, a foto de comprovação (só quando a tarefa pede foto), justificativas e pedidos para adiar, com as respostas.</li>
-          <li><b>Tempo de tela:</b> os minutos que a própria pessoa lança, com print ou foto se ela quiser. O Beelo não mede o uso do celular nem lê outros apps.</li>
+          <li><b>Tempo de tela:</b> os minutos que a própria pessoa lança, com print ou foto se ela quiser. O beelo não mede o uso do celular nem lê outros apps.</li>
           <li><b>Avisos:</b> os avisos dentro do app e, se a pessoa ligar os avisos no celular, um endereço técnico do navegador para entregá-los.</li>
           <li><b>Histórico:</b> registro das ações importantes (quem fez o quê e quando), visto só pelos responsáveis.</li>
         </ul>
@@ -53,7 +53,7 @@ export default function Privacidade() {
         </ul>
 
         <h2>Onde os dados ficam</h2>
-        <p>O banco de dados e as fotos ficam no Supabase, um serviço de banco de dados na nuvem. O app roda num servidor contratado pelo Beelo, onde também ficam cópias de segurança do banco. Os e-mails de convite e de acesso saem por um serviço de e-mail, e os avisos no celular passam pelo serviço do próprio navegador (Google, Apple ou outro).</p>
+        <p>O banco de dados e as fotos ficam no Supabase, um serviço de banco de dados na nuvem. O app roda num servidor contratado pelo beelo, onde também ficam cópias de segurança do banco. Os e-mails de convite e de acesso saem por um serviço de e-mail, e os avisos no celular passam pelo serviço do próprio navegador (Google, Apple ou outro).</p>
 
         <h2>Crianças e adolescentes</h2>
         <p>O cadastro de crianças e adolescentes é feito pelo pai, pela mãe ou pelo responsável legal, que autoriza o uso dos dados ao fazer o cadastro, como pede a LGPD. Ninguém entra sozinho: só quem foi convidado pelo grupo. Usamos os dados das crianças apenas para o funcionamento do app, nunca para publicidade, e o responsável pode corrigir ou apagar tudo quando quiser.</p>
@@ -65,10 +65,10 @@ export default function Privacidade() {
         </ul>
 
         <h2>Por quanto tempo guardamos</h2>
-        <p>Enquanto o grupo usar o Beelo. Quando um grupo ou uma pessoa é excluída, os dados saem do app na hora e das cópias de segurança em até 14 dias.</p>
+        <p>Enquanto o grupo usar o beelo. Quando um grupo ou uma pessoa é excluída, os dados saem do app na hora e das cópias de segurança em até 14 dias.</p>
 
         <h2>Versão beta</h2>
-        <p>O Beelo está em teste com poucas famílias. Este texto pode mudar, e avisaremos no app quando isso acontecer.</p>
+        <p>O beelo está em teste com poucas famílias. Este texto pode mudar, e avisaremos no app quando isso acontecer.</p>
 
         <p style={{ marginBottom: 0 }}><a href="/termos">Termos de uso</a> · <a href="/">Voltar</a></p>
       </div>

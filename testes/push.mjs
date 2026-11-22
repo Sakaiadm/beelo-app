@@ -62,7 +62,7 @@ await cdp.send('ServiceWorker.enable');
 let regId; cdp.on('ServiceWorker.workerRegistrationUpdated', (e) => { if (e.registrations?.[0]) regId = e.registrations[0].registrationId; });
 await page.evaluate(async () => { await navigator.serviceWorker.register('/sw.js', { scope: '/' }); await navigator.serviceWorker.ready; });
 await page.waitForTimeout(1500);
-await cdp.send('ServiceWorker.deliverPushMessage', { origin: BASE, registrationId: regId, data: JSON.stringify({ titulo: 'Beelo', corpo: 'Eduardo concluiu: Arrumar quarto', url: '/notificacoes/abrir?id=x', badge: 4, tag: 't1' }) });
+await cdp.send('ServiceWorker.deliverPushMessage', { origin: BASE, registrationId: regId, data: JSON.stringify({ titulo: 'beelo', corpo: 'Eduardo concluiu: Arrumar quarto', url: '/notificacoes/abrir?id=x', badge: 4, tag: 't1' }) });
 const p2 = await ctx.newPage(); await p2.goto(BASE + '/privacidade', { waitUntil: 'networkidle' });
 let notifs = [];
 for (let i = 0; i < 10 && !notifs.length; i++) {
