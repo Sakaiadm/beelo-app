@@ -30,7 +30,7 @@ export default async function AppLayout({ children }) {
       <LembrarInicio caminho={gestor ? '/painel' : '/hoje'} quem={eu.id} gerado={Date.now()} />
       <header className="topo">
         <div className="topo-in">
-          <Link className="marca" href="/"><img src="/marca/beelo-horizontal-negativa-branca.svg" alt="Beelo" style={{ height: 38, width: 'auto', display: 'block' }} /></Link>
+          <Link className="marca" href="/"><span className="logo-topo" role="img" aria-label="beelo" /></Link>
           <Menu itens={itens} />
           <LampadaBtn membro={eu.id} hoje={hojeISO()} />
           <a className="icone-btn manual" href={`${manual}?app=1`} aria-label="Manual do app" title="Manual do app">

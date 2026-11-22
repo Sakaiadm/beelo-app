@@ -1,12 +1,12 @@
 {
   "id": "/",
-  "name": "Beelo",
-  "short_name": "Beelo",
+  "name": "beelo",
+  "short_name": "beelo",
   "lang": "pt-BR",
   "start_url": "/",
   "scope": "/",
   "display": "standalone",
-  "background_color": "#ffffff",
+  "background_color": "#1a6fe0",
   "theme_color": "#1a6fe0",
   "icons": [
     {

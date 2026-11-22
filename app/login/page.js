@@ -52,7 +52,7 @@ export default function Login() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--fundo)' }}>
       <div style={{ background: '#1a6fe0', padding: '56px 24px 64px', color: '#fff' }}>
         <div style={{ maxWidth: 420, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <h1 style={{ margin: 0, lineHeight: 0 }}><img src="/marca/beelo-horizontal-negativa-branca.svg" alt="Beelo" style={{ height: 44, width: 'auto' }} /></h1>
+          <h1 style={{ margin: 0, lineHeight: 0 }}><img src="/marca/beelo-horizontal-negativa-branca.svg" alt="beelo" style={{ height: 44, width: 'auto' }} /></h1>
           <p style={{ margin: 0, fontSize: 15, color: '#e6f0fe', maxWidth: 320 }}>Pais presentes, filhos protagonistas, famílias mais fortes.</p>
           <div className="entrada-beta">
             <span className="selo-beta">Versão beta</span>
