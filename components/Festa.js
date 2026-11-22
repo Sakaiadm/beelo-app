@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { sortearMensagem, MENSAGEM_FINAL, tocarSom, proximaAnimacao } from '@/lib/festa';
 
-const CORES = ['#ffd43b', '#1a6fe0', '#ff6b6b', '#51cf66', '#cc5de8', '#ff922b'];
+const CORES = ['#f5b82e', '#1a6fe0', '#ff6b6b', '#51cf66', '#cc5de8', '#ff922b'];
 const parado = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 // Estrelinhas que saem da bolinha (posições sorteadas a cada comemoração).
@@ -46,7 +46,7 @@ export default function Festa({ crianca, nome }) {
       )}
       {msg && (
         <div className="festa-msg" role="status" key={msg.id} onClick={() => setMsg(null)}>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="#ffd43b" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>
+          <svg width="40" height="40" viewBox="0 0 24 24" fill="#f5b82e" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>
           <div><b>{msg.titulo}</b><small>{msg.sub}</small></div>
         </div>
       )}

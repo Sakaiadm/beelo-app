@@ -392,7 +392,7 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 /* Quadro azul da tela Hoje: estrelas (modo criança) e semana */
 .kpi .estrelas { display: flex; align-items: center; gap: 4px; margin-top: 12px; }
 .kpi .estrelas svg { fill: rgba(255,255,255,.28); }
-.kpi .estrelas svg.on { fill: #ffd43b; }
+.kpi .estrelas svg.on { fill: #f5b82e; }
 .kpi .estrelas span { margin-left: 6px; font-size: 13px; font-weight: 600; color: #e6f0fe; }
 .kpi .semana-kpi { margin-top: 14px; padding-top: 12px; border-top: 1px solid rgba(255,255,255,.25); }
 .kpi .semana-kpi .l { display: flex; justify-content: space-between; align-items: baseline; gap: 8px; font-size: 13px; font-weight: 600; color: #e6f0fe; }
@@ -406,7 +406,7 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 @keyframes festa-pulo { 0% { transform: scale(.6); } 100% { transform: scale(1); } }
 @keyframes festa-onda { from { opacity: .7; transform: scale(1); } to { opacity: 0; transform: scale(2.2); } }
 /* Modo criança: mensagem alegre que sobe de baixo */
-.festa-msg { position: fixed; left: 14px; right: 14px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 80; max-width: 480px; margin: 0 auto; background: var(--cartao); color: var(--texto); border: 2px solid #ffd43b; border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; box-shadow: 0 10px 28px rgba(0,0,0,.22); animation: festa-sobe .35s cubic-bezier(.3,1.4,.5,1); }
+.festa-msg { position: fixed; left: 14px; right: 14px; bottom: calc(84px + env(safe-area-inset-bottom, 0px)); z-index: 80; max-width: 480px; margin: 0 auto; background: var(--cartao); color: var(--texto); border: 2px solid #f5b82e; border-radius: 16px; padding: 12px 14px; display: flex; gap: 12px; align-items: center; box-shadow: 0 10px 28px rgba(0,0,0,.22); animation: festa-sobe .35s cubic-bezier(.3,1.4,.5,1); }
 .festa-msg b { display: block; font-size: 16px; }
 .festa-msg small { color: var(--cinza); font-size: 13px; }
 .festa-msg svg { flex: none; }
@@ -467,3 +467,6 @@ main.ideias { max-width: 600px; }
 .tm-cab b { font-weight: 800; }
 .tm-cab small { color: var(--cinza); font-size: 12.5px; font-weight: 500; margin-left: auto; }
 .tm-ic { width: 30px; height: 30px; border-radius: 9px; display: grid; place-items: center; flex: none; }
+
+/* Beelo: mel só em destaques (ideias) */
+.icone-btn.ideias .selo { background: #f5b82e; color: #13203a; }

@@ -1,14 +1,14 @@
-// Serviço de fundo do Rotina Ativa: recebe os avisos (push) e mostra no celular.
+// Serviço de fundo do Beelo: recebe os avisos (push) e mostra no celular.
 // Também faz o app abrir na hora pelo ícone: mostra a última versão guardada da tela inicial
 // (Painel ou Hoje) enquanto busca a nova por trás. Assim a tela azul de abertura não fica
 // esperando o banco responder (às vezes ele demora mais de 10 segundos).
 // Sem internet: mostra a última cópia guardada da tela (com a faixa "Sem internet") ou, se não houver
 // cópia, uma página própria em português no lugar da página de erro do navegador.
-const TELAS = 'ra-telas-v1';
+const TELAS = 'ra-telas-v2'; // v2: marca Beelo (descarta as cópias com o topo antigo)
 const ARQUIVOS = 'ra-arquivos-v1';
-const OFFLINE = 'ra-offline-v5'; // trocar a versão sempre que mudar o offline.html
+const OFFLINE = 'ra-offline-v6'; // trocar a versão sempre que mudar o offline.html
 const PAGINA_OFFLINE = '/offline.html';
-const MANUAL = 'ra-manual-v1'; // última cópia de cada manual público (/manual, /manual/pessoa, /manual/crianca), para abrir mesmo sem internet
+const MANUAL = 'ra-manual-v2'; // última cópia de cada manual público (/manual, /manual/pessoa, /manual/crianca), para abrir mesmo sem internet
 const INICIAIS = ['/painel', '/hoje'];
 const NAO_GUARDAR = ['/login', '/auth', '/sem-acesso', '/notificacoes/abrir', '/privacidade', '/offline.html', '/manual'];
 const VALIDADE = 7 * 24 * 3600 * 1000; // cópia guardada vale no máximo 7 dias
@@ -19,7 +19,8 @@ self.addEventListener('install', (e) => {
   e.waitUntil(caches.open(OFFLINE).then((c) => c.add(new Request(PAGINA_OFFLINE, { cache: 'reload' }))).catch(() => {}).then(() => self.skipWaiting()));
 });
 self.addEventListener('activate', (e) => e.waitUntil((async () => {
-  for (const k of await caches.keys()) if (k.startsWith('ra-offline-') && k !== OFFLINE) await caches.delete(k);
+  const atuais = [TELAS, ARQUIVOS, OFFLINE, MANUAL];
+  for (const k of await caches.keys()) if (k.startsWith('ra-') && !atuais.includes(k)) await caches.delete(k);
   await self.clients.claim();
 })()));
 
@@ -145,7 +146,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('push', (event) => {
   let d = {};
   try { d = event.data ? event.data.json() : {}; } catch { d = { corpo: event.data ? event.data.text() : '' }; }
-  const titulo = d.titulo || 'Rotina Ativa';
+  const titulo = d.titulo || 'Beelo';
   const tarefas = [
     self.registration.showNotification(titulo, {
       body: d.corpo || '',
