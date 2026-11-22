@@ -13,7 +13,7 @@ export default function DicaFaixa({ membro, cands, hoje }) {
   return (
     <div className="aviso info dica" role="status">
       <span className="dica-ic"><Icone nome="ideia" tam={20} /></span>
-      <span className="dica-tx"><b>{dica.t}</b><small>{dica.x} <Link prefetch={false} href={`/ideias?i=${dica.i}`} onClick={() => marcarVista(membro, dica.i, hoje)}>Ver ideia ›</Link></small></span>
+      <span className="dica-tx"><b>{dica.t}</b><small>{dica.x}</small><Link prefetch={false} className="btn peq dica-bt" href={`/ideias?i=${dica.i}`} onClick={() => marcarVista(membro, dica.i, hoje)}>Ver ideia</Link></span>
       <button type="button" className="dica-x" aria-label="Fechar a dica" onClick={() => { fechar(membro, hoje); setDica(null); }}><Icone nome="x" tam={18} /></button>
     </div>
   );

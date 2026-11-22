@@ -24,7 +24,7 @@ export function JaVistas({ membro, paraPais }) {
       {l.length > 0 && <>
         <div className="grupo-titulo">Já vistas</div>
         <div className="cat-lista" style={{ marginBottom: 16 }}>
-          {l.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={`/ideias?i=${i.id}`}><span className="cat-bolinha" style={{ background: i.tema.cor }} /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
+          {l.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={`/ideias?i=${i.id}`}><span className="cat-bolinha" /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
         </div>
       </>}
       {off
