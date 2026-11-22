@@ -6,11 +6,11 @@ import { Plus_Jakarta_Sans } from 'next/font/google';
 const fonte = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], display: 'swap', variable: '--fonte' });
 
 export const metadata = {
-  title: 'Rotina Ativa',
+  title: 'Beelo',
   description: 'Rotina do grupo: tarefas, agenda e acompanhamento.',
   manifest: '/manifest.json',
   icons: { icon: '/icone.svg', apple: '/apple-touch-icon.png' },
-  appleWebApp: { capable: true, title: 'Rotina Ativa', statusBarStyle: 'default' },
+  appleWebApp: { capable: true, title: 'Beelo', statusBarStyle: 'default' },
 };
 export const viewport = { themeColor: '#1a6fe0', width: 'device-width', initialScale: 1 };
 

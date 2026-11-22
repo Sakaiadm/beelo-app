@@ -38,7 +38,7 @@ done
 
 [ -f .env ] || touch .env
 grep -v -E '^(SMTP_HOST|SMTP_PORT|SMTP_USER|SMTP_PASS|SMTP_DE)=' .env > .env.novo || true
-{ echo "SMTP_HOST=$H"; echo "SMTP_PORT=$P"; echo "SMTP_USER=$U"; echo "SMTP_PASS=$S"; echo "SMTP_DE=Rotina Ativa <$U>"; } >> .env.novo
+{ echo "SMTP_HOST=$H"; echo "SMTP_PORT=$P"; echo "SMTP_USER=$U"; echo "SMTP_PASS=$S"; echo "SMTP_DE=Beelo <$U>"; } >> .env.novo
 mv .env.novo .env; chmod 600 .env
 docker compose up -d
 echo

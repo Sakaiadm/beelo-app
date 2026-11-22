@@ -52,11 +52,8 @@ export default function Login() {
     <div style={{ minHeight: '100vh', display: 'flex', flexDirection: 'column', background: 'var(--fundo)' }}>
       <div style={{ background: '#1a6fe0', padding: '56px 24px 64px', color: '#fff' }}>
         <div style={{ maxWidth: 420, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
-          <span style={{ width: 56, height: 56, borderRadius: 18, background: 'rgba(255,255,255,.22)', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
-            <svg aria-hidden="true" width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="#fff" strokeWidth="2.4" strokeLinecap="round" strokeLinejoin="round"><path d="M20 6 9 17l-5-5" /></svg>
-          </span>
-          <h1 style={{ margin: 0, fontSize: 34, fontWeight: 800, letterSpacing: '-.02em' }}>Rotina Ativa</h1>
-          <p style={{ margin: 0, fontSize: 15, color: '#e6f0fe', maxWidth: 320 }}>A rotina da família em um só lugar: tarefas, agenda e acompanhamento.</p>
+          <h1 style={{ margin: 0, lineHeight: 0 }}><img src="/marca/beelo-horizontal-negativa-branca.svg" alt="Beelo" style={{ height: 44, width: 'auto' }} /></h1>
+          <p style={{ margin: 0, fontSize: 15, color: '#e6f0fe', maxWidth: 320 }}>Pais presentes, filhos protagonistas, famílias mais fortes.</p>
         </div>
       </div>
       <div style={{ flex: 1, background: 'var(--cartao)', borderRadius: '28px 28px 0 0', marginTop: -28, padding: '28px 24px' }}>
