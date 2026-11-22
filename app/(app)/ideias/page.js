@@ -23,10 +23,9 @@ function Ilustracao({ tam = 96 }) {
 }
 
 function Cartao({ ideia, rotulo }) {
-  const tm = ideia.tema;
   return (
     <div className="ideia-cartao">
-      <div className="ideia-ban" style={{ background: `linear-gradient(135deg, ${tm.cor}, ${tm.cor2})` }}>
+      <div className="ideia-ban">
         <div><small>{rotulo}</small><b>{ideia.t}</b></div>
         <Ilustracao />
       </div>
@@ -76,7 +75,7 @@ export default async function Ideias({ searchParams }) {
         <Link prefetch={false} className="ideias-volta" href="/ideias"><Icone nome="esq" tam={18} />Ideias</Link>
         <div className="cab"><div><h1 className="titulo">{tema.nome}</h1><p className="sub">{tema.ideias.length} ideias · 1 minuto cada</p></div></div>
         <div className="cat-lista">
-          {tema.ideias.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={`/ideias?i=${i.id}`}><span className="cat-bolinha" style={{ background: tema.cor }} /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
+          {tema.ideias.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={`/ideias?i=${i.id}`}><span className="cat-bolinha" /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
         </div>
       </main>
     );
@@ -94,19 +93,18 @@ export default async function Ideias({ searchParams }) {
       )}
       <Link prefetch={false} href={q({ i: semana.id })} className="ideia-link"><Cartao ideia={semana} rotulo="Ideia da semana" /></Link>
       {paraPais ? <>
-        <div className="grupo-titulo">Temas</div>
-        <div className="ideias-temas">
-          {TEMAS.map((t) => (
-            <Link prefetch={false} key={t.id} href={`/ideias?t=${t.id}`} className="ideias-tema">
-              <span className="ic" style={{ background: t.cor }}><Icone nome={t.icone} tam={24} cor="#fff" /></span>
-              <b>{t.nome}</b><small>{t.ideias.length} ideias · 1 min</small>
-            </Link>
-          ))}
-        </div>
+        {TEMAS.map((t) => (
+          <section key={t.id} className="ideias-grupo">
+            <h2 className="tm-cab"><span className="tm-ic" style={{ background: t.cor }}><Icone nome={t.icone} tam={16} cor="#fff" /></span><b>{t.nome}</b><small>{t.ideias.length} ideias</small></h2>
+            <div className="cat-lista">
+              {t.ideias.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={`/ideias?i=${i.id}`}><span className="cat-bolinha" /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
+            </div>
+          </section>
+        ))}
       </> : <>
         <div className="grupo-titulo">{podePais ? 'O que os filhos leem' : 'Todas as ideias'}</div>
         <div className="cat-lista" style={{ marginBottom: 16 }}>
-          {FILHOS.ideias.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={q({ i: i.id })}><span className="cat-bolinha" style={{ background: FILHOS.cor }} /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
+          {FILHOS.ideias.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={q({ i: i.id })}><span className="cat-bolinha" /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
         </div>
       </>}
       <div style={{ marginTop: 16 }}><JaVistas membro={eu.id} paraPais={podePais} /></div>
