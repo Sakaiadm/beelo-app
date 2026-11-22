@@ -12,6 +12,7 @@ const C = {
 export default function Privacidade() {
   return (
     <main className="estreito">
+      <a href="/" className="logo-beelo" role="img" aria-label="beelo" style={{ marginBottom: 18 }} />
       <h1 className="titulo">Privacidade</h1>
       <p style={{ color: 'var(--cinza)', fontSize: 14, margin: '6px 0 16px' }}>Versão beta · atualizado em {ATUALIZADO_EM}</p>
       <div className="card texto-legal">

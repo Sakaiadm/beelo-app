@@ -483,3 +483,6 @@ main.ideias { max-width: 600px; }
 .texto-legal ul { margin: 0 0 12px; padding-left: 20px; }
 .texto-legal li { margin-bottom: 4px; }
 .preencher { background: var(--aviso-fundo); color: var(--aviso); border: 1px dashed var(--aviso-borda); border-radius: 6px; padding: 0 6px; font-weight: 700; }
+
+/* Logo completo (hexágono + beelo) no azul oficial; no modo escuro usa o azul claro do tema. */
+.logo-beelo { display: block; height: 32px; aspect-ratio: 272.24 / 92; background: var(--azul); -webkit-mask: url(/marca/beelo-horizontal-negativa-branca.svg) center / contain no-repeat; mask: url(/marca/beelo-horizontal-negativa-branca.svg) center / contain no-repeat; }
