@@ -470,3 +470,16 @@ main.ideias { max-width: 600px; }
 
 /* Beelo: mel só em destaques (ideias) */
 .icone-btn.ideias .selo { background: #f5b82e; color: #13203a; }
+
+/* Entrada: selo da versão beta e links de Privacidade, Termos e contato (seção 72) */
+.entrada-beta { display: flex; flex-direction: column; align-items: flex-start; gap: 10px; }
+.selo-beta { display: inline-flex; align-items: center; gap: 6px; background: #f5b82e; color: #13203a; border-radius: 999px; padding: 4px 11px; font-size: 12px; font-weight: 800; letter-spacing: .02em; }
+.selo-beta::before { content: ''; width: 6px; height: 6px; border-radius: 50%; background: #13203a; opacity: .55; }
+.entrada-beta nav { display: flex; flex-wrap: wrap; align-items: center; gap: 4px 8px; font-size: 13px; color: #c9dcfb; }
+.entrada-beta nav a { color: #fff; font-weight: 600; text-decoration: underline; text-underline-offset: 3px; text-decoration-color: rgba(255,255,255,.45); }
+.texto-legal { line-height: 1.6; font-size: 15px; }
+.texto-legal h2 { margin: 22px 0 8px; font-size: 17px; }
+.texto-legal h2:first-child { margin-top: 0; }
+.texto-legal ul { margin: 0 0 12px; padding-left: 20px; }
+.texto-legal li { margin-bottom: 4px; }
+.preencher { background: var(--aviso-fundo); color: var(--aviso); border: 1px dashed var(--aviso-borda); border-radius: 6px; padding: 0 6px; font-weight: 700; }

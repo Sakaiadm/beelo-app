@@ -54,6 +54,14 @@ export default function Login() {
         <div style={{ maxWidth: 420, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <h1 style={{ margin: 0, lineHeight: 0 }}><img src="/marca/beelo-horizontal-negativa-branca.svg" alt="Beelo" style={{ height: 44, width: 'auto' }} /></h1>
           <p style={{ margin: 0, fontSize: 15, color: '#e6f0fe', maxWidth: 320 }}>Pais presentes, filhos protagonistas, famílias mais fortes.</p>
+          <div className="entrada-beta">
+            <span className="selo-beta">Versão beta</span>
+            <nav aria-label="Informações">
+              <a href="/privacidade">Privacidade</a><span aria-hidden="true">·</span>
+              <a href="/termos">Termos de uso</a><span aria-hidden="true">·</span>
+              <a href="/termos#contato">Relatar um problema</a>
+            </nav>
+          </div>
         </div>
       </div>
       <div style={{ flex: 1, background: 'var(--cartao)', borderRadius: '28px 28px 0 0', marginTop: -28, padding: '28px 24px' }}>
@@ -75,7 +83,7 @@ export default function Login() {
             <button className="btn bloco" style={{ marginTop: 12 }} disabled={carregando}>Enviar link de acesso</button>
           </form>
           <p style={{ marginTop: 22, textAlign: 'center', fontSize: 12, color: 'var(--cinza)' }}>
-            Seus dados ficam só com a família. <a href="/privacidade">Privacidade</a>
+            Seus dados ficam só com a família.
           </p>
         </div>
       </div>
