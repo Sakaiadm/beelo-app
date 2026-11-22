@@ -10,6 +10,8 @@
   :root { --azul: #1a6fe0; --fundo: #f4f8fe; --cartao: #fff; --texto: #13203a; --cinza: #5a6880; --borda: #e1e7f0; --topo: #1a6fe0; --rede-fundo: #fdefd3; --rede-txt: #5c3500; --rede-borda: #d98a00; }
   :root[data-theme="escuro"] { --azul: #5b9bff; --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --topo: #122038; --rede-fundo: #3a2a0e; --rede-txt: #ffd58a; --rede-borda: #e09a1a; }
   @media (prefers-color-scheme: dark) { :root:not([data-theme="claro"]) { --azul: #5b9bff; --fundo: #142034; --cartao: #1b2a45; --texto: #e6edf8; --cinza: #a3b1c8; --borda: #2a3b5c; --topo: #122038; --rede-fundo: #3a2a0e; --rede-txt: #ffd58a; --rede-borda: #e09a1a; } }
+  :root { --logo-topo: #ffffff; } :root[data-theme="escuro"] { --logo-topo: #5b9bff; } @media (prefers-color-scheme: dark) { :root:not([data-theme="claro"]) { --logo-topo: #5b9bff; } }
+  header svg path, header svg g { fill: var(--logo-topo); }
   * { box-sizing: border-box; }
   body { margin: 0; font-family: 'Plus Jakarta Sans', system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif; background: var(--fundo); color: var(--texto); font-size: 16px; }
   header { background: var(--topo); color: #fff; }

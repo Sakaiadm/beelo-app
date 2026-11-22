@@ -486,3 +486,9 @@ main.ideias { max-width: 600px; }
 
 /* Logo completo (hexágono + beelo) no azul oficial; no modo escuro usa o azul claro do tema. */
 .logo-beelo { display: block; height: 32px; aspect-ratio: 272.24 / 92; background: var(--azul); -webkit-mask: url(/marca/beelo-horizontal-negativa-branca.svg) center / contain no-repeat; mask: url(/marca/beelo-horizontal-negativa-branca.svg) center / contain no-repeat; }
+
+/* Logo do topo: branco no topo azul (modo claro); azul claro da marca no topo escuro (seção 74). */
+:root { --logo-topo: #ffffff; }
+:root[data-theme="escuro"] { --logo-topo: #5b9bff; }
+@media (prefers-color-scheme: dark) { :root:not([data-theme="claro"]) { --logo-topo: #5b9bff; } }
+.logo-topo { display: block; height: 38px; aspect-ratio: 272.24 / 92; background: var(--logo-topo); -webkit-mask: url(/marca/beelo-horizontal-negativa-branca.svg) center / contain no-repeat; mask: url(/marca/beelo-horizontal-negativa-branca.svg) center / contain no-repeat; }

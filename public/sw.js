@@ -6,7 +6,7 @@
 // cópia, uma página própria em português no lugar da página de erro do navegador.
 const TELAS = 'ra-telas-v3'; // v3: nome beelo em minúsculo (descarta as cópias antigas)
 const ARQUIVOS = 'ra-arquivos-v1';
-const OFFLINE = 'ra-offline-v7'; // trocar a versão sempre que mudar o offline.html
+const OFFLINE = 'ra-offline-v8'; // trocar a versão sempre que mudar o offline.html
 const PAGINA_OFFLINE = '/offline.html';
 const MANUAL = 'ra-manual-v3'; // última cópia de cada manual público (/manual, /manual/pessoa, /manual/crianca), para abrir mesmo sem internet
 const INICIAIS = ['/painel', '/hoje'];
