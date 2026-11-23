@@ -1,4 +1,4 @@
--- Rotina Ativa 0006: funções das pessoas (pai, mãe, filho, sobrinho, supervisor, aluno, outro),
+-- beelo 0006: funções das pessoas (pai, mãe, filho, sobrinho, supervisor, aluno, outro),
 -- responsável da família, edição de famílias, exclusão de pessoas e categoria "Trabalho".
 -- Pode rodar mais de uma vez sem problema.
 

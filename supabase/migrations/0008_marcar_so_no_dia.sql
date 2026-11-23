@@ -1,4 +1,4 @@
--- Rotina Ativa 0008: não deixa marcar como feita uma tarefa de data futura. Pode rodar mais de uma vez.
+-- beelo 0008: não deixa marcar como feita uma tarefa de data futura. Pode rodar mais de uma vez.
 create or replace function public.ra_concluir2(p_oc uuid, p_foto text, p_foto_em timestamptz) returns void
 language plpgsql security definer set search_path = public as $$
 declare o public.ra_ocorrencias; t public.ra_tarefas; me uuid := public.ra_meu_id(); fam uuid := public.ra_minha_familia();
