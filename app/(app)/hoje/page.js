@@ -1,6 +1,7 @@
 import AvisosConvite from '@/components/AvisosConvite';
 import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
+import { acesso } from '@/lib/papeis';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import { hojeISO, addDias, dataTitulo, statusExibido, diaSemana } from '@/lib/util';
 import Tarefa from '@/components/Tarefa';
@@ -16,7 +17,10 @@ export default async function Hoje({ searchParams }) {
   const hoje = hojeISO();
   const dia = /^\d{4}-\d{2}-\d{2}$/.test(sp.d || '') ? sp.d : hoje;
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
-  const alvo = gestor ? (filhos.find((f) => f.id === sp.m) || filhos[0]) : eu;
+  // Pai e Mãe abrem o dia de cada pessoa; a supervisora com o painel liberado também (começando pelo dela).
+  const a = acesso(eu);
+  const veTodos = gestor || a.painel;
+  const alvo = veTodos ? (filhos.find((f) => f.id === sp.m) || (gestor ? filhos[0] : eu)) : eu;
   if (!alvo) return <main><div className="card">Cadastre as pessoas em Cadastros.</div></main>;
 
   // Semana de segunda a domingo (para a barra da semana). A busca já cobre os 7 dias antes, para as atrasadas.
@@ -44,26 +48,26 @@ export default async function Hoje({ searchParams }) {
       lembrarTela = !data;
     }
   }
-  const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1 });
+  const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1 });
 
   return (
     <main className="estreito">
       {!gestor && dia === hoje && <DicaFaixa membro={eu.id} hoje={hoje} cands={candidatosFilho(fatos(comSt, eu.id, hoje), hoje)} />}
       <div className="cab">
         <div>
-          <h1 className="titulo">{gestor ? `Dia de ${alvo.nome}` : `Olá, ${eu.nome}`}</h1>
+          <h1 className="titulo">{alvo.id !== eu.id ? `Dia de ${alvo.nome}` : `Olá, ${eu.nome}`}</h1>
           <p className="sub">{dataTitulo(dia)}</p>
         </div>
         <div className="acoes">
-          <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, -1)}${gestor ? `&m=${alvo.id}` : ''}`} aria-label="Dia anterior"><Icone nome="esq" tam={18} /></Link>
-          {dia !== hoje && <Link prefetch={false} className="btn sec peq" href={`/hoje${gestor ? `?m=${alvo.id}` : ''}`}>Hoje</Link>}
-          <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, 1)}${gestor ? `&m=${alvo.id}` : ''}`} aria-label="Próximo dia"><Icone nome="dir" tam={18} /></Link>
+          <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, -1)}${veTodos ? `&m=${alvo.id}` : ''}`} aria-label="Dia anterior"><Icone nome="esq" tam={18} /></Link>
+          {dia !== hoje && <Link prefetch={false} className="btn sec peq" href={`/hoje${veTodos ? `?m=${alvo.id}` : ''}`}>Hoje</Link>}
+          <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, 1)}${veTodos ? `&m=${alvo.id}` : ''}`} aria-label="Próximo dia"><Icone nome="dir" tam={18} /></Link>
         </div>
       </div>
 
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto={gestor ? 'Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar.' : 'Receba um aviso quando tiver novidade nas suas tarefas.'} />
 
-      {gestor && filhos.length > 1 && (
+      {veTodos && filhos.length > 1 && (
         <div className="abas" style={{ marginBottom: 14 }}>
           {filhos.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}&d=${dia}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.nome}</Link>)}
         </div>

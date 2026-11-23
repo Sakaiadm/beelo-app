@@ -1,4 +1,5 @@
 import { exigirMembro } from '@/lib/sessao';
+import { acesso } from '@/lib/papeis';
 import Link from 'next/link';
 import Icone from '@/components/Icone';
 import MenuUsuario from '@/components/MenuUsuario';
@@ -17,17 +18,18 @@ import { hojeISO } from '@/lib/util';
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia } = await exigirMembro();
   const urls = await urlsAvatares(supabase, [eu.avatar]);
+  const a = acesso(eu);
   const itens = gestor
     ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
        { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' }, { href: '/tela', txt: 'Tela', icone: 'tela' }, { href: '/config', txt: 'Cadastros', icone: 'config' }]
-    : [{ href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
-       ...(eu.tela_ativo ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: 'Evolução', icone: 'grafico' }];
+    : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
+       ...(eu.tela_ativo ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
   // Ícone do manual: cada perfil abre o seu (Pai, Mãe e Supervisor, o completo).
   const manual = gestor || eu.funcao === 'supervisor' ? '/manual' : eu.modo_crianca ? '/manual/crianca' : '/manual/pessoa';
   return (
     <>
       <Suspense fallback={null}><Progresso /></Suspense>
-      <LembrarInicio caminho={gestor ? '/painel' : '/hoje'} quem={eu.id} gerado={Date.now()} />
+      <LembrarInicio caminho={a.painel ? '/painel' : '/hoje'} quem={eu.id} gerado={Date.now()} />
       <header className="topo">
         <div className="topo-in">
           <Link className="marca" href="/"><span className="logo-topo" role="img" aria-label="beelo" /></Link>

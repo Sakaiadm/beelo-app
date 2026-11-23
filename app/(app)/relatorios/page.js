@@ -1,4 +1,5 @@
 import { exigirMembro } from '@/lib/sessao';
+import { acesso } from '@/lib/papeis';
 import { lerFiltros, dadosRelatorio } from '@/lib/relatorio';
 import { telaResumo, totalReal } from '@/lib/tela';
 import { dataComAno, dataCurta, fmtMin, STATUS_TXT, CORES_CAT, inicioSemana, DIAS, hhmm, addDias } from '@/lib/util';
@@ -10,7 +11,9 @@ const pct = (a, b) => (b ? Math.round((a / b) * 100) : 0);
 
 export default async function Relatorios({ searchParams }) {
   const sp = await searchParams;
-  const s = await exigirMembro();
+  const s0 = await exigirMembro();
+  // "gestor" aqui quer dizer "vê o grupo todo": Pai e Mãe, e a supervisora com a chave Ver relatórios.
+  const s = { ...s0, gestor: acesso(s0.eu).relatorios };
   const { supabase, gestor, eu, membros } = s;
   const f = lerFiltros(sp);
   const { lista, ids } = await dadosRelatorio(supabase, f, s);

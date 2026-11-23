@@ -82,7 +82,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
                     <button type="button" role="switch" aria-checked={!!chaves[k]} aria-label={t} className={`chave ${chaves[k] ? 'on' : ''}`} onClick={() => setChaves((x) => ({ ...x, [k]: !x[k] }))} />
                   </div>
                 ))}
-                <p className="peq-cinza">As chaves ficam guardadas e passam a valer em uma próxima atualização do app.</p>
+                {f.id !== 'supervisor' && <p className="peq-cinza">Ver o painel já vale. As outras chaves ficam guardadas e passam a valer em uma próxima atualização do app.</p>}
               </>
             )}
           </>

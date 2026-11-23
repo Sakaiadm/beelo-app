@@ -16,7 +16,7 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st: stServidor, dono, gestor, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima }) {
+export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima }) {
   const [aba, setAba] = useState(null);
   const [festa, setFesta] = useState(false);
   // Sem internet: o que foi feito e está guardado no aparelho já aparece na tela, com o selo "Aguardando internet".
@@ -41,9 +41,9 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, familia, foto
   const horario = oc.hora_inicio ? `${hhmm(oc.hora_inicio)}${oc.hora_fim ? '–' + hhmm(oc.hora_fim) : ''}` : 'Sem horário';
   const podeConcluir = dono && !feita && st !== 'adiamento_pedido' && st !== 'adiada';
   const futura = oc.data > hoje;
-  const outraPessoa = gestor && !dono;
+  const outraPessoa = (gestor || confere) && !dono;
   const alternar = (a) => setAba(aba === a ? null : a);
-  const paraConferir = gestor && !dono && feita && oc.conferido !== 'conferido';
+  const paraConferir = (gestor || confere) && !dono && feita && oc.conferido !== 'conferido';
   const selo = guardados.length ? ['Aguardando internet', 'aviso']
     : atrasada ? [STATUS_TXT[st], 'erro']
     : feita && oc.conferido === 'conferido' ? ['Conferido', 'conf']
