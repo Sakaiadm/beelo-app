@@ -1,4 +1,4 @@
--- Rotina Ativa 0010: avatares de criança. Pode rodar mais de uma vez. Rode depois da 0009.
+-- beelo 0010: avatares de criança. Pode rodar mais de uma vez. Rode depois da 0009.
 -- A própria pessoa troca o avatar em Meu perfil: foto ou imagem (na pasta dela) ou,
 -- só com o Modo criança ligado, um dos 30 avatares de criança ("preset:k01" a "preset:k30").
 create or replace function public.ra_meu_avatar(p_caminho text) returns void

@@ -1,4 +1,4 @@
--- Rotina Ativa 0002: famílias com avatar, super admin, avatares, preferências de aviso,
+-- beelo 0002: famílias com avatar, super admin, avatares, preferências de aviso,
 -- foto atual nas tarefas e novas categorias.
 
 -- ============ Colunas novas ============

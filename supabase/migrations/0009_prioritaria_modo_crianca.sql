@@ -1,4 +1,4 @@
--- Rotina Ativa 0009: tarefa prioritária com lembrete extra e modo criança. Pode rodar mais de uma vez.
+-- beelo 0009: tarefa prioritária com lembrete extra e modo criança. Pode rodar mais de uma vez.
 alter table public.ra_tarefas add column if not exists prioritaria boolean not null default false;
 alter table public.ra_tarefas add column if not exists lembrete_min int;
 alter table public.ra_tarefas drop constraint if exists ra_tarefas_lembrete_min_chk;

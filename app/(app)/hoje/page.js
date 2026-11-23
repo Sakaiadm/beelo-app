@@ -17,7 +17,7 @@ export default async function Hoje({ searchParams }) {
   const dia = /^\d{4}-\d{2}-\d{2}$/.test(sp.d || '') ? sp.d : hoje;
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
   const alvo = gestor ? (filhos.find((f) => f.id === sp.m) || filhos[0]) : eu;
-  if (!alvo) return <main><div className="card">Cadastre os filhos em Família.</div></main>;
+  if (!alvo) return <main><div className="card">Cadastre as pessoas em Cadastros.</div></main>;
 
   // Semana de segunda a domingo (para a barra da semana). A busca já cobre os 7 dias antes, para as atrasadas.
   const seg = addDias(dia, -((diaSemana(dia) + 6) % 7)), dom = addDias(seg, 6);
