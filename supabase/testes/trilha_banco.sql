@@ -1,4 +1,4 @@
--- Trilha de testes do banco do Rotina Ativa.
+-- Trilha de testes do banco do beelo.
 -- Roda tudo dentro de uma transação e termina com RAISE EXCEPTION contendo o relatório:
 -- assim NADA fica gravado (todos os dados de teste são desfeitos automaticamente).
 do $$

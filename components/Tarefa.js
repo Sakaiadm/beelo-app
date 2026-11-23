@@ -78,7 +78,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, familia, foto
               {cat && <span className="pilula" style={{ background: fundo, color: letra }}>{cat.nome}</span>}
             </div>
           )}
-          {oc.tarefa?.exige_justificativa && atrasada && !oc.justificativa && dono && <div className="meta" style={{ color: 'var(--erro)', fontWeight: 600 }}>Justifique o atraso para poder concluir.</div>}
+          {oc.tarefa?.exige_justificativa && atrasada && oc.data < hoje && !oc.justificativa && dono && <div className="meta" style={{ color: 'var(--erro)', fontWeight: 600 }}>Justifique o atraso para poder concluir.</div>}
         </div>
         {fotoUrl && <img src={fotoUrl} alt="" className="foto-mini" style={{ width: 44, height: 44 }} />}
         <button type="button" className={`abre ${aberto ? 'on' : ''}`} onClick={() => setAberto(!aberto)} aria-expanded={aberto}

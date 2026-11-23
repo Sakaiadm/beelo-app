@@ -1,4 +1,4 @@
--- Rotina Ativa: esquema, regras de acesso (RLS) e funções.
+-- beelo: esquema, regras de acesso (RLS) e funções.
 -- Tabelas com prefixo ra_ para conviver com outros apps no mesmo projeto Supabase.
 
 create extension if not exists pgcrypto;

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Backup do banco (esquema public, onde ficam todos os dados do Rotina Ativa). Guarda as 14 cópias mais recentes.
+# Backup do banco (esquema public, onde ficam todos os dados do beelo). Guarda as 14 cópias mais recentes.
 set -euo pipefail
 PASTA=/opt/rotina-ativa-backups
 MANTER=14
