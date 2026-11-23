@@ -1,8 +1,21 @@
 #!/usr/bin/env bash
 # Instala/atualiza o beelo (antigo Rotina Ativa) na VPS. Uso (como root):
-#   bash deploy/instalar.sh rotina.sakaiadm.tech
+#   bash deploy/instalar.sh beeloapp.com rotina.sakaiadm.tech
+# 1º endereço = o principal (www também entra, se já apontar para a VPS).
+# 2º endereço (opcional) = o antigo, que passa a levar direto para o principal.
 set -euo pipefail
-DOMINIO="${1:-rotina.sakaiadm.tech}"
+DOMINIO="${1:-beeloapp.com}"
+ANTIGO="${2:-}"
+MEUS_IPS=" $(hostname -I 2>/dev/null) $(curl -s -m 5 https://api.ipify.org 2>/dev/null || true) "
+ip_de() { getent ahostsv4 "$1" 2>/dev/null | awk 'NR==1{print $1}'; }
+aponta() { local ip; ip=$(ip_de "$1"); [ -n "$ip" ] && echo "$MEUS_IPS" | grep -q " $ip "; }
+IP_DOMINIO=$(ip_de "$DOMINIO")
+if ! aponta "$DOMINIO"; then
+  echo "PAREI SEM MUDAR NADA: $DOMINIO ainda não aponta para esta VPS (aponta para: ${IP_DOMINIO:-nenhum})."
+  echo "Confira o DNS na Hostinger, espere alguns minutos e rode o comando de novo."
+  exit 1
+fi
+WWW=""; aponta "www.$DOMINIO" && WWW="www.$DOMINIO"
 DIR="$(cd "$(dirname "$0")/.." && pwd)"
 PORTA=3010
 cd "$DIR"
@@ -34,6 +47,9 @@ if ! grep -q '^PUSH_SEGREDO=' .env; then
   SEGREDO_NOVO=$(head -c 32 /dev/urandom | od -An -tx1 | tr -d ' \n')
   echo "PUSH_SEGREDO=$SEGREDO_NOVO" >> .env
 fi
+# Endereço público usado nos e-mails de convite e nos avisos: sempre o principal
+sed -i '/^APP_URL=/d' .env; echo "APP_URL=https://$DOMINIO" >> .env
+sed -i "s#^VAPID_ASSUNTO=.*#VAPID_ASSUNTO=https://$DOMINIO#" .env
 chmod 600 .env
 
 docker compose up -d --build
@@ -41,7 +57,11 @@ echo "App rodando em 127.0.0.1:$PORTA"
 
 # Proxy reverso com HTTPS
 if command -v caddy >/dev/null && [ -f /etc/caddy/Caddyfile ]; then
-  grep -q "$DOMINIO" /etc/caddy/Caddyfile || printf '\n%s {\n  reverse_proxy 127.0.0.1:%s\n}\n' "$DOMINIO" "$PORTA" >> /etc/caddy/Caddyfile
+  grep -q "^$DOMINIO" /etc/caddy/Caddyfile || printf '\n%s {\n  reverse_proxy 127.0.0.1:%s\n}\n' "$DOMINIO${WWW:+, $WWW}" "$PORTA" >> /etc/caddy/Caddyfile
+  if [ -n "$ANTIGO" ]; then
+    sed -i "/^$ANTIGO {/,/^}/d" /etc/caddy/Caddyfile
+    printf '\n%s {\n  redir https://%s{uri} permanent\n}\n' "$ANTIGO" "$DOMINIO" >> /etc/caddy/Caddyfile
+  fi
   systemctl reload caddy
 elif docker ps --format '{{.Image}}' | grep -qi traefik; then
   echo "Traefik detectado: adicione as labels do Traefik no docker-compose.yml para $DOMINIO (ou me avise)."
@@ -50,7 +70,7 @@ else
   cat > /etc/nginx/sites-available/rotina-ativa <<NGX
 server {
   listen 80;
-  server_name $DOMINIO;
+  server_name $DOMINIO $WWW;
   client_max_body_size 6m;
   # O login (Google/Supabase) devolve cookies grandes; sem isso o nginx dá 502 Bad Gateway.
   proxy_buffer_size 128k;
@@ -65,11 +85,26 @@ server {
   }
 }
 NGX
+  if [ -n "$ANTIGO" ]; then
+    cat >> /etc/nginx/sites-available/rotina-ativa <<NGX
+
+# Endereço antigo: leva direto para o novo, mantendo a página
+server {
+  listen 80;
+  server_name $ANTIGO;
+  return 301 https://$DOMINIO\$request_uri;
+}
+NGX
+  fi
   ln -sf /etc/nginx/sites-available/rotina-ativa /etc/nginx/sites-enabled/rotina-ativa
   nginx -t && systemctl reload nginx
   command -v certbot >/dev/null || apt-get install -y certbot python3-certbot-nginx
-  certbot --nginx -d "$DOMINIO" --non-interactive --agree-tos --register-unsafely-without-email --redirect --reinstall || echo "Certificado HTTPS não emitido; rode: certbot --nginx -d $DOMINIO"
+  NOMES=(-d "$DOMINIO"); [ -n "$WWW" ] && NOMES+=(-d "$WWW"); [ -n "$ANTIGO" ] && aponta "$ANTIGO" && NOMES+=(-d "$ANTIGO")
+  certbot --nginx "${NOMES[@]}" --cert-name "$DOMINIO" --expand --non-interactive --agree-tos --register-unsafely-without-email --redirect --reinstall \
+    || certbot --nginx -d "$DOMINIO" --cert-name "$DOMINIO" --non-interactive --agree-tos --register-unsafely-without-email --redirect --reinstall \
+    || echo "Certificado HTTPS não emitido. Confira se o domínio já aponta para a VPS e rode de novo."
 fi
+[ -z "$WWW" ] && echo "Aviso: www.$DOMINIO ainda não aponta para a VPS (ficou de fora). Quando apontar, rode o comando de novo."
 echo "Pronto: https://$DOMINIO"
 if [ -n "$SEGREDO_NOVO" ]; then
   echo
