@@ -8,7 +8,7 @@ const ok = (c, nome, extra = '') => { if (!c) falhas++; linhas.push(`${c ? 'OK  
 
 // ---------- A. fila + envio ----------
 const vapid = webpush.generateVAPIDKeys();
-webpush.setVapidDetails('https://rotina.sakaiadm.tech', vapid.publicKey, vapid.privateKey);
+webpush.setVapidDetails('https://beeloapp.com', vapid.publicKey, vapid.privateKey);
 const aparelho = () => { const e = crypto.createECDH('prime256v1'); e.generateKeys(); return { p256dh: e.getPublicKey().toString('base64url'), auth: crypto.randomBytes(16).toString('base64url') }; };
 const A = aparelho(), B = aparelho(), C = aparelho();
 const pendentes = [
