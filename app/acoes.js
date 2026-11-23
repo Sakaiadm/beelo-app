@@ -2,7 +2,7 @@
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
-import { parseMin, hojeISO, addDias, CORES_CAT } from '@/lib/util';
+import { parseMin, hojeISO, addDias, agoraHHMM, CORES_CAT } from '@/lib/util';
 import { validarEmail } from '@/lib/email';
 import { funcaoDe, nomeFuncao } from '@/lib/papeis';
 import { emailConfigurado, enviarEmailConvite } from '@/lib/convite';
@@ -93,6 +93,11 @@ export async function salvarTarefa(_, fd) {
   if (recorrencia === 'dias_semana' && dias.length === 0) return { erro: 'Escolha pelo menos um dia da semana' };
   if (reg.hora_inicio && reg.hora_fim && reg.hora_fim <= reg.hora_inicio) return { erro: 'O fim deve ser depois do início' };
   const id = uuid(fd.get('id'));
+  // Tarefa nova que se repete, criada hoje depois do horário: começa amanhã, para não nascer atrasada
+  // (sem alerta no Painel nem cobrança de justificativa por algo que nem existia na hora).
+  const limite = reg.hora_fim || reg.hora_inicio;
+  const comecaAmanha = !id && tipo === 'recorrente' && reg.data_inicio === hojeISO() && limite && limite < agoraHHMM();
+  if (comecaAmanha) reg.data_inicio = addDias(hojeISO(), 1);
   let error;
   if (id) {
     ({ error } = await supabase.from('ra_tarefas').update(reg).eq('id', id));
@@ -110,7 +115,7 @@ export async function salvarTarefa(_, fd) {
   // Gera já as ocorrências dos próximos dias, para a tarefa aparecer na hora na Agenda.
   await supabase.rpc('ra_gerar_ocorrencias', { p_de: addDias(hojeISO(), -7), p_ate: addDias(hojeISO(), 54) });
   revalidar();
-  redirect(voltarAgenda(fd));
+  redirect(comecaAmanha ? `/agenda?v=dia&d=${reg.data_inicio}&aviso=amanha` : voltarAgenda(fd));
 }
 
 export async function excluirTarefa(_, fd) {
@@ -209,7 +214,8 @@ async function sincronizarTarefaTela(supabase, eu, membroId, ligado, fd) {
     titulo: 'Lançar tempo de tela', categoria_id: null, responsavel_id: membroId, especial: 'tela',
     tipo: uma ? 'pontual' : 'recorrente', recorrencia: uma ? null : opcao === 'diaria' ? 'diaria' : 'dias_semana',
     dias_semana: uma || opcao === 'diaria' ? [] : opcao === 'semana' ? [1, 2, 3, 4, 5] : dias,
-    data_inicio: uma ? (data(fd.get('tela_data')) || hoje) : hoje, data_fim: null,
+    // Ligando agora: o primeiro lançamento é amanhã (hoje ainda não há "tempo de ontem" combinado para lançar).
+    data_inicio: uma ? (data(fd.get('tela_data')) || hoje) : atual ? hoje : addDias(hoje, 1), data_fim: null,
     hora_inicio: h, hora_fim: null, exige_foto: false, permite_adiar: false, exige_justificativa: false,
   };
   let error;

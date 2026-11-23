@@ -1,6 +1,8 @@
 import AvisosConvite from '@/components/AvisosConvite';
 import Link from 'next/link';
-import { exigirGestor } from '@/lib/sessao';
+import { redirect } from 'next/navigation';
+import { exigirMembro } from '@/lib/sessao';
+import { acesso } from '@/lib/papeis';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import { telaResumo, totalReal } from '@/lib/tela';
 import { hojeISO, addDias, inicioMes, fimMes, inicioSemana, dataTitulo, dataCurta, statusExibido, fmtMin } from '@/lib/util';
@@ -14,7 +16,11 @@ import { responderAdiamento, avaliarJustificativa, conferir, responderTela } fro
 export const dynamic = 'force-dynamic';
 
 export default async function Painel() {
-  const { supabase, eu, membros, familia } = await exigirGestor();
+  const { supabase, eu, membros, familia } = await exigirMembro();
+  // Pai e Mãe respondem a tudo; a supervisora (com a chave Ver o painel) acompanha e, se liberado, confere.
+  const a = acesso(eu);
+  if (!a.painel) redirect('/hoje');
+  const gestor = a.gestor;
   const hoje = hojeISO();
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
   // Todas as pessoas ativas (inclui responsáveis com tarefas para si), quem é você aparece primeiro.
@@ -51,7 +57,7 @@ export default async function Painel() {
       {filhos.length > 0 && <DicaFaixa membro={eu.id} hoje={hoje} cands={dicas} />}
       <div className="cab">
         <div><h1 className="titulo">{familia.nome}</h1><p className="sub">{dataTitulo(hoje)}</p></div>
-        <Link prefetch={false} className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
+        {gestor && <Link prefetch={false} className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>}
       </div>
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto="Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar." />
       <div className="kpis">
@@ -72,30 +78,30 @@ export default async function Painel() {
               <div key={a.id} className="tarefa" style={{ background: 'var(--aviso-fundo)', borderColor: 'var(--aviso-borda)' }}>
                 <div className="tt">{nome[a.membro_id]} pediu adiamento: {a.oc?.tarefa?.titulo}</div>
                 <div className="meta">{dataCurta(a.oc?.data || hoje)} → {dataCurta(a.nova_data)}{a.nova_hora ? ' ' + a.nova_hora.slice(0, 5) : ''} · “{a.motivo}”</div>
-                <div className="acoes" style={{ marginTop: 8 }}>
+                {gestor ? <div className="acoes" style={{ marginTop: 8 }}>
                   <Form acao={responderAdiamento} fila="responderAdiamento" rotulo="Resposta ao pedido de adiamento"><input type="hidden" name="id" value={a.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Aprovar</button></Form>
                   <Form acao={responderAdiamento} fila="responderAdiamento" rotulo="Resposta ao pedido de adiamento"><input type="hidden" name="id" value={a.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
-                </div>
+                </div> : <div className="meta" style={{ marginTop: 6 }}>Os responsáveis respondem.</div>}
               </div>
             ))}
             {(propostas || []).map((p) => (
               <div key={p.id} className="tarefa" style={{ background: 'var(--aviso-fundo)', borderColor: 'var(--aviso-borda)' }}>
                 <div className="tt">{nome[p.membro_id]} propôs outro tempo de tela para {dataCurta(p.data)}</div>
                 <div className="meta">{p.min_total != null ? `Total ${fmtMin(p.min_total)}` : `Celular ${fmtMin(p.min_celular)} · Computador ${fmtMin(p.min_computador)}`} · “{p.motivo}”</div>
-                <div className="acoes" style={{ marginTop: 8 }}>
+                {gestor ? <div className="acoes" style={{ marginTop: 8 }}>
                   <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Validar</button></Form>
                   <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
-                </div>
+                </div> : <div className="meta" style={{ marginTop: 6 }}>Os responsáveis respondem.</div>}
               </div>
             ))}
             {justif.map(({ o }) => (
               <div key={o.id} className="tarefa">
                 <div className="tt">{nome[o.membro_id]} justificou: {o.tarefa?.titulo}</div>
                 <div className="meta">{dataCurta(o.data)} · “{o.justificativa}”</div>
-                <div className="acoes" style={{ marginTop: 8 }}>
+                {gestor ? <div className="acoes" style={{ marginTop: 8 }}>
                   <Form acao={avaliarJustificativa} fila="avaliarJustificativa" rotulo="Resposta à justificativa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="aceitar" value="1" /><button className="btn peq">Aceitar</button></Form>
                   <Form acao={avaliarJustificativa} fila="avaliarJustificativa" rotulo="Resposta à justificativa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="aceitar" value="0" /><button className="btn perigo peq">Não aceitar</button></Form>
-                </div>
+                </div> : <div className="meta" style={{ marginTop: 6 }}>Os responsáveis respondem.</div>}
               </div>
             ))}
             {paraConferir.map(({ o }) => (
@@ -104,10 +110,10 @@ export default async function Painel() {
                   {fotos[o.foto_path] && <a href={fotos[o.foto_path]} target="_blank" rel="noreferrer" style={{ flexShrink: 0 }}><img className="foto-mini" src={fotos[o.foto_path]} alt={`Foto de ${o.tarefa?.titulo}`} /></a>}
                   <div style={{ flex: 1, minWidth: 0 }}><div className="tt">{nome[o.membro_id]} concluiu com foto: {o.tarefa?.titulo}</div><div className="meta">{dataCurta(o.data)}</div></div>
                 </div>
-                <div className="acoes" style={{ marginTop: 8 }}>
+                {a.conferir && <div className="acoes" style={{ marginTop: 8 }}>
                 <Form acao={conferir} fila="conferir" rotulo="Conferência de tarefa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq">Conferido</button></Form>
                 <Form acao={conferir} fila="conferir" rotulo="Conferência de tarefa"><input type="hidden" name="oc" value={o.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Refazer</button></Form>
-                </div>
+                </div>}
               </div>
             ))}
             {atrasadas.map(({ o }) => (
@@ -127,7 +133,7 @@ export default async function Painel() {
                 const t = telas[f.id];
                 const real = t ? totalReal(t) : null, prev = t?.previsto?.min_total;
                 return (
-                  <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}`} className="tarefa" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
+                  <Link prefetch={false} key={f.id} href={f.id === eu.id ? '/hoje' : `/hoje?m=${f.id}`} className="tarefa" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}><span>{f.nome}{f.id === eu.id ? ' (você)' : ''}</span><span style={{ color: 'var(--azul)' }}>{k.feitas} de {k.total}</span></div>
                     <div className="barra" style={{ marginTop: 8 }}><div style={{ width: `${k.total ? (k.feitas / k.total) * 100 : 0}%` }} /></div>
                     <div className="meta" style={{ marginTop: 8 }}>{falta.length ? `Falta: ${falta.slice(0, 3).join(', ')}${falta.length > 3 ? '…' : ''}` : 'Tudo feito'}</div>
