@@ -26,10 +26,10 @@ export default async function Familia({ params }) {
     pessoas = membros.map((m) => ({ ...m, entrou: !!m.user_id, responsavel: m.id === respId }));
     resumo = resumoGrupo(gestores.length, membros.length - gestores.length, membros.filter((m) => m.user_id).length);
   } else {
-    const [{ data: lista }, { data: ps }] = await Promise.all([supabase.rpc('ra_admin_familias'), supabase.rpc('ra_admin_membros', { p_familia: id })]);
+    const [{ data: lista }, { data: ps }, { data: cores }] = await Promise.all([supabase.rpc('ra_admin_familias'), supabase.rpc('ra_admin_membros', { p_familia: id }), supabase.rpc('ra_admin_cores')]);
     const f = (lista || []).find((x) => x.id === id);
     if (!f) notFound();
-    fam = { id: f.id, nome: f.nome, avatar: f.avatar, ativa: f.ativa };
+    fam = { id: f.id, nome: f.nome, avatar: f.avatar, ativa: f.ativa, cor: (cores || []).find((c) => c.id === f.id)?.cor };
     pessoas = ps || [];
     resumo = `${resumoGrupo(f.n_gestores, f.n_filhos, f.n_ativos)} · ${f.tarefas} ${f.tarefas === 1 ? 'tarefa' : 'tarefas'}`;
   }
@@ -39,7 +39,7 @@ export default async function Familia({ params }) {
   return (
     <main className="estreito">
       <Voltar href={superAdmin ? '/config/familias' : '/config'} titulo={fam.nome} />
-      <FamiliaEditor key={fam.nome + (fam.avatar || '')} familia={{ id: fam.id, nome: fam.nome }} url={urls[fam.avatar]} resp={resp} gestores={gestores} resumo={resumo} />
+      <FamiliaEditor key={fam.nome + (fam.avatar || '') + (fam.cor || '')} familia={{ id: fam.id, nome: fam.nome, cor: fam.cor }} url={urls[fam.avatar]} resp={resp} gestores={gestores} resumo={resumo} />
       {superAdmin && !propria && (fam.ativa ? (
         <div className="lin-chave" style={{ border: 0 }}>
           <span>Grupo ativo<small>Desativar bloqueia o acesso sem apagar nada</small></span>
