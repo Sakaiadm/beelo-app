@@ -8,7 +8,7 @@ export function motivoAvisos(e) {
   if (falhaDeRede(e)) return 'Sem internet. Os avisos só podem ser ligados com internet. Tente de novo quando a conexão voltar.';
   const m = String(e?.message || '');
   if (/permission|denied|NotAllowed/i.test(m)) return 'O celular não deu permissão para avisos. Libere as notificações do app nas configurações do celular e tente de novo.';
-  if (/push service|AbortError|registration/i.test(m)) return 'O serviço de avisos do celular não respondeu. Tente de novo em alguns minutos.';
+  if (/push service|AbortError|registration/i.test(m)) return 'O serviço de avisos do celular não respondeu. Confira se o Chrome está atualizado e se a economia de bateria não bloqueia o Chrome, e tente de novo em Meu perfil.';
   return mensagemDeErro(e);
 }
 
@@ -46,8 +46,18 @@ export async function ativarAvisos(chavePublica) {
   if (perm !== 'granted') return perm === 'denied' ? 'negado' : 'desligado';
   const reg = await navigator.serviceWorker.register('/sw.js', { scope: '/' });
   await navigator.serviceWorker.ready;
+  const opcoes = { userVisibleOnly: true, applicationServerKey: chaveBinaria(chavePublica) };
   let sub = await reg.pushManager.getSubscription();
-  if (!sub) sub = await reg.pushManager.subscribe({ userVisibleOnly: true, applicationServerKey: chaveBinaria(chavePublica) });
+  if (!sub) {
+    try { sub = await reg.pushManager.subscribe(opcoes); }
+    catch (e) {
+      // O serviço de avisos do Android às vezes falha na primeira tentativa: espera um pouco e tenta mais uma vez.
+      if (!/push service|AbortError|registration/i.test(String(e?.message || e?.name || ''))) throw e;
+      await new Promise((r) => setTimeout(r, 2000));
+      await (await reg.pushManager.getSubscription())?.unsubscribe().catch(() => {});
+      sub = await reg.pushManager.subscribe(opcoes);
+    }
+  }
   const r = await salvarAparelho(sub.toJSON(), nomeAparelho());
   if (r?.erro) throw new Error(r.erro);
   return 'ligado';
