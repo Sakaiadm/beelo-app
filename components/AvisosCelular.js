@@ -63,7 +63,7 @@ export async function ativarAvisos(chavePublica) {
   return 'ligado';
 }
 
-export default function AvisosCelular({ chavePublica }) {
+export default function AvisosCelular({ chavePublica, teste = false }) {
   const [estado, setEstado] = useState('carregando'); // carregando | semchave | nosuporte | ios | negado | desligado | ligado
   const [msg, setMsg] = useState('');
   const [ocupado, setOcupado] = useState(false);
@@ -76,7 +76,7 @@ export default function AvisosCelular({ chavePublica }) {
     try {
       const r = await ativarAvisos(chavePublica);
       if (r !== 'ligado') { setEstado(r); return; }
-      setEstado('ligado'); setMsg('Pronto! Toque em "Enviar um teste" para ver chegar.');
+      setEstado('ligado'); setMsg(teste ? 'Pronto! Toque em "Enviar um teste" para ver chegar.' : 'Pronto! Os avisos vão chegar neste aparelho.');
     } catch (e) { setMsg(motivoAvisos(e)); }
     finally { setOcupado(false); }
   }
@@ -116,14 +116,13 @@ export default function AvisosCelular({ chavePublica }) {
         </div>
       )}
       {estado === 'negado' && <p style={txt}>Os avisos estão bloqueados neste aparelho. Libere nas configurações do navegador (ou do app), em Notificações, e volte aqui.</p>}
-      {estado === 'desligado' && <><p style={txt}>Receba um aviso no celular quando algo acontecer, mesmo com o app fechado.</p><button type="button" className="btn" disabled={ocupado} onClick={ativar}>Ativar avisos neste aparelho</button></>}
-      {estado === 'ligado' && (
-        <>
-          <div className="status-aviso"><p><i aria-hidden="true" />Avisos ativados neste aparelho.</p>
-            <button type="button" className="btn sec" disabled={ocupado} onClick={desativar}>Desligar</button></div>
-          <button type="button" className="link-teste" disabled={ocupado} onClick={testar}>Enviar um teste</button>
-        </>
+      {(estado === 'desligado' || estado === 'ligado') && (
+        <div className="lin-chave" style={{ borderTop: 0 }}>
+          <span>Receber avisos neste aparelho<small>{estado === 'ligado' ? 'Ligado: os avisos chegam aqui mesmo com o app fechado.' : 'Vale só para este celular ou computador. Em outro aparelho, ligue lá também.'}</small></span>
+          <button type="button" role="switch" aria-checked={estado === 'ligado'} aria-label="Receber avisos neste aparelho" disabled={ocupado} className={`chave ${estado === 'ligado' ? 'on' : ''}`} onClick={estado === 'ligado' ? desativar : ativar} />
+        </div>
       )}
+      {estado === 'ligado' && teste && <button type="button" className="link-teste" disabled={ocupado} onClick={testar}>Enviar um teste</button>}
       {msg && <p style={{ ...txt, marginTop: 10 }} role="status">{msg}</p>}
     </div>
   );
