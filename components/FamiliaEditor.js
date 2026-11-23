@@ -3,6 +3,7 @@ import { useRef, useState } from 'react';
 import Form from './Form';
 import FamiliaAvatar from './FamiliaAvatar';
 import Icone from './Icone';
+import CorFolha, { CorBotao } from './CorFolha';
 import { preparar } from './AvatarUpload';
 import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/rede';
 import { supabaseBrowser } from '@/lib/supabase/client';
@@ -16,6 +17,9 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
   const [nome, setNome] = useState(familia.nome);
   const [foto, setFoto] = useState({ caminho: undefined, previa: url || '', msg: '' });
   const [folha, setFolha] = useState(false);
+  const corInicial = familia.cor || '#1a6fe0';
+  const [cor, setCor] = useState(corInicial);
+  const [folhaCor, setFolhaCor] = useState(false);
   const [rn, setRn] = useState(''); const [re, setRe] = useState('');
   const v = validarEmail(re);
   async function escolher(e) {
@@ -32,16 +36,17 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
     } catch (err) { setFoto((f) => ({ ...f, msg: falhaDeRede(err) ? MSG.semInternetFoto : 'Não foi possível enviar a foto. Tente de novo.' })); }
     e.target.value = '';
   }
-  const sujo = editando || foto.caminho !== undefined;
+  const sujo = editando || foto.caminho !== undefined || cor !== corInicial;
   return (
     <>
       <Form acao={editarFamilia} okTxt="Salvo." className="cartao-l" style={{ display: 'block' }}>
         <input type="hidden" name="id" value={familia.id} />
         <input type="hidden" name="nome" value={nome} />
         {foto.caminho !== undefined && <input type="hidden" name="avatar" value={foto.caminho} />}
+        {cor !== corInicial && <input type="hidden" name="cor" value={cor} />}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <span style={{ position: 'relative', flex: 'none' }}>
-            <button type="button" className="foto-btn" aria-label="Trocar foto do grupo" onClick={() => ref.current.click()}><FamiliaAvatar url={foto.previa} nome={nome} tam={52} /></button>
+            <button type="button" className="foto-btn" aria-label="Trocar foto do grupo" onClick={() => ref.current.click()}><FamiliaAvatar url={foto.previa} nome={nome} tam={52} cor={cor} /></button>
             {foto.previa && <button type="button" className="x-badge" aria-label="Remover foto" title="Remover foto" onClick={() => setFoto({ caminho: '', previa: '', msg: 'Removido. Toque em Salvar.' })}><Icone nome="x" tam={13} /></button>}
             <button type="button" className="x-badge lapis-badge" aria-label="Trocar foto do grupo" title="Trocar foto" onClick={() => ref.current.click()}><Icone nome="lapis" tam={13} /></button>
             <input ref={ref} type="file" accept="image/*" hidden onChange={escolher} />
@@ -52,8 +57,9 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
           </span>
           {!editando && <button type="button" className="link-btn" onClick={() => setEditando(true)}>Editar</button>}
         </div>
+        <CorBotao cor={cor} rotulo="Cor do grupo" style={{ marginTop: 12 }} onClick={() => setFolhaCor(true)} />
         {foto.msg && <p className="peq-cinza">{foto.msg}</p>}
-        {sujo && <div className="acoes" style={{ marginTop: 10 }}><button className="btn peq" disabled={!nome.trim()}>Salvar</button><button type="button" className="btn sec peq" onClick={() => { setEditando(false); setNome(familia.nome); setFoto({ caminho: undefined, previa: url || '', msg: '' }); }}>Cancelar</button></div>}
+        {sujo && <div className="acoes" style={{ marginTop: 10 }}><button className="btn peq" disabled={!nome.trim()}>Salvar</button><button type="button" className="btn sec peq" onClick={() => { setEditando(false); setNome(familia.nome); setCor(corInicial); setFoto({ caminho: undefined, previa: url || '', msg: '' }); }}>Cancelar</button></div>}
         <div style={{ borderTop: '1px solid var(--borda)', marginTop: 12, paddingTop: 12, display: 'flex', gap: 10, alignItems: 'center' }}>
           <span style={{ flex: 1, minWidth: 0 }}>
             <small className="peq-cinza" style={{ margin: 0 }}>Responsável</small>
@@ -63,6 +69,8 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
           <button type="button" className="link-btn" onClick={() => setFolha(true)}>Trocar</button>
         </div>
         {resumo && <p className="peq-cinza" style={{ marginTop: 10 }}>{resumo}</p>}
+        {folhaCor && <CorFolha cor={cor} setCor={setCor} fechar={() => setFolhaCor(false)} titulo="Cor do grupo"
+          topo={<div className="cartao-l"><FamiliaAvatar url={foto.previa} nome={nome} tam={42} cor={cor} /><span><b>{nome}</b></span></div>} />}
       </Form>
       {folha && (
         <div className="folha" role="dialog" aria-modal="true" aria-label="Trocar responsável">

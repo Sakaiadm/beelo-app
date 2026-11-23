@@ -15,7 +15,9 @@ const qtd = (n, um, varios) => `${n} ${n === 1 ? um : varios}`;
 export default async function Familias() {
   const { supabase, superAdmin, familia: minha } = await exigirGestor();
   if (!superAdmin) redirect('/config');
-  const { data, error } = await supabase.rpc('ra_admin_familias');
+  const [{ data, error }, { data: cores }] = await Promise.all([supabase.rpc('ra_admin_familias'), supabase.rpc('ra_admin_cores')]);
+  // Cor de cada grupo (SQL 0014). Sem o SQL, volta vazio e fica o azul padrão.
+  const corDe = Object.fromEntries((cores || []).map((c) => [c.id, c.cor]));
   const lista = data || [];
   const urls = await urlsAvatares(supabase, lista.map((f) => f.avatar));
   const fmt = new Intl.DateTimeFormat('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit', year: '2-digit' });
@@ -27,7 +29,7 @@ export default async function Familias() {
       <Link prefetch={false} href="/config/familias/nova" className="btn bloco" style={{ marginBottom: 14 }}>+ Novo grupo</Link>
       {lista.map((f) => {
         const pct = f.oc_30d ? Math.round((100 * f.cumpridas_30d) / f.oc_30d) : null;
-        const av = (tam) => <FamiliaAvatar url={urls[f.avatar]} nome={f.nome} tam={tam} />;
+        const av = (tam) => <FamiliaAvatar url={urls[f.avatar]} nome={f.nome} tam={tam} cor={corDe[f.id] || undefined} />;
         return (
           <div key={f.id} className={`cartao-l ${f.ativa ? '' : 'apagado'}`} style={{ flexWrap: 'wrap' }}>
             <Link prefetch={false} href={`/config/familias/${f.id}`} style={{ display: 'flex', gap: 12, alignItems: 'center', flex: 1, minWidth: 0, color: 'inherit', textDecoration: 'none' }}>

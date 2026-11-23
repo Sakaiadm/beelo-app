@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
 import { parseMin, hojeISO, addDias, agoraHHMM, CORES_CAT } from '@/lib/util';
 import { validarEmail } from '@/lib/email';
-import { funcaoDe, nomeFuncao } from '@/lib/papeis';
+import { funcaoDe, nomeFuncao, temModoCrianca } from '@/lib/papeis';
 import { emailConfigurado, enviarEmailConvite } from '@/lib/convite';
 import { esquecerSessoes } from '@/lib/sessao';
 import { traduzirErro } from '@/lib/rede';
@@ -148,7 +148,7 @@ export async function salvarPessoa(_, fd) {
   const reg = {
     nome: txt(fd, 'nome', 60), email: v.email || null, papel: f.papel, funcao: f.id, permissoes,
     ativo: fd.get('ativo') === '1', tela_ativo: fd.get('tela_ativo') === '1',
-    modo_crianca: f.papel !== 'gestor' && fd.get('modo_crianca') === '1',
+    modo_crianca: temModoCrianca(f.id) && fd.get('modo_crianca') === '1',
     cor: /^#[0-9a-f]{6}$/i.test(fd.get('cor') || '') ? fd.get('cor') : '#1a6fe0',
   };
   if (!reg.nome) return { erro: 'Informe o nome' };
@@ -318,7 +318,12 @@ export async function editarFamilia(_, fd) {
   const mudar = fd.has('avatar');
   const a = mudar ? String(fd.get('avatar') || '') : '';
   if (mudar && a && !(caminhoAvatar(a) && (a.startsWith('preset:') || a.startsWith(`${id}/familia/`)))) return { erro: 'Imagem inválida' };
-  return rpc('ra_editar_familia', { p_id: id, p_nome: nome, p_avatar: a || null, p_mudar_avatar: mudar });
+  const r = await rpc('ra_editar_familia', { p_id: id, p_nome: nome, p_avatar: a || null, p_mudar_avatar: mudar });
+  if (r.erro || !fd.has('cor')) return r;
+  // Cor do grupo (SQL 0014).
+  const cor = String(fd.get('cor') || '');
+  if (!/^#[0-9a-f]{6}$/i.test(cor)) return { erro: 'Cor inválida' };
+  return rpc('ra_cor_familia', { p_id: id, p_cor: cor });
 }
 
 export async function trocarResponsavel(_, fd) {
@@ -446,6 +451,13 @@ export async function excluirCategoria(fd) {
 
 // ===== Perfil =====
 export async function salvarPerfil(_, fd) {
+  // Quem é acompanhado escolhe a própria cor em Meu perfil (SQL 0014).
+  if (fd.has('cor')) {
+    const cor = String(fd.get('cor') || '');
+    if (!/^#[0-9a-f]{6}$/i.test(cor)) return { erro: 'Cor inválida' };
+    const r = await rpc('ra_minha_cor', { p_cor: cor });
+    if (r.erro) return r;
+  }
   if (!fd.has('avatar')) return { ok: true };
   const a = String(fd.get('avatar') || '');
   if (a && !caminhoAvatar(a)) return { erro: 'Imagem inválida' };

@@ -9,6 +9,8 @@ import DicasInterruptor from '@/components/DicasInterruptor';
 import SomConcluir from '@/components/SomConcluir';
 import TelaMinha from '@/components/TelaMinha';
 import { hojeISO } from '@/lib/util';
+import MeusDados from '@/components/MeusDados';
+import { nomeFuncao } from '@/lib/papeis';
 
 export const dynamic = 'force-dynamic';
 
@@ -21,13 +23,19 @@ export default async function Perfil() {
   return (
     <main className="estreito perfil">
       <div className="cab"><div><h1 className="titulo">Meu perfil</h1><p className="sub">{eu.nome} · {familia.nome}</p></div></div>
-      <div className="card"><h2>Minha foto</h2>
-        <Form acao={salvarPerfil} okTxt="Foto salva.">
-          <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} atualAvatar={eu.avatar} rotulo={eu.nome} cor={eu.cor} largo crianca={crianca} />
-          <p className="ajuda">{crianca ? 'Escolha um avatar ou uma foto sua.' : 'Opcional. Escolha uma foto ou imagem do seu aparelho.'}</p>
-          <button className="btn cheio">Salvar</button>
-        </Form>
-      </div>
+      {gestor ? (
+        <div className="card"><h2>Minha foto</h2>
+          <Form acao={salvarPerfil} okTxt="Foto salva.">
+            <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} atualAvatar={eu.avatar} rotulo={eu.nome} cor={eu.cor} largo crianca={crianca} />
+            <p className="ajuda">Opcional. Escolha uma foto ou imagem do seu aparelho.</p>
+            <button className="btn cheio">Salvar</button>
+          </Form>
+        </div>
+      ) : (
+        <div className="card"><h2>Meus dados</h2>
+          <MeusDados eu={eu} papel={nomeFuncao(eu)} url={urls[eu.avatar]} crianca={crianca} />
+        </div>
+      )}
       <div className="card"><h2>Som</h2>
         <SomConcluir />
       </div>
