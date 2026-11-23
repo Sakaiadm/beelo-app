@@ -15,7 +15,7 @@ const ABERTURA = TELAS.flatMap(([w, h, r]) => ['claro', 'escuro'].map((t) => ({
 
 export const metadata = {
   title: 'beelo',
-  description: 'Rotina do grupo: tarefas, agenda e acompanhamento.',
+  description: 'Tarefas, agenda e acompanhamento para pais e filhos.',
   manifest: '/manifest.json',
   icons: { icon: '/icone.svg', apple: '/apple-touch-icon.png' },
   appleWebApp: { capable: true, title: 'beelo', statusBarStyle: 'default', startupImage: ABERTURA },
