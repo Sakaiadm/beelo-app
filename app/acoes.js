@@ -190,6 +190,19 @@ export async function salvarPessoa(_, fd) {
   return { ok: true, msg: aviso ? 'Salvo e convite enviado.' : undefined };
 }
 
+// Meu perfil: Pai ou Mãe liga ou desliga o tempo de tela para si.
+export async function salvarMinhaTela(_, fd) {
+  const supabase = await supabaseServer();
+  const { data: eu } = await supabase.rpc('ra_eu');
+  if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
+  const ligado = fd.get('tela_ativo') === '1';
+  const { error } = await supabase.from('ra_membros').update({ tela_ativo: ligado }).eq('id', eu.id);
+  if (error) return traduzirErro(error);
+  const erroTela = await sincronizarTarefaTela(supabase, eu, eu.id, ligado, fd);
+  revalidar();
+  return erroTela ? { erro: erroTela } : { ok: true };
+}
+
 // Tarefa "Lançar tempo de tela" (seção 64): existe enquanto o tempo de tela da pessoa está ligado,
 // com os dias e o horário escolhidos no cadastro. Desligando, para de ser gerada e o histórico fica.
 async function sincronizarTarefaTela(supabase, eu, membroId, ligado, fd) {
@@ -444,7 +457,7 @@ export async function salvarPerfil(_, fd) {
 export async function salvarAvisos(_, fd) {
   const concluir = fd.get('concluir') === '1';
   return rpc('ra_minhas_notif', { p_prefs: {
-    concluida: !concluir ? 'nenhuma' : fd.get('so_foto') === '1' ? 'com_foto' : 'todas',
+    concluida: !concluir ? 'nenhuma' : fd.get('sem_foto') === '1' ? 'todas' : 'com_foto',
     justificativa: fd.get('justificativa') === '1', adiamento: fd.get('adiamento') === '1',
     tela: fd.get('tela') === '1', tarefa_filho: fd.get('tarefa_filho') === '1',
   } });

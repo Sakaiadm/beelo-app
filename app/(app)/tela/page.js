@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { telaResumo, totalReal } from '@/lib/tela';
 import { hojeISO, addDias, dataCurta, dataLonga, fmtMin, DIAS_CURTO } from '@/lib/util';
@@ -34,7 +35,7 @@ export default async function Tela({ searchParams }) {
   const hoje = hojeISO(), ontem = addDias(hoje, -1);
 
   if (!gestor) {
-    if (!eu.tela_ativo) return <main className="estreito"><div className="card">O tempo de tela não está ativado para você.</div></main>;
+    if (!eu.tela_ativo) redirect('/hoje');
     const dia = sp.d === hoje ? hoje : ontem;
     const { data: p } = await supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: dia });
     const { data: pHoje } = await supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: hoje });
@@ -66,7 +67,7 @@ export default async function Tela({ searchParams }) {
   const filhos = membros.filter((m) => m.ativo && m.tela_ativo).sort((a, b) => (a.id === eu.id ? -1 : b.id === eu.id ? 1 : 0));
   const alvo = filhos.find((f) => f.id === sp.m) || filhos[0];
   const souEu = alvo?.id === eu.id;
-  if (!alvo) return <main className="estreito"><div className="card">O tempo de tela está desligado para todas as pessoas. Ligue em <Link prefetch={false} href="/config">Cadastros</Link>.</div></main>;
+  if (!alvo) redirect('/perfil#tela');
   const { data: regras } = await supabase.from('ra_tela_previsto').select('*').eq('membro_id', alvo.id).or(`vigencia_fim.is.null,vigencia_fim.gte.${hoje}`).order('criado_em', { ascending: false });
   const { data: propostas } = await supabase.from('ra_tela_proposta').select('*').eq('membro_id', alvo.id).eq('status', 'pendente');
   const hist = await telaResumo(supabase, alvo.id, addDias(hoje, -14), hoje);

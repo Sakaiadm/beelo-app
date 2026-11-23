@@ -16,14 +16,16 @@ import LampadaBtn from '@/components/LampadaBtn';
 import { hojeISO } from '@/lib/util';
 
 export default async function AppLayout({ children }) {
-  const { supabase, eu, naoLidas, gestor, superAdmin, familia } = await exigirMembro();
+  const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
+  // Ícone Tela: só aparece quando o tempo de tela está ligado (para Pai/Mãe: para alguém do grupo).
+  const telaLigada = gestor ? (membros || []).some((m) => m.ativo && m.tela_ativo) : !!eu.tela_ativo;
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const a = acesso(eu);
   const itens = gestor
     ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
-       { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' }, { href: '/tela', txt: 'Tela', icone: 'tela' }, { href: '/config', txt: 'Cadastros', icone: 'config' }]
+       { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' }, ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/config', txt: 'Cadastros', icone: 'config' }]
     : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
-       ...(eu.tela_ativo ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
+       ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
   // Ícone do manual: cada perfil abre o seu (Pai, Mãe e Supervisor, o completo).
   const manual = gestor || eu.funcao === 'supervisor' ? '/manual' : eu.modo_crianca ? '/manual/crianca' : '/manual/pessoa';
   return (
