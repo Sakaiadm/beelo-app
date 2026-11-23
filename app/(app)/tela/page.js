@@ -7,6 +7,7 @@ import { PrevistoForm, RealForm, PropostaForm } from '@/components/TelaForms';
 import { aparelhosDo } from '@/lib/aparelhos';
 import TelaGrafico from '@/components/TelaGrafico';
 import Form from '@/components/Form';
+import ConfirmarBotao from '@/components/ConfirmarBotao';
 import { encerrarPrevisto, responderTela } from '@/app/acoes';
 
 export const dynamic = 'force-dynamic';
@@ -76,7 +77,7 @@ export default async function Tela({ searchParams }) {
   const { data: propostas } = await supabase.from('ra_tela_proposta').select('*').eq('membro_id', alvo.id).eq('status', 'pendente');
   const hist = await telaResumo(supabase, alvo.id, addDias(hoje, -14), hoje);
   const semana = await telaSemana(supabase, alvo.id, ontem, addDias);
-  const { data: tarefaTela } = await supabase.from('ra_tarefas').select('hora_inicio').eq('responsavel_id', alvo.id).eq('especial', 'tela').eq('ativa', true).maybeSingle();
+  const { data: tarefaTela } = await supabase.from('ra_tarefas').select('hora_inicio, permite_adiar, exige_justificativa').eq('responsavel_id', alvo.id).eq('especial', 'tela').eq('ativa', true).maybeSingle();
   let meuPrev = null, meuAtual = null;
   if (souEu) {
     ({ data: meuPrev } = await supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: ontem }));
@@ -89,7 +90,7 @@ export default async function Tela({ searchParams }) {
       <div className="duas">
         <div className="lado">
           {souEu && <div className="card"><h2>Meu tempo de ontem</h2><RealForm eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={ontem} previsto={meuPrev?.[0]} atual={meuAtual} /></div>}
-          <div className="card"><h2>{souEu ? 'Meu previsto' : `Tempo de tela de ${alvo.nome}`}</h2><p className="sub" style={{ marginTop: 0, marginBottom: 12 }}>{souEu ? 'Defina quanto tempo você quer usar por dia.' : `Defina quanto tempo ${alvo.nome} pode usar por dia.`}</p><PrevistoForm key={alvo.id} membro={alvo.id} hoje={hoje} horaLancar={tarefaTela ? tarefaTela.hora_inicio?.slice(0, 5) || '08:00' : null} /></div>
+          <div className="card"><h2>{souEu ? 'Meu previsto' : `Tempo de tela de ${alvo.nome}`}</h2><p className="sub" style={{ marginTop: 0, marginBottom: 12 }}>{souEu ? 'Defina quanto tempo você quer usar por dia.' : `Defina quanto tempo ${alvo.nome} pode usar por dia.`}</p><PrevistoForm key={alvo.id} membro={alvo.id} hoje={hoje} horaLancar={tarefaTela ? tarefaTela.hora_inicio?.slice(0, 5) || '08:00' : null} adiar={!!tarefaTela?.permite_adiar} justificativa={!!tarefaTela?.exige_justificativa} outro={!souEu} /></div>
         </div>
         <div className="grande">
           {(propostas || []).length > 0 && <div className="card"><h2>Propostas para validar</h2>
@@ -114,10 +115,11 @@ export default async function Tela({ searchParams }) {
                     {r.fixado ? ' · fixo' : r.vigencia_fim && r.vigencia_inicio !== r.vigencia_fim ? ` · até ${dataCurta(r.vigencia_fim)}` : ''}{r.origem === 'proposta' ? ' · proposta aprovada' : ''}
                   </div>
                 </div>
-                <Form acao={encerrarPrevisto} simples><input type="hidden" name="id" value={r.id} /><button className="btn sec peq">Encerrar</button></Form>
+                <ConfirmarBotao acao={encerrarPrevisto} campos={{ id: r.id }} rotulo="Excluir" classe="btn perigo peq" titulo="Excluir este previsto?" nome={textoPrevisto(r, fmtMin)}
+                  pergunta="Ele sai da tela. Os dias que já passaram continuam nos relatórios do mesmo jeito." sim="Sim, excluir" nao="Não" />
               </div>
             ))}
-            <p style={{ fontSize: 13, color: 'var(--cinza)', marginBottom: 0 }}>Quando há mais de um previsto para o mesmo dia, vale o de dia específico; depois, o mais recente.</p>
+            <p style={{ fontSize: 13, color: 'var(--cinza)', marginBottom: 0 }}>Tem dois previstos no mesmo dia? Vale o que foi feito só para aquele dia. Se não tiver, vale o mais novo.</p>
           </div>
           <TelaGrafico dias={semana} />
           <div className="card"><h2>Últimos 14 dias</h2><Historico linhas={hist.reverse()} /></div>
