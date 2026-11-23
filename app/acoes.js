@@ -206,7 +206,7 @@ export async function salvarMinhaTela(_, fd) {
 // Tarefa "Lançar tempo de tela" (seção 64): existe enquanto o tempo de tela da pessoa está ligado,
 // com os dias e o horário escolhidos no cadastro. Desligando, para de ser gerada e o histórico fica.
 async function sincronizarTarefaTela(supabase, eu, membroId, ligado, fd) {
-  const { data: atual, error: e1 } = await supabase.from('ra_tarefas').select('id').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
+  const { data: atual, error: e1 } = await supabase.from('ra_tarefas').select('id, hora_inicio').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
   if (e1) return String(e1.message || '').includes('especial') ? 'Pessoa salva. Para a tarefa “Lançar tempo de tela” aparecer, rode o SQL 0011 no Supabase.' : traduzirErro(e1).erro;
   const hoje = hojeISO();
   if (!ligado) {
@@ -219,8 +219,8 @@ async function sincronizarTarefaTela(supabase, eu, membroId, ligado, fd) {
   if (!fd.has('tela_opcao')) return '';
   const opcao = ['uma', 'diaria', 'semana', 'pers'].includes(fd.get('tela_opcao')) ? fd.get('tela_opcao') : 'diaria';
   const dias = fd.getAll('tela_dias').map(Number).filter((n) => n >= 0 && n <= 6);
-  const h = hora(fd.get('tela_hora'));
-  if (!h) return 'Escolha o horário de lançar o tempo de tela';
+  // O horário de lançar fica na aba Tela ("Lançar sempre às"); aqui mantém o que já tem (ou 08:00).
+  const h = hora(fd.get('tela_hora')) || atual?.hora_inicio?.slice(0, 5) || '08:00';
   if (opcao === 'pers' && !dias.length) return 'Escolha pelo menos um dia para lançar o tempo de tela';
   const uma = opcao === 'uma';
   const reg = {
@@ -364,8 +364,12 @@ export async function salvarPrevisto(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
   if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
-  const formato = fd.get('formato') === 'total' ? 'total' : 'aparelho';
+  // Celular e Computador: o total é a soma; o aparelho em 0h00 não conta (fica vazio no previsto).
+  const formato = 'aparelho';
   const m = lerMinutos(fd, formato); if (m.erro) return m;
+  if (!m.min_celular) m.min_celular = null;
+  if (!m.min_computador) m.min_computador = null;
+  if (m.min_celular == null && m.min_computador == null) return { erro: 'Coloque o tempo do celular ou do computador.' };
   const modo = ['dia', 'dias', 'semana'].includes(fd.get('modo')) ? fd.get('modo') : 'dias';
   const hoje = hojeISO();
   const inicio = data(fd.get('inicio')) || hoje;
@@ -383,8 +387,24 @@ export async function salvarPrevisto(_, fd) {
     fixado: modo !== 'dia' && !fim, ...m, criado_por: eu.id,
   });
   if (error) return traduzirErro(error);
-  revalidatePath('/tela');
+  const h = hora(fd.get('tela_hora'));
+  if (h) {
+    const erroHora = await mudarHoraTela(supabase, uuid(fd.get('membro')), h);
+    if (erroHora) return { erro: erroHora };
+  }
+  revalidar();
   return { ok: true };
+}
+
+// "Lançar sempre às" (aba Tela): muda o horário da tarefa "Lançar tempo de tela" e das próximas pendentes.
+async function mudarHoraTela(supabase, membroId, h) {
+  const { data: t, error } = await supabase.from('ra_tarefas').select('id, hora_inicio').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
+  if (error) return traduzirErro(error).erro;
+  if (!t || t.hora_inicio?.slice(0, 5) === h) return '';
+  const { error: e2 } = await supabase.from('ra_tarefas').update({ hora_inicio: h }).eq('id', t.id);
+  if (e2) return traduzirErro(e2).erro;
+  await supabase.from('ra_ocorrencias').update({ hora_inicio: h }).eq('tarefa_id', t.id).eq('status', 'pendente').gte('data', hojeISO());
+  return '';
 }
 
 export async function encerrarPrevisto(fd) {

@@ -515,3 +515,37 @@ main.ideias { max-width: 600px; }
 /* Campo só de leitura (Meu perfil de quem é acompanhado: nome e papel). */
 .campo-fixo { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 46px; padding: 0 14px; border: 1px solid var(--borda); border-radius: 14px; background: var(--fundo); color: var(--texto); font-size: 15px; }
 .campo-fixo svg { color: var(--cinza); flex: none; }
+
+/* Relógio de 24 horas (escolher horário sem AM/PM) */
+.relogio-ic { color: var(--azul); display: inline-flex; }
+.relogio-fundo { position: fixed; inset: 0; z-index: 70; background: rgba(19,32,58,.45); display: flex; align-items: center; justify-content: center; padding: 16px; }
+.relogio { background: var(--cartao); border-radius: 18px; padding: 20px 18px; width: 100%; max-width: 340px; display: flex; flex-direction: column; align-items: center; gap: 12px; box-shadow: 0 10px 30px rgba(19,32,58,.25); }
+.relogio h2 { margin: 0; align-self: flex-start; font-size: 20px; }
+.relogio-vis { display: flex; align-items: center; gap: 6px; font-size: 44px; font-weight: 800; }
+.relogio-vis button { font: inherit; font-variant-numeric: tabular-nums; border: 0; cursor: pointer; padding: 2px 12px; border-radius: 14px; background: var(--trilho); color: var(--texto); }
+.relogio-vis button.on { background: color-mix(in srgb, var(--azul) 16%, transparent); color: var(--azul); }
+.relogio-face { position: relative; max-width: 100%; }
+.relogio-disco { fill: var(--trilho); }
+.relogio-n { position: absolute; width: 40px; height: 40px; margin: -20px 0 0 -20px; border: 0; border-radius: 50%; background: transparent; color: var(--texto); font: inherit; font-size: 16px; font-weight: 600; cursor: pointer; padding: 0; }
+.relogio-n.dentro { font-size: 13px; color: var(--cinza); width: 34px; height: 34px; margin: -17px 0 0 -17px; }
+.relogio-n.on { color: #fff; font-weight: 800; }
+.relogio-n:focus-visible { outline: 3px solid var(--azul); }
+.relogio-acoes { width: 100%; display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+.relogio-acoes .btn { min-height: 50px; border-radius: 14px; }
+
+/* Tempo de tela: total do dia e gráfico dos últimos 7 dias (previsto x realizado) */
+.total-dia { margin: 10px 2px 0; font-size: 14px; color: var(--cinza); }
+.total-dia b { color: var(--texto); }
+.g7 { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; align-items: end; height: 170px; border-bottom: 1px solid var(--borda); margin-top: 6px; }
+.g7 .col { height: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.g7 .b { width: 42%; max-width: 26px; border-radius: 6px 6px 0 0; min-height: 2px; }
+.g7 .b.p { background: #1a6fe0; }
+.g7 .b.ok { background: var(--ok); }
+.g7 .b.passou { background: var(--erro); }
+.g7 .sem { width: 42%; max-width: 26px; text-align: center; font-size: 11px; color: var(--cinza); margin-bottom: 4px; }
+.g7d, .g7v { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; text-align: center; }
+.g7d { font-size: 12px; color: var(--cinza); margin-top: 6px; font-weight: 600; }
+.g7d b { display: block; color: var(--texto); }
+.g7v { font-size: 11px; margin-top: 4px; font-variant-numeric: tabular-nums; color: var(--cinza); }
+.g7v .mais { color: var(--erro); font-weight: 800; }
+.g7v .menos { color: var(--ok); font-weight: 800; }

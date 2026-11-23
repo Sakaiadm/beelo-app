@@ -1,9 +1,11 @@
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
-import { telaResumo, totalReal } from '@/lib/tela';
+import { telaResumo, totalReal, textoPrevisto, telaSemana } from '@/lib/tela';
 import { hojeISO, addDias, dataCurta, dataLonga, fmtMin, DIAS_CURTO } from '@/lib/util';
 import { PrevistoForm, RealForm, PropostaForm } from '@/components/TelaForms';
+import { aparelhosDo } from '@/lib/aparelhos';
+import TelaGrafico from '@/components/TelaGrafico';
 import Form from '@/components/Form';
 import { encerrarPrevisto, responderTela } from '@/app/acoes';
 
@@ -21,7 +23,7 @@ function Historico({ linhas }) {
           <tr key={r.id}>
             <td>{dataCurta(r.data)}</td><td className="num">{prev != null ? fmtMin(prev) : '—'}</td><td className="num">{fmtMin(real)}</td>
             <td className="num" style={{ fontWeight: 700, color: dif == null ? undefined : dif > 0 ? 'var(--erro)' : 'var(--ok)' }}>{dif == null ? '—' : (dif > 0 ? '+' : '') + fmtMin(dif)}</td>
-            <td style={{ fontSize: 13, color: 'var(--cinza)' }}>{r.min_total != null && r.min_celular == null ? 'total' : `cel ${fmtMin(r.min_celular)} · pc ${fmtMin(r.min_computador)}`}{r.foto_celular || r.foto_computador ? ' · com foto' : ''}{r.obs ? ` · ${r.obs}` : ''}</td>
+            <td style={{ fontSize: 13, color: 'var(--cinza)' }}>{r.min_celular == null && r.min_computador == null ? 'total' : [r.min_celular != null && `cel ${fmtMin(r.min_celular)}`, r.min_computador != null && `pc ${fmtMin(r.min_computador)}`].filter(Boolean).join(' · ')}{r.foto_celular || r.foto_computador ? ' · com foto' : ''}{r.obs ? ` · ${r.obs}` : ''}</td>
           </tr>
         );
       })}</tbody>
@@ -42,6 +44,7 @@ export default async function Tela({ searchParams }) {
     const { data: atual } = await supabase.from('ra_tela_real').select('*').eq('membro_id', eu.id).eq('data', dia).maybeSingle();
     const { data: props } = await supabase.from('ra_tela_proposta').select('*').eq('membro_id', eu.id).order('criado_em', { ascending: false }).limit(5);
     const hist = await telaResumo(supabase, eu.id, addDias(hoje, -14), hoje);
+    const semana = await telaSemana(supabase, eu.id, ontem, addDias);
     return (
       <main className="estreito">
         <div className="cab"><div><h1 className="titulo">Tempo de tela</h1><p className="sub">Realizado de {dataLonga(dia)}</p></div>
@@ -52,12 +55,13 @@ export default async function Tela({ searchParams }) {
         </div>
         <div className="card">
           <h2>Previsto de hoje</h2>
-          <p style={{ margin: 0 }}>{pHoje?.[0] ? (pHoje[0].formato === 'total' ? `Total ${fmtMin(pHoje[0].min_total)}` : `Celular ${fmtMin(pHoje[0].min_celular)} · Computador ${fmtMin(pHoje[0].min_computador)}`) : 'Seus responsáveis ainda não definiram.'}</p>
+          <p style={{ margin: 0 }}>{pHoje?.[0] ? textoPrevisto(pHoje[0], fmtMin) : 'Seus responsáveis ainda não definiram.'}</p>
           <details style={{ marginTop: 12 }}><summary style={{ cursor: 'pointer', fontWeight: 700, color: 'var(--azul)' }}>Precisa de outro previsto?</summary>
-            <PropostaForm hoje={hoje} formato={pHoje?.[0]?.formato === 'total' ? 'total' : 'aparelho'} /></details>
+            <PropostaForm hoje={hoje} formato={pHoje?.[0]?.formato === 'total' ? 'total' : 'aparelho'} aparelhos={aparelhosDo(pHoje?.[0])} /></details>
           {(props || []).length > 0 && <div style={{ marginTop: 12, fontSize: 13, color: 'var(--cinza)' }}>
             {props.map((x) => <div key={x.id}>{dataCurta(x.data)}: {x.status === 'pendente' ? 'aguardando validação' : x.status}</div>)}</div>}
         </div>
+        <TelaGrafico dias={semana} />
         <div className="card"><h2>Últimos 14 dias</h2><Historico linhas={hist.reverse()} /></div>
       </main>
     );
@@ -71,6 +75,8 @@ export default async function Tela({ searchParams }) {
   const { data: regras } = await supabase.from('ra_tela_previsto').select('*').eq('membro_id', alvo.id).or(`vigencia_fim.is.null,vigencia_fim.gte.${hoje}`).order('criado_em', { ascending: false });
   const { data: propostas } = await supabase.from('ra_tela_proposta').select('*').eq('membro_id', alvo.id).eq('status', 'pendente');
   const hist = await telaResumo(supabase, alvo.id, addDias(hoje, -14), hoje);
+  const semana = await telaSemana(supabase, alvo.id, ontem, addDias);
+  const { data: tarefaTela } = await supabase.from('ra_tarefas').select('hora_inicio').eq('responsavel_id', alvo.id).eq('especial', 'tela').eq('ativa', true).maybeSingle();
   let meuPrev = null, meuAtual = null;
   if (souEu) {
     ({ data: meuPrev } = await supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: ontem }));
@@ -83,13 +89,13 @@ export default async function Tela({ searchParams }) {
       <div className="duas">
         <div className="lado">
           {souEu && <div className="card"><h2>Meu tempo de ontem</h2><RealForm eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={ontem} previsto={meuPrev?.[0]} atual={meuAtual} /></div>}
-          <div className="card"><h2>{souEu ? 'Meu previsto' : `Tempo de tela de ${alvo.nome}`}</h2><p className="sub" style={{ marginTop: 0, marginBottom: 12 }}>{souEu ? 'Defina quanto tempo você quer usar por dia.' : `Defina quanto tempo ${alvo.nome} pode usar por dia.`}</p><PrevistoForm membro={alvo.id} hoje={hoje} /></div>
+          <div className="card"><h2>{souEu ? 'Meu previsto' : `Tempo de tela de ${alvo.nome}`}</h2><p className="sub" style={{ marginTop: 0, marginBottom: 12 }}>{souEu ? 'Defina quanto tempo você quer usar por dia.' : `Defina quanto tempo ${alvo.nome} pode usar por dia.`}</p><PrevistoForm key={alvo.id} membro={alvo.id} hoje={hoje} horaLancar={tarefaTela ? tarefaTela.hora_inicio?.slice(0, 5) || '08:00' : null} /></div>
         </div>
         <div className="grande">
           {(propostas || []).length > 0 && <div className="card"><h2>Propostas para validar</h2>
             {propostas.map((p) => (
               <div key={p.id} className="tarefa" style={{ background: 'var(--aviso-fundo)', borderColor: 'var(--aviso-borda)' }}>
-                <div className="tt">{dataCurta(p.data)}: {p.min_total != null ? `total ${fmtMin(p.min_total)}` : `celular ${fmtMin(p.min_celular)} · computador ${fmtMin(p.min_computador)}`}</div>
+                <div className="tt">{dataCurta(p.data)}: {textoPrevisto({ ...p, formato: p.min_total != null ? 'total' : 'aparelho' }, fmtMin)}</div>
                 <div className="meta">“{p.motivo}”</div>
                 <div className="acoes" style={{ marginTop: 8 }}>
                   <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Validar</button></Form>
@@ -102,7 +108,7 @@ export default async function Tela({ searchParams }) {
             {(regras || []).map((r) => (
               <div key={r.id} style={{ display: 'flex', gap: 10, alignItems: 'center', padding: '10px 0', borderBottom: '1px solid var(--borda)' }}>
                 <div style={{ flex: 1 }}>
-                  <div style={{ fontWeight: 700 }}>{r.formato === 'total' ? `Total ${fmtMin(r.min_total)}` : `Celular ${fmtMin(r.min_celular)} · Computador ${fmtMin(r.min_computador)}`}</div>
+                  <div style={{ fontWeight: 700 }}>{textoPrevisto(r, fmtMin)}</div>
                   <div style={{ fontSize: 13, color: 'var(--cinza)' }}>
                     {r.vigencia_inicio === r.vigencia_fim ? `Só em ${dataCurta(r.vigencia_inicio)}` : r.dias_semana.length === 7 ? 'Semana inteira' : r.dias_semana.map((d) => DIAS_CURTO[d]).join(' ')}
                     {r.fixado ? ' · fixo' : r.vigencia_fim && r.vigencia_inicio !== r.vigencia_fim ? ` · até ${dataCurta(r.vigencia_fim)}` : ''}{r.origem === 'proposta' ? ' · proposta aprovada' : ''}
@@ -113,6 +119,7 @@ export default async function Tela({ searchParams }) {
             ))}
             <p style={{ fontSize: 13, color: 'var(--cinza)', marginBottom: 0 }}>Quando há mais de um previsto para o mesmo dia, vale o de dia específico; depois, o mais recente.</p>
           </div>
+          <TelaGrafico dias={semana} />
           <div className="card"><h2>Últimos 14 dias</h2><Historico linhas={hist.reverse()} /></div>
         </div>
       </div>
