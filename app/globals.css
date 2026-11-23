@@ -492,3 +492,14 @@ main.ideias { max-width: 600px; }
 :root[data-theme="escuro"] { --logo-topo: #5b9bff; }
 @media (prefers-color-scheme: dark) { :root:not([data-theme="claro"]) { --logo-topo: #5b9bff; } }
 .logo-topo { display: block; height: 38px; aspect-ratio: 272.24 / 92; background: var(--logo-topo); -webkit-mask: url(/marca/beelo-horizontal-negativa-branca.svg) center / contain no-repeat; mask: url(/marca/beelo-horizontal-negativa-branca.svg) center / contain no-repeat; }
+
+/* Lápis no canto de baixo da foto (abre a escolha de imagem) e menu Foto/Avatar da criança */
+.x-badge.lapis-badge { top: auto; bottom: -6px; }
+.foto-btn { border: 0; background: none; padding: 0; cursor: pointer; border-radius: 50%; display: inline-flex; }
+.foto-menu { position: absolute; left: 0; top: calc(100% + 10px); z-index: 20; width: 220px; box-shadow: 0 10px 30px rgba(19,32,58,.18); }
+.foto-menu button { font-size: 16px; justify-content: flex-start; }
+.foto-menu .ic { color: var(--azul); display: inline-flex; }
+/* Campo de hora com X para apagar (o iPhone não tem botão de limpar) */
+.campo-x { position: relative; }
+.campo-x input { padding-right: 46px; }
+.limpar-x { position: absolute; right: 8px; top: 50%; transform: translateY(-50%); width: 30px; height: 30px; border-radius: 50%; border: 0; background: var(--campo); color: var(--texto); display: inline-flex; align-items: center; justify-content: center; padding: 0; cursor: pointer; }

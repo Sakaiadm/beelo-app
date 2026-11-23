@@ -25,7 +25,7 @@ export const viewport = { themeColor: '#1a6fe0', width: 'device-width', initialS
 export default async function RootLayout({ children }) {
   const tema = (await cookies()).get('tema')?.value;
   return (
-    <html lang="pt-BR" className={fonte.variable} data-theme={tema === 'escuro' || tema === 'claro' ? tema : undefined}>
+    <html lang="pt-BR" className={fonte.variable} data-theme={tema === 'escuro' ? 'escuro' : 'claro'}>
       <body>{children}</body>
     </html>
   );

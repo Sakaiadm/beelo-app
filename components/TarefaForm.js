@@ -1,5 +1,6 @@
 'use client';
 import Icone from './Icone';
+import HoraFim from './HoraFim';
 import { useState } from 'react';
 import Form from './Form';
 import { salvarTarefa } from '@/app/acoes';
@@ -173,7 +174,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       {comHora ? (
         <div className="linha">
           <div><label htmlFor="hora_inicio">Início</label><input id="hora_inicio" type="time" name="hora_inicio" required value={horaIni} onChange={(e) => setHoraIni(e.target.value)} /></div>
-          <div><label htmlFor="hora_fim">Fim (opcional)</label><input id="hora_fim" type="time" name="hora_fim" value={horaFim} onChange={(e) => setHoraFim(e.target.value)} /></div>
+          <div><label htmlFor="hora_fim">Fim (opcional)</label><HoraFim id="hora_fim" name="hora_fim" value={horaFim || ''} onChange={setHoraFim} /></div>
         </div>
       ) : (
         <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '6px 0 0' }}>
