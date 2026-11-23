@@ -15,7 +15,7 @@ const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', '
 const DIAS_ABREV = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
 const ROTULO = { uma: 'Uma vez', diaria: 'Diariamente', semana: 'Seg. a Sex.' };
 
-export function PrevistoForm({ membro, hoje, horaLancar }) {
+export function PrevistoForm({ membro, hoje, horaLancar, adiar, justificativa, outro }) {
   const [cel, setCel] = useState('0h00');
   const [pc, setPc] = useState('0h00');
   const mc = parseMin(cel), mp = parseMin(pc);
@@ -90,7 +90,12 @@ export function PrevistoForm({ membro, hoje, horaLancar }) {
           </div>
         </div>
       )}
-      {horaLancar && <><label htmlFor={`hl-${membro}`}>Lançar sempre às</label><RelogioHora id={`hl-${membro}`} name="tela_hora" rotulo="Lançar sempre às" defaultValue={horaLancar} /></>}
+      {horaLancar && <><label htmlFor={`hl-${membro}`}>Lançar sempre às</label><RelogioHora id={`hl-${membro}`} name="tela_hora" rotulo="Lançar sempre às" defaultValue={horaLancar} />
+        {outro && <>
+          <label className="check" style={{ marginTop: 12 }}><input type="checkbox" name="tela_adiar" value="1" defaultChecked={adiar} />Pode adiar</label>
+          <label className="check"><input type="checkbox" name="tela_justificativa" value="1" defaultChecked={justificativa} />Exige justificativa se atrasar</label>
+        </>}
+      </>}
       {zerado && <p className="total-dia">Coloque o tempo do celular ou do computador.</p>}
       <button className="btn bloco" style={{ marginTop: zerado ? 10 : 14 }} disabled={zerado}>Salvar previsto</button>
     </Form>
