@@ -461,6 +461,8 @@ export async function enviarTeste() { return rpc('ra_push_teste', {}); }
 
 // ===== Famílias =====
 export async function criarFamilia(_, fd) {
+  // Versão beta: grupos novos só pelo administrador (Cadastros > Famílias e grupos), salvo se CADASTRO_ABERTO=1.
+  if (process.env.CADASTRO_ABERTO !== '1') return { erro: 'Na versão beta, os grupos novos são criados pela equipe do beelo. Fale com a gente para participar.' };
   const supabase = await supabaseServer();
   const { error } = await supabase.rpc('ra_criar_familia', { p_nome: txt(fd, 'familia', 60), p_meu_nome: txt(fd, 'nome', 60) });
   if (error) return traduzirErro(error);
