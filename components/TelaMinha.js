@@ -18,8 +18,6 @@ export default function TelaMinha({ ligado, telaTarefa, hoje }) {
       {on && (
         <div style={{ marginBottom: 12 }}>
           <RepetirCampo nome="tela" rotulo="Lançar tempo de tela · Repetir" inicial={opcaoDaTarefa(telaTarefa)} dataInicial={telaTarefa?.tipo === 'pontual' ? telaTarefa.data_inicio : null} hoje={hoje} />
-          <label htmlFor="tela-hora-eu">Horário</label>
-          <input id="tela-hora-eu" type="time" name="tela_hora" defaultValue={telaTarefa?.hora_inicio?.slice(0, 5) || '08:00'} required />
         </div>
       )}
       <p className="peq-cinza" style={{ marginTop: 0 }}>Para as outras pessoas, ligue no cadastro de cada uma, em Cadastros &gt; Pessoas.</p>

@@ -4,7 +4,9 @@ import { useState } from 'react';
 import Form from './Form';
 import Foto from './Foto';
 import { salvarPrevisto, salvarTelaReal, proporTela } from '@/app/acoes';
-import { fmtMin } from '@/lib/util';
+import { fmtMin, parseMin } from '@/lib/util';
+import RelogioHora from './RelogioHora';
+import { aparelhosDo } from '@/lib/aparelhos';
 
 const v = (m) => (m == null ? '' : fmtMin(m));
 
@@ -13,8 +15,12 @@ const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', '
 const DIAS_ABREV = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
 const ROTULO = { uma: 'Uma vez', diaria: 'Diariamente', semana: 'Seg. a Sex.' };
 
-export function PrevistoForm({ membro, hoje }) {
-  const [formato, setFormato] = useState('aparelho');
+export function PrevistoForm({ membro, hoje, horaLancar }) {
+  const [cel, setCel] = useState('0h00');
+  const [pc, setPc] = useState('0h00');
+  const mc = parseMin(cel), mp = parseMin(pc);
+  const total = (Number.isNaN(mc) ? 0 : mc || 0) + (Number.isNaN(mp) ? 0 : mp || 0);
+  const zerado = !Number.isNaN(mc) && !Number.isNaN(mp) && total === 0;
   const [opcao, setOpcao] = useState('semana'); // uma | diaria | semana | pers
   const [dias, setDias] = useState(SEG_SEX);
   const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
@@ -33,19 +39,12 @@ export function PrevistoForm({ membro, hoje }) {
       <input type="hidden" name="modo" value={modo} />
       <input type="hidden" name="fim" value={uma ? '' : fim} />
       {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
-      <div className="seg" role="radiogroup" aria-label="Formato">
-        <button type="button" role="radio" aria-checked={formato === 'aparelho'} className={formato === 'aparelho' ? 'on' : ''} onClick={() => setFormato('aparelho')}>Celular e computador</button>
-        <button type="button" role="radio" aria-checked={formato === 'total'} className={formato === 'total' ? 'on' : ''} onClick={() => setFormato('total')}>Só o total</button>
+      <input type="hidden" name="formato" value="aparelho" />
+      <div className="linha">
+        <div><label htmlFor={`pc-${membro}`}>Celular</label><input id={`pc-${membro}`} name="celular" value={cel} onChange={(e) => setCel(e.target.value)} onFocus={(e) => e.target.select()} inputMode="text" /></div>
+        <div><label htmlFor={`pp-${membro}`}>Computador</label><input id={`pp-${membro}`} name="computador" value={pc} onChange={(e) => setPc(e.target.value)} onFocus={(e) => e.target.select()} inputMode="text" /></div>
       </div>
-      <input type="hidden" name="formato" value={formato} />
-      {formato === 'aparelho' ? (
-        <div className="linha">
-          <div><label htmlFor={`pc-${membro}`}>Celular</label><input id={`pc-${membro}`} name="celular" placeholder="2h00" required /></div>
-          <div><label htmlFor={`pp-${membro}`}>Computador</label><input id={`pp-${membro}`} name="computador" placeholder="1h00" required /></div>
-        </div>
-      ) : (
-        <><label htmlFor={`pt-${membro}`}>Total do dia</label><input id={`pt-${membro}`} name="total" placeholder="3h00" required /></>
-      )}
+      <p className="total-dia">Total do dia: <b>{Math.floor(total / 60)}h{String(total % 60).padStart(2, '0')}</b></p>
       <label htmlFor="repetir-tela">Repetir</label>
       <button id="repetir-tela" type="button" className="campo-botao" onClick={() => setFolha('repetir')}><span>{resumo}</span><span aria-hidden="true">›</span></button>
       <div className="linha">
@@ -91,37 +90,47 @@ export function PrevistoForm({ membro, hoje }) {
           </div>
         </div>
       )}
-      <button className="btn bloco" style={{ marginTop: 14 }}>Salvar previsto</button>
+      {horaLancar && <><label htmlFor={`hl-${membro}`}>Lançar sempre às</label><RelogioHora id={`hl-${membro}`} name="tela_hora" rotulo="Lançar sempre às" defaultValue={horaLancar} /></>}
+      {zerado && <p className="total-dia">Coloque o tempo do celular ou do computador.</p>}
+      <button className="btn bloco" style={{ marginTop: zerado ? 10 : 14 }} disabled={zerado}>Salvar previsto</button>
     </Form>
   );
 }
 
 export function RealForm({ eu, data, previsto, atual, membroId, familia }) {
   const formato = previsto?.formato === 'total' ? 'total' : 'aparelho';
+  const { cel, pc } = aparelhosDo(previsto);
   return (
     <Form acao={salvarTelaReal} okTxt="Tempo de tela salvo.">
       <input type="hidden" name="data" value={data} />
       <input type="hidden" name="formato" value={formato} />
       <input type="hidden" name="membro" value={membroId} />
       {formato === 'total' ? (
-        <div className="linha">
-          <div><label>Total previsto</label><input value={previsto ? fmtMin(previsto.min_total) : 'Não definido'} readOnly disabled /></div>
-          <div><label htmlFor="rt">Realizado (total)</label><input id="rt" name="total" placeholder="ex.: 2h30" defaultValue={v(atual?.min_total)} required /></div>
-        </div>
-      ) : (
         <>
           <div className="linha">
-            <div><label>Celular previsto</label><input value={previsto ? fmtMin(previsto.min_celular) : 'Não definido'} readOnly disabled /></div>
-            <div><label htmlFor="rc">Celular realizado</label><input id="rc" name="celular" placeholder="ex.: 2h10" defaultValue={v(atual?.min_celular)} required /></div>
+            <div><label>Total previsto</label><input value={previsto ? fmtMin(previsto.min_total) : 'Não definido'} readOnly disabled /></div>
+            <div><label htmlFor="rt">Realizado (total)</label><input id="rt" name="total" placeholder="ex.: 2h30" defaultValue={v(atual?.min_total)} required /></div>
           </div>
           <div style={{ marginTop: 8 }}><Foto nome="foto_celular" familia={familia} membro={eu} /></div>
-          <div className="linha">
-            <div><label>Computador previsto</label><input value={previsto ? fmtMin(previsto.min_computador) : 'Não definido'} readOnly disabled /></div>
-            <div><label htmlFor="rp">Computador realizado</label><input id="rp" name="computador" placeholder="ex.: 45min" defaultValue={v(atual?.min_computador)} required /></div>
-          </div>
+        </>
+      ) : (
+        <>
+          {cel && <>
+            <div className="linha">
+              <div><label>Celular previsto</label><input value={previsto ? fmtMin(previsto.min_celular) : 'Não definido'} readOnly disabled /></div>
+              <div><label htmlFor="rc">Celular realizado</label><input id="rc" name="celular" placeholder="ex.: 2h10" defaultValue={v(atual?.min_celular)} required /></div>
+            </div>
+            <div style={{ marginTop: 8 }}><Foto nome="foto_celular" familia={familia} membro={eu} /></div>
+          </>}
+          {pc && <>
+            <div className="linha">
+              <div><label>Computador previsto</label><input value={previsto ? fmtMin(previsto.min_computador) : 'Não definido'} readOnly disabled /></div>
+              <div><label htmlFor="rp">Computador realizado</label><input id="rp" name="computador" placeholder="ex.: 45min" defaultValue={v(atual?.min_computador)} required /></div>
+            </div>
+            <div style={{ marginTop: 8 }}><Foto nome="foto_computador" familia={familia} membro={eu} /></div>
+          </>}
         </>
       )}
-      <div style={{ marginTop: 8 }}><Foto nome={formato === 'total' ? 'foto_celular' : 'foto_computador'} familia={familia} membro={eu} /></div>
       <label htmlFor="obs">Observação (opcional)</label>
       <input id="obs" name="obs" maxLength={300} defaultValue={atual?.obs || ''} placeholder="ex.: trabalho da faculdade no computador" />
       <button className="btn bloco" style={{ marginTop: 14 }}>Salvar</button>
@@ -129,7 +138,7 @@ export function RealForm({ eu, data, previsto, atual, membroId, familia }) {
   );
 }
 
-export function PropostaForm({ hoje, formato }) {
+export function PropostaForm({ hoje, formato, aparelhos = { cel: true, pc: true } }) {
   return (
     <Form acao={proporTela} okTxt="Proposta enviada. Seus pais vão validar." limpar>
       <input type="hidden" name="formato" value={formato} />
@@ -139,8 +148,8 @@ export function PropostaForm({ hoje, formato }) {
         <><label htmlFor="ptot">Total que você precisa</label><input id="ptot" name="total" placeholder="3h00" required /></>
       ) : (
         <div className="linha">
-          <div><label htmlFor="pcel">Celular</label><input id="pcel" name="celular" placeholder="2h00" required /></div>
-          <div><label htmlFor="ppc">Computador</label><input id="ppc" name="computador" placeholder="3h00" required /></div>
+          {aparelhos.cel && <div><label htmlFor="pcel">Celular</label><input id="pcel" name="celular" placeholder="2h00" required /></div>}
+          {aparelhos.pc && <div><label htmlFor="ppc">Computador</label><input id="ppc" name="computador" placeholder="3h00" required /></div>}
         </div>
       )}
       <label htmlFor="pmot">Motivo</label>

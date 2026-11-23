@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
-import { telaResumo, totalReal } from '@/lib/tela';
+import { telaResumo, totalReal, textoPrevisto } from '@/lib/tela';
 import { hojeISO, addDias, inicioMes, fimMes, inicioSemana, dataTitulo, dataCurta, statusExibido, fmtMin } from '@/lib/util';
 import Calendario from '@/components/Calendario';
 import Form from '@/components/Form';
@@ -87,7 +87,7 @@ export default async function Painel() {
             {(propostas || []).map((p) => (
               <div key={p.id} className="tarefa" style={{ background: 'var(--aviso-fundo)', borderColor: 'var(--aviso-borda)' }}>
                 <div className="tt">{nome[p.membro_id]} propôs outro tempo de tela para {dataCurta(p.data)}</div>
-                <div className="meta">{p.min_total != null ? `Total ${fmtMin(p.min_total)}` : `Celular ${fmtMin(p.min_celular)} · Computador ${fmtMin(p.min_computador)}`} · “{p.motivo}”</div>
+                <div className="meta">{textoPrevisto({ ...p, formato: p.min_total != null ? 'total' : 'aparelho' }, fmtMin)} · “{p.motivo}”</div>
                 {gestor ? <div className="acoes" style={{ marginTop: 8 }}>
                   <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Validar</button></Form>
                   <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>

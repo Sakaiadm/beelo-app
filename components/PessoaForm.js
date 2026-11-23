@@ -93,8 +93,6 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {tela && (
           <div style={{ marginBottom: 12 }}>
             <RepetirCampo nome="tela" rotulo="Lançar tempo de tela · Repetir" inicial={opcaoDaTarefa(telaTarefa)} dataInicial={telaTarefa?.tipo === 'pontual' ? telaTarefa.data_inicio : null} hoje={hoje} />
-            <label htmlFor="tela-hora">Horário</label>
-            <input id="tela-hora" type="time" name="tela_hora" defaultValue={telaTarefa?.hora_inicio?.slice(0, 5) || '08:00'} required />
           </div>
         )}
         <div className="lin-chave"><span>Acesso ativo{eu && <small>Você não pode desativar a si mesmo</small>}</span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>
