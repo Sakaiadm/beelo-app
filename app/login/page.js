@@ -15,8 +15,12 @@ export default function Login() {
     if (q.get('email')) setEmail(q.get('email'));
     if (q.get('erro')) setMsg({ tipo: 'erro', txt: 'Esse link não vale mais (ele só funciona uma vez e por pouco tempo). Peça um novo link de acesso abaixo.' });
     if (q.get('expirou')) setMsg({ tipo: 'erro', txt: 'Sua sessão expirou. Entre de novo para continuar.' });
-    if (q.get('ja')) setAviso('Você já tem cadastro. Entre com sua conta.');
-    else if (q.get('convite')) setAviso('Você foi convidado. Confirme seu e-mail e toque em Enviar link de acesso.');
+    const conv = (q.get('email') || '').trim().toLowerCase();
+    // Guarda o e-mail do convite: se a pessoa entrar com outra conta, a tela seguinte explica e oferece voltar.
+    if (conv && (q.get('ja') || q.get('convite'))) document.cookie = `convite_email=${encodeURIComponent(conv)}; path=/; max-age=${7 * 86400}; samesite=lax`;
+    const gmail = /@(gmail|googlemail)\.com$/.test(conv);
+    if (q.get('ja')) setAviso(conv ? `Você já tem cadastro com ${conv}. Entre com esse mesmo e-mail.` : 'Você já tem cadastro. Entre com sua conta.');
+    else if (q.get('convite')) setAviso(conv ? `Seu convite é para ${conv}. Entre com esse mesmo e-mail: toque em Enviar link de acesso${gmail ? ' ou em Entrar com Google' : ''}.` : 'Você foi convidado. Confirme seu e-mail e toque em Enviar link de acesso.');
   }, []);
   const volta = () => `${window.location.origin}/auth/callback`;
 
