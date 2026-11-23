@@ -36,6 +36,13 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const convidar = !m && !!email && v.ok;
   const rotuloJa = ja ? (ja.user_id ? 'Enviar e-mail de acesso' : ja.convidado_em ? 'Reenviar convite' : 'Enviar convite') : '';
   const usadasMin = usadas.map((c) => String(c).toLowerCase());
+  // Campo Nome ao lado da foto (mesmo padrão para adulto e criança).
+  const campoNome = (
+    <>
+      <label htmlFor="p-nome" style={{ marginTop: 0 }}>Nome</label>
+      <input id="p-nome" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} required={!ja} maxLength={60} placeholder="Ex.: Tia Ana" />
+    </>
+  );
   return (
     <>
       <Form acao={salvarPessoa} okTxt="Salvo." limpar={!m} className="card">
@@ -47,13 +54,11 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {crianca && <input type="hidden" name="modo_crianca" value="1" />}
         {Object.entries(chaves).map(([k, on]) => on && <input key={k} type="hidden" name={`perm_${k}`} value="1" />)}
         {m ? (
-          <div style={{ marginBottom: 12 }}><AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={nome || m.nome} cor={cor} crianca={crianca && f?.papel !== 'gestor'} /></div>
+          <AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={nome || m.nome} cor={cor} crianca={crianca && f?.papel !== 'gestor'} lado={campoNome} />
         ) : (
-          <div className="cartao-l" style={{ marginBottom: 12 }}><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f ? rotuloFuncao(f.id, null) : 'Escolha o papel'}</small></span></div>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}><Avatar nome={nome || '?'} cor={cor} tam={56} /><div style={{ flex: 1, minWidth: 0 }}>{campoNome}</div></div>
         )}
-        <label htmlFor="p-nome">Nome</label>
-        <input id="p-nome" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} required={!ja} maxLength={60} placeholder="Ex.: Tia Ana" />
-        <label htmlFor="p-email">E-mail Google</label>
+                <label htmlFor="p-email">E-mail Google</label>
         <div className={`campo-ok ${email ? (v.ok ? 'ok' : 'erro') : ''}`}>
           <input id="p-email" type="text" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} name="email" value={email}
             onChange={(e) => setEmail(e.target.value.replace(/\s+/g, ''))} onBlur={() => setEmail(v.email || '')} placeholder="nome@gmail.com" />

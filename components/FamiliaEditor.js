@@ -9,9 +9,9 @@ import { supabaseBrowser } from '@/lib/supabase/client';
 import { editarFamilia, trocarResponsavel } from '@/app/acoes';
 import { validarEmail } from '@/lib/email';
 
-// Cartão da família: nome editável, foto no ícone e responsável (com Trocar).
+// Cartão do grupo: nome editável, foto redonda (lápis para trocar, X para remover) e responsável (com Trocar).
 export default function FamiliaEditor({ familia, url, resp, gestores = [], resumo }) {
-  const ref = useRef(null), cam = useRef(null);
+  const ref = useRef(null);
   const [editando, setEditando] = useState(false);
   const [nome, setNome] = useState(familia.nome);
   const [foto, setFoto] = useState({ caminho: undefined, previa: url || '', msg: '' });
@@ -41,9 +41,9 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
         {foto.caminho !== undefined && <input type="hidden" name="avatar" value={foto.caminho} />}
         <div style={{ display: 'flex', gap: 12, alignItems: 'center' }}>
           <span style={{ position: 'relative', flex: 'none' }}>
-            <FamiliaAvatar url={foto.previa} tam={52} />
+            <button type="button" className="foto-btn" aria-label="Trocar foto do grupo" onClick={() => ref.current.click()}><FamiliaAvatar url={foto.previa} nome={nome} tam={52} /></button>
             {foto.previa && <button type="button" className="x-badge" aria-label="Remover foto" title="Remover foto" onClick={() => setFoto({ caminho: '', previa: '', msg: 'Removido. Toque em Salvar.' })}><Icone nome="x" tam={13} /></button>}
-            <input ref={cam} type="file" accept="image/*" capture="environment" hidden onChange={escolher} />
+            <button type="button" className="x-badge lapis-badge" aria-label="Trocar foto do grupo" title="Trocar foto" onClick={() => ref.current.click()}><Icone nome="lapis" tam={13} /></button>
             <input ref={ref} type="file" accept="image/*" hidden onChange={escolher} />
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
@@ -51,10 +51,6 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
             {editando ? <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={60} aria-label="Nome do grupo" autoFocus /> : <b style={{ fontSize: 17 }}>{nome}</b>}
           </span>
           {!editando && <button type="button" className="link-btn" onClick={() => setEditando(true)}>Editar</button>}
-        </div>
-        <div style={{ display: 'flex', gap: 8, alignItems: 'center', marginTop: 10 }}>
-          <button type="button" className="btn peq icone" aria-label="Tirar foto" title="Tirar foto" onClick={() => cam.current.click()}><Icone nome="camera" tam={20} /></button>
-          <button type="button" className="btn peq icone" aria-label="Escolher imagem" title="Escolher imagem" onClick={() => ref.current.click()}><Icone nome="galeria" tam={20} /></button>
         </div>
         {foto.msg && <p className="peq-cinza">{foto.msg}</p>}
         {sujo && <div className="acoes" style={{ marginTop: 10 }}><button className="btn peq" disabled={!nome.trim()}>Salvar</button><button type="button" className="btn sec peq" onClick={() => { setEditando(false); setNome(familia.nome); setFoto({ caminho: undefined, previa: url || '', msg: '' }); }}>Cancelar</button></div>}
