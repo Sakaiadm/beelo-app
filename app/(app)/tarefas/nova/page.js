@@ -11,7 +11,7 @@ export default async function Nova({ searchParams }) {
   return (
     <main className="estreito">
       <div className="cab"><h1 className="titulo">Nova tarefa</h1></div>
-      <TarefaForm euId={eu.id} filhos={pessoas} categorias={categorias || []} gestor={gestor} hoje={/^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : hojeISO()} voltar={/^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : ''} />
+      <TarefaForm paraId={gestor ? pessoas.find((p) => p.id === sp?.m)?.id : undefined} euId={eu.id} filhos={pessoas} categorias={categorias || []} gestor={gestor} hoje={/^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : hojeISO()} voltar={/^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : ''} />
     </main>
   );
 }

@@ -32,7 +32,7 @@ function opcaoInicial(t) {
   return d === SEG_SEX.join() ? 'semana' : 'pers';
 }
 
-export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar, euId }) {
+export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar, euId, paraId }) {
   const [opcao, setOpcao] = useState(opcaoInicial(t));
   const [dias, setDias] = useState(t?.recorrencia === 'dias_semana' && t.dias_semana?.length ? [...t.dias_semana] : SEG_SEX);
   const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
@@ -86,7 +86,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       <div className="linha">
         {gestor && (
           <div><label htmlFor="responsavel">Para quem</label>
-            <select id="responsavel" name="responsavel" defaultValue={t?.responsavel_id || (filhos.find((f) => f.id !== euId) || filhos[0])?.id} required>
+            <select id="responsavel" name="responsavel" defaultValue={t?.responsavel_id || paraId || (filhos.find((f) => f.id !== euId) || filhos[0])?.id} required>
               {filhos.map((f) => <option key={f.id} value={f.id}>{f.id === euId ? `Eu mesmo (${f.nome})` : f.nome}</option>)}
             </select></div>
         )}
@@ -178,7 +178,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
         </div>
       ) : (
         <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '6px 0 0' }}>
-          Sem horário: vale o dia todo{gestor ? ' e o filho pode encaixar o horário dele.' : '. Você pode pôr horário depois, na tela Hoje.'}
+          Sem horário: vale o dia todo{gestor ? ' e a pessoa pode encaixar o horário dela.' : '. Você pode pôr horário depois, na tela Hoje.'}
         </p>
       )}
       <div style={{ display: 'grid', gap: 12, marginTop: 16 }}>
@@ -198,7 +198,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
           </div>
         ) : <p className="ajuda" style={{ margin: 0 }}>Ganha a bandeirinha e vem primeiro na lista. O lembrete extra só vale para tarefa com horário.</p>)}
       </div>
-      <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '8px 0 0' }}>Tudo desligado: o filho conclui com um toque, sem foto, e não pode adiar. Foto: precisa ser de hoje. Justificativa: sem ela, a tarefa atrasada não conclui.</p>
+      <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '8px 0 0' }}>Tudo desligado: a pessoa conclui com um toque, sem foto, e não pode adiar. Foto: precisa ser de hoje. Justificativa: sem ela, a tarefa atrasada não conclui.</p>
       <label htmlFor="descricao">Detalhes (opcional)</label>
       <textarea id="descricao" name="descricao" maxLength={1000} defaultValue={t?.descricao || ''} />
       <button className="btn bloco" style={{ marginTop: 16 }}>Salvar tarefa</button>

@@ -158,7 +158,7 @@ export default async function Painel() {
                 const lembrar = gestor && f.tela_ativo && f.papel === 'filho' && !t && f.id !== eu.id;
                 return (
                   <div key={f.id} className="tarefa" style={{ padding: 0 }}>
-                  <Link prefetch={false} href={f.id === eu.id ? '/hoje' : `/hoje?m=${f.id}`} className="tarefa-link" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
+                  <Link prefetch={false} href={`/hoje?m=${f.id}`} className="tarefa-link" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}><span>{f.nome}{f.id === eu.id ? ' (você)' : ''}</span><span style={{ color: 'var(--azul)' }}>{k.feitas} de {k.total}</span></div>
                     <div className="barra" style={{ marginTop: 8 }}><div style={{ width: `${k.total ? (k.feitas / k.total) * 100 : 0}%` }} /></div>
                     <div className="meta" style={{ marginTop: 8 }}>{falta.length ? `Falta: ${falta.slice(0, 3).join(', ')}${falta.length > 3 ? '…' : ''}` : 'Tudo feito'}</div>

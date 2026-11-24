@@ -24,7 +24,9 @@ export default async function Hoje({ searchParams }) {
   // Pai e Mãe abrem o dia de cada pessoa; a supervisora com o painel liberado também (começando pelo dela).
   const a = acesso(eu);
   const veTodos = gestor || a.painel;
-  const alvo = veTodos ? (filhos.find((f) => f.id === sp.m) || (gestor ? filhos[0] : eu)) : eu;
+  // Abas do dia: os filhos primeiro, depois você e os outros responsáveis (Raio-X E1).
+  const pessoasDia = veTodos ? [...filhos, ...membros.filter((m) => m.ativo && m.papel !== 'filho')] : [];
+  const alvo = veTodos ? (pessoasDia.find((f) => f.id === sp.m) || (gestor ? filhos[0] || eu : eu)) : eu;
   if (!alvo) return <main><div className="card">Cadastre as pessoas em Cadastros.</div></main>;
 
   // Semana de segunda a domingo (para a barra da semana). A busca já cobre os 7 dias antes, para as atrasadas.
@@ -80,14 +82,14 @@ export default async function Hoje({ searchParams }) {
 
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto={gestor ? 'Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar.' : 'Receba um aviso quando tiver novidade nas suas tarefas.'} />
 
-      {veTodos && filhos.length > 1 && (
+      {veTodos && pessoasDia.length > 1 && (
         <div className="abas" style={{ marginBottom: 14 }}>
-          {filhos.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}&d=${dia}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.nome}</Link>)}
+          {pessoasDia.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}&d=${dia}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
         </div>
       )}
 
       <div className="kpi destaque" style={{ marginBottom: 14 }}>
-        <small>{dia === hoje ? 'Seu dia' : 'Dia'}</small>
+        <small>{alvo.id !== eu.id ? `Dia de ${alvo.nome}` : dia === hoje ? 'Seu dia' : 'Dia'}</small>
         <strong>{feitas} <span style={{ fontSize: 15, color: '#e6f0fe' }}>de {total} feitas</span></strong>
         <div className="barra" style={{ marginTop: 10, background: 'rgba(255,255,255,.25)' }}><div style={{ width: `${total ? (feitas / total) * 100 : 0}%`, background: '#fff' }} /></div>
         {estrelas != null && (
@@ -139,7 +141,7 @@ export default async function Hoje({ searchParams }) {
       </>}
       {doDia.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
 
-      <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href="/tarefas/nova"><Icone nome="mais" tam={18} />{gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'}</Link>
+      <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href={`/tarefas/nova?${new URLSearchParams({ ...(dia !== hoje ? { d: dia } : {}), ...(gestor ? { m: alvo.id } : {}) })}`}><Icone nome="mais" tam={18} />{gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'}</Link>
     </main>
   );
 }
