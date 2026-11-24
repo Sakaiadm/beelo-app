@@ -128,7 +128,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
               {listaSug.length === 0 && <div style={{ padding: 16, color: 'var(--cinza)' }}>Nenhuma sugestão para essa idade nesta categoria.</div>}
               {listaSug.map((x) => (
                 <button key={x.nome} type="button" onClick={() => usar(x)}>
-                  <span>{x.nome}<small style={{ display: 'block', color: 'var(--cinza)', fontSize: 13 }}>{resumoSugestao(x)}</small></span><span aria-hidden="true">›</span>
+                  <span>{x.nome}<small style={{ display: 'block', color: 'var(--cinza)', fontSize: 'var(--f-apoio)' }}>{resumoSugestao(x)}</small></span><span aria-hidden="true">›</span>
                 </button>
               ))}
             </div>
@@ -177,7 +177,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
           <div><label htmlFor="hora_fim">Fim (opcional)</label><HoraFim id="hora_fim" name="hora_fim" value={horaFim || ''} onChange={setHoraFim} /></div>
         </div>
       ) : (
-        <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '6px 0 0' }}>
+        <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '6px 0 0' }}>
           Sem horário: vale o dia todo{gestor ? ' e a pessoa pode encaixar o horário dela.' : '. Você pode pôr horário depois, na tela Hoje.'}
         </p>
       )}
@@ -198,7 +198,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
           </div>
         ) : <p className="ajuda" style={{ margin: 0 }}>Ganha a bandeirinha e vem primeiro na lista. O lembrete extra só vale para tarefa com horário.</p>)}
       </div>
-      <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '8px 0 0' }}>Tudo desligado: a pessoa conclui com um toque, sem foto, e não pode adiar. Foto: precisa ser de hoje. Justificativa: sem ela, a tarefa atrasada não conclui.</p>
+      <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '8px 0 0' }}>Tudo desligado: a pessoa conclui com um toque, sem foto, e não pode adiar. Foto: precisa ser de hoje. Justificativa: sem ela, a tarefa atrasada não conclui.</p>
       <label htmlFor="descricao">Detalhes (opcional)</label>
       <textarea id="descricao" name="descricao" maxLength={1000} defaultValue={t?.descricao || ''} />
       <button className="btn bloco" style={{ marginTop: 16 }}>Salvar tarefa</button>

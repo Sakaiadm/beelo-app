@@ -14,7 +14,7 @@ export default function Termos() {
     <main className="estreito">
       <a href="/" className="logo-beelo" role="img" aria-label="beelo" style={{ marginBottom: 18 }} />
       <h1 className="titulo">Termos de uso</h1>
-      <p style={{ color: 'var(--cinza)', fontSize: 14, margin: '6px 0 16px' }}>Versão beta · atualizado em {ATUALIZADO_EM}</p>
+      <p style={{ color: 'var(--cinza)', fontSize: 'var(--f-apoio)', margin: '6px 0 16px' }}>Versão beta · atualizado em {ATUALIZADO_EM}</p>
       <div className="card texto-legal">
         <h2>O que é o beelo</h2>
         <p>O beelo ajuda famílias e grupos a combinar tarefas, acompanhar o dia a dia e comemorar cada conquista. Ao usar o beelo, você concorda com estes termos e com a <a href="/privacidade">Privacidade</a>.</p>

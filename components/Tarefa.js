@@ -172,7 +172,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
               <div><label htmlFor={`i-${oc.id}`}>Início</label><input id={`i-${oc.id}`} type="time" name="inicio" defaultValue={hhmm(oc.hora_inicio)} /></div>
               <div><label htmlFor={`f-${oc.id}`}>Fim (opcional)</label><HoraFim id={`f-${oc.id}`} name="fim" defaultValue={hhmm(oc.hora_fim) || ''} /></div>
             </div>
-            <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '8px 0 0' }}>Deixe em branco para “sem horário”.</p>
+            <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '8px 0 0' }}>Deixe em branco para “sem horário”.</p>
             <button className="btn" style={{ marginTop: 10 }}>Salvar horário</button>
           </Form>
         </div>

@@ -18,7 +18,7 @@ export default function TrocarPremio({ premio, membro, tem, moeda, maior }) {
             <div className="balao-ic" style={{ background: 'var(--mel-fundo)' }}><svg width="26" height="26" viewBox="0 0 24 24" aria-hidden="true" style={{ fill: 'var(--mel)' }}><path d={STAR} /></svg></div>
             <h2 id="troca-tit">{moeda === 'semanas' ? 'Usar' : 'Trocar'} por {premio.nome}?</h2>
             <p>Você tem {tem} {un}. Depois da troca, {tem - premio.custo === 1 ? 'fica 1' : `ficam ${tem - premio.custo}`}.</p>
-            {maior && <p style={{ fontSize: 14, color: 'var(--cinza)' }}>Ou continue juntando: faltam {maior.custo - tem} para {maior.nome}.</p>}
+            {maior && <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>Ou continue juntando: faltam {maior.custo - tem} para {maior.nome}.</p>}
             <Form acao={pedirPremio} aoEnviado={() => setTimeout(() => setAberto(false), 1600)}>
               <input type="hidden" name="premio" value={premio.id} />
               {membro && <input type="hidden" name="membro" value={membro} />}

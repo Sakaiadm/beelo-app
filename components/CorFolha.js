@@ -14,7 +14,7 @@ export default function CorFolha({ cor, setCor, fechar, titulo = 'Cor', topo, us
         <p style={{ fontWeight: 700, margin: '4px 0 0' }}>Cores sugeridas</p>
         <div className="grade-cores">
           {CORES_PESSOA.map((c) => (
-            <button key={c} type="button" aria-label={`Cor ${c}`} aria-pressed={cor.toLowerCase() === c} className={`${cor.toLowerCase() === c ? 'sel' : ''} ${usadasMin.includes(c) && cor.toLowerCase() !== c ? 'usada' : ''}`} style={{ background: c }} onClick={() => setCor(c)} />
+            <button key={c} type="button" aria-label={`Cor ${c}`} aria-pressed={cor.toLowerCase() === c} className={`${cor.toLowerCase() === c ? 'sel' : ''} ${usadasMin.includes(c) && cor.toLowerCase() !== c ? 'usada' : ''}`} style={{ background: c, color: c }} onClick={() => setCor(c)} />
           ))}
         </div>
         <label className="campo-botao" style={{ cursor: 'pointer' }}><span>Outra cor<small className="peq-cinza" style={{ display: 'block' }}>Abre a paleta completa</small></span>

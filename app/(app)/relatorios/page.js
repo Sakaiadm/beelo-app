@@ -3,7 +3,7 @@ import { acesso } from '@/lib/papeis';
 import { lerFiltros, dadosRelatorio } from '@/lib/relatorio';
 import { telaResumo, totalReal } from '@/lib/tela';
 import AbasPessoa from '@/components/AbasPessoa';
-import { dataComAno, dataCurta, fmtMin, STATUS_TXT, CORES_CAT, inicioSemana, DIAS, hhmm, addDias } from '@/lib/util';
+import { dataComAno, dataCurta, fmtMin, STATUS_TXT, CORES_VIVAS, inicioSemana, DIAS, hhmm, addDias } from '@/lib/util';
 import Imprimir from '@/components/Imprimir';
 import FiltroPeriodo from '@/components/FiltroPeriodo';
 
@@ -95,10 +95,10 @@ export default async function Relatorios({ searchParams }) {
       <p className="leg-rel">Mostrando de <b>{dataComAno(f.de)}</b> a <b>{dataComAno(f.ate)}</b> · {f.m ? nome[f.m] : gestor ? 'todas as pessoas' : eu.nome}</p>
 
       <div className="kpis">
-        <div className="kpi destaque"><small>Cumprimento</small><strong>{pct(feitas.length, validas.length)}<span style={{ fontSize: 16 }}>%</span></strong>
+        <div className="kpi destaque"><small>Cumprimento</small><strong>{pct(feitas.length, validas.length)}<span style={{ fontSize: 'var(--f-texto)' }}>%</span></strong>
           <em>{feitas.length} de {validas.length} tarefas · {gestor && !f.m ? ids.map((id) => { const l = linhas.find((x) => x.id === id); return `${nome[id]} ${pct(l.feitas, l.total)}%`; }).join(' · ') : ''}</em></div>
-        <div className="kpi"><small>No prazo x com atraso</small><strong>{noPrazo.length} <span style={{ fontSize: 16, color: 'var(--cinza)' }}>· {feitas.length - noPrazo.length}</span></strong><em>{atrasos.length} {atrasos.length === 1 ? 'atraso' : 'atrasos'} no período</em></div>
-        <div className="kpi"><small>No horário planejado</small><strong>{disciplina}<span style={{ fontSize: 16 }}>%</span></strong><em>Disciplina com a agenda ({comHora.length} com horário)</em></div>
+        <div className="kpi"><small>No prazo x com atraso</small><strong>{noPrazo.length} <span style={{ fontSize: 'var(--f-texto)', color: 'var(--cinza)' }}>· {feitas.length - noPrazo.length}</span></strong><em>{atrasos.length} {atrasos.length === 1 ? 'atraso' : 'atrasos'} no período</em></div>
+        <div className="kpi"><small>No horário planejado</small><strong>{disciplina}<span style={{ fontSize: 'var(--f-texto)' }}>%</span></strong><em>Disciplina com a agenda ({comHora.length} com horário)</em></div>
         <div className="kpi"><small>Adiamentos</small><strong>{(adis || []).length}</strong><em>{(adis || []).filter((a) => a.status === 'aprovado').length === 1 ? '1 aprovado' : `${(adis || []).filter((a) => a.status === 'aprovado').length} aprovados`}</em></div>
       </div>
 
@@ -106,12 +106,12 @@ export default async function Relatorios({ searchParams }) {
         <div className="card grande"><h2>Cumprimento por categoria</h2>
           {porCat.length === 0 && <div className="vazio">Sem dados no período.</div>}
           <div className="barras-h">{porCat.map(({ c, p, total }) => (
-            <div className="l" key={c.id}><span>{c.nome}</span><div className="barra"><div style={{ width: `${p}%`, background: (CORES_CAT[c.cor] || CORES_CAT.azul)[1] }} /></div><span title={`${total} tarefas`}>{p}%</span></div>))}
+            <div className="l" key={c.id}><span>{c.nome}</span><div className="barra"><div style={{ width: `${p}%`, background: CORES_VIVAS[c.cor] || CORES_VIVAS.azul }} /></div><span title={`${total} tarefas`}>{p}%</span></div>))}
           </div>
         </div>
         <div className="card lado"><h2>Atrasos por dia da semana</h2>
           <div className="barras-h">{porDiaSem.map((x) => (
-            <div className="l" key={x.d}><span style={{ textTransform: 'capitalize' }}>{x.d}</span><div className="barra"><div style={{ width: `${(x.n / maxDS) * 100}%`, background: 'var(--erro)' }} /></div><span>{x.n}</span></div>))}
+            <div className="l" key={x.d}><span style={{ textTransform: 'capitalize' }}>{x.d}</span><div className="barra"><div style={{ width: `${(x.n / maxDS) * 100}%`, background: 'var(--g-erro)' }} /></div><span>{x.n}</span></div>))}
           </div>
         </div>
       </div>
@@ -155,7 +155,7 @@ export default async function Relatorios({ searchParams }) {
                 <div className="grupo-titulo">Média por dia, por semana</div>
                 <div className="barras-h">{e.semanas.map((x) => (
                   <div className="l" key={x.w}><span>{dataCurta(x.w)} a {dataCurta(addDias(x.w, 6))}</span>
-                    <div className="barra"><div style={{ width: `${Math.round(((x.real || 0) / maxSem) * 100)}%`, background: x.prev != null && x.real > x.prev ? 'var(--erro)' : 'var(--azul)' }} /></div>
+                    <div className="barra"><div style={{ width: `${Math.round(((x.real || 0) / maxSem) * 100)}%`, background: x.prev != null && x.real > x.prev ? 'var(--listras), var(--g-erro)' : 'var(--g-prev)' }} /></div>
                     <span>{fmtMin(x.real)}</span></div>))}</div>
               </>)}
             </div>
@@ -179,9 +179,9 @@ export default async function Relatorios({ searchParams }) {
         <div className="rolavel"><table><thead><tr><th>Dia</th>{gestor && <th>Pessoa</th>}<th>Tarefa</th><th>Categoria</th><th>Horário</th><th>Status</th><th>Justificativa</th></tr></thead>
           <tbody>{lista.slice().reverse().slice(0, 300).map(({ o, st }) => (
             <tr key={o.id}><td>{dataCurta(o.data)}</td>{gestor && <td>{nome[o.membro_id]}</td>}<td>{o.tarefa?.titulo}</td><td>{o.tarefa?.categoria?.nome || '—'}</td>
-              <td>{o.hora_inicio ? hhmm(o.hora_inicio) : 'Sem horário'}</td><td>{STATUS_TXT[st]}</td><td style={{ fontSize: 13 }}>{o.justificativa || ''}</td></tr>))}
+              <td>{o.hora_inicio ? hhmm(o.hora_inicio) : 'Sem horário'}</td><td>{STATUS_TXT[st]}</td><td style={{ fontSize: 'var(--f-apoio)' }}>{o.justificativa || ''}</td></tr>))}
           </tbody></table></div>
-        {lista.length > 300 && <p className="sub" style={{ fontSize: 13 }}>Mostrando as 300 mais recentes.</p>}
+        {lista.length > 300 && <p className="sub" style={{ fontSize: 'var(--f-apoio)' }}>Mostrando as 300 mais recentes.</p>}
       </div>
     </main>
   );

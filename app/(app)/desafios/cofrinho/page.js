@@ -84,7 +84,7 @@ export default async function Cofrinho({ searchParams }) {
           </div>
         ))}
       </div>
-      <p className="sub" style={{ fontSize: 13, textAlign: 'center' }}>Troque agora ou continue juntando para um prêmio maior.</p>
+      <p className="sub" style={{ fontSize: 'var(--f-apoio)', textAlign: 'center' }}>Troque agora ou continue juntando para um prêmio maior.</p>
 
       {(mov || []).length > 0 && (
         <>

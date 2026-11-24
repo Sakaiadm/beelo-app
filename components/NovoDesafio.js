@@ -63,11 +63,11 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
                 <option value="">Outros prêmios…</option>{PREMIOS_FAMILIA.slice(6).map((p) => <option key={p}>{p}</option>)}
               </select>
             </>}
-            <p className="sub" style={{ fontSize: 13, marginTop: 10 }}>
+            <p className="sub" style={{ fontSize: 'var(--f-apoio)', marginTop: 10 }}>
               {familia ? `Cumpriu a meta: ${premio} para todos.` : sel.map((p) => p.perfil === 'c' ? `${p.nome}: +10 estrelinhas no cofrinho.` : p.perfil === 'a' ? `${p.nome}: vale uma semana conquistada.` : `${p.nome}: acompanha o percentual.`).join(' ')}
               {sel.length > 1 && ' Cada um tem o próprio progresso e o próprio prêmio, sem comparar.'}
             </p>
-            {tarefaTxt && <p className="sub" style={{ fontSize: 13, marginTop: 6 }}>{tarefaTxt}</p>}
+            {tarefaTxt && <p className="sub" style={{ fontSize: 'var(--f-apoio)', marginTop: 6 }}>{tarefaTxt}</p>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>
               <label className="check" style={{ margin: 0 }}><input type="checkbox" checked disabled readOnly /> Começa de novo sozinho {esc.periodo === 'mes' ? 'todo mês' : 'toda semana'}</label>
               {['dias', 'seq', 'pct'].includes(esc.tipo) && <label className="check" style={{ margin: 0 }}><input type="checkbox" checked={coringa} onChange={(e) => setCoringa(e.target.checked)} /> Dia coringa: 1 dia difícil não conta</label>}
@@ -90,7 +90,7 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
             {pessoas.map((p) => <button type="button" key={p.id} className={quem.includes(p.id) ? 'on' : ''} aria-pressed={quem.includes(p.id)} onClick={() => alternar(p.id)}>{p.nome}</button>)}
             <button type="button" className={familia ? 'on' : ''} aria-pressed={familia} onClick={() => alternar('familia')}>Família toda</button>
           </div>
-          {sel.length > 1 && <p className="sub" style={{ fontSize: 13 }}>Cada um terá o próprio desafio, com progresso e prêmio individuais.</p>}
+          {sel.length > 1 && <p className="sub" style={{ fontSize: 'var(--f-apoio)' }}>Cada um terá o próprio desafio, com progresso e prêmio individuais.</p>}
         </div>
       )}
       {sugs.length > 0 && (

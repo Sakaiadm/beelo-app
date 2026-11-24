@@ -18,6 +18,8 @@ export const metadata = {
   description: 'Tarefas, agenda e acompanhamento para pais e filhos.',
   manifest: '/manifest.json',
   icons: { icon: '/icone.svg', apple: '/apple-touch-icon.png' },
+  // Android (Chrome): acompanha o tamanho de letra escolhido no celular (Raio-X V8).
+  other: { 'text-scale': 'scale' },
   appleWebApp: { capable: true, title: 'beelo', statusBarStyle: 'default', startupImage: ABERTURA },
 };
 export const viewport = { themeColor: '#1a6fe0', width: 'device-width', initialScale: 1 };

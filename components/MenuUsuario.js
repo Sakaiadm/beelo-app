@@ -28,13 +28,14 @@ export default function MenuUsuario({ nome, familia, children }) {
 
   return (
     <div className="usuario" ref={raiz}>
-      <button type="button" className="usuario-btn" aria-haspopup="menu" aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
+      <button type="button" className="usuario-btn" aria-label={`Menu de ${nome}`} aria-haspopup="menu" aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
         {children}
         <span className="usuario-nome">{nome}{familia ? <small> · {familia}</small> : null}</span>
         <span className="usuario-seta" aria-hidden="true">▾</span>
       </button>
       {aberto && (
         <div className="usuario-menu" role="menu">
+          <div className="usuario-cab"><b>{nome}</b>{familia ? <small>{familia}</small> : null}</div>
           <Link role="menuitem" href="/perfil" prefetch={false} onClick={() => setAberto(false)}>Meu perfil</Link>
           <Link role="menuitem" href="/ajuda" prefetch={false} onClick={() => setAberto(false)}>Ajuda</Link>
           <Link role="menuitem" href="/seguranca" prefetch={false} onClick={() => setAberto(false)}>Segurança e privacidade</Link>

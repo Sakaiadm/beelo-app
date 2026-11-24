@@ -35,7 +35,7 @@ export default async function Familias() {
             <Link prefetch={false} href={`/config/familias/${f.id}`} style={{ display: 'flex', gap: 12, alignItems: 'center', flex: 1, minWidth: 0, color: 'inherit', textDecoration: 'none' }}>
               {av(42)}
               <span className="corpo">
-                <b>{f.nome}{f.id === minha.id && <span className="pilula" style={{ marginLeft: 8, fontSize: 11 }}>sua</span>}{!f.ativa && <span className="pilula" style={{ marginLeft: 8, fontSize: 11 }}>desativado</span>}</b>
+                <b>{f.nome}{f.id === minha.id && <span className="pilula" style={{ marginLeft: 8, fontSize: 'var(--f-etq)' }}>sua</span>}{!f.ativa && <span className="pilula" style={{ marginLeft: 8, fontSize: 'var(--f-etq)' }}>desativado</span>}</b>
                 <small className="peq-cinza">{f.gestores || 'sem responsável'}</small>
               </span>
             </Link>

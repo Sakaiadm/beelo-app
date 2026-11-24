@@ -15,7 +15,7 @@ export default function SugerirDesejo({ familia, membro, esperando, moeda = 'est
       <button type="button" className="btn sec bloco" style={{ marginTop: 12 }} disabled={cheio} onClick={() => setAberto(true)}>
         <Icone nome="mais" tam={20} />Sugerir um desejo
       </button>
-      <p className="sub" style={{ fontSize: 13, textAlign: 'center', margin: '8px 0 0' }}>
+      <p className="sub" style={{ fontSize: 'var(--f-apoio)', textAlign: 'center', margin: '8px 0 0' }}>
         {cheio ? `Você já tem ${MAX_DESEJOS} desejos esperando. Espere a resposta dos pais.` : `Você pode ter até ${MAX_DESEJOS} desejos esperando.`}
       </p>
       {aberto && (

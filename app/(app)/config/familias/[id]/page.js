@@ -55,7 +55,7 @@ export default async function Familia({ params }) {
           <button className="chave" role="switch" aria-checked={false} aria-label="Grupo ativo" />
         </Form>
       ))}
-      <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '14px 0 6px' }}>Pessoas deste grupo</p>
+      <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '14px 0 6px' }}>Pessoas deste grupo</p>
       {pessoas.map((p) => {
         const dentro = (
           <>

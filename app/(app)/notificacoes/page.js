@@ -19,7 +19,7 @@ export default async function Notificacoes() {
           <a key={n.id} href={`/notificacoes/abrir?id=${n.id}`} style={{ display: 'flex', gap: 10, padding: '12px 4px', borderBottom: '1px solid var(--borda)', textDecoration: 'none', color: 'var(--texto)' }}>
             <span style={{ width: 10, height: 10, borderRadius: 5, marginTop: 6, background: n.lida ? 'transparent' : '#1a6fe0', flexShrink: 0 }} />
             <span style={{ flex: 1 }}><span style={{ fontWeight: n.lida ? 500 : 700 }}>{n.titulo}</span>
-              <span style={{ display: 'block', fontSize: 12, color: 'var(--cinza)' }}>{fmt.format(new Date(n.criado_em))}</span></span>
+              <span style={{ display: 'block', fontSize: 'var(--f-etq)', color: 'var(--cinza)' }}>{fmt.format(new Date(n.criado_em))}</span></span>
           </a>
         ))}
       </div>
