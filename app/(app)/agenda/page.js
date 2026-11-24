@@ -26,9 +26,11 @@ export default async function Agenda({ searchParams }) {
   const alvo = filtroM ? [filtroM] : pessoas.map((f) => f.id);
   const nome = Object.fromEntries(membros.map((m) => [m.id, m.nome]));
 
-  // A semana começa no dia escolhido (por padrão, hoje).
-  const de = v === 'dia' ? d : v === 'semana' ? d : inicioMes(d);
-  const ate = v === 'dia' ? d : v === 'semana' ? addDias(d, 6) : fimMes(d);
+  // Semana sempre de segunda a domingo (U15).
+  const seg = addDias(d, -((diaSemana(d) + 6) % 7));
+  const de = v === 'dia' ? d : v === 'semana' ? seg : inicioMes(d);
+  const ate = v === 'dia' ? d : v === 'semana' ? addDias(seg, 6) : fimMes(d);
+  const ordem = (p, q) => (hhmm(p.o.hora_inicio) || '99').localeCompare(hhmm(q.o.hora_inicio) || '99');
   const lista = (await ocorrencias(supabase, { de, ate, membros: alvo })).map((o) => ({ o, st: statusExibido(o, hoje) }));
   const qs = (o) => { const p = new URLSearchParams({ v, d, ...(filtroM && veTodos ? { m: filtroM } : {}), ...o }); return `/agenda?${p}`; };
 
@@ -40,8 +42,13 @@ export default async function Agenda({ searchParams }) {
   });
   const fotos = v === 'dia' ? await urlsFotos(supabase, lista.map((x) => x.o.foto_path)) : {};
   // "Hoje" fica azul cheio quando o período na tela é o de hoje; em outra data, só o contorno (toque volta para hoje).
-  const emHoje = v === 'mes' ? d.slice(0, 7) === hoje.slice(0, 7) : d === hoje;
+  const emHoje = v === 'mes' ? d.slice(0, 7) === hoje.slice(0, 7) : v === 'semana' ? hoje >= de && hoje <= ate : d === hoje;
   const passo = v === 'dia' ? 1 : v === 'semana' ? 7 : 31;
+
+  const cartao = (x) => (
+    <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={x.o.membro_id === eu.id} quemMarca={nome[x.o.membro_id]} gestor={gestor} confere={a.conferir} familia={eu.familia_id}
+              editarHref={x.o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${x.o.membro_id}` : null) : gestor || (x.o.tarefa?.criada_por === eu.id && x.o.membro_id === eu.id) ? `/tarefas/${x.o.tarefa_id}/editar?${new URLSearchParams({ d, volta: qs({}) })}` : null} fotoUrl={fotos[x.o.foto_path]} hoje={hoje} />
+  );
 
   return (
     <main className="agenda-tela">
@@ -82,7 +89,7 @@ export default async function Agenda({ searchParams }) {
         <div className="rolavel"><div className="semana">
           {Array.from({ length: 7 }).map((_, i) => {
             const dia = addDias(de, i);
-            const itens = lista.filter((x) => x.o.data === dia && x.st !== 'adiada');
+            const itens = lista.filter((x) => x.o.data === dia && x.st !== 'adiada').sort(ordem);
             return (
               <Link prefetch={false} className="dia" key={dia} href={`/agenda?v=dia&d=${dia}${filtroM && veTodos ? `&m=${filtroM}` : ''}`} style={{ display: 'block', color: 'var(--texto)', textDecoration: 'none', ...(dia === hoje ? { outline: '2px solid var(--azul)' } : {}) }}>
                 <h3>{DIAS[diaSemana(dia)].slice(0, 3)} {dia.slice(8)}</h3>
@@ -101,10 +108,18 @@ export default async function Agenda({ searchParams }) {
       {v === 'dia' && (
         <div style={{ maxWidth: 680 }}>
           {lista.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
-          {lista.map((x) => (
-            <Tarefa key={x.o.id} oc={x.o} st={x.st} dono={x.o.membro_id === eu.id} quemMarca={nome[x.o.membro_id]} gestor={gestor} confere={a.conferir} familia={eu.familia_id}
-              editarHref={x.o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${x.o.membro_id}` : null) : gestor || (x.o.tarefa?.criada_por === eu.id && x.o.membro_id === eu.id) ? `/tarefas/${x.o.tarefa_id}/editar?${new URLSearchParams({ d, volta: qs({}) })}` : null} fotoUrl={fotos[x.o.foto_path]} nomeMembro={veTodos && !filtroM ? nome[x.o.membro_id] : null} hoje={hoje} />
-          ))}
+          {/* Em "Todos", um título por pessoa, que abre e fecha (U18); tarefas em ordem de horário. */}
+          {veTodos && !filtroM ? pessoas.map((p) => {
+            const dela = lista.filter((x) => x.o.membro_id === p.id).sort(ordem);
+            if (!dela.length) return null;
+            const f = dela.filter((x) => x.st.startsWith('cumprida') || x.st === 'justificada').length;
+            return (
+              <details key={p.id} className="ag-pessoa" open>
+                <summary><b>{p.id === eu.id ? 'Eu' : p.nome}</b><span>{f} de {dela.length}</span></summary>
+                {dela.map(cartao)}
+              </details>
+            );
+          }) : [...lista].sort(ordem).map(cartao)}
         </div>
       )}
     </main>
