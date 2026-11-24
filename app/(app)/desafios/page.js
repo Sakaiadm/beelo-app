@@ -5,7 +5,9 @@ import { urlsAvatares } from '@/lib/avatar';
 import { ocorrencias } from '@/lib/dados';
 import { statusExibido, addDias } from '@/lib/util';
 import { carregarDesafios, desafiosLigados, paraComemorar, pessoasDesafio, vitrineDe } from '@/lib/desafiosDados';
-import { perfil, ideiaComemorar, textoMeta, MAX_POR_PESSOA } from '@/lib/desafios';
+import { perfil, ideiaComemorar, textoMeta, MAX_POR_PESSOA, precoSugerido } from '@/lib/desafios';
+import { linksAssinados } from '@/lib/links';
+import DesejoAprovar from '@/components/DesejoAprovar';
 import { DesafioCartao, Estrela, Hexagono } from '@/components/DesafioCartao';
 import Avatar from '@/components/Avatar';
 import Icone from '@/components/Icone';
@@ -101,12 +103,32 @@ export default async function Desafios({ searchParams }) {
   if (gestor) {
     const abertos = pedidos.filter((p) => p.status === 'pedido');
     const nomePor = Object.fromEntries(pessoas.map((p) => [p.id, p]));
+    // Desejos esperando a resposta dos pais (lista de desejos).
+    const esperando = dados.desejos.filter((x) => x.desejo === 'esperando' && nomePor[x.membro_id]);
+    const fotos = esperando.some((x) => x.foto) ? await linksAssinados(supabase, 'rotina-fotos', esperando.map((x) => x.foto), 3600) : {};
     return (
       <main className="estreito">
         <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} />
         <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Novo desafio</Link>} />
         {aviso}
         <ComoFunciona perfil="gestor" membro={eu.id} />
+
+        {esperando.length > 0 && (
+          <div className="card des-card">
+            <h2 style={{ marginBottom: 10 }}>{esperando.length === 1 ? 'Desejo para aprovar' : 'Desejos para aprovar'}</h2>
+            {esperando.map((x, i) => {
+              const m = nomePor[x.membro_id];
+              const nDes = desafios.filter((d) => d.membro_id === m.id && d.recompensa === 'estrelas').length;
+              return (
+                <div key={x.id} style={{ borderTop: i ? '1px solid var(--borda)' : 0, paddingTop: i ? 14 : 0, marginTop: i ? 14 : 0 }}>
+                  <DesejoAprovar desejo={x} nome={m.nome} tem={saldo[m.id]?.[x.moeda] || 0} porSemana={x.moeda === 'semanas' ? 1 : nDes * 10}
+                    sugerido={precoSugerido(x.sugerido || x.nome, x.moeda, premios.filter((p) => !p.membro_id))} foto={x.foto ? fotos[x.foto] : null}
+                    avatar={<Avatar nome={m.nome} cor={m.cor} url={urls[m.avatar]} avatar={m.avatar} tam={42} />} />
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {abertos.length > 0 && (
           <div className="card des-card">

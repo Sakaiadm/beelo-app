@@ -31,6 +31,7 @@ const P = {
   // Lâmpada acesa (topo e Ideias, seção 66): a mesma lâmpada, menor, com raios em volta.
   ideia: <><path d="M9.9 18.2h4.2M10.6 21h2.8" /><path d="M12 7a4.9 4.9 0 0 0-2.8 8.89c.42.35.7.84.7 1.4v.21h4.2v-.21c0-.56.28-1.05.7-1.4A4.9 4.9 0 0 0 12 7Z" /><path d="M12 1.2v2.3M4.4 4.6l1.6 1.6M19.6 4.6 18 6.2M1.6 11.6h2.3M22.4 11.6h-2.3" /></>,
   fala: <path d="M21 12a8 8 0 0 1-11.6 7.1L4 20l1-4.6A8 8 0 1 1 21 12Z" />,
+  presente: <><rect x="3.5" y="8" width="17" height="4" rx="1" /><path d="M5 12v8h14v-8M12 8v12M12 8c-2.5 0-4.5-1-4.5-2.7S9.6 3 12 8c2.4-5 4.5-4.4 4.5-2.7S14.5 8 12 8Z" /></>,
   tBroto: <><path d="M12 21v-8" /><path d="M12 13c0-4 3-6 7-6 0 4-3 6-7 6Z" /><path d="M12 15c0-3-2.5-5-6-5 0 3 2.5 5 6 5Z" /></>,
   tBussola: <><circle cx="12" cy="12" r="9" /><path d="m15.5 8.5-2 5-5 2 2-5 5-2Z" /></>,
   livro: <><path d="M4 19.5v-15A2.5 2.5 0 0 1 6.5 2H20v20H6.5a2.5 2.5 0 0 1 0-5H20" /><path d="M9 7h7M9 11h5" /></>,
