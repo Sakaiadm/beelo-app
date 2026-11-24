@@ -237,7 +237,7 @@ async function sincronizarTarefaTela(supabase, eu, membroId, ligado) {
 
 // Dias de lançar = dia seguinte aos dias do previsto (função do SQL 0016; sem ela, fica todo dia).
 async function ajustarDiasTela(supabase, membroId) {
-  try { await supabase.rpc('ra_tela_ajustar_tarefa', { p_membro: membroId }); } catch { /* SQL 0016 ainda não rodou */ }
+  try { await supabase.rpc('ra_tela_ajustar_tarefa', { p_membro: membroId }); } catch { /* SQL 0018 ainda não rodou */ }
 }
 
 // Painel › "Lembrar": aviso no celular da pessoa para lançar o tempo de ontem (Raio-X S17, SQL 0016).

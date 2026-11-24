@@ -11,6 +11,7 @@ import Form from '@/components/Form';
 import Icone from '@/components/Icone';
 import DicaFaixa from '@/components/DicaFaixa';
 import { fatos, candidatosPais } from '@/lib/dicas';
+import { carregarDesafios, desafiosLigados } from '@/lib/desafiosDados';
 import { responderAdiamento, avaliarJustificativa, conferir, responderTela, lembrarTela } from '@/app/acoes';
 
 export const dynamic = 'force-dynamic';
@@ -50,6 +51,10 @@ export default async function Painel() {
   const telas = {};
   telaFilhos.forEach((f, i) => { telas[f.id] = telaRes[i][0]; });
   const dicas = candidatosPais(filhos.map((f) => ({ nome: f.nome, fatos: fatos(lista, f.id, hoje) })), hoje);
+  // Desafios (beta): resumo com o andamento de cada desafio e os prêmios para entregar.
+  const des = gestor && desafiosLigados(familia) ? await carregarDesafios(supabase, { eu, membros }) : null;
+  const paraEntregar = des ? des.pedidos.filter((p) => p.status === 'pedido').length : 0;
+  const paraAprovar = des ? des.desejos.filter((x) => x.desejo === 'esperando').length : 0;
   const pend = (adiamentos?.length || 0) + justif.length + (propostas?.length || 0);
 
   return (
@@ -68,6 +73,24 @@ export default async function Painel() {
         <div className="kpi"><small>Semana</small><strong>{kSem.total ? Math.round((kSem.feitas / kSem.total) * 100) : 0}<span style={{ fontSize: 16 }}>%</span></strong>
           <div className="barra" style={{ marginTop: 10 }}><div style={{ width: `${kSem.total ? (kSem.feitas / kSem.total) * 100 : 0}%` }} /></div></div>
       </div>
+
+      {des && (
+        <Link prefetch={false} href="/desafios" className="card des-card">
+          <div className="des-top"><span className="des-ic mel"><Icone nome="check" tam={22} /></span>
+            <span><b>Desafios da semana</b><small>{des.desafios.length ? `${des.desafios.filter((d) => d.atual?.status === 'cumprido').length} de ${des.desafios.length} cumpridos` : 'Nenhum desafio ainda. Toque para escolher.'}</small></span>
+            <span className="selo-beta">beta</span></div>
+          {paraEntregar > 0 && <div className="aviso info" style={{ margin: '12px 0 0' }}>{paraEntregar === 1 ? '1 prêmio para entregar' : `${paraEntregar} prêmios para entregar`}</div>}
+          {paraAprovar > 0 && <div className="aviso info" style={{ margin: '12px 0 0' }}>{paraAprovar === 1 ? '1 desejo para aprovar' : `${paraAprovar} desejos para aprovar`}</div>}
+          {des.desafios.length > 0 && (
+            <div className="barras-h contrib" style={{ marginTop: 14, fontSize: 13 }}>
+              {des.desafios.map((d) => {
+                const p = d.atual, w = p?.meta ? Math.min(100, (p.progresso / p.meta) * 100) : 0;
+                return <div className="l" key={d.id}><span>{d.membro_id ? nome[d.membro_id] : 'Família'}</span><div className="barra" title={d.titulo}><div style={{ width: `${w}%`, background: p?.status === 'cumprido' ? 'var(--ok)' : undefined }} /></div><span>{p?.status === 'cumprido' ? 'feito' : `${Math.round(w)}%`}</span></div>;
+              })}
+            </div>
+          )}
+        </Link>
+      )}
 
       <div className="duas">
         <div className="grande">

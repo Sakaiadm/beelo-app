@@ -1,4 +1,4 @@
--- beelo 0016: mudanças do Raio-X do tempo de tela. Pode rodar mais de uma vez.
+-- beelo 0018: mudanças do Raio-X do tempo de tela. Pode rodar mais de uma vez.
 -- 1) O adulto acompanhado (papel "Outro usuário") define o próprio previsto.
 -- 2) Os dias de "Lançar tempo de tela" seguem os dias do previsto (lança no dia seguinte).
 -- 3) Botão "Lembrar" no Painel: manda um aviso para a pessoa lançar o tempo de ontem.
