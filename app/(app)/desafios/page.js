@@ -201,7 +201,7 @@ export default async function Desafios({ searchParams }) {
         </DesafioCartao>
       ))}
       {meus.length === 0 && <div className="card vazio">{pf === 'c' ? 'Ainda não tem desafio. Combine um com seus pais!' : 'Você ainda não tem desafio.'}</div>}
-      {pf !== 'c' && meus.length < MAX_POR_PESSOA && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 16 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio</Link>}
+      {pf !== 'c' && meus.length === 0 && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 16 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio</Link>}
       {cartaoFamilia}
       {pf === 'c' && (
         <Link prefetch={false} href="/desafios/cofrinho" className="card des-card">
