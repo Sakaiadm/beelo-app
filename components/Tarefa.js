@@ -8,6 +8,8 @@ import Foto from './Foto';
 import { concluir, desfazer, justificar, pedirAdiamento, definirHorario, conferir } from '@/app/acoes';
 import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana, addDias } from '@/lib/util';
 import Motivos from './Motivos';
+import Responder from './Responder';
+import { CONFERIR } from '@/lib/respostas';
 import { useFila } from '@/lib/fila';
 import { prepararSom, comemorar } from '@/lib/festa';
 import { RealForm } from './TelaForms';
@@ -56,7 +58,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
     : st !== 'pendente' ? [STATUS_TXT[st], 'aviso'] : null;
 
   return (
-    <div ref={ref} className={`tarefa ${feita ? 'feita' : ''} ${atrasada ? 'atrasada' : ''} ${festa ? 'festa' : ''}`}>
+    <div ref={ref} id={`t-${oc.id}`} className={`tarefa ${feita ? 'feita' : ''} ${atrasada ? 'atrasada' : ''} ${festa ? 'festa' : ''}`}>
       <div className="topo-t" onClick={(e) => { if (!e.target.closest('button, a, form, input, textarea, label')) setAberto(!aberto); }}>
         {futura && podeConcluir ? (
           <button type="button" className={`circulo${crianca ? ' grande' : ''}`} onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
@@ -128,10 +130,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
       )}
 
       {paraConferir && (
-        <div className="acoes" style={{ marginTop: 8 }}>
-          <Form acao={conferir} fila="conferir" rotulo={`Conferir “${t}”`}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="conferido" /><button className="btn sec peq">Conferido</button></Form>
-          <Form acao={conferir} fila="conferir" rotulo={`Pedir para refazer “${t}”`}><input type="hidden" name="oc" value={oc.id} /><input type="hidden" name="valor" value="refazer" /><button className="btn perigo peq">Pedir para refazer</button></Form>
-        </div>
+        <div style={{ marginTop: 8 }}><Responder acao={conferir} fila="conferir" rotulo={`Conferir “${t}”`} campos={{ oc: oc.id }} opcoes={CONFERIR} /></div>
       )}
 
       {aba === 'tela' && tela && (

@@ -820,3 +820,104 @@ main:has(> .fab) { padding-bottom: 104px; }
 .chaves-form .check > span { display: flex; flex-direction: column; gap: 2px; padding-top: 3px; }
 .chaves-form .check small { color: var(--cinza); font-weight: 500; font-size: var(--f-apoio); }
 .vt + .card, .vt + form { margin-top: 4px; }
+
+/* ===== Lote 3 do Raio-X: Painel, sino, Relatórios e Evolução ===== */
+/* U29: sem nada pendente, uma linha só */
+.tudo-dia { display: flex; align-items: center; gap: 10px; padding: 12px 16px; margin-bottom: 14px; border-radius: 14px; background: var(--cartao); border: 1px solid var(--borda); font-weight: 600; color: var(--ok); }
+.tudo-dia svg { flex: none; }
+.atencao h2 { margin-bottom: 10px; }
+.tarefa.pedido { background: var(--aviso-fundo); border-color: var(--aviso-borda); }
+/* U40: o pedido aberto pelo aviso aparece destacado */
+.alvo { scroll-margin-top: 84px; }
+.alvo:target { box-shadow: 0 0 0 3px var(--azul); }
+.alvo-ancora { scroll-margin-top: 84px; }
+/* U30 e U31: 4 números em 2 por 2, e cada um abre o que conta */
+.kpis.k4 { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 10px; }
+.kpis.k4 .kpi { padding: 14px 16px; min-width: 0; }
+.kpis.k4 .kpi small { letter-spacing: .04em; }
+a.kpi { display: block; text-decoration: none; color: inherit; }
+a.kpi:not(.destaque) strong { color: var(--texto); }
+@media (min-width: 900px) { main:not(.estreito) .kpis.k4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* U33: "Aprovado. Desfazer" por 5 segundos */
+.responder { margin-top: 8px; }
+.desfazer { position: relative; display: flex; align-items: center; gap: 4px; min-height: 44px; padding: 0 4px 0 14px; border-radius: 12px; background: color-mix(in srgb, var(--azul) 12%, transparent); font-weight: 700; font-size: var(--f-apoio); overflow: hidden; }
+.desfazer .link-btn { margin-left: auto; }
+.desfazer i { position: absolute; left: 0; bottom: 0; height: 3px; width: 100%; background: var(--azul); transform-origin: left; animation: desfazer-barra linear forwards; }
+.desfazer.feito { color: var(--cinza); }
+@keyframes desfazer-barra { from { transform: scaleX(1); } to { transform: scaleX(0); } }
+@media (prefers-reduced-motion: reduce) { .desfazer i { animation: none; } }
+/* U34: conferir as tarefas sem foto, uma linha por pessoa */
+.conf-pessoa > summary { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; list-style: none; }
+.conf-pessoa > summary::-webkit-details-marker { display: none; }
+.conf-pessoa > summary .ver { margin-left: auto; color: var(--azul); font-weight: 700; font-size: var(--f-apoio); }
+.conf-pessoa[open] > summary .ver { visibility: hidden; }
+.conf-pessoa form { margin-top: 6px; }
+.conf-lista { margin-top: 10px; display: grid; gap: 10px; }
+.conf-l { border-top: 1px solid var(--borda); padding-top: 10px; }
+.conf-l > span { display: block; font-weight: 600; }
+.conf-l small { display: inline; margin-left: 8px; color: var(--cinza); font-weight: 500; font-size: var(--f-etq); }
+/* U35: tarefa atrasada abre o dia da pessoa */
+a.tarefa-ir { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--texto); }
+a.tarefa-ir > span { flex: 1; min-width: 0; }
+a.tarefa-ir .tt, a.tarefa-ir .meta { display: block; }
+a.tarefa-ir > svg { color: var(--cinza); flex: none; }
+/* U38: desafios numa linha */
+.des-linha { display: flex !important; flex-wrap: wrap; align-items: center; gap: 8px 12px; }
+.des-linha .des-txt { flex: 1 1 160px; min-width: 0; }
+.des-linha .des-txt b { display: block; font-size: var(--f-texto); }
+.des-linha .des-txt small { display: block; color: var(--cinza); font-size: var(--f-apoio); }
+/* U37: calendário do mês só no computador */
+.linha-ir { display: flex; align-items: center; gap: 10px; min-height: 52px; padding: 12px 16px; text-decoration: none; color: var(--azul); font-weight: 700; }
+.linha-ir span { flex: 1; }
+.so-pc3 { display: none !important; }
+@media (min-width: 1024px) { .so-pc3 { display: block !important; } .so-cel3 { display: none !important; } }
+/* U42: avisos por dia; os novos com fundo azul claro */
+.not-grupo .grupo-titulo { margin-top: 6px; }
+.card.not-lista { padding: 0; overflow: hidden; }
+.not-item { border-bottom: 1px solid var(--borda); padding: 0 14px; }
+.not-item:last-child { border-bottom: 0; }
+.not-item > a { display: flex; gap: 10px; padding: 12px 0; text-decoration: none; color: var(--texto); }
+.not-item > a i { width: 10px; height: 10px; border-radius: 5px; margin-top: 7px; flex: none; background: transparent; }
+.not-item > a b { font-weight: 500; }
+.not-item > a small { display: block; font-size: var(--f-etq); color: var(--cinza); margin-top: 2px; }
+.not-item.nova { background: color-mix(in srgb, var(--azul) 8%, transparent); }
+.not-item.nova > a i { background: var(--azul); }
+.not-item.nova > a b { font-weight: 700; }
+.not-resp { padding: 0 0 12px 20px; }
+.not-resp .responder { margin-top: 0; }
+.cab .vt { margin-bottom: 0; }
+/* U44 a U48: Relatórios */
+.per-seg { max-width: 420px; }
+.datas-livre { margin-bottom: 12px; }
+.mais-filtros { padding: 4px 16px; margin-bottom: 12px; }
+.mais-filtros > summary, .rel-sec > summary { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; list-style: none; font-weight: 700; }
+.mais-filtros > summary::-webkit-details-marker, .rel-sec > summary::-webkit-details-marker { display: none; }
+.mais-filtros > summary::after, .rel-sec > summary::after { content: '›'; margin-left: auto; color: var(--cinza); font-size: 22px; transition: transform .15s; }
+.mais-filtros[open] > summary::after, .rel-sec[open] > summary::after { transform: rotate(90deg); }
+.mais-filtros .filtros { padding: 8px 0 12px; }
+.mf-bt { display: flex; gap: 6px; align-items: center; }
+.rel-sec > summary h2 { margin: 0; }
+.rel-sec > summary span { color: var(--cinza); font-weight: 600; font-size: var(--f-apoio); }
+.rel-sec[open] > summary { margin-bottom: 10px; }
+.rel-fim { display: flex; justify-content: center; margin: 8px 0 16px; }
+.tela-ev h3 { margin: 12px 0 8px; font-size: var(--f-texto); }
+/* U49 e U50: Evolução */
+.evo-frases { display: grid; gap: 6px; }
+.evo-frases p { margin: 0; font-size: var(--f-cartao); }
+.evo-frases b { font-size: var(--f-tela); color: var(--azul); margin-right: 4px; }
+.evo-frases p:nth-child(3) b { font-size: inherit; margin: 0; }
+.evo-dias { display: grid; gap: 8px; }
+.evo-dias .l { display: flex; align-items: center; justify-content: space-between; gap: 10px; min-height: 36px; text-transform: capitalize; font-weight: 600; }
+.evo-dias em { font-style: normal; color: var(--cinza); font-weight: 500; text-transform: none; font-size: var(--f-apoio); }
+.estr { display: inline-flex; gap: 3px; }
+.estr svg { fill: var(--borda); }
+.estr svg.on { fill: #f5b82e; }
+@media print { .rel-sec > summary::after { display: none; } }
+.mais-atr > summary { min-height: 44px; display: flex; align-items: center; color: var(--azul); font-weight: 700; cursor: pointer; list-style: none; }
+.mais-atr > summary::-webkit-details-marker { display: none; }
+.mais-atr[open] > summary { display: none; }
+.rel-sec { padding-top: 6px; padding-bottom: 6px; }
+.rel-sec[open] { padding-bottom: 18px; }
+.rel-sec > summary { min-height: 52px; }
+.rel-sec > summary h2 { font-size: var(--f-cartao); line-height: 1.25; }
+.rel-sec > summary span { white-space: nowrap; }

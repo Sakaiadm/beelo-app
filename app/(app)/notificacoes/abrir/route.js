@@ -11,6 +11,9 @@ export async function GET(request) {
     const supabase = await supabaseServer();
     const { data } = await supabase.from('ra_notificacoes').select('link').eq('id', id).maybeSingle();
     if (data?.link && /^\/(?!\/)/.test(data.link)) destino = data.link;
+    // U40: pedido ainda sem resposta abre o Painel já no cartão dele, destacado.
+    const foco = new URL(request.url).searchParams.get('foco') || '';
+    if (/^[ajp]-[0-9a-f-]{36}$/i.test(foco)) destino = `/painel#${foco}`;
     await supabase.from('ra_notificacoes').update({ lida: true }).eq('id', id);
     esquecerSessoes();
   }

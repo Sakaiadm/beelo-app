@@ -58,6 +58,12 @@ export async function conferir(_, fd) {
   const v = fd.get('valor'); if (!['conferido', 'refazer'].includes(v)) return { erro: 'Valor inválido' };
   return rpc('ra_conferir', { p_oc: uuid(fd.get('oc')), p_valor: v });
 }
+// "Conferir todas" de uma pessoa pelo Painel (Raio-X U34): marca como conferidas, uma a uma.
+export async function conferirTodas(_, fd) {
+  const ocs = fd.getAll('oc').map(uuid).filter(Boolean).slice(0, 60);
+  for (const oc of ocs) { const r = await rpc('ra_conferir', { p_oc: oc, p_valor: 'conferido' }); if (r?.erro) return r; }
+  return { ok: true, msg: ocs.length === 1 ? 'Tarefa conferida.' : `${ocs.length} tarefas conferidas.` };
+}
 
 // Enquanto o banco ainda não recebeu a 0009 (prioritária e modo criança), salva sem esses campos em vez de dar erro.
 const NOVAS = ['prioritaria', 'lembrete_min', 'modo_crianca'];
