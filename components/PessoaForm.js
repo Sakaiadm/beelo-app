@@ -76,7 +76,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
             )}
             {f.chaves.length > 0 && (
               <>
-                <p className="peq-cinza" style={{ margin: '12px 0 2px' }}>O que ele pode fazer</p>
+                <p className="peq-cinza" style={{ margin: '12px 0 2px' }}>O que {nome.trim().split(' ')[0] || 'a pessoa'} pode fazer</p>
                 {f.chaves.map(([k, t]) => (
                   <div className="lin-chave" key={k}><span>{t}</span>
                     <button type="button" role="switch" aria-checked={!!chaves[k]} aria-label={t} className={`chave ${chaves[k] ? 'on' : ''}`} onClick={() => setChaves((x) => ({ ...x, [k]: !x[k] }))} />
@@ -92,7 +92,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {ja && <input type="hidden" name="existente" value={ja.id} />}
         {ja && <div className="caixa-papel" role="status" style={{ marginTop: 12 }}><b>{ja.nome}</b> já está neste grupo com este e-mail. {ja.user_id ? 'Toque abaixo para mandar um novo e-mail de acesso.' : 'Toque abaixo para mandar o convite.'}</div>}
         <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : ja ? rotuloJa : convidar ? 'Salvar e enviar convite' : 'Adicionar pessoa'}</button>
-        {!m && !ja && <p className="peq-cinza">A foto pode ser colocada depois de salvar. Para mandar o convite, digite o e-mail e toque em Salvar e enviar convite.</p>}
+        {!m && !ja && <p className="peq-cinza">A foto pode ser colocada depois de salvar. Para mandar o convite, digite o e-mail: o botão passa a dizer Salvar e enviar convite.</p>}
         {folha && (
           <CorFolha cor={cor} setCor={setCor} fechar={() => setFolha(false)} usadas={usadas}
             topo={<div className="cartao-l"><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f ? rotuloFuncao(f.id, null) : ''}</small></span></div>} />

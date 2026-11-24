@@ -1,5 +1,5 @@
 import { exigirMembro } from '@/lib/sessao';
-import Voltar from '@/components/Voltar';
+import Voltar from '@/components/VoltarHistorico';
 
 export const dynamic = 'force-dynamic';
 
