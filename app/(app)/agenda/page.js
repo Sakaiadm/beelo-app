@@ -85,7 +85,7 @@ export default async function Agenda({ searchParams }) {
             return (
               <Link prefetch={false} className="dia" key={dia} href={`/agenda?v=dia&d=${dia}${filtroM && veTodos ? `&m=${filtroM}` : ''}`} style={{ display: 'block', color: 'var(--texto)', textDecoration: 'none', ...(dia === hoje ? { outline: '2px solid var(--azul)' } : {}) }}>
                 <h3>{DIAS[diaSemana(dia)].slice(0, 3)} {dia.slice(8)}</h3>
-                {itens.length === 0 && <div style={{ fontSize: 12, color: 'var(--cinza)' }}>Livre</div>}
+                {itens.length === 0 && <div style={{ fontSize: 'var(--f-etq)', color: 'var(--cinza)' }}>Livre</div>}
                 {itens.map(({ o, st }) => (
                   <div key={o.id} className={`mini ${st.startsWith('cumprida') ? 'ok' : st === 'atrasada' || st === 'nao_cumprida' ? 'atr' : ''}`}>
                     <strong>{o.hora_inicio ? hhmm(o.hora_inicio) : '—'}</strong> {o.tarefa?.titulo}{!filtroM && veTodos ? ` · ${nome[o.membro_id]}` : ''}

@@ -100,7 +100,7 @@ export default function AvisosCelular({ chavePublica, teste = false }) {
     finally { setOcupado(false); }
   }
 
-  const txt = { fontSize: 14, color: 'var(--cinza)', margin: '4px 0 12px' };
+  const txt = { fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '4px 0 12px' };
   return (
     <div>
       {estado === 'carregando' && <p style={txt}>Verificando este aparelho…</p>}

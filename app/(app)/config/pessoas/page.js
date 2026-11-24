@@ -28,7 +28,7 @@ export default async function Pessoas({ searchParams }) {
         <div key={m.id} className={`cartao-l ${m.ativo ? '' : 'apagado'}`}>
           <Link prefetch={false} href={`/config/pessoas/${m.id}`} style={{ display: 'flex', gap: 12, alignItems: 'center', flex: 1, minWidth: 0, color: 'inherit', textDecoration: 'none' }}>
             <Avatar nome={m.nome} cor={m.cor} url={urls[m.avatar]} avatar={m.avatar} tam={42} />
-            <span className="corpo"><b>{m.nome}</b><small className="peq-cinza">{nomeFuncao(m)}</small>{!m.ativo ? <span><span className="pilula" style={{ fontSize: 11 }}>desativada</span></span> : statusConvite(m) && <small className={`peq-cinza st-conv ${statusConvite(m).tipo}`}>{statusConvite(m).txt}</small>}</span>
+            <span className="corpo"><b>{m.nome}</b><small className="peq-cinza">{nomeFuncao(m)}</small>{!m.ativo ? <span><span className="pilula" style={{ fontSize: 'var(--f-etq)' }}>desativada</span></span> : statusConvite(m) && <small className={`peq-cinza st-conv ${statusConvite(m).tipo}`}>{statusConvite(m).txt}</small>}</span>
           </Link>
           <Link prefetch={false} href={`/config/pessoas/${m.id}`} className="link-btn">Editar</Link>
           {!m.user_id && m.email && m.ativo && m.id !== eu.id && <ReenviarConvite id={m.id} rotulo={m.convidado_em ? 'Reenviar' : 'Convidar'} />}

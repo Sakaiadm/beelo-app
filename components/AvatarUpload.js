@@ -61,7 +61,7 @@ export default function AvatarUpload({ nome = 'avatar', familia, pasta, atualUrl
       </span>
       <input ref={ref} type="file" accept="image/*" hidden onChange={escolher} />
       {lado && <div style={{ flex: 1, minWidth: 0 }}>{lado}</div>}
-      {st.msg && <span style={{ fontSize: 13, color: 'var(--cinza)', flexBasis: '100%' }}>{st.msg}</span>}
+      {st.msg && <span style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', flexBasis: '100%' }}>{st.msg}</span>}
       {crianca && aberto && (
         <div style={{ flexBasis: '100%' }}>
           <div className="avatares">{CRIANCAS.map(([id, desc]) => (

@@ -101,13 +101,13 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
       {m && m.email && !eu && (m.user_id ? (
         <div className="card">
           <b>Problemas para entrar?</b>
-          <p style={{ margin: '6px 0 12px', fontSize: 14, color: 'var(--cinza)', lineHeight: 1.45 }}>Se {m.nome} trocou de celular ou perdeu o link, mande um novo e-mail de acesso para o e-mail cadastrado.</p>
+          <p style={{ margin: '6px 0 12px', fontSize: 'var(--f-apoio)', color: 'var(--cinza)', lineHeight: 1.45 }}>Se {m.nome} trocou de celular ou perdeu o link, mande um novo e-mail de acesso para o e-mail cadastrado.</p>
           <ReenviarConvite id={m.id} rotulo="Enviar e-mail de acesso" />
         </div>
       ) : (
         <div className="card">
           <b>Convite por e-mail</b>
-          <p style={{ margin: '6px 0 10px', fontSize: 14, color: 'var(--cinza)' }}>{statusConvite(m)?.txt}</p>
+          <p style={{ margin: '6px 0 10px', fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>{statusConvite(m)?.txt}</p>
           <ReenviarConvite id={m.id} rotulo={m.convidado_em ? 'Reenviar convite' : 'Enviar convite'} />
         </div>
       ))}

@@ -19,10 +19,10 @@ export default function Comemorar({ itens, nome }) {
       {SOLTAS.map(([l, t, s, r], i) => <span key={i} className="festa-est" style={{ left: `${l}%`, top: `${t}%`, transform: `rotate(${r}deg)` }}><E t={s} /></span>)}
       <div className="balao" style={{ position: 'relative' }}>
         <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}><E t={30} /><E t={40} /><E t={30} /></div>
-        <h2 id="comemora-tit" style={{ fontSize: 22 }}>Desafio cumprido!</h2>
+        <h2 id="comemora-tit" style={{ fontSize: 'var(--f-tela)' }}>Desafio cumprido!</h2>
         <p>{x.titulo}. Você foi constante{nome ? `, ${nome}` : ''}!</p>
         {premio && <div className="aviso ok" style={{ margin: 0, textAlign: 'center' }}>{premio}</div>}
-        <p style={{ fontSize: 14, color: 'var(--cinza)' }}>{x.d.periodo === 'mes' ? 'No dia 1º começa um mês novo.' : 'Na segunda começa uma semana nova.'}</p>
+        <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>{x.d.periodo === 'mes' ? 'No dia 1º começa um mês novo.' : 'Na segunda começa uma semana nova.'}</p>
         <div className="balao-bts"><button type="button" className="btn" onClick={ok} autoFocus>Eba!</button></div>
       </div>
     </div>

@@ -53,7 +53,7 @@ export default function FamiliaEditor({ familia, url, resp, gestores = [], resum
           </span>
           <span style={{ flex: 1, minWidth: 0 }}>
             <small className="peq-cinza" style={{ margin: 0 }}>Nome do grupo</small>
-            {editando ? <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={60} aria-label="Nome do grupo" autoFocus /> : <b style={{ fontSize: 17 }}>{nome}</b>}
+            {editando ? <input value={nome} onChange={(e) => setNome(e.target.value)} maxLength={60} aria-label="Nome do grupo" autoFocus /> : <b style={{ fontSize: 'var(--f-cartao)' }}>{nome}</b>}
           </span>
           {!editando && <button type="button" className="link-btn" onClick={() => setEditando(true)}>Editar</button>}
         </div>

@@ -38,7 +38,7 @@ export default async function Detalhes({ params }) {
       <div className="card">
         <div className="acoes" style={{ alignItems: 'center' }}>
           {t.categoria && <span className="pilula" style={{ background: f, color: l }}>{t.categoria.nome}</span>}
-          {regras.length ? regras.map((r) => <span key={r} className="pilula" style={{ background: 'var(--campo)', color: 'var(--texto)' }}>{r}</span>) : <span style={{ fontSize: 13, color: 'var(--cinza)' }}>Sem regras extras</span>}
+          {regras.length ? regras.map((r) => <span key={r} className="pilula" style={{ background: 'var(--campo)', color: 'var(--texto)' }}>{r}</span>) : <span style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>Sem regras extras</span>}
         </div>
         {t.descricao && <p style={{ marginBottom: 0 }}>{t.descricao}</p>}
       </div>

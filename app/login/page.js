@@ -57,7 +57,7 @@ export default function Login() {
       <div style={{ background: '#1a6fe0', padding: '56px 24px 64px', color: '#fff' }}>
         <div style={{ maxWidth: 420, margin: '0 auto', display: 'flex', flexDirection: 'column', gap: 14 }}>
           <h1 style={{ margin: 0, lineHeight: 0 }}><img src="/marca/beelo-horizontal-negativa-branca.svg" alt="beelo" style={{ height: 44, width: 'auto' }} /></h1>
-          <p style={{ margin: 0, fontSize: 15, color: '#e6f0fe', maxWidth: 320 }}>Pais presentes, filhos protagonistas, famílias mais fortes.</p>
+          <p style={{ margin: 0, fontSize: 'var(--f-texto)', color: '#e6f0fe', maxWidth: 320 }}>Pais presentes, filhos protagonistas, famílias mais fortes.</p>
           <div className="entrada-beta">
             <span className="selo-beta">Versão beta</span>
             <nav aria-label="Informações">
@@ -70,15 +70,15 @@ export default function Login() {
       </div>
       <div style={{ flex: 1, background: 'var(--cartao)', borderRadius: '28px 28px 0 0', marginTop: -28, padding: '28px 24px' }}>
         <div style={{ maxWidth: 420, margin: '0 auto' }}>
-          <h2 style={{ margin: 0, fontSize: 24, fontWeight: 800 }}>Entrar</h2>
-          <p style={{ margin: '6px 0 18px', color: 'var(--cinza)', fontSize: 14 }}>Só entra quem foi convidado pelos pais.</p>
+          <h2 style={{ margin: 0, fontSize: 'var(--f-tela)', fontWeight: 800 }}>Entrar</h2>
+          <p style={{ margin: '6px 0 18px', color: 'var(--cinza)', fontSize: 'var(--f-apoio)' }}>Só entra quem foi convidado pelos pais.</p>
           {aviso && !msg && <div className="aviso ok" role="status">{aviso}</div>}
           {msg && <div className={`aviso ${msg.tipo}`}>{msg.txt}</div>}
           <button className="btn sec bloco" onClick={google} disabled={carregando} style={{ color: 'var(--texto)', borderColor: 'var(--campo)' }}>
             <svg aria-hidden="true" width="20" height="20" viewBox="0 0 48 48"><path fill="#FFC107" d="M43.6 20.5H42V20H24v8h11.3C33.7 32.7 29.2 36 24 36c-6.6 0-12-5.4-12-12s5.4-12 12-12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 12.9 4 4 12.9 4 24s8.9 20 20 20 20-8.9 20-20c0-1.3-.1-2.4-.4-3.5z"/><path fill="#FF3D00" d="m6.3 14.7 6.6 4.8C14.7 15.1 19 12 24 12c3.1 0 5.8 1.2 7.9 3.1l5.7-5.7C34 6.1 29.3 4 24 4 16.3 4 9.7 8.3 6.3 14.7z"/><path fill="#4CAF50" d="M24 44c5.2 0 9.9-2 13.4-5.2l-6.2-5.2C29.2 35.1 26.7 36 24 36c-5.2 0-9.6-3.3-11.3-8l-6.5 5C9.5 39.6 16.2 44 24 44z"/><path fill="#1976D2" d="M43.6 20.5H42V20H24v8h11.3c-.8 2.2-2.2 4.2-4.1 5.6l6.2 5.2C37 39.2 44 34 44 24c0-1.3-.1-2.4-.4-3.5z"/></svg>
             Entrar com Google
           </button>
-          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0 4px', color: 'var(--cinza)', fontSize: 13 }}>
+          <div style={{ display: 'flex', alignItems: 'center', gap: 12, margin: '18px 0 4px', color: 'var(--cinza)', fontSize: 'var(--f-apoio)' }}>
             <span style={{ flex: 1, height: 1, background: 'var(--borda)' }} /> ou receba um link por e-mail <span style={{ flex: 1, height: 1, background: 'var(--borda)' }} />
           </div>
           <form onSubmit={porEmail}>
@@ -86,7 +86,7 @@ export default function Login() {
             <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
             <button className="btn bloco" style={{ marginTop: 12 }} disabled={carregando}>Enviar link de acesso</button>
           </form>
-          <p style={{ marginTop: 22, textAlign: 'center', fontSize: 12, color: 'var(--cinza)' }}>
+          <p style={{ marginTop: 22, textAlign: 'center', fontSize: 'var(--f-etq)', color: 'var(--cinza)' }}>
             Seus dados ficam só com a família.
           </p>
         </div>
