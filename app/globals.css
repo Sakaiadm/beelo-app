@@ -655,3 +655,12 @@ button.cartao-l { width: 100%; font: inherit; text-align: left; cursor: pointer;
 .tempo-linha .chips button { min-height: 44px; padding: 0 9px; }
 .cab.centro { align-items: center; }
 .cab.centro .abas { margin: 0; }
+
+/* Caixas de aceite (Termos, Privacidade e autorização do responsável): caixa quadrada, não chave. */
+.aceite { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 12px; background: var(--fundo); font-size: 14px; line-height: 1.5; color: var(--texto); cursor: pointer; margin: 0 0 10px; font-weight: 500; }
+.aceite input[type=checkbox] { appearance: none; -webkit-appearance: none; flex: none; width: 24px; height: 24px; padding: 0; box-sizing: border-box; margin: 1px 0 0; border: 2px solid var(--cinza); border-radius: 6px; background: var(--cartao); cursor: pointer; display: grid; place-content: center; }
+.aceite input[type=checkbox]:checked { background: var(--azul); border-color: var(--azul); }
+.aceite input[type=checkbox]:checked::after { content: ''; width: 6px; height: 11px; border: solid #fff; border-width: 0 3px 3px 0; transform: translateY(-1px) rotate(45deg); }
+.aceite input[type=checkbox]:focus-visible { outline: 3px solid color-mix(in srgb, var(--azul) 45%, transparent); outline-offset: 2px; }
+.aceite a { color: var(--azul); font-weight: 700; }
+.aceite.marcada { border-color: var(--azul); }

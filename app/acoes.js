@@ -8,6 +8,8 @@ import { funcaoDe, nomeFuncao, temModoCrianca } from '@/lib/papeis';
 import { emailConfigurado, enviarEmailConvite } from '@/lib/convite';
 import { esquecerSessoes } from '@/lib/sessao';
 import { traduzirErro } from '@/lib/rede';
+import { emailsDoGrupo } from '@/lib/membros';
+import { VERSAO_TERMOS } from '@/lib/contato';
 
 // Depois de qualquer alteração: limpa o que estava guardado e manda as telas buscarem de novo.
 function revalidar() { esquecerSessoes(); revalidatePath('/', 'layout'); }
@@ -165,10 +167,20 @@ export async function salvarPessoa(_, fd) {
     if (atual?.avatar?.startsWith('preset:')) reg.avatar = null;
   }
   if (id === eu.id && (!reg.ativo || reg.papel !== 'gestor')) return { erro: 'Você não pode tirar o seu próprio acesso de pai/mãe' };
+  // Criança ou adolescente: o responsável precisa autorizar o uso dos dados (LGPD art. 14, §1º).
+  const menor = temModoCrianca(f.id);
+  const { data: atualAut } = id ? await supabase.from('ra_membros').select('autorizado_em').eq('id', id).maybeSingle() : { data: null };
+  const autorizar = menor && fd.get('autorizo') === '1';
+  if (menor && !atualAut?.autorizado_em && !autorizar) return { erro: 'Marque a autorização do responsável para continuar.' };
   const gravar = (r) => (id
-    ? supabase.from('ra_membros').update(r).eq('id', id).select('id, nome, email, user_id, funcao, papel').maybeSingle()
-    : supabase.from('ra_membros').insert({ ...r, familia_id: eu.familia_id }).select('id, nome, email, user_id, funcao, papel').maybeSingle());
+    ? supabase.from('ra_membros').update(r).eq('id', id).select('id, nome, user_id, funcao, papel').maybeSingle()
+    : supabase.from('ra_membros').insert({ ...r, familia_id: eu.familia_id }).select('id, nome, user_id, funcao, papel').maybeSingle());
   let { data: salvo, error } = await gravar(reg);
+  if (salvo) salvo = { ...salvo, email: reg.email };
+  if (salvo && autorizar && !atualAut?.autorizado_em) {
+    const { error: eAut } = await supabase.rpc('ra_autorizar', { p_membro: salvo.id, p_versao: VERSAO_TERMOS });
+    if (eAut) return traduzirErro(eAut);
+  }
   if (semColuna(error)) ({ data: salvo, error } = await gravar(semNovas(reg)));
   if (error) {
     if (!error.message.includes('duplicate')) return traduzirErro(error);
@@ -248,8 +260,10 @@ export async function lembrarTela(_, fd) {
 
 // Pessoa deste grupo que já usa o e-mail informado.
 async function pessoaDoGrupo(supabase, familia, email) {
-  const { data } = await supabase.from('ra_membros').select('id, nome, email, user_id, funcao, papel').eq('familia_id', familia).eq('email', email).limit(1);
-  return data?.[0] || null;
+  const achado = (await emailsDoGrupo(supabase)).find((x) => (x.email || '').toLowerCase() === String(email).toLowerCase());
+  if (!achado) return null;
+  const { data } = await supabase.from('ra_membros').select('id, nome, user_id, funcao, papel').eq('familia_id', familia).eq('id', achado.id).maybeSingle();
+  return data ? { ...data, email: achado.email } : null;
 }
 
 async function convidarExistente(supabase, eu, ja) {
@@ -282,8 +296,9 @@ export async function reenviarConvite(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
   if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
-  const { data: m } = await supabase.from('ra_membros').select('id, nome, email, user_id, funcao, papel').eq('id', uuid(fd.get('id'))).eq('familia_id', eu.familia_id).maybeSingle();
-  if (!m) return { erro: 'Pessoa não encontrada' };
+  const { data: p } = await supabase.from('ra_membros').select('id, nome, user_id, funcao, papel').eq('id', uuid(fd.get('id'))).eq('familia_id', eu.familia_id).maybeSingle();
+  if (!p) return { erro: 'Pessoa não encontrada' };
+  const m = { ...p, email: (await emailsDoGrupo(supabase)).find((x) => x.id === p.id)?.email || null };
   const r = await mandarConvite(supabase, eu, m);
   return r.ok ? { ok: true, msg: m.user_id ? 'E-mail enviado.' : 'Convite enviado.' } : r;
 }
@@ -297,11 +312,72 @@ export async function alternarPessoa(fd) {
   revalidar();
 }
 
+// Apaga todos os arquivos (fotos e avatares) de uma pasta do grupo, inclusive subpastas.
+async function apagarPasta(supabase, prefixo, nivel = 0) {
+  for (const bucket of ['rotina-fotos', 'rotina-avatares']) {
+    for (let volta = 0; volta < 50; volta++) {
+      const { data, error } = await supabase.storage.from(bucket).list(prefixo, { limit: 1000 });
+      if (error || !data?.length) break;
+      const arquivos = data.filter((x) => x.id).map((x) => `${prefixo}/${x.name}`);
+      const pastas = data.filter((x) => !x.id).map((x) => `${prefixo}/${x.name}`);
+      if (nivel < 2) for (const p of pastas) await apagarPasta(supabase, p, nivel + 1);
+      if (!arquivos.length) break;
+      const { error: e2 } = await supabase.storage.from(bucket).remove(arquivos);
+      if (e2) { console.error('apagar arquivos', e2.message); break; }
+      if (data.length < 1000) break;
+    }
+  }
+}
+
 export async function excluirPessoa(fd) {
   const supabase = await supabaseServer();
-  await supabase.rpc('ra_excluir_membro', { p_id: uuid(fd.get('id')) });
+  const { data: eu } = await supabase.rpc('ra_eu');
+  const id = uuid(fd.get('id'));
+  const { error } = await supabase.rpc('ra_excluir_membro', { p_id: id });
+  // A pessoa saiu: as fotos e o avatar dela saem também (varredura, item M3).
+  if (!error && eu?.familia_id && id) await apagarPasta(supabase, `${eu.familia_id}/${id}`);
   revalidar();
   redirect('/config/pessoas');
+}
+
+// Aceite dos Termos de uso e da Privacidade (e, para Pai e Mãe, a autorização das crianças do grupo).
+export async function aceitarTermos(_, fd) {
+  const supabase = await supabaseServer();
+  const { data: eu } = await supabase.rpc('ra_eu');
+  if (!eu?.id) return { erro: 'Entre de novo para continuar.' };
+  const crianca = eu.papel !== 'gestor' && temModoCrianca(eu.funcao);
+  const docs = crianca ? ['aviso_crianca'] : ['termos', 'privacidade'];
+  if (eu.termos_versao !== VERSAO_TERMOS) {
+    if (docs.some((d) => fd.get(d) !== '1')) return { erro: crianca ? 'Marque a caixa para continuar.' : 'Marque as duas caixas para continuar.' };
+    const { error } = await supabase.rpc('ra_aceitar', { p_versao: VERSAO_TERMOS, p_docs: docs });
+    if (error) return traduzirErro(error);
+  }
+  if (eu.papel === 'gestor') {
+    const ids = fd.getAll('menor').map(uuid).filter(Boolean);
+    for (const id of ids) {
+      if (fd.get(`autorizo_${id}`) !== '1') return { erro: 'Marque a autorização de cada criança ou adolescente para continuar.' };
+      const { error } = await supabase.rpc('ra_autorizar', { p_membro: id, p_versao: VERSAO_TERMOS });
+      if (error) return traduzirErro(error);
+    }
+  }
+  revalidar();
+  redirect('/');
+}
+
+// Apagar o grupo inteiro (Pai ou Mãe). Primeiro as fotos e avatares, depois os dados.
+export async function apagarGrupo(_, fd) {
+  const supabase = await supabaseServer();
+  const { data: eu } = await supabase.rpc('ra_eu');
+  if (eu?.papel !== 'gestor') return { erro: 'Só Pai ou Mãe pode apagar o grupo.' };
+  const { data: fam } = await supabase.from('ra_familias').select('nome').eq('id', eu.familia_id).maybeSingle();
+  const confirmar = txt(fd, 'confirmar', 80);
+  if (!fam || (confirmar || '').toLowerCase() !== fam.nome.trim().toLowerCase()) return { erro: 'Digite o nome do grupo exatamente como aparece.' };
+  await apagarPasta(supabase, eu.familia_id);
+  const { error } = await supabase.rpc('ra_apagar_familia', { p_confirmar: confirmar });
+  if (error) return traduzirErro(error);
+  esquecerSessoes();
+  await supabase.auth.signOut();
+  redirect('/login?apagado=1');
 }
 
 export async function editarFamilia(_, fd) {

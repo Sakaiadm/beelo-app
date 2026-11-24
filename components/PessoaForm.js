@@ -21,6 +21,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const [crianca, setCrianca] = useState(!!m?.modo_crianca);
   const [chaves, setChaves] = useState(chavesIniciais(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''), m?.permissoes));
   const [folha, setFolha] = useState(false);
+  const [autorizo, setAutorizo] = useState(false);
   const v = validarEmail(email);
   const f = funcaoDe(funcao);
   const mudaFuncao = (id) => { setFuncao(id); setChaves(chavesIniciais(id, null)); };
@@ -28,7 +29,9 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   // Em "Adicionar pessoa", o e-mail digitado já é de alguém deste grupo (ex.: o responsável
   // cadastrado junto com o grupo): não dá erro, o botão só manda o convite para essa pessoa.
   const ja = !m && v.ok ? existentes.find((x) => x.email && x.email.toLowerCase() === v.email) : null;
-  const bloqueado = !ja && ((email && !v.ok) || !nome.trim() || !funcao);
+  // Criança ou adolescente ainda sem autorização registrada: o responsável marca a caixa (LGPD art. 14).
+  const pedeAutorizacao = !ja && !!f && temModoCrianca(f.id) && !m?.autorizado_em;
+  const bloqueado = !ja && ((email && !v.ok) || !nome.trim() || !funcao || (pedeAutorizacao && !autorizo));
   // Pessoa nova com e-mail válido: um botão só, que salva e já manda o convite.
   const convidar = !m && !!email && v.ok;
   const rotuloJa = ja ? (ja.user_id ? 'Enviar e-mail de acesso' : ja.convidado_em ? 'Reenviar convite' : 'Enviar convite') : '';
@@ -86,6 +89,12 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
             )}
           </>
         )}
+        {pedeAutorizacao && (
+          <label className="aceite" style={{ marginTop: 14 }}>
+            <input type="checkbox" name="autorizo" value="1" checked={autorizo} onChange={(e) => setAutorizo(e.target.checked)} />
+            <span>Sou pai, mãe ou responsável legal de {nome.trim().split(' ')[0] || 'esta pessoa'} (ou tenho a autorização de quem é) e autorizo o uso dos dados no beelo, como explica o <a href="/consentimento" target="_blank" rel="noopener">Termo de consentimento</a>.</span>
+          </label>
+        )}
         <div className="lin-chave"><span>Acesso ativo{eu && <small>Você não pode desativar a si mesmo</small>}</span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}
         {convidar && <input type="hidden" name="enviar" value="1" />}
@@ -116,7 +125,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
           <ConfirmarBotao acao={excluirPessoa} campos={{ id: m.id }} rotulo="Excluir pessoa" classe="btn perigo sec"
             titulo="Excluir pessoa?" nome={m.nome} detalhe={nomeFuncao(m)}
             avatar={<Avatar nome={m.nome} cor={m.cor || '#1a6fe0'} url={url} avatar={m.avatar} tam={40} />}
-            pergunta={<>Excluir <b>{m.nome}</b> apaga também as tarefas e o histórico dela. Se só quiser tirar o acesso, desligue “Acesso ativo”.</>}
+            pergunta={<>Excluir <b>{m.nome}</b> apaga também as tarefas, as fotos e o histórico dela. Se só quiser tirar o acesso, desligue “Acesso ativo”.</>}
             sim="Sim, excluir" nao="Cancelar" />
         </div>
       )}

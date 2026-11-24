@@ -14,6 +14,7 @@ export default function Login() {
     const q = new URLSearchParams(window.location.search);
     if (q.get('email')) setEmail(q.get('email'));
     if (q.get('erro')) setMsg({ tipo: 'erro', txt: 'Esse link não vale mais (ele só funciona uma vez e por pouco tempo). Peça um novo link de acesso abaixo.' });
+    if (q.get('apagado')) setMsg({ tipo: 'ok', txt: 'O grupo e todos os dados dele foram apagados. Obrigado por usar o beelo.' });
     if (q.get('expirou')) setMsg({ tipo: 'erro', txt: 'Sua sessão expirou. Entre de novo para continuar.' });
     const conv = (q.get('email') || '').trim().toLowerCase();
     // Guarda o e-mail do convite: se a pessoa entrar com outra conta, a tela seguinte explica e oferece voltar.
