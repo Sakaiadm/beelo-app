@@ -97,9 +97,9 @@ export default async function Relatorios({ searchParams }) {
       <div className="kpis">
         <div className="kpi destaque"><small>Cumprimento</small><strong>{pct(feitas.length, validas.length)}<span style={{ fontSize: 16 }}>%</span></strong>
           <em>{feitas.length} de {validas.length} tarefas · {gestor && !f.m ? ids.map((id) => { const l = linhas.find((x) => x.id === id); return `${nome[id]} ${pct(l.feitas, l.total)}%`; }).join(' · ') : ''}</em></div>
-        <div className="kpi"><small>No prazo x com atraso</small><strong>{noPrazo.length} <span style={{ fontSize: 16, color: 'var(--cinza)' }}>· {feitas.length - noPrazo.length}</span></strong><em>{atrasos.length} atraso(s) no período</em></div>
+        <div className="kpi"><small>No prazo x com atraso</small><strong>{noPrazo.length} <span style={{ fontSize: 16, color: 'var(--cinza)' }}>· {feitas.length - noPrazo.length}</span></strong><em>{atrasos.length} {atrasos.length === 1 ? 'atraso' : 'atrasos'} no período</em></div>
         <div className="kpi"><small>No horário planejado</small><strong>{disciplina}<span style={{ fontSize: 16 }}>%</span></strong><em>Disciplina com a agenda ({comHora.length} com horário)</em></div>
-        <div className="kpi"><small>Adiamentos</small><strong>{(adis || []).length}</strong><em>{(adis || []).filter((a) => a.status === 'aprovado').length} aprovado(s)</em></div>
+        <div className="kpi"><small>Adiamentos</small><strong>{(adis || []).length}</strong><em>{(adis || []).filter((a) => a.status === 'aprovado').length === 1 ? '1 aprovado' : `${(adis || []).filter((a) => a.status === 'aprovado').length} aprovados`}</em></div>
       </div>
 
       <div className="duas">
@@ -134,7 +134,7 @@ export default async function Relatorios({ searchParams }) {
             const n = t.filter((r) => r.previsto).length || 1;
             return (
               <tr key={l.id}><td style={{ fontWeight: 700 }}>{nome[l.id]}</td><td className="num">{l.feitas} de {l.total}</td><td className="num">{l.atraso}</td><td className="num">{l.just}</td>
-                <td className="num">{l.adi} ({l.adiOk})</td><td className="num">{l.proprias}</td><td className="num">{l.seq} dia(s)</td>
+                <td className="num">{l.adi} ({l.adiOk})</td><td className="num">{l.proprias}</td><td className="num">{l.seq} {l.seq === 1 ? 'dia' : 'dias'}</td>
                 <td className="num">{t.length ? <span className="pilula" style={{ background: real > prev ? '#fbe3e5' : '#dff3e6', color: real > prev ? '#8f1c26' : '#1f6b3a' }}>{fmtMin(prev / n)} → {fmtMin(real / t.length)} /dia</span> : '—'}</td></tr>);
           })}</tbody>
         </table></div>

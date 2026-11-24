@@ -68,8 +68,8 @@ export default async function Painel() {
       <div className="kpis">
         <div className="kpi destaque"><small>Cumpridas hoje</small><strong>{kHoje.feitas} <span style={{ fontSize: 16 }}>de {kHoje.total}</span></strong>
           <em>{pessoas.map((f) => ({ f, k: conta(doDia.filter((x) => x.o.membro_id === f.id)) })).filter((x) => x.k.total > 0).map(({ f, k }) => `${f.nome} ${k.feitas}/${k.total}`).join(' · ') || 'Sem tarefas hoje'}</em></div>
-        <div className="kpi"><small>Atrasadas (7 dias)</small><strong style={{ color: atrasadas.length ? 'var(--erro)' : undefined }}>{atrasadas.length}</strong><em>{justif.length} justificativa(s) para avaliar</em></div>
-        <div className="kpi"><small>Pedidos aguardando</small><strong style={{ color: pend ? 'var(--aviso)' : undefined }}>{pend}</strong><em>Adiamentos e tempo de tela</em></div>
+        <div className="kpi"><small>Atrasadas (7 dias)</small><strong style={{ color: atrasadas.length ? 'var(--erro)' : undefined }}>{atrasadas.length}</strong><em>{justif.length} {justif.length === 1 ? 'justificativa para avaliar' : 'justificativas para avaliar'}</em></div>
+        <div className="kpi"><small>Pedidos aguardando</small><strong style={{ color: pend ? 'var(--aviso)' : undefined }}>{pend}</strong><em>Adiamentos, justificativas e tempo de tela</em></div>
         <div className="kpi"><small>Semana</small><strong>{kSem.total ? Math.round((kSem.feitas / kSem.total) * 100) : 0}<span style={{ fontSize: 16 }}>%</span></strong>
           <div className="barra" style={{ marginTop: 10 }}><div style={{ width: `${kSem.total ? (kSem.feitas / kSem.total) * 100 : 0}%` }} /></div></div>
       </div>
