@@ -19,9 +19,15 @@ export function opcaoDaTarefa(t) {
   return { opcao: 'diaria', dias: SEG_SEX };
 }
 
-export default function RepetirCampo({ nome, rotulo = 'Repetir', inicial, dataInicial, hoje }) {
-  const [opcao, setOpcao] = useState(inicial?.opcao || 'diaria');
-  const [dias, setDias] = useState(inicial?.dias || SEG_SEX);
+// Modo controlado (previsto de tela): passe opcao, dias e aoMudar(opcao, dias); semCampos não envia nada
+// no formulário (a tela pai envia) e não mostra o campo de data de "Uma vez".
+export default function RepetirCampo({ nome, rotulo = 'Repetir', inicial, dataInicial, hoje, opcao: opcaoC, dias: diasC, aoMudar, semCampos }) {
+  const [opcaoS, setOpcaoS] = useState(inicial?.opcao || 'diaria');
+  const [diasS, setDiasS] = useState(inicial?.dias || SEG_SEX);
+  const opcao = opcaoC ?? opcaoS;
+  const dias = diasC ?? diasS;
+  const setOpcao = (o) => { setOpcaoS(o); aoMudar?.(o, dias); };
+  const setDias = (f) => { const d = typeof f === 'function' ? f(dias) : f; setDiasS(d); aoMudar?.('pers', d); };
   const [dia, setDia] = useState(dataInicial || hoje);
   const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
   const resumo = opcao === 'pers' ? [...dias].sort().map((d) => DIAS_ABREV[d]).join(', ').replace(/, ([^,]*)$/, ' e $1') : ROTULO[opcao];
@@ -30,11 +36,11 @@ export default function RepetirCampo({ nome, rotulo = 'Repetir', inicial, dataIn
   const diasEnviados = opcao === 'semana' ? SEG_SEX : opcao === 'pers' ? dias : [];
   return (
     <>
-      <input type="hidden" name={`${nome}_opcao`} value={opcao} />
-      {diasEnviados.map((d) => <input key={d} type="hidden" name={`${nome}_dias`} value={d} />)}
+      {!semCampos && <input type="hidden" name={`${nome}_opcao`} value={opcao} />}
+      {!semCampos && diasEnviados.map((d) => <input key={d} type="hidden" name={`${nome}_dias`} value={d} />)}
       <label htmlFor={`${nome}-rep`}>{rotulo}</label>
       <button id={`${nome}-rep`} type="button" className="campo-botao" onClick={() => setFolha('repetir')}><span>{resumo}</span><span aria-hidden="true">›</span></button>
-      {opcao === 'uma' && (<><label htmlFor={`${nome}-dia`}>Dia</label><input id={`${nome}-dia`} type="date" name={`${nome}_data`} min={hoje} value={dia} onChange={(e) => setDia(e.target.value)} required /></>)}
+      {opcao === 'uma' && !semCampos && (<><label htmlFor={`${nome}-dia`}>Dia</label><input id={`${nome}-dia`} type="date" name={`${nome}_data`} min={hoje} value={dia} onChange={(e) => setDia(e.target.value)} required /></>)}
       {folha && (
         <div className="folha" role="dialog" aria-modal="true" aria-label={folha === 'pers' ? 'Personalizar' : 'Repetir'}>
           <div className="folha-in">
