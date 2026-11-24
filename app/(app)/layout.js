@@ -1,3 +1,4 @@
+import ChaveLinha from '@/components/ChaveLinha';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import Link from 'next/link';
@@ -30,8 +31,6 @@ export default async function AppLayout({ children }) {
        { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' }, ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/config', txt: 'Cadastros', icone: 'config' }]
     : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
        ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
-  // Ícone do manual: cada perfil abre o seu (Pai, Mãe e Supervisor, o completo).
-  const manual = gestor || eu.funcao === 'supervisor' ? '/manual' : eu.modo_crianca ? '/manual/crianca' : '/manual/pessoa';
   return (
     <>
       <Suspense fallback={null}><Progresso /></Suspense>
@@ -41,9 +40,9 @@ export default async function AppLayout({ children }) {
           <Link className="marca" href="/"><span className="logo-topo" role="img" aria-label="beelo" /></Link>
           <Menu itens={itens} />
           <LampadaBtn membro={eu.id} hoje={hojeISO()} />
-          <a className="icone-btn manual" href={`${manual}?app=1`} aria-label="Manual do app" title="Manual do app">
+          <Link className="icone-btn manual" href="/ajuda" prefetch={false} aria-label="Ajuda e manual" title="Ajuda e manual">
             <Icone nome="livro" cor="#fff" />
-          </a>
+          </Link>
           <Link className="icone-btn sino" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
             <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
           </Link>
@@ -57,6 +56,7 @@ export default async function AppLayout({ children }) {
       {children}
       <Festa crianca={!gestor && !!eu.modo_crianca} nome={(eu.nome || '').split(' ')[0]} />
       <Menu itens={itens} baixo />
+      <ChaveLinha />
     </>
   );
 }

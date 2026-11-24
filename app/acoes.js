@@ -209,7 +209,7 @@ export async function salvarPessoa(_, fd) {
   let aviso = '';
   if (fd.get('enviar') === '1' && salvo) {
     const r = await mandarConvite(supabase, eu, salvo);
-    aviso = r.ok ? 'convite' : 'semconvite:' + r.erro;
+    aviso = r.ok ? 'convite:' + salvo.id : 'semconvite:' + r.erro; // U61: a lista mostra "Avisar pelo WhatsApp" para essa pessoa
   }
   if (!id) redirect('/config/pessoas' + (aviso ? `?aviso=${encodeURIComponent(aviso)}` : ''));
   if (aviso.startsWith('semconvite:')) return { erro: 'Pessoa salva, mas ' + aviso.slice(11).replace(/^./, (c) => c.toLowerCase()) };

@@ -2,6 +2,7 @@ import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
 import Voltar from '@/components/Voltar';
 import { CORES_VIVAS } from '@/lib/util';
+import Icone from '@/components/Icone';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,14 +17,14 @@ export default async function Categorias({ searchParams }) {
     <main className="estreito">
       <Voltar href="/config" titulo="Categorias" sub={`${lista.length} ${lista.length === 1 ? 'categoria' : 'categorias'}`} />
       {AVISOS[sp?.aviso] && <div className="aviso ok" role="status">{AVISOS[sp.aviso]}</div>}
-      <Link prefetch={false} href="/config/categorias/nova" className="btn bloco" style={{ marginBottom: 14 }}>+ Nova categoria</Link>
+      <Link prefetch={false} href="/config/categorias/nova" className="btn bloco" style={{ marginBottom: 14 }}><Icone nome="mais" tam={18} cor="#fff" />Nova categoria</Link>
       {lista.length > 0 && (
         <div className="cat-lista">
           {lista.map((c) => (
             <Link prefetch={false} key={c.id} href={`/config/categorias/${c.id}`} className="cat-linha">
               <span className="cat-bolinha" style={{ background: CORES_VIVAS[c.cor] || CORES_VIVAS.cinza }} aria-hidden="true" />
               <span className="cat-nome">{c.nome}</span>
-              <span className="cat-lapis" aria-label={`Editar ${c.nome}`}>✎</span>
+              <span className="cat-seta" aria-hidden="true"><Icone nome="dir" tam={20} /></span>
             </Link>
           ))}
         </div>

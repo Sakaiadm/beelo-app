@@ -932,3 +932,51 @@ a.tarefa-ir > svg { color: var(--cinza); flex: none; }
 .aceite.marcada { border-color: var(--azul); }
 /* Pedido do Thomas (24/11): "Nova tarefa" volta ao alto; as setas da semana ficam na linha de baixo. */
 .agenda-tela > .nv-curta { justify-content: center; margin: -4px 0 10px; }
+
+/* ===== Lote 4 do Raio-X: Cadastros, perfil, ajuda e entrada ===== */
+.so-leitor { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; }
+/* U68: Sair pergunta antes */
+.usuario-menu .sair-conf { border-top: 1px solid var(--borda); margin-top: 4px; padding: 10px 8px 6px; }
+.usuario-menu .sair-conf p { margin: 0 0 10px; font-weight: 700; }
+.usuario-menu .sair-conf .acoes { display: flex; gap: 8px; }
+.usuario-menu .sair-conf .acoes button { width: auto; flex: 1; justify-content: center; }
+.usuario-menu .sair-conf .btn.perigo { background: var(--erro); border: 1px solid var(--erro); color: #fff; }
+.usuario-menu .sair-conf .btn.sec { color: var(--azul); border: 1px solid var(--azul); }
+/* U67 e U69: Ajuda num lugar só, com busca */
+.ajuda-atalhos { padding: 4px 0; }
+.ajuda-atalhos .linha-ir { border-bottom: 1px solid var(--borda); border-radius: 0; }
+.ajuda-atalhos .linha-ir:last-child { border-bottom: 0; }
+.linha-ir small { display: block; color: var(--cinza); font-weight: 500; font-size: var(--f-etq); }
+.ajuda-busca { margin-bottom: 14px; }
+.ajuda-grupo .ajuda-item:first-of-type { border-top: 0; }
+/* U64 a U66: Meu perfil vale na hora */
+.meu-nome b { display: block; font-size: var(--f-cartao); }
+.meu-nome small { display: block; color: var(--cinza); font-size: var(--f-apoio); margin-top: 2px; }
+.salvo-msg { margin: 10px 0 0; font-size: var(--f-apoio); color: var(--ok); font-weight: 600; }
+.av-gestor { border-top: 1px solid var(--borda); margin-top: 16px; padding-top: 6px; }
+.av-tipos > summary { min-height: 44px; display: flex; align-items: center; color: var(--azul); font-weight: 700; cursor: pointer; }
+/* U77: a linha inteira liga e desliga a chave */
+.lin-chave:has(> .chave, > [role=switch]) { cursor: pointer; }
+/* U55, U56, U73 e U74: listas com um toque por linha */
+.linha-pessoa { padding: 0; }
+.linha-pessoa > form { flex: none; padding-right: 12px; }
+.linha-abre { display: flex; gap: 12px; align-items: center; flex: 1; min-width: 0; padding: 12px 14px; color: inherit; text-decoration: none; min-height: 44px; }
+.linha-abre > svg { color: var(--cinza); flex: none; margin-left: auto; }
+.st-conv.espera { color: var(--aviso); font-weight: 600; }
+.convite-ok { display: flex; flex-wrap: wrap; align-items: center; gap: 10px; justify-content: space-between; }
+.btn.whats { background: #1f8f4e; border-color: #1f8f4e; color: #fff; }
+/* U57, U58 e U60: pessoa em três blocos, Salvar sempre à vista */
+.bloco-tit { font-size: var(--f-etq); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--cinza); margin: 26px 0 10px; }
+.salvar-fixo { position: sticky; bottom: calc(76px + env(safe-area-inset-bottom)); background: var(--cartao); padding: 4px 0 10px; margin: 0 -2px; z-index: 5; }
+@media (min-width: 761px) { .salvar-fixo { bottom: 0; } }
+.falta { margin: 12px 0 0; color: var(--aviso); font-weight: 600; font-size: var(--f-apoio); }
+.cat-seta { width: 32px; display: inline-flex; align-items: center; justify-content: flex-end; color: var(--cinza); flex: none; }
+/* U70 a U72: entrada */
+.login-enviado { min-height: 100vh; display: flex; align-items: center; justify-content: center; padding: 24px 16px; background: var(--fundo); }
+.login-enviado .card { max-width: 420px; width: 100%; }
+.login-enviado h1 { margin: 16px 0 8px; font-size: var(--f-tela); font-weight: 800; }
+.login-enviado p { color: var(--texto); line-height: 1.5; margin: 0 0 16px; }
+.conheca { margin-top: 18px; border-top: 1px solid var(--borda); padding-top: 6px; }
+.conheca > summary { min-height: 44px; display: flex; align-items: center; justify-content: center; color: var(--azul); font-weight: 700; cursor: pointer; list-style: none; }
+.conheca > summary::-webkit-details-marker { display: none; }
+.conheca p { font-size: var(--f-apoio); line-height: 1.5; }

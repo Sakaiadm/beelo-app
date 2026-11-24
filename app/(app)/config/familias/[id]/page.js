@@ -46,7 +46,7 @@ export default async function Familia({ params }) {
           <ConfirmarBotao acao={adminAtivarFamilia} campos={{ id: fam.id, ativa: '0' }} rotulo={null} classe="chave on"
             gatilho={{ role: 'switch', 'aria-checked': true, 'aria-label': 'Grupo ativo' }}
             titulo="Desativar grupo?" nome={fam.nome} icone="bloquear"
-            pergunta="Tem certeza? O grupo perde o acesso. Nada é apagado: dá para reativar depois." sim="Sim, desativar" nao="Não" />
+            pergunta="Tem certeza? O grupo perde o acesso. Nada é apagado: dá para reativar depois." sim="Sim, desativar" nao="Cancelar" />
         </div>
       ) : (
         <Form simples acao={adminAtivarFamilia} className="lin-chave" style={{ border: 0 }}>
