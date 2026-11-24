@@ -6,6 +6,8 @@ import { hojeISO, addDias, dataCurta, dataLonga, fmtMin, DIAS_CURTO } from '@/li
 import { PrevistoForm, LancamentoForm, RealForm, PropostaForm } from '@/components/TelaForms';
 import TelaGrafico from '@/components/TelaGrafico';
 import Form from '@/components/Form';
+import Responder from '@/components/Responder';
+import { PEDIDO } from '@/lib/respostas';
 import ConfirmarBotao from '@/components/ConfirmarBotao';
 import { encerrarPrevisto, responderTela, ligarTela } from '@/app/acoes';
 
@@ -197,10 +199,7 @@ export default async function Tela({ searchParams }) {
               <div key={p.id} className="tarefa" style={{ background: 'var(--aviso-fundo)', borderColor: 'var(--aviso-borda)' }}>
                 <div className="tt">{dataCurta(p.data)}: {textoPrevisto({ ...p, formato: p.min_total != null ? 'total' : 'aparelho' }, fmtMin)}</div>
                 <div className="meta">“{p.motivo}”</div>
-                <div className="acoes" style={{ marginTop: 8 }}>
-                  <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="1" /><button className="btn peq">Validar</button></Form>
-                  <Form acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela"><input type="hidden" name="id" value={p.id} /><input type="hidden" name="aprovar" value="0" /><button className="btn perigo peq">Recusar</button></Form>
-                </div>
+                <Responder acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela" campos={{ id: p.id }} opcoes={PEDIDO('aprovar')} />
               </div>))}
           </div>}
           {souEu && <div className="card"><h2>Meu tempo de ontem</h2><RealForm eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={ontem} previsto={meuPrev?.[0]} atual={meuAtual} /></div>}

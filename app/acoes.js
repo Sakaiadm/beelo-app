@@ -60,6 +60,12 @@ export async function conferir(_, fd) {
   const v = fd.get('valor'); if (!['conferido', 'refazer'].includes(v)) return { erro: 'Valor inválido' };
   return rpc('ra_conferir', { p_oc: uuid(fd.get('oc')), p_valor: v });
 }
+// "Conferir todas" de uma pessoa pelo Painel (Raio-X U34): marca como conferidas, uma a uma.
+export async function conferirTodas(_, fd) {
+  const ocs = fd.getAll('oc').map(uuid).filter(Boolean).slice(0, 60);
+  for (const oc of ocs) { const r = await rpc('ra_conferir', { p_oc: oc, p_valor: 'conferido' }); if (r?.erro) return r; }
+  return { ok: true, msg: ocs.length === 1 ? 'Tarefa conferida.' : `${ocs.length} tarefas conferidas.` };
+}
 
 // Enquanto o banco ainda não recebeu a 0009 (prioritária e modo criança), salva sem esses campos em vez de dar erro.
 const NOVAS = ['prioritaria', 'lembrete_min', 'modo_crianca'];
@@ -67,7 +73,13 @@ const semColuna = (e) => !!e && NOVAS.some((c) => String(e.message || '').includ
 const semNovas = (reg) => Object.fromEntries(Object.entries(reg).filter(([k]) => !NOVAS.includes(k)));
 
 // Depois de salvar ou excluir, volta para o dia que estava aberto na Agenda.
-const voltarAgenda = (fd) => (/^\d{4}-\d{2}-\d{2}$/.test(fd.get('voltar') || '') ? `/agenda?v=dia&d=${fd.get('voltar')}` : '/agenda?v=dia');
+// Depois de salvar, volta para onde a pessoa estava (Raio-X U22): Hoje, Painel ou Agenda. Só caminhos do próprio app.
+const VOLTAS = /^\/(hoje|painel|agenda)(\?[\w=&%.-]*)?$/;
+const voltarAgenda = (fd) => {
+  const v = String(fd.get('voltar') || '');
+  if (VOLTAS.test(v)) return v;
+  return /^\d{4}-\d{2}-\d{2}$/.test(v) ? `/agenda?d=${v}` : '/agenda';
+};
 
 export async function salvarTarefa(_, fd) {
   const supabase = await supabaseServer();
@@ -89,7 +101,7 @@ export async function salvarTarefa(_, fd) {
     prioritaria: fd.get('prioritaria') === '1',
   };
   reg.lembrete_min = reg.prioritaria && reg.hora_inicio && [15, 30, 60].includes(Number(fd.get('lembrete_min'))) ? Number(fd.get('lembrete_min')) : null;
-  if (eu.papel === 'gestor' && reg.responsavel_id === eu.id) { reg.permite_adiar = false; reg.exige_justificativa = false; }
+  if (fd.get('id') && eu.papel === 'gestor' && reg.responsavel_id === eu.id) { reg.permite_adiar = false; reg.exige_justificativa = false; }
   if (!reg.titulo) return { erro: 'Dê um nome para a tarefa' };
   if (!reg.responsavel_id) return { erro: 'Escolha para quem é a tarefa' };
   if (recorrencia === 'dias_semana' && dias.length === 0) return { erro: 'Escolha pelo menos um dia da semana' };
@@ -110,14 +122,18 @@ export async function salvarTarefa(_, fd) {
         .eq('tarefa_id', id).eq('status', 'pendente').gte('data', hojeISO());
     }
   } else {
-    ({ error } = await supabase.from('ra_tarefas').insert({ ...reg, familia_id: eu.familia_id, criada_por: eu.id }));
-    if (semColuna(error)) ({ error } = await supabase.from('ra_tarefas').insert({ ...semNovas(reg), familia_id: eu.familia_id, criada_por: eu.id }));
+    // "Para quem" com várias pessoas (U21): uma tarefa igual para cada pessoa marcada.
+    const quem = eu.papel === 'gestor' ? [...new Set(fd.getAll('responsavel').map(uuid).filter(Boolean))] : [eu.id];
+    const regs = (quem.length ? quem : [reg.responsavel_id]).map((r) => ({ ...reg, responsavel_id: r, familia_id: eu.familia_id, criada_por: eu.id }));
+    regs.forEach((r) => { if (eu.papel === 'gestor' && r.responsavel_id === eu.id) { r.permite_adiar = false; r.exige_justificativa = false; } });
+    ({ error } = await supabase.from('ra_tarefas').insert(regs));
+    if (semColuna(error)) ({ error } = await supabase.from('ra_tarefas').insert(regs.map(semNovas)));
   }
   if (error) return traduzirErro(error);
   // Gera já as ocorrências dos próximos dias, para a tarefa aparecer na hora na Agenda.
   await supabase.rpc('ra_gerar_ocorrencias', { p_de: addDias(hojeISO(), -7), p_ate: addDias(hojeISO(), 54) });
   revalidar();
-  redirect(comecaAmanha ? `/agenda?v=dia&d=${reg.data_inicio}&aviso=amanha` : voltarAgenda(fd));
+  redirect(comecaAmanha ? `/agenda?d=${reg.data_inicio}&aviso=amanha` : voltarAgenda(fd));
 }
 
 export async function excluirTarefa(_, fd) {

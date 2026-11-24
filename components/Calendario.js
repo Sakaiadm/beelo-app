@@ -3,7 +3,8 @@ import { addDias, diaSemana, inicioMes, fimMes, mesAno, DIAS_CURTO } from '@/lib
 
 export default function Calendario({ mes, porDia, hoje, sel, link }) {
   const ini = inicioMes(mes), fim = fimMes(mes);
-  const vazios = diaSemana(ini);
+  // Semana sempre de segunda a domingo (Raio-X U15).
+  const vazios = (diaSemana(ini) + 6) % 7;
   const dias = [];
   for (let d = ini; d <= fim; d = addDias(d, 1)) dias.push(d);
   const nivel = (d) => {
@@ -20,7 +21,7 @@ export default function Calendario({ mes, porDia, hoje, sel, link }) {
         <Link prefetch={false} href={link(addDias(fim, 1))} aria-label="Próximo mês">›</Link>
       </div>
       <div className="cal">
-        {DIAS_CURTO.map((d, i) => <span key={i} className="dsem">{d}</span>)}
+        {[...DIAS_CURTO.slice(1), DIAS_CURTO[0]].map((d, i) => <span key={i} className="dsem">{d}</span>)}
         {Array.from({ length: vazios }).map((_, i) => <span key={'v' + i} className="fora" />)}
         {dias.map((d) => {
           const x = porDia[d];
