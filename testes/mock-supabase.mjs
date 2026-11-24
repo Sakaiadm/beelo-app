@@ -45,7 +45,40 @@ const tabelas = {
   ra_tela_proposta: [{ id: id(500), familia_id: FAM, membro_id: E, data: dia(1), min_celular: null, min_computador: 180, min_total: null, motivo: 'Trabalho da faculdade', status: 'pendente', criado_em: new Date().toISOString() }],
   ra_tela_real: [{ id: id(600), familia_id: FAM, membro_id: E, data: dia(-2), min_celular: 185, min_computador: 65, min_total: 250, foto_celular: `${FAM}/${E}/uso.jpg`, foto_computador: null, obs: null }, { id: id(601), familia_id: FAM, membro_id: E, data: dia(-1), min_celular: 100, min_computador: 50, min_total: 150, foto_celular: null, foto_computador: null, obs: null }, { id: id(602), familia_id: FAM, membro_id: E, data: dia(-4), min_celular: 120, min_computador: 60, min_total: 180, foto_celular: null, foto_computador: null, obs: null }],
 };
-export const usuarios = { 'tok-pai': { id: id(91), email: 'pai@t.com', eu: membros[0] }, 'tok-filho': { id: id(92), email: 'edu@t.com', eu: membros[2] }, 'tok-estranho': { id: id(93), email: 'x@t.com', eu: null } };
+// Desafios (beta, SQL 0016): MOCK_DESAFIOS=1 liga os desafios com dados de exemplo.
+if (process.env.MOCK_DESAFIOS === '1') {
+  familias[0].desafios_beta = true; familias[0].mural_visivel = 'todos';
+  const seg = dia(-((new Date(hoje + 'T12:00:00Z').getUTCDay() + 6) % 7));
+  const dd = (i) => { const d = new Date(seg + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + i); return d.toISOString().slice(0, 10); };
+  const est = (i) => (dd(i) < hoje ? (i === 2 ? 'cor' : 'ok') : dd(i) === hoje ? 'hoje' : 'futuro');
+  const agora = new Date().toISOString();
+  tabelas.ra_desafios = [
+    { id: id(800), familia_id: FAM, membro_id: E, catalogo: 'e1', titulo: 'Foco no Estudo', descricao: 'Tarefas de Estudo feitas.', icone: 'cEstudo', tipo: 'dias', alvo: 'categoria', categorias: [id(20)], meta: 5, periodo: 'semana', coringa: true, recompensa: 'estrelas', estrelas: 10, premio: null, ativo: true, criado_por: G, criado_em: dia(-20) + 'T12:00:00Z' },
+    { id: id(801), familia_id: FAM, membro_id: null, catalogo: 'j1', titulo: 'Família em dia', descricao: '', icone: 'familia', tipo: 'pct', alvo: 'todas', categorias: [], meta: 80, periodo: 'semana', coringa: true, recompensa: 'premio', estrelas: 10, premio: 'Pizza no sábado', ativo: true, criado_por: G, criado_em: dia(-20) + 'T12:00:00Z' },
+    { id: id(802), familia_id: FAM, membro_id: A, catalogo: 'e4', titulo: 'Revisão do dia', descricao: '', icone: 'cEstudo', tipo: 'dias', alvo: 'tarefa', categorias: [], meta: 4, periodo: 'semana', coringa: true, recompensa: 'semanas', estrelas: 10, premio: null, ativo: true, criado_por: A, criado_em: dia(-20) + 'T12:00:00Z' },
+  ];
+  tabelas.ra_desafio_periodos = [
+    { id: id(810), desafio_id: id(800), familia_id: FAM, membro_id: E, inicio: seg, fim: dd(6), progresso: 3, meta: 5, possivel: 7, status: 'andamento', visto: false, detalhe: { coringa: dd(2) < hoje ? dd(2) : null, dias: [0, 1, 2, 3, 4, 5, 6].map((i) => ({ d: dd(i), s: est(i) })) } },
+    { id: id(811), desafio_id: id(801), familia_id: FAM, membro_id: null, inicio: seg, fim: dd(6), progresso: 76, meta: 80, possivel: 7, status: 'andamento', visto: false, detalhe: { feitas: 19, total: 25, dias: [] } },
+    { id: id(812), desafio_id: id(802), familia_id: FAM, membro_id: A, inicio: seg, fim: dd(6), progresso: 3, meta: 4, possivel: 5, status: 'andamento', visto: false, detalhe: { dias: [0, 1, 2, 3, 4, 5, 6].map((i) => ({ d: dd(i), s: i > 4 ? 'livre' : est(i) === 'cor' ? 'ok' : est(i) })) } },
+    { id: id(813), desafio_id: id(800), familia_id: FAM, membro_id: E, inicio: dia(-14), fim: dia(-8), progresso: 6, meta: 5, possivel: 7, status: 'cumprido', visto: process.env.MOCK_FESTA !== '1', cumprido_em: dia(-9) + 'T20:00:00Z', detalhe: {} },
+  ];
+  tabelas.ra_cofrinho = [
+    { id: id(820), familia_id: FAM, membro_id: E, moeda: 'estrelas', valor: 10, motivo: 'Foco no Estudo', criado_em: dia(-9) + 'T20:00:00Z' },
+    { id: id(821), familia_id: FAM, membro_id: E, moeda: 'estrelas', valor: 24, motivo: 'Semana em dia', criado_em: dia(-16) + 'T20:00:00Z' },
+    { id: id(822), familia_id: FAM, membro_id: A, moeda: 'semanas', valor: 3, motivo: 'Revisão do dia', criado_em: dia(-9) + 'T20:00:00Z' },
+  ];
+  tabelas.ra_premios = [
+    { id: id(830), familia_id: FAM, catalogo: 's1', nome: 'Escolher a sobremesa', custo: 10, moeda: 'estrelas', faixa: 'todos', ativo: true },
+    { id: id(831), familia_id: FAM, catalogo: 's16', nome: 'Açaí', custo: 25, moeda: 'estrelas', faixa: 'mais8', ativo: true },
+    { id: id(832), familia_id: FAM, catalogo: 'v4', nome: 'Cinema', custo: 60, moeda: 'estrelas', faixa: 'todos', ativo: true },
+    { id: id(833), familia_id: FAM, catalogo: 'v21', nome: 'Parque aquático', custo: 120, moeda: 'estrelas', faixa: 'todos', ativo: true },
+    { id: id(834), familia_id: FAM, catalogo: 'u2', nome: 'Escolher o passeio do fim de semana', custo: 2, moeda: 'semanas', faixa: 'teen', ativo: true },
+    { id: id(835), familia_id: FAM, catalogo: 'u10', nome: 'Voltar 1 hora mais tarde no sábado', custo: 4, moeda: 'semanas', faixa: 'teen', ativo: true },
+  ];
+  tabelas.ra_premio_pedidos = [{ id: id(840), familia_id: FAM, membro_id: E, premio_id: id(831), nome: 'Açaí', custo: 25, moeda: 'estrelas', status: 'pedido', criado_em: agora }];
+}
+export const usuarios = { 'tok-pai': { id: id(91), email: 'pai@t.com', eu: membros[0] }, 'tok-filho': { id: id(92), email: 'edu@t.com', eu: membros[2] }, 'tok-ado': { id: id(94), email: 'alice@t.com', eu: membros[3] }, 'tok-estranho': { id: id(93), email: 'x@t.com', eu: null } };
 export const log = [];
 function filtrar(rows, params) {
   let out = rows;

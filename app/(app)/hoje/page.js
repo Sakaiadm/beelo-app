@@ -8,6 +8,10 @@ import Tarefa from '@/components/Tarefa';
 import Icone from '@/components/Icone';
 import DicaFaixa from '@/components/DicaFaixa';
 import { fatos, candidatosFilho } from '@/lib/dicas';
+import { carregarDesafios, desafiosLigados, paraComemorar, vitrineDe } from '@/lib/desafiosDados';
+import { perfil } from '@/lib/desafios';
+import { DesafioCartao, Estrela, Hexagono } from '@/components/DesafioCartao';
+import Comemorar from '@/components/Comemorar';
 
 export const dynamic = 'force-dynamic';
 
@@ -48,6 +52,11 @@ export default async function Hoje({ searchParams }) {
       lembrarTela = !data;
     }
   }
+  // Desafios (beta): o desafio da pessoa e o cofrinho logo abaixo do quadro azul, só no dia de hoje.
+  const des = desafiosLigados(fam) && dia === hoje ? await carregarDesafios(supabase, { eu, membros }) : null;
+  const desAlvo = des ? des.desafios.filter((d) => d.membro_id === alvo.id || !d.membro_id) : [];
+  const pfAlvo = perfil(alvo);
+  const cofre = des && pfAlvo !== 'j' && (desAlvo.some((d) => d.membro_id) || des.saldo[alvo.id]?.estrelas || des.saldo[alvo.id]?.semanas) ? vitrineDe(alvo, des.premios, des.saldo) : null;
   const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1 });
 
   return (
@@ -90,6 +99,18 @@ export default async function Hoje({ searchParams }) {
           </div>
         )}
       </div>
+
+      {des && alvo.id === eu.id && <Comemorar itens={paraComemorar(des.periodos, eu, des.desafios)} nome={eu.nome.split(' ')[0]} />}
+      {desAlvo.map((d) => <DesafioCartao key={d.id} d={d} p={d.atual} href="/desafios" />)}
+      {des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id) && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 14 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio da semana</Link>}
+      {cofre && (
+        <Link prefetch={false} href={alvo.id === eu.id ? '/desafios/cofrinho' : `/desafios/cofrinho?m=${alvo.id}`} className="card des-card">
+          <div className="des-top"><span className="des-ic mel">{cofre.moeda === 'semanas' ? <Hexagono tam={24} /> : <Estrela tam={22} />}</span>
+            <span><b>{cofre.moeda === 'semanas' ? 'Semanas conquistadas' : alvo.id === eu.id ? 'Meu cofrinho' : `Cofrinho de ${alvo.nome}`}</b><small>{cofre.tem} {cofre.moeda === 'semanas' ? (cofre.tem === 1 ? 'semana' : 'semanas') : 'estrelinhas guardadas'}</small></span>
+            <span className="seta" style={{ color: 'var(--cinza)', fontSize: 20 }} aria-hidden="true">›</span></div>
+          {cofre.meta && <div className="vit" style={{ borderTop: '1px solid var(--borda)', marginTop: 12, paddingBottom: 0 }}><span className="corpo"><b>{cofre.meta.nome}</b><small>{Math.min(cofre.tem, cofre.meta.custo)} de {cofre.meta.custo}{cofre.tem < cofre.meta.custo ? ` · faltam ${cofre.meta.custo - cofre.tem}` : ' · já dá para trocar!'}</small><div className="barra"><div style={{ width: `${Math.min(100, (cofre.tem / cofre.meta.custo) * 100)}%` }} /></div></span></div>}
+        </Link>
+      )}
 
       {lembrarTela && <div className="aviso info">Falta lançar o tempo de tela de ontem. <Link prefetch={false} href="/tela">Lançar agora</Link></div>}
 
