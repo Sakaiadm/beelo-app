@@ -12,7 +12,7 @@ import Icone from '@/components/Icone';
 import DicaFaixa from '@/components/DicaFaixa';
 import { fatos, candidatosPais } from '@/lib/dicas';
 import { carregarDesafios, desafiosLigados } from '@/lib/desafiosDados';
-import { responderAdiamento, avaliarJustificativa, conferir, responderTela } from '@/app/acoes';
+import { responderAdiamento, avaliarJustificativa, conferir, responderTela, lembrarTela } from '@/app/acoes';
 
 export const dynamic = 'force-dynamic';
 
@@ -155,14 +155,21 @@ export default async function Painel() {
                 const falta = doDia.filter((x) => x.o.membro_id === f.id && !x.st.startsWith('cumprida') && x.st !== 'adiada').map((x) => x.o.tarefa?.titulo);
                 const t = telas[f.id];
                 const real = t ? totalReal(t) : null, prev = t?.previsto?.min_total;
+                const lembrar = gestor && f.tela_ativo && f.papel === 'filho' && !t && f.id !== eu.id;
                 return (
-                  <Link prefetch={false} key={f.id} href={f.id === eu.id ? '/hoje' : `/hoje?m=${f.id}`} className="tarefa" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
+                  <div key={f.id} className="tarefa" style={{ padding: 0 }}>
+                  <Link prefetch={false} href={f.id === eu.id ? '/hoje' : `/hoje?m=${f.id}`} className="tarefa-link" style={{ textDecoration: 'none', color: 'var(--texto)', display: 'block' }}>
                     <div style={{ display: 'flex', justifyContent: 'space-between', fontWeight: 700 }}><span>{f.nome}{f.id === eu.id ? ' (você)' : ''}</span><span style={{ color: 'var(--azul)' }}>{k.feitas} de {k.total}</span></div>
                     <div className="barra" style={{ marginTop: 8 }}><div style={{ width: `${k.total ? (k.feitas / k.total) * 100 : 0}%` }} /></div>
                     <div className="meta" style={{ marginTop: 8 }}>{falta.length ? `Falta: ${falta.slice(0, 3).join(', ')}${falta.length > 3 ? '…' : ''}` : 'Tudo feito'}</div>
                     {f.tela_ativo && f.papel === 'filho' && <div className="meta"><strong>Tela ontem:</strong> {t ? `${prev != null ? `previsto ${fmtMin(prev)} · ` : ''}realizado ${fmtMin(real)}` : 'não lançado'}
                       {t && prev != null && <span style={{ fontWeight: 700, color: real > prev ? 'var(--erro)' : 'var(--ok)' }}> ({real > prev ? '+' : ''}{fmtMin(real - prev)})</span>}</div>}
                   </Link>
+                  {lembrar && (
+                    // "Lembrar": aviso no celular da pessoa para lançar o tempo de ontem (Raio-X S17).
+                    <Form acao={lembrarTela} className="tarefa-acao"><input type="hidden" name="membro" value={f.id} /><button className="btn sec peq">Lembrar</button></Form>
+                  )}
+                  </div>
                 );
               })}
             </div>

@@ -2,6 +2,7 @@ import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import { lerFiltros, dadosRelatorio } from '@/lib/relatorio';
 import { telaResumo, totalReal } from '@/lib/tela';
+import AbasPessoa from '@/components/AbasPessoa';
 import { dataComAno, dataCurta, fmtMin, STATUS_TXT, CORES_CAT, inicioSemana, DIAS, hhmm, addDias } from '@/lib/util';
 import Imprimir from '@/components/Imprimir';
 import FiltroPeriodo from '@/components/FiltroPeriodo';
@@ -139,23 +140,28 @@ export default async function Relatorios({ searchParams }) {
         </table></div>
       </div>
 
-      {evolucao.map((e) => (
-        <div className="card" key={e.id}><h2>Tempo de tela: evolução{gestor ? ` · ${e.id === eu.id ? 'Eu' : nome[e.id]}` : ''}</h2>
-          <div className="kpis">
-            <div className="kpi destaque"><small>Dentro do previsto</small><strong>{e.dentro} de {e.comPrev}</strong><em>dias com previsto no período</em></div>
-            <div className="kpi"><small>Média por dia</small><strong>{fmtMin(e.m)}</strong><em>{e.prevMedio != null ? `previsto ${fmtMin(e.prevMedio)}` : 'sem previsto'}</em></div>
-            {e.tend != null && <div className="kpi"><small>Tendência</small><strong style={{ color: e.tend <= 0 ? 'var(--ok)' : 'var(--erro)' }}>{e.tend <= 0 ? '↓' : '↑'} {Math.abs(e.tend)}%</strong><em>{e.tend < 0 ? 'está reduzindo' : e.tend > 0 ? 'aumentou' : 'igual'} em relação ao período anterior</em></div>}
-            {e.totTarefas > 0 && <div className="kpi"><small>Lançou no horário</small><strong>{e.noHorario} de {e.totTarefas}</strong><em>{e.totTarefas - e.noHorario > 0 ? `${e.totTarefas - e.noHorario} com atraso ou sem lançar` : 'todos no horário'}</em></div>}
-          </div>
-          {e.semanas.length > 0 && (<>
-            <div className="grupo-titulo">Média por dia, por semana</div>
-            <div className="barras-h">{e.semanas.map((x) => (
-              <div className="l" key={x.w}><span>{dataCurta(x.w)} a {dataCurta(addDias(x.w, 6))}</span>
-                <div className="barra"><div style={{ width: `${Math.round(((x.real || 0) / maxSem) * 100)}%`, background: x.prev != null && x.real > x.prev ? 'var(--erro)' : 'var(--azul)' }} /></div>
-                <span>{fmtMin(x.real)}</span></div>))}</div>
-          </>)}
+      {evolucao.length > 0 && (
+        // Um cartão só, com aba por pessoa (Raio-X S18).
+        <div className="card"><h2>Tempo de tela: evolução</h2>
+          <AbasPessoa itens={evolucao.map((e) => ({ id: e.id, rotulo: e.id === eu.id ? 'Eu' : nome[e.id] }))} paineis={evolucao.map((e) => (
+            <div key={e.id}>
+              <div className="kpis">
+                <div className="kpi destaque"><small>Dentro do previsto</small><strong>{e.dentro} de {e.comPrev}</strong><em>dias com previsto no período</em></div>
+                <div className="kpi"><small>Média por dia</small><strong>{fmtMin(e.m)}</strong><em>{e.prevMedio != null ? `previsto ${fmtMin(e.prevMedio)}` : 'sem previsto'}</em></div>
+                {e.tend != null && <div className="kpi"><small>Tendência</small><strong style={{ color: e.tend <= 0 ? 'var(--ok)' : 'var(--erro)' }}>{e.tend <= 0 ? '↓' : '↑'} {Math.abs(e.tend)}%</strong><em>{e.tend < 0 ? 'está reduzindo' : e.tend > 0 ? 'aumentou' : 'igual'} em relação ao período anterior</em></div>}
+                {e.totTarefas > 0 && <div className="kpi"><small>Lançou no horário</small><strong>{e.noHorario} de {e.totTarefas}</strong><em>{e.totTarefas - e.noHorario > 0 ? `${e.totTarefas - e.noHorario} com atraso ou sem lançar` : 'todos no horário'}</em></div>}
+              </div>
+              {e.semanas.length > 0 && (<>
+                <div className="grupo-titulo">Média por dia, por semana</div>
+                <div className="barras-h">{e.semanas.map((x) => (
+                  <div className="l" key={x.w}><span>{dataCurta(x.w)} a {dataCurta(addDias(x.w, 6))}</span>
+                    <div className="barra"><div style={{ width: `${Math.round(((x.real || 0) / maxSem) * 100)}%`, background: x.prev != null && x.real > x.prev ? 'var(--erro)' : 'var(--azul)' }} /></div>
+                    <span>{fmtMin(x.real)}</span></div>))}</div>
+              </>)}
+            </div>
+          ))} />
         </div>
-      ))}
+      )}
 
       {Object.keys(telas).length > 0 && (
         <div className="card"><h2>Tempo de tela: previsto x realizado</h2>
