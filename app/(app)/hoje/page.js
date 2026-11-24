@@ -6,7 +6,7 @@ import { ocorrencias, urlsFotos } from '@/lib/dados';
 import { hojeISO, addDias, dataTitulo, statusExibido, diaSemana } from '@/lib/util';
 import Tarefa from '@/components/Tarefa';
 import Icone from '@/components/Icone';
-import DicaFaixa from '@/components/DicaFaixa';
+import LampadaFlutuante from '@/components/LampadaFlutuante';
 import { fatos, candidatosFilho } from '@/lib/dicas';
 import { carregarDesafios, desafiosLigados, paraComemorar, vitrineDe } from '@/lib/desafiosDados';
 import { perfil } from '@/lib/desafios';
@@ -69,7 +69,7 @@ export default async function Hoje({ searchParams }) {
   const editar = (o) => o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${o.membro_id}` : null) : gestor || (o.tarefa?.criada_por === eu.id && o.membro_id === eu.id) ? `/tarefas/${o.tarefa_id}/editar?${new URLSearchParams({ d: o.data, volta: `/hoje${veTodos ? `?m=${alvo.id}` : ''}` })}` : null;
   const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, tela: telaDados[x.o.id], crianca, editarHref: editar(x.o) });
   const novaHref = `/tarefas/nova?${new URLSearchParams({ ...(dia !== hoje ? { d: dia } : {}), ...(gestor ? { m: alvo.id } : {}), volta: `/hoje${veTodos ? `?m=${alvo.id}` : ''}` })}`;
-  const temLado = desAlvo.length > 0 || cofre || (des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id)) || (!gestor && dia === hoje);
+  const temLado = desAlvo.length > 0 || cofre || (des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id));
 
   return (
     <main className="estreito hoje-tela">
@@ -147,12 +147,11 @@ export default async function Hoje({ searchParams }) {
               </Link>
             )}
             {des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id) && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 14 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio da semana</Link>}
-            {/* Dica do dia no fim da lista, sem empurrar as tarefas (U9, opção B). */}
-            {!gestor && dia === hoje && <DicaFaixa membro={eu.id} hoje={hoje} cands={candidatosFilho(fatos(comSt, eu.id, hoje), hoje)} />}
           </aside>
         )}
       </div>
-
+      {/* Ideia do dia: bolinha amarela flutuante no canto direito (L1 + balão B2). */}
+      {!gestor && dia === hoje && <LampadaFlutuante membro={eu.id} hoje={hoje} cands={candidatosFilho(fatos(comSt, eu.id, hoje), hoje)} />}
     </main>
   );
 }
