@@ -2,7 +2,19 @@
 import { useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { MSG, semRede, falhaDeRede } from '@/lib/rede';
+import { CONTATO } from '@/lib/contato';
 
+// "Abrir meu e-mail" (Raio-X U71): leva à caixa de entrada dos e-mails mais comuns.
+function caixaDeEntrada(email) {
+  const d = (email.split('@')[1] || '').toLowerCase();
+  if (/^(gmail|googlemail)\.com$/.test(d)) return 'https://mail.google.com/mail/u/0/#inbox';
+  if (/^(hotmail|outlook|live|msn)\./.test(d)) return 'https://outlook.live.com/mail/0/inbox';
+  if (/^yahoo\./.test(d)) return 'https://mail.yahoo.com/';
+  if (/^(icloud|me|mac)\.com$/.test(d)) return 'https://www.icloud.com/mail';
+  if (/^(uol|bol)\.com\.br$/.test(d)) return 'https://email.uol.com.br/';
+  return null;
+}
+const WHATS = 'https://wa.me/55' + CONTATO.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent('Oi! Quero conhecer o beelo.');
 const SEM_INTERNET_LOGIN = 'Sem internet. Para entrar, conecte-se ao Wi-Fi ou aos dados móveis e tente de novo.';
 
 export default function Login() {
@@ -10,8 +22,11 @@ export default function Login() {
   const [msg, setMsg] = useState(null);
   const [carregando, setCarregando] = useState(false);
   const [aviso, setAviso] = useState(null);
+  const [enviado, setEnviado] = useState('');
   useEffect(() => {
     const q = new URLSearchParams(window.location.search);
+    // U72: o e-mail usado da última vez neste aparelho já vem preenchido.
+    try { const ult = localStorage.getItem('beelo_email'); if (ult && !q.get('email')) setEmail(ult); } catch {}
     if (q.get('email')) setEmail(q.get('email'));
     if (q.get('erro')) setMsg({ tipo: 'erro', txt: 'Esse link não vale mais (ele só funciona uma vez e por pouco tempo). Peça um novo link de acesso abaixo.' });
     if (q.get('apagado')) setMsg({ tipo: 'ok', txt: 'O grupo e todos os dados dele foram apagados. Obrigado por usar o beelo.' });
@@ -40,7 +55,7 @@ export default function Login() {
     }
   }
   async function porEmail(e) {
-    e.preventDefault();
+    e?.preventDefault();
     if (semRede()) { setMsg({ tipo: 'erro', txt: SEM_INTERNET_LOGIN }); return; }
     setCarregando(true);
     let error;
@@ -49,8 +64,28 @@ export default function Login() {
     } catch (e) { error = e; }
     setCarregando(false);
     if (error && falhaDeRede(error)) { setMsg({ tipo: 'erro', txt: SEM_INTERNET_LOGIN }); return; }
-    setMsg(error ? { tipo: 'erro', txt: /rate|limit|seconds/i.test(error.message || '') ? 'Você pediu vários links seguidos. Espere 1 minuto e peça de novo.' : 'Não foi possível enviar o link agora. Tente de novo em alguns minutos.' }
-                 : { tipo: 'ok', txt: 'Enviamos um link de acesso para o seu e-mail. Abra o link no seu celular ou computador.' });
+    if (error) { setMsg({ tipo: 'erro', txt: /rate|limit|seconds/i.test(error.message || '') ? 'Você pediu vários links seguidos. Espere 1 minuto e peça de novo.' : 'Não foi possível enviar o link agora. Tente de novo em alguns minutos.' }); return; }
+    const em = email.trim().toLowerCase();
+    try { localStorage.setItem('beelo_email', em); } catch {}
+    setMsg(null); setEnviado(em);
+  }
+  // U71: depois de pedir o link, a tela diz o que fazer.
+  if (enviado) {
+    const caixa = caixaDeEntrada(enviado);
+    return (
+      <div className="login-enviado">
+        <div className="card">
+          <img src="/marca/beelo-horizontal-positiva-azul.svg" alt="beelo" style={{ height: 34, width: 'auto' }} />
+          <h1>Abra seu e-mail</h1>
+          <p>Enviamos um link para <b>{enviado}</b>. Toque no link do e-mail para entrar. Ele vale por pouco tempo e só uma vez.</p>
+          {msg && <div className={`aviso ${msg.tipo}`} role="status">{msg.txt}</div>}
+          {caixa && <a className="btn bloco" href={caixa} target="_blank" rel="noopener noreferrer">Abrir meu e-mail</a>}
+          <button type="button" className="btn sec bloco" style={{ marginTop: 10 }} disabled={carregando}
+            onClick={async () => { await porEmail(); setMsg({ tipo: 'ok', txt: 'Enviamos de novo. Olhe também a caixa de spam.' }); }}>Não chegou? Enviar de novo</button>
+          <button type="button" className="link-btn" style={{ marginTop: 6 }} onClick={() => { setEnviado(''); setMsg(null); }}>Usar outro e-mail</button>
+        </div>
+      </div>
+    );
   }
 
   return (
@@ -90,6 +125,14 @@ export default function Login() {
           <p style={{ marginTop: 22, textAlign: 'center', fontSize: 'var(--f-etq)', color: 'var(--cinza)' }}>
             Seus dados ficam só com a família.
           </p>
+          {/* U70: uma porta para quem ainda não usa o beelo. */}
+          <details className="conheca">
+            <summary>Ainda não usa o beelo? Conheça</summary>
+            <p>O beelo é o app da rotina da família: os pais combinam as tarefas, os filhos marcam o que fizeram e todo mundo acompanha a evolução, com carinho e sem cobrança.</p>
+            <p>Estamos na versão beta, com algumas famílias convidadas. Quer usar com a sua? Fale com a gente:</p>
+            <a className="btn whats bloco" href={WHATS} target="_blank" rel="noopener noreferrer">WhatsApp {CONTATO.whatsapp}</a>
+            <p style={{ textAlign: 'center' }}><a href={`mailto:${CONTATO.email}`}>{CONTATO.email}</a></p>
+          </details>
         </div>
       </div>
     </div>

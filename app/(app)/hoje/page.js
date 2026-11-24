@@ -11,8 +11,6 @@ import { fatos, candidatosFilho } from '@/lib/dicas';
 import { carregarDesafios, desafiosLigados, paraComemorar, vitrineDe } from '@/lib/desafiosDados';
 import { perfil } from '@/lib/desafios';
 import { mensagem, Estrela, Hexagono } from '@/components/DesafioCartao';
-import BotaoMais from '@/components/BotaoMais';
-import Pessoas from '@/components/Pessoas';
 import Comemorar from '@/components/Comemorar';
 
 export const dynamic = 'force-dynamic';
@@ -87,7 +85,10 @@ export default async function Hoje({ searchParams }) {
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto={gestor ? 'Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar.' : 'Receba um aviso quando tiver novidade nas suas tarefas.'} />
 
       {veTodos && pessoasDia.length > 1 && (
-        <Pessoas rotulo="Pessoa" itens={pessoasDia.map((f) => ({ id: f.id, nome: f.id === eu.id ? 'Eu' : f.nome, cor: f.cor, href: `/hoje?m=${f.id}${dia !== hoje ? `&d=${dia}` : ''}`, on: f.id === alvo.id }))} />
+        // Pessoas em abas, no mesmo padrão da Agenda (pedido do Thomas, 24/11).
+        <div className="seg pessoas" aria-label="Pessoa">
+          {pessoasDia.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}${dia !== hoje ? `&d=${dia}` : ''}`} className={f.id === alvo.id ? 'on' : ''} aria-current={f.id === alvo.id ? 'page' : undefined}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
+        </div>
       )}
 
       {/* Tarefas primeiro (U1): o quadro azul vira uma faixa fina. */}
@@ -123,6 +124,7 @@ export default async function Hoje({ searchParams }) {
             </>}
           </>}
           {doDia.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
+          <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href={novaHref}><Icone nome="mais" tam={18} />{gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'}</Link>
         </section>
 
         {temLado && (
@@ -151,7 +153,6 @@ export default async function Hoje({ searchParams }) {
         )}
       </div>
 
-      <BotaoMais href={novaHref} rotulo={gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'} />
     </main>
   );
 }

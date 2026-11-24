@@ -9,7 +9,7 @@ export default function ExcluirTarefa({ id, voltar, titulo, detalhe }) {
       <ConfirmarBotao acao={excluirTarefa} campos={voltar ? { id, voltar } : { id }} rotulo="Excluir tarefa" classe="btn perigo"
         titulo="Excluir tarefa?" nome={titulo} detalhe={detalhe}
         pergunta="Tem certeza que quer excluir esta tarefa? Ela para de ser gerada daqui para frente. O histórico já feito continua nos relatórios."
-        sim="Sim, excluir" nao="Não, voltar" simples={false} />
+        sim="Sim, excluir" nao="Cancelar" simples={false} />
     </div>
   );
 }

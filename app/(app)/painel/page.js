@@ -1,6 +1,5 @@
 import AvisosConvite from '@/components/AvisosConvite';
 import Link from 'next/link';
-import BotaoMais from '@/components/BotaoMais';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
@@ -72,6 +71,7 @@ export default async function Painel() {
     <main>
       <div className="cab">
         <div><h1 className="titulo">{familia.nome}</h1><p className="sub">{dataTitulo(hoje)}</p></div>
+        {gestor && <Link prefetch={false} className="btn" href="/tarefas/nova?volta=/painel"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>}
       </div>
 
       {/* U29: o motivo de abrir o app logo abaixo do título. Sem nada pendente, uma linha só. */}
@@ -208,7 +208,6 @@ export default async function Painel() {
       {/* U37: no celular, o calendário do mês fica na Agenda. */}
       <Link prefetch={false} href={`/agenda?v=mes&d=${hoje}`} className="card linha-ir so-cel3"><Icone nome="agenda" tam={20} /><span>Ver o mês na Agenda</span><Icone nome="dir" tam={20} /></Link>
       {filhos.length > 0 && <DicaFaixa membro={eu.id} hoje={hoje} cands={dicas} />}
-      {gestor && <BotaoMais href="/tarefas/nova?volta=/painel" />}
     </main>
   );
 }

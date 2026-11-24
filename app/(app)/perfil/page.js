@@ -1,7 +1,5 @@
 import { exigirMembro } from '@/lib/sessao';
-import Form from '@/components/Form';
-import AvatarUpload from '@/components/AvatarUpload';
-import { salvarPerfil } from '@/app/acoes';
+import VoltarHistorico from '@/components/VoltarHistorico';
 import AvisosGestor from '@/components/AvisosGestor';
 import { urlsAvatares } from '@/lib/avatar';
 import AvisosCelular from '@/components/AvisosCelular';
@@ -20,35 +18,25 @@ export default async function Perfil() {
   const n = { concluida: 'todas', justificativa: true, adiamento: true, tela: true, tarefa_filho: true, ...(eu.notif || {}) };
   return (
     <main className="estreito perfil">
-      <div className="cab"><div><h1 className="titulo">Meu perfil</h1><p className="sub">{eu.nome} · {familia.nome}</p></div></div>
-      {gestor ? (
-        <div className="card"><h2>Minha foto</h2>
-          <Form acao={salvarPerfil} okTxt="Foto salva.">
-            <AvatarUpload familia={eu.familia_id} pasta={eu.id} atualUrl={urls[eu.avatar]} atualAvatar={eu.avatar} rotulo={eu.nome} cor={eu.cor} largo crianca={crianca} />
-            <p className="ajuda">Opcional. Escolha uma foto ou imagem do seu aparelho.</p>
-            <button className="btn cheio">Salvar</button>
-          </Form>
-        </div>
-      ) : (
-        <div className="card"><h2>Meus dados</h2>
-          <MeusDados eu={eu} papel={nomeFuncao(eu)} url={urls[eu.avatar]} crianca={crianca} />
-        </div>
-      )}
+      <VoltarHistorico href="/" titulo="Meu perfil" />
+      {/* U64 e U66: foto e cor valem na hora; nome e papel aparecem como texto. */}
+      <div className="card">
+        <MeusDados eu={eu} papel={`${nomeFuncao(eu)} · ${familia.nome}`} url={urls[eu.avatar]} crianca={crianca} comCor={!gestor} />
+      </div>
       <div className="card"><h2>Som</h2>
         <SomConcluir />
       </div>
-      <div className="card"><h2>Ideias</h2>
-        <DicasInterruptor membro={eu.id} />
-      </div>
-      <div className="card"><h2>Avisos neste aparelho</h2>
-        <AvisosCelular chavePublica={process.env.VAPID_PUBLIC_KEY || ''} teste={superAdmin} />
-      </div>
-      {gestor && (
-        <div className="card"><h2>Avisos que eu quero receber</h2>
-          <AvisosGestor inicial={n} />
+      {!crianca && (
+        <div className="card"><h2>Ideias</h2>
+          <DicasInterruptor membro={eu.id} />
         </div>
       )}
-      <div className="card"><h2>Privacidade e seus dados</h2>
+      {/* U65: um cartão só de avisos: este aparelho em cima; o que avisar embaixo. */}
+      <div className="card"><h2>Avisos</h2>
+        <AvisosCelular chavePublica={process.env.VAPID_PUBLIC_KEY || ''} teste={superAdmin} />
+        {gestor && <div className="av-gestor"><AvisosGestor inicial={n} /></div>}
+      </div>
+      {!crianca && <div className="card"><h2>Privacidade e seus dados</h2>
         <p style={{ margin: '0 0 10px', fontSize: 'var(--f-apoio)', lineHeight: 1.5 }}>
           <a href="/termos">Termos de uso</a> · <a href="/privacidade">Privacidade</a> · <a href="/consentimento">Termo de consentimento</a>
         </p>
@@ -60,7 +48,7 @@ export default async function Perfil() {
             <ApagarGrupo nome={familia.nome} />
           </div>
         )}
-      </div>
+      </div>}
     </main>
   );
 }

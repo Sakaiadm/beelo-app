@@ -3,12 +3,12 @@ import Voltar from '@/components/VoltarHistorico';
 
 export const dynamic = 'force-dynamic';
 
-// Só informação. Abre pelo menu do nome, no topo (Segurança e privacidade).
+// Só informação. Abre pela Ajuda (Segurança e privacidade).
 export default async function Seguranca() {
   await exigirMembro();
   return (
     <main className="estreito">
-      <Voltar href="/" titulo="Segurança e privacidade" />
+      <Voltar href="/ajuda" titulo="Segurança e privacidade" />
       <div className="card">
         <ul style={{ margin: 0, paddingLeft: 18, lineHeight: 1.7, fontSize: 'var(--f-apoio)' }}>
           <li>Só entra quem está cadastrado, com o e-mail cadastrado.</li>

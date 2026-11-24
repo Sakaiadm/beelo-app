@@ -36,6 +36,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const convidar = !m && !!email && v.ok;
   const rotuloJa = ja ? (ja.user_id ? 'Enviar e-mail de acesso' : ja.convidado_em ? 'Reenviar convite' : 'Enviar convite') : '';
   const crianca2 = crianca && temModoCrianca(funcao);
+  const falta = [!nome.trim() && 'nome', !funcao && 'papel', email && !v.ok && 'e-mail certo', pedeAutorizacao && !autorizo && 'marcar a autorização'].filter(Boolean);
   // Campo Nome ao lado da foto (mesmo padrão para adulto e criança).
   const campoNome = (
     <>
@@ -52,12 +53,15 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {ativo && <input type="hidden" name="ativo" value="1" />}
         {crianca2 && <input type="hidden" name="modo_crianca" value="1" />}
         {Object.entries(chaves).map(([k, on]) => on && <input key={k} type="hidden" name={`perm_${k}`} value="1" />)}
+        {/* U57: a tela em três blocos com título: Dados, O que pode fazer e Acesso. */}
+        <h2 className="bloco-tit" style={{ marginTop: 0 }}>Dados</h2>
         {m ? (
           <AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={nome || m.nome} cor={cor} crianca={crianca2} lado={campoNome} />
         ) : (
           <div style={{ display: 'flex', alignItems: 'center', gap: 14 }}><Avatar nome={nome || '?'} cor={cor} tam={56} /><div style={{ flex: 1, minWidth: 0 }}>{campoNome}</div></div>
         )}
-        <CorBotao cor={cor} rotulo="Cor da pessoa" style={{ marginTop: 14 }} onClick={() => setFolha(true)} />
+        {/* U60: ao adicionar, a cor vem sozinha (a próxima livre) e pode ser trocada depois. */}
+        {m && <CorBotao cor={cor} rotulo="Cor da pessoa" style={{ marginTop: 14 }} onClick={() => setFolha(true)} />}
         <label htmlFor="p-email">E-mail Google</label>
         <div className={`campo-ok ${email ? (v.ok ? 'ok' : 'erro') : ''}`}>
           <input id="p-email" type="text" inputMode="email" autoCapitalize="none" autoCorrect="off" spellCheck={false} name="email" value={email}
@@ -66,7 +70,8 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         </div>
         {email && !v.ok && <p className="erro-campo" role="alert">{v.msg}</p>}
         {v.ok && v.sugestao && <p className="sug-campo">Você quis dizer <button type="button" onClick={() => setEmail(v.sugestao)}>{v.sugestao}</button>? Toque para corrigir.</p>}
-        <label htmlFor="p-papel">Papel</label>
+        <h2 className="bloco-tit">O que pode fazer</h2>
+        <label htmlFor="p-papel" style={{ marginTop: 0 }}>Papel</label>
         <select id="p-papel" value={funcao} onChange={(e) => mudaFuncao(e.target.value)} required={!ja}>
           <option value="" disabled>Selecione</option>
           {FUNCOES.map((x) => <option key={x.id} value={x.id}>{x.ga ? `${x.nome}(a)` : x.nome}</option>)}
@@ -95,13 +100,18 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
             <span>Sou pai, mãe ou responsável legal de {nome.trim().split(' ')[0] || 'esta pessoa'} (ou tenho a autorização de quem é) e autorizo o uso dos dados no beelo, como explica o <a href="/consentimento" target="_blank" rel="noopener">Termo de consentimento</a>.</span>
           </label>
         )}
-        <div className="lin-chave"><span>Acesso ativo{eu && <small>Você não pode desativar a si mesmo</small>}</span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>
+        {m && <h2 className="bloco-tit">Acesso</h2>}
+        {m && <div className="lin-chave" style={{ borderTop: 0 }}><span>Acesso ativo{eu && <small>Você não pode desativar a si mesmo</small>}</span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>}
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}
         {convidar && <input type="hidden" name="enviar" value="1" />}
         {ja && <input type="hidden" name="existente" value={ja.id} />}
         {ja && <div className="caixa-papel" role="status" style={{ marginTop: 12 }}><b>{ja.nome}</b> já está neste grupo com este e-mail. {ja.user_id ? 'Toque abaixo para mandar um novo e-mail de acesso.' : 'Toque abaixo para mandar o convite.'}</div>}
-        <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : ja ? rotuloJa : convidar ? 'Salvar e enviar convite' : 'Adicionar pessoa'}</button>
-        {!m && !ja && <p className="peq-cinza">A foto pode ser colocada depois de salvar. Para mandar o convite, digite o e-mail: o botão passa a dizer Salvar e enviar convite.</p>}
+        {/* U58: o Salvar fica preso embaixo da tela. U60: o que falta preencher aparece escrito. */}
+        <div className={m ? 'salvar-fixo' : ''}>
+          {!m && !ja && falta.length > 0 && <p className="falta" role="status">Falta: {falta.join(', ')}</p>}
+          <button className="btn bloco" style={{ marginTop: 12 }} disabled={bloqueado}>{m ? 'Salvar' : ja ? rotuloJa : convidar ? 'Adicionar e enviar convite' : 'Adicionar pessoa'}</button>
+        </div>
+        {!m && !ja && <p className="peq-cinza">Com o e-mail, o convite já vai junto. A foto e a cor podem ser trocadas depois.</p>}
         {folha && (
           <CorFolha cor={cor} setCor={setCor} fechar={() => setFolha(false)} usadas={usadas}
             topo={<div className="cartao-l"><Avatar nome={nome || '?'} cor={cor} tam={42} /><span><b>{nome || 'Nova pessoa'}</b><small className="peq-cinza">{f ? rotuloFuncao(f.id, null) : ''}</small></span></div>} />
@@ -109,13 +119,13 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
       </Form>
       {m && m.email && !eu && (m.user_id ? (
         <div className="card">
-          <b>Problemas para entrar?</b>
+          <h2 className="bloco-tit" style={{ marginTop: 0 }}>Problemas para entrar?</h2>
           <p style={{ margin: '6px 0 12px', fontSize: 'var(--f-apoio)', color: 'var(--cinza)', lineHeight: 1.45 }}>Se {m.nome} trocou de celular ou perdeu o link, mande um novo e-mail de acesso para o e-mail cadastrado.</p>
           <ReenviarConvite id={m.id} rotulo="Enviar e-mail de acesso" />
         </div>
       ) : (
         <div className="card">
-          <b>Convite por e-mail</b>
+          <h2 className="bloco-tit" style={{ marginTop: 0 }}>Convite por e-mail</h2>
           <p style={{ margin: '6px 0 10px', fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>{statusConvite(m)?.txt}</p>
           <ReenviarConvite id={m.id} rotulo={m.convidado_em ? 'Reenviar convite' : 'Enviar convite'} />
         </div>
@@ -125,7 +135,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
           <ConfirmarBotao acao={excluirPessoa} campos={{ id: m.id }} rotulo="Excluir pessoa" classe="btn perigo sec"
             titulo="Excluir pessoa?" nome={m.nome} detalhe={nomeFuncao(m)}
             avatar={<Avatar nome={m.nome} cor={m.cor || '#1a6fe0'} url={url} avatar={m.avatar} tam={40} />}
-            pergunta={<>Excluir <b>{m.nome}</b> apaga também as tarefas, as fotos e o histórico dela. Se só quiser tirar o acesso, desligue “Acesso ativo”.</>}
+            pergunta={<>Excluir <b>{m.nome}</b> apaga também as tarefas, as fotos e o histórico dela. Se só quiser tirar o acesso, desative “Acesso ativo”.</>}
             sim="Sim, excluir" nao="Cancelar" />
         </div>
       )}

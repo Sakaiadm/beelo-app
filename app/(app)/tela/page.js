@@ -57,7 +57,7 @@ function Previstos({ regras, base, editando }) {
             <small>{diasTxt(r)}{r.vigencia_fim && !soUmDia(r) ? ` · até ${dataCurta(r.vigencia_fim)}` : ''}{r.vigencia_inicio > hojeISO() && !soUmDia(r) ? ` · a partir de ${dataCurta(r.vigencia_inicio)}` : ''}{r.origem === 'proposta' ? ' · pedido aprovado' : ''}</small>
           </Link>
           <ConfirmarBotao acao={encerrarPrevisto} campos={{ id: r.id }} rotulo="Excluir" classe="btn perigo peq" titulo="Excluir este previsto?" nome={textoPrevisto(r, fmtMin)}
-            pergunta="Ele sai da tela. Os dias que já passaram continuam nos relatórios do mesmo jeito." sim="Sim, excluir" nao="Não" />
+            pergunta="Ele sai da tela. Os dias que já passaram continuam nos relatórios do mesmo jeito." sim="Sim, excluir" nao="Cancelar" />
         </div>
       ))}
     </div>
@@ -153,7 +153,7 @@ export default async function Tela({ searchParams }) {
           {m.tela_ativo ? (
             <ConfirmarBotao acao={ligarTela} campos={{ membro: m.id, ligar: '0' }} rotulo="" classe="chave on" icone="bloquear"
               gatilho={{ role: 'switch', 'aria-checked': true, 'aria-label': `Tempo de tela de ${m.nome}` }}
-              titulo="Desligar o tempo de tela?" nome={m.nome} pergunta="A tarefa “Lançar tempo de tela” para de aparecer. O que já foi lançado continua nos relatórios." sim="Sim, desligar" nao="Não" />
+              titulo="Desligar o tempo de tela?" nome={m.nome} pergunta="A tarefa “Lançar tempo de tela” para de aparecer. O que já foi lançado continua nos relatórios." sim="Sim, desligar" nao="Cancelar" />
           ) : (
             <Form acao={ligarTela} simples><input type="hidden" name="membro" value={m.id} /><input type="hidden" name="ligar" value="1" />
               <button className="chave" role="switch" aria-checked={false} aria-label={`Tempo de tela de ${m.nome}`} /></Form>
