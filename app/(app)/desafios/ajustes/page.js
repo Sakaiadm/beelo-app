@@ -4,6 +4,7 @@ import { desafiosLigados } from '@/lib/desafiosDados';
 import { perfil } from '@/lib/desafios';
 import Voltar from '@/components/Voltar';
 import Form from '@/components/Form';
+import ConfirmarBotao from '@/components/ConfirmarBotao';
 import { salvarAjustesDesafios, ligarDesafios } from '@/app/acoes-desafios';
 
 export const dynamic = 'force-dynamic';
@@ -34,7 +35,7 @@ export default async function AjustesDesafios() {
       <div className="card">
         <h2>Desligar os desafios</h2>
         <p className="sub" style={{ fontSize: 13, margin: '0 0 12px' }}>Some das telas de todos. Nada se perde: ao ligar de novo, os desafios, o cofrinho e o mural voltam como estavam.</p>
-        <Form acao={ligarDesafios}><input type="hidden" name="ligar" value="0" /><button className="btn perigo bloco">Desligar os desafios</button></Form>
+        <ConfirmarBotao acao={ligarDesafios} simples={false} campos={{ ligar: '0' }} rotulo="Desligar os desafios" classe="btn perigo bloco" titulo="Desligar os desafios?" pergunta="Os desafios somem das telas de todos. Nada se perde: ao ligar de novo, tudo volta como estava." sim="Sim, desligar" icone="bloquear" />
       </div>
     </main>
   );
