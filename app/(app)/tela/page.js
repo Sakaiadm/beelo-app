@@ -188,7 +188,7 @@ export default async function Tela({ searchParams }) {
   const base = `/tela?m=${alvo.id}`;
   return (
     <main>
-      <div className="cab"><div><h1 className="titulo">Tempo de tela</h1></div>
+      <div className="cab centro"><div><h1 className="titulo">Tempo de tela</h1></div>
         <div className="abas">{ligados.map((f) => <Link prefetch={false} key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}</div></div>
       <div className="duas">
         <div className="lado">

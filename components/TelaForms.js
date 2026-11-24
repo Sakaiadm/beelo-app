@@ -5,6 +5,7 @@ import Form from './Form';
 import Foto from './Foto';
 import TempoCampo from './TempoCampo';
 import RelogioHora from './RelogioHora';
+import RepetirCampo from './RepetirCampo';
 import { salvarPrevisto, salvarTelaReal, proporTela, salvarLancamentoTela } from '@/app/acoes';
 import { fmtMin, parseMin } from '@/lib/util';
 import { aparelhosDo } from '@/lib/aparelhos';
@@ -12,33 +13,14 @@ import { prepararSom } from '@/lib/festa';
 
 const TODOS = [0, 1, 2, 3, 4, 5, 6];
 const SEG_SEX = [1, 2, 3, 4, 5];
-// Segunda primeiro, como no calendário do Brasil.
-const ORDEM = [1, 2, 3, 4, 5, 6, 0];
-const LETRA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
-const NOME_DIA = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
 const igual = (a, b) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
 const minOuZero = (t) => { const m = parseMin(t); return Number.isNaN(m) ? NaN : m || 0; };
 
-// Dias da semana em bolinhas, na própria tela (Raio-X S12).
-function DiasBolinhas({ dias, setDias }) {
-  const alternar = (d) => setDias((x) => (x.includes(d) ? (x.length > 1 ? x.filter((y) => y !== d) : x) : [...x, d]));
-  return (
-    <>
-      <div className="dias7" role="group" aria-label="Dias da semana">
-        {ORDEM.map((d) => (
-          <button key={d} type="button" className={dias.includes(d) ? 'on' : ''} aria-pressed={dias.includes(d)} aria-label={NOME_DIA[d]} onClick={() => alternar(d)}>{LETRA[d]}</button>
-        ))}
-      </div>
-      <div className="chips" style={{ marginTop: 8 }}>
-        <button type="button" className={igual(dias, TODOS) ? 'on' : ''} onClick={() => setDias(TODOS)}>Todos os dias</button>
-        <button type="button" className={igual(dias, SEG_SEX) ? 'on' : ''} onClick={() => setDias(SEG_SEX)}>Seg. a Sex.</button>
-      </div>
-    </>
-  );
-}
+// Opção do campo Repetir (mesmo padrão das tarefas) a partir dos dias do previsto.
+const opcaoDosDias = (umDia, dias) => (umDia ? 'uma' : igual(dias, TODOS) ? 'diaria' : igual(dias, SEG_SEX) ? 'semana' : 'pers');
 
-// Previsto: já vem com o atual (ou com a sugestão), dias em bolinhas, tempos prontos e
-// "Mais opções" para começo, fim e "só um dia". Salvar um novo para os mesmos dias troca o antigo.
+// Previsto: já vem com o atual (ou com a sugestão), dias no campo Repetir (igual às tarefas: Uma vez,
+// Diariamente, Seg. a Sex., Personalizar), tempos prontos e "Mais opções" para começo e fim. Salvar um novo para os mesmos dias troca o antigo.
 // - inicial: { cel, pc, dias, inicio, fim, umDia }  - substitui: id do previsto que está sendo editado
 // - outros: [{ nome, cel, pc, dias }] para "Usar o mesmo de…" (Raio-X S31)
 export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], cancelarHref }) {
@@ -48,12 +30,17 @@ export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], ca
   const [pc, setPc] = useState(ini.pc || 0);
   const [dias, setDias] = useState(ini.dias?.length ? ini.dias : TODOS);
   const [umDia, setUmDia] = useState(!!ini.umDia);
+  const [opcao, setOpcao] = useState(opcaoDosDias(!!ini.umDia, ini.dias?.length ? ini.dias : TODOS));
+  const mudarRepetir = (o, d) => {
+    setOpcao(o); setUmDia(o === 'uma');
+    if (o === 'diaria') setDias(TODOS); else if (o === 'semana') setDias(SEG_SEX); else if (o === 'pers') setDias(d);
+  };
   const [inicio, setInicio] = useState(ini.inicio && ini.inicio > hoje ? ini.inicio : hoje);
   const [fim, setFim] = useState(ini.fim && !ini.umDia ? ini.fim : '');
   const [base, setBase] = useState({ cel: ini.cel || null, pc: ini.pc || null });
   const total = (Number.isNaN(cel) ? 0 : cel) + (Number.isNaN(pc) ? 0 : pc);
   const zerado = total === 0;
-  const copiar = (o) => { setBase({ cel: o.cel, pc: o.pc }); setCel(o.cel || 0); setPc(o.pc || 0); if (o.dias?.length) setDias(o.dias); setVersao((v) => v + 1); };
+  const copiar = (o) => { setBase({ cel: o.cel, pc: o.pc }); setCel(o.cel || 0); setPc(o.pc || 0); if (o.dias?.length) { setDias(o.dias); setUmDia(false); setOpcao(opcaoDosDias(false, o.dias)); } setVersao((v) => v + 1); };
   const modo = umDia ? 'dia' : 'dias';
   return (
     <Form acao={salvarPrevisto} okTxt="Previsto salvo.">
@@ -71,13 +58,13 @@ export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], ca
       <TempoCampo key={`c${versao}`} id={`pc-${membro}`} name="celular" rotulo="Celular" valor={base.cel} aoMudar={setCel} />
       <TempoCampo key={`p${versao}`} id={`pp-${membro}`} name="computador" rotulo="Computador" valor={base.pc} aoMudar={setPc} />
       <p className="total-dia">Total do dia: <b>{fmtMin(total)}</b></p>
-      {!umDia && <><label>Dias</label><DiasBolinhas dias={dias} setDias={setDias} /></>}
-      <details className="mais-op" open={umDia || !!fim || inicio !== hoje || undefined}>
+      <RepetirCampo nome={`rep-${membro}`} hoje={hoje} opcao={opcao} dias={opcao === 'pers' ? dias : SEG_SEX} aoMudar={mudarRepetir} semCampos />
+      {umDia && <><label htmlFor={`pi-${membro}`}>Dia</label><input id={`pi-${membro}`} type="date" name="inicio" min={hoje} value={inicio} onChange={(e) => setInicio(e.target.value)} required /></>}
+      {!umDia && <details className="mais-op" open={!!fim || inicio !== hoje || undefined}>
         <summary>Mais opções</summary>
-        <label className="check" style={{ marginTop: 4 }}><input type="checkbox" checked={umDia} onChange={(e) => setUmDia(e.target.checked)} />Só um dia</label>
         <div className="linha">
-          <div><label htmlFor={`pi-${membro}`}>{umDia ? 'Dia' : 'Começa em'}</label><input id={`pi-${membro}`} type="date" name="inicio" min={hoje} value={inicio} onChange={(e) => setInicio(e.target.value)} required /></div>
-          {!umDia && (
+          <div><label htmlFor={`pi-${membro}`}>Começa em</label><input id={`pi-${membro}`} type="date" name="inicio" min={hoje} value={inicio} onChange={(e) => setInicio(e.target.value)} required /></div>
+          {(
             <div><label htmlFor={`pf-${membro}`}>Termina em</label>
               {fim ? (
                 <div style={{ display: 'flex', gap: 8 }}>
@@ -89,7 +76,7 @@ export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], ca
               )}</div>
           )}
         </div>
-      </details>
+      </details>}
       {zerado && <p className="total-dia">Coloque o tempo do celular ou do computador.</p>}
       <button className="btn bloco" style={{ marginTop: zerado ? 10 : 14 }} disabled={zerado}>{substitui ? 'Salvar alteração' : 'Salvar previsto'}</button>
       {substitui && cancelarHref && <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 8 }} href={cancelarHref}>Cancelar</Link>}
@@ -169,7 +156,7 @@ export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca
 }
 
 const MOTIVOS = ['Trabalho da escola', 'Filme em família', 'Viagem'];
-const MAIS = [30, 60, 90, 120].map((m) => ({ rotulo: '+' + fmtMin(m).replace('h00', 'h'), min: m }));
+const MAIS = [30, 60, 120].map((m) => ({ rotulo: '+' + fmtMin(m).replace('h00', 'h'), min: m }));
 
 // Pedir mais tempo para um dia: começa no previsto de hoje e sobe de 30 em 30 minutos (S24).
 export function PropostaForm({ hoje, previsto }) {
