@@ -2,7 +2,6 @@ import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import Link from 'next/link';
-import BotaoMais from '@/components/BotaoMais';
 import { hojeISO, addDias, inicioMes, fimMes, dataLonga, diaSemana, statusExibido, hhmm, DIAS, MESES } from '@/lib/util';
 import Icone from '@/components/Icone';
 import Calendario from '@/components/Calendario';
@@ -62,14 +61,15 @@ export default async function Agenda({ searchParams }) {
         <div className="tit"><h1 className="titulo">Agenda</h1>{emHoje
           ? <span className="hoje-peq on" aria-current="date" title="Você está vendo hoje">Hoje</span>
           : <Link prefetch={false} className="hoje-peq" href={qs({ d: hoje })} title="Voltar para hoje">Hoje</Link>}</div>
-        {v === 'semana' && (
+        <Link prefetch={false} className="btn" href={`/tarefas/nova?${new URLSearchParams({ d: d < hoje ? hoje : d, volta, ...(filtroM && gestor ? { m: filtroM } : {}) })}`}><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
+      </div>
+      {v === 'semana' && (
           <div className="nv-curta">
             <Link prefetch={false} className="seta" href={qs({ d: addDias(d, -7) })} aria-label="Semana anterior"><Icone nome="esq" tam={24} /></Link>
             <span>{periodo}</span>
             <Link prefetch={false} className="seta" href={qs({ d: addDias(d, 7) })} aria-label="Próxima semana"><Icone nome="dir" tam={24} /></Link>
           </div>
-        )}
-      </div>
+      )}
       {sp.aviso === 'amanha' && <div className="aviso ok" role="status">Tarefa salva. Como o horário de hoje já passou, ela começa amanhã.</div>}
       <div className="seg" role="tablist" aria-label="Visão">
         <Link prefetch={false} href={qs({ v: 'semana' })} className={v === 'semana' ? 'on' : ''}>Semana</Link>
@@ -137,7 +137,6 @@ export default async function Agenda({ searchParams }) {
           }) : doDia.sort(ordem).map(cartao)}
         </div>
       </>}
-      <BotaoMais href={`/tarefas/nova?${new URLSearchParams({ d: d < hoje ? hoje : d, volta, ...(filtroM && gestor ? { m: filtroM } : {}) })}`} />
     </main>
   );
 }

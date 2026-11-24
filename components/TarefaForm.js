@@ -1,15 +1,12 @@
 'use client';
 import Icone from './Icone';
 import HorarioCampo from './HorarioCampo';
-import Pessoas from './Pessoas';
 import { useState } from 'react';
 import Form from './Form';
 import { salvarTarefa } from '@/app/acoes';
 import { hhmm } from '@/lib/util';
 import { SUGESTOES, IDADES, ICONE_CAT, resumoSugestao } from '@/lib/sugestoes';
 
-// Sugestões que aparecem já na tela, abaixo do campo Tarefa (Raio-X U24).
-const RAPIDAS = ['Arrumar a cama', 'Arrumar o quarto', 'Lavar a louça', 'Ler por 20 minutos', 'Escovar os dentes', 'Lição de casa'];
 
 const SEG_SEX = [1, 2, 3, 4, 5];
 const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
@@ -37,9 +34,6 @@ function opcaoInicial(t) {
 }
 
 export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar, euId, paraId }) {
-  // Para quem (U21): ao criar, dá para marcar várias pessoas; ao editar, é uma só.
-  const [para, setPara] = useState(() => [t?.responsavel_id || paraId || (filhos.find((f) => f.id !== euId) || filhos[0])?.id].filter(Boolean));
-  const escolherPessoa = (id) => setPara((x) => (t?.id ? [id] : x.includes(id) ? (x.length > 1 ? x.filter((y) => y !== id) : x) : [...x, id]));
   const [opcao, setOpcao] = useState(opcaoInicial(t));
   const [dias, setDias] = useState(t?.recorrencia === 'dias_semana' && t.dias_semana?.length ? [...t.dias_semana] : SEG_SEX);
   const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
@@ -74,7 +68,6 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
     setHora((h) => ({ i: x.hora || '', f: '', n: h.n + 1 })); setFolha(null);
   };
   const catsSug = [...new Set(SUGESTOES.map((x) => x.cat))];
-  const rapidas = RAPIDAS.map((n) => SUGESTOES.find((x) => x.nome === n)).filter(Boolean);
   const listaSug = SUGESTOES.filter((x) => x.cat === fCat && (!fIdade || x.idade.includes(fIdade)));
   const voltarPers = () => { if (dias.length === 0) setDias(SEG_SEX); setOpcao('pers'); setFolha('repetir'); };
   return (
@@ -85,18 +78,18 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       <input type="hidden" name="recorrencia" value={opcao === 'semana' || opcao === 'pers' ? 'dias_semana' : opcao === 'uma' ? '' : opcao} />
       {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
       <input type="hidden" name="data_fim" value={uma ? '' : fim} />
-      <label htmlFor="titulo" style={{ marginTop: 0 }}>Tarefa</label>
-      <input id="titulo" name="titulo" required maxLength={100} value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Arrumar o quarto" />
-      {!t?.id && (
-        <div className="chips sug-rapidas" aria-label="Sugestões">
-          {rapidas.map((x) => <button key={x.nome} type="button" onClick={() => usar(x)}>{x.nome}</button>)}
-          <button type="button" className="ver-todas" onClick={() => setFolha('sug')}><Icone nome="lampada" tam={16} />Ver todas</button>
+      {t?.id ? <label htmlFor="titulo" style={{ marginTop: 0 }}>Tarefa</label> : (
+        <div className="rot-sug">
+          <label htmlFor="titulo" style={{ marginTop: 0 }}>Tarefa</label>
+          <button type="button" className="btn peq sugestao-btn" onClick={() => setFolha('sug')}><Icone nome="lampada" tam={18} cor="#fff" />Sugestões</button>
         </div>
       )}
+      <input id="titulo" name="titulo" required maxLength={100} value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Arrumar o quarto" />
       {gestor && <>
-        <label>Para quem</label>
-        <Pessoas rotulo="Para quem" multi={!t?.id} aoEscolher={escolherPessoa} itens={filhos.map((f) => ({ id: f.id, nome: f.id === euId ? 'Eu' : f.nome, cor: f.cor, on: para.includes(f.id) }))} />
-        {para.map((id) => <input key={id} type="hidden" name="responsavel" value={id} />)}
+        <label htmlFor="responsavel">Para quem</label>
+        <select id="responsavel" name="responsavel" defaultValue={t?.responsavel_id || paraId || (filhos.find((f) => f.id !== euId) || filhos[0])?.id} required>
+          {filhos.map((f) => <option key={f.id} value={f.id}>{f.id === euId ? `Eu mesmo (${f.nome})` : f.nome}</option>)}
+        </select>
       </>}
       <label htmlFor="repetir">Repetir</label>
       <button id="repetir" type="button" className="campo-botao" onClick={() => setFolha('repetir')}><span>{resumo}</span><span aria-hidden="true">›</span></button>

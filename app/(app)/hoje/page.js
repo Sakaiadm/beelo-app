@@ -11,7 +11,6 @@ import { fatos, candidatosFilho } from '@/lib/dicas';
 import { carregarDesafios, desafiosLigados, paraComemorar, vitrineDe } from '@/lib/desafiosDados';
 import { perfil } from '@/lib/desafios';
 import { mensagem, Estrela, Hexagono } from '@/components/DesafioCartao';
-import BotaoMais from '@/components/BotaoMais';
 import Pessoas from '@/components/Pessoas';
 import Comemorar from '@/components/Comemorar';
 
@@ -123,6 +122,7 @@ export default async function Hoje({ searchParams }) {
             </>}
           </>}
           {doDia.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
+          <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href={novaHref}><Icone nome="mais" tam={18} />{gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'}</Link>
         </section>
 
         {temLado && (
@@ -151,7 +151,6 @@ export default async function Hoje({ searchParams }) {
         )}
       </div>
 
-      <BotaoMais href={novaHref} rotulo={gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'} />
     </main>
   );
 }

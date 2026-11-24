@@ -930,3 +930,5 @@ a.tarefa-ir > svg { color: var(--cinza); flex: none; }
 .aceite input[type=checkbox]:focus-visible { outline: 3px solid color-mix(in srgb, var(--azul) 45%, transparent); outline-offset: 2px; }
 .aceite a { color: var(--azul); font-weight: 700; }
 .aceite.marcada { border-color: var(--azul); }
+/* Pedido do Thomas (24/11): "Nova tarefa" volta ao alto; as setas da semana ficam na linha de baixo. */
+.agenda-tela > .nv-curta { justify-content: center; margin: -4px 0 10px; }
