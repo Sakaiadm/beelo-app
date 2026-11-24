@@ -921,3 +921,12 @@ a.tarefa-ir > svg { color: var(--cinza); flex: none; }
 .rel-sec > summary { min-height: 52px; }
 .rel-sec > summary h2 { font-size: var(--f-cartao); line-height: 1.25; }
 .rel-sec > summary span { white-space: nowrap; }
+
+/* Caixas de aceite (Termos, Privacidade e autorização do responsável): caixa quadrada, não chave. */
+.aceite { display: flex; align-items: flex-start; gap: 12px; padding: 12px 14px; border: 1px solid var(--borda); border-radius: 12px; background: var(--fundo); font-size: var(--f-apoio); line-height: 1.5; color: var(--texto); cursor: pointer; margin: 0 0 10px; font-weight: 500; }
+.aceite input[type=checkbox] { appearance: none; -webkit-appearance: none; flex: none; width: 24px; height: 24px; padding: 0; box-sizing: border-box; margin: 1px 0 0; border: 2px solid var(--cinza); border-radius: 6px; background: var(--cartao); cursor: pointer; display: grid; place-content: center; }
+.aceite input[type=checkbox]:checked { background: var(--azul); border-color: var(--azul); }
+.aceite input[type=checkbox]:checked::after { content: ''; width: 6px; height: 11px; border: solid #fff; border-width: 0 3px 3px 0; transform: translateY(-1px) rotate(45deg); }
+.aceite input[type=checkbox]:focus-visible { outline: 3px solid color-mix(in srgb, var(--azul) 45%, transparent); outline-offset: 2px; }
+.aceite a { color: var(--azul); font-weight: 700; }
+.aceite.marcada { border-color: var(--azul); }
