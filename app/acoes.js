@@ -147,7 +147,7 @@ export async function salvarPessoa(_, fd) {
   f.chaves.forEach(([k]) => { permissoes[k] = fd.get(`perm_${k}`) === '1'; });
   const reg = {
     nome: txt(fd, 'nome', 60), email: v.email || null, papel: f.papel, funcao: f.id, permissoes,
-    ativo: fd.get('ativo') === '1', tela_ativo: fd.get('tela_ativo') === '1',
+    ativo: fd.get('ativo') === '1',
     modo_crianca: temModoCrianca(f.id) && fd.get('modo_crianca') === '1',
     cor: /^#[0-9a-f]{6}$/i.test(fd.get('cor') || '') ? fd.get('cor') : '#1a6fe0',
   };
@@ -177,9 +177,7 @@ export async function salvarPessoa(_, fd) {
     if (ja) return convidarExistente(supabase, eu, ja);
     return { erro: 'Este e-mail já está cadastrado em outro grupo' };
   }
-  const erroTela = salvo ? await sincronizarTarefaTela(supabase, eu, salvo.id, reg.tela_ativo, fd) : '';
   revalidar();
-  if (erroTela) return { erro: erroTela };
   let aviso = '';
   if (fd.get('enviar') === '1' && salvo) {
     const r = await mandarConvite(supabase, eu, salvo);
@@ -190,24 +188,29 @@ export async function salvarPessoa(_, fd) {
   return { ok: true, msg: aviso ? 'Salvo e convite enviado.' : undefined };
 }
 
-// Meu perfil: Pai ou Mãe liga ou desliga o tempo de tela para si.
-export async function salvarMinhaTela(_, fd) {
+// Aba Tela › "Quem lança tempo de tela": Pai ou Mãe liga ou desliga para cada pessoa e para si (Raio-X S3, S5).
+// Ligando, abre a aba dessa pessoa com o previsto sugerido para conferir e salvar (S1, S30).
+export async function ligarTela(fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
   if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
-  const ligado = fd.get('tela_ativo') === '1';
-  const { error } = await supabase.from('ra_membros').update({ tela_ativo: ligado }).eq('id', eu.id);
+  const membro = uuid(fd.get('membro'));
+  const ligado = fd.get('ligar') === '1';
+  const { error } = await supabase.from('ra_membros').update({ tela_ativo: ligado }).eq('id', membro).eq('familia_id', eu.familia_id);
   if (error) return traduzirErro(error);
-  const erroTela = await sincronizarTarefaTela(supabase, eu, eu.id, ligado, fd);
+  const erroTela = await sincronizarTarefaTela(supabase, eu, membro, ligado);
   revalidar();
-  return erroTela ? { erro: erroTela } : { ok: true };
+  if (erroTela) return { erro: erroTela };
+  if (ligado) redirect(`/tela?m=${membro}`);
+  return { ok: true };
 }
 
-// Tarefa "Lançar tempo de tela" (seção 64): existe enquanto o tempo de tela da pessoa está ligado,
-// com os dias e o horário escolhidos no cadastro. Desligando, para de ser gerada e o histórico fica.
-async function sincronizarTarefaTela(supabase, eu, membroId, ligado, fd) {
-  const { data: atual, error: e1 } = await supabase.from('ra_tarefas').select('id, hora_inicio, permite_adiar, exige_justificativa').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
-  if (e1) return String(e1.message || '').includes('especial') ? 'Pessoa salva. Para a tarefa “Lançar tempo de tela” aparecer, rode o SQL 0011 no Supabase.' : traduzirErro(e1).erro;
+// Tarefa "Lançar tempo de tela": existe enquanto o tempo de tela da pessoa está ligado.
+// Os dias seguem o previsto (lança no dia seguinte a cada dia com previsto, SQL 0016); o horário e
+// "Pode adiar" ficam no cartão "Lançamento" da aba Tela. Desligando, para de ser gerada e o histórico fica.
+async function sincronizarTarefaTela(supabase, eu, membroId, ligado) {
+  const { data: atual, error: e1 } = await supabase.from('ra_tarefas').select('id').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
+  if (e1) return traduzirErro(e1).erro;
   const hoje = hojeISO();
   if (!ligado) {
     if (atual) {
@@ -216,43 +219,31 @@ async function sincronizarTarefaTela(supabase, eu, membroId, ligado, fd) {
     }
     return '';
   }
-  if (!fd.has('tela_opcao')) return '';
-  const opcao = ['uma', 'diaria', 'semana', 'pers'].includes(fd.get('tela_opcao')) ? fd.get('tela_opcao') : 'diaria';
-  const dias = fd.getAll('tela_dias').map(Number).filter((n) => n >= 0 && n <= 6);
-  // O horário de lançar fica na aba Tela ("Lançar sempre às"); aqui mantém o que já tem (ou 08:00).
-  const h = hora(fd.get('tela_hora')) || atual?.hora_inicio?.slice(0, 5) || '08:00';
-  if (opcao === 'pers' && !dias.length) return 'Escolha pelo menos um dia para lançar o tempo de tela';
-  const uma = opcao === 'uma';
-  const reg = {
-    titulo: 'Lançar tempo de tela', categoria_id: null, responsavel_id: membroId, especial: 'tela',
-    tipo: uma ? 'pontual' : 'recorrente', recorrencia: uma ? null : opcao === 'diaria' ? 'diaria' : 'dias_semana',
-    dias_semana: uma || opcao === 'diaria' ? [] : opcao === 'semana' ? [1, 2, 3, 4, 5] : dias,
-    // Ligando agora: o primeiro lançamento é amanhã (hoje ainda não há "tempo de ontem" combinado para lançar).
-    data_inicio: uma ? (data(fd.get('tela_data')) || hoje) : atual ? hoje : addDias(hoje, 1), data_fim: null,
-    hora_inicio: h, hora_fim: null, exige_foto: false,
-    // Pode adiar / exige justificativa: escolhidos na aba Tela; aqui mantém o que já tinha.
-    permite_adiar: membroId !== eu.id && !!atual?.permite_adiar, exige_justificativa: membroId !== eu.id && !!atual?.exige_justificativa,
-  };
-  let error;
-  if (atual) {
-    ({ error } = await supabase.from('ra_tarefas').update(reg).eq('id', atual.id));
-    // Mudou dias ou horário: as próximas pendentes saem e voltam só nos dias escolhidos, com o novo horário.
-    if (!error) await supabase.from('ra_ocorrencias').update({ status: 'cancelada' }).eq('tarefa_id', atual.id).eq('status', 'pendente').gte('data', hoje);
-  } else {
-    ({ error } = await supabase.from('ra_tarefas').insert({ ...reg, familia_id: eu.familia_id, criada_por: eu.id }));
+  if (!atual) {
+    const { data: velha } = await supabase.from('ra_tarefas').select('hora_inicio').eq('responsavel_id', membroId).eq('especial', 'tela').order('criado_em', { ascending: false }).limit(1).maybeSingle();
+    const { error } = await supabase.from('ra_tarefas').insert({
+      familia_id: eu.familia_id, criada_por: eu.id, titulo: 'Lançar tempo de tela', categoria_id: null, responsavel_id: membroId, especial: 'tela',
+      tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [],
+      // Ligando agora: o primeiro lançamento é amanhã (hoje ainda não há "tempo de ontem" combinado para lançar).
+      data_inicio: addDias(hoje, 1), data_fim: null, hora_inicio: velha?.hora_inicio?.slice(0, 5) || '08:00', hora_fim: null,
+      exige_foto: false, permite_adiar: false, exige_justificativa: false,
+    });
+    if (error) return traduzirErro(error).erro;
   }
-  if (error) return traduzirErro(error).erro;
+  await ajustarDiasTela(supabase, membroId);
   await supabase.rpc('ra_gerar_ocorrencias', { p_de: hoje, p_ate: addDias(hoje, 54) });
-  if (atual) {
-    const datas = [];
-    for (let i = 0; i <= 54; i++) {
-      const d = addDias(hoje, i), dow = new Date(d + 'T12:00:00Z').getUTCDay();
-      if (uma ? d === reg.data_inicio : reg.recorrencia === 'diaria' || reg.dias_semana.includes(dow)) datas.push(d);
-    }
-    if (datas.length) await supabase.from('ra_ocorrencias').update({ status: 'pendente', hora_inicio: h, hora_fim: null, horario_travado: membroId !== eu.id })
-      .eq('tarefa_id', atual.id).eq('status', 'cancelada').in('data', datas);
-  }
   return '';
+}
+
+// Dias de lançar = dia seguinte aos dias do previsto (função do SQL 0016; sem ela, fica todo dia).
+async function ajustarDiasTela(supabase, membroId) {
+  try { await supabase.rpc('ra_tela_ajustar_tarefa', { p_membro: membroId }); } catch { /* SQL 0016 ainda não rodou */ }
+}
+
+// Painel › "Lembrar": aviso no celular da pessoa para lançar o tempo de ontem (Raio-X S17, SQL 0016).
+export async function lembrarTela(_, fd) {
+  const r = await rpc('ra_lembrar_tela', { p_membro: uuid(fd.get('membro')) });
+  return r?.erro ? r : { ok: true, msg: 'Lembrete enviado.' };
 }
 
 // Pessoa deste grupo que já usa o e-mail informado.
@@ -365,60 +356,106 @@ function lerMinutos(fd, formato, prefixo = '') {
 export async function salvarPrevisto(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
-  if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
+  const membro = uuid(fd.get('membro'));
+  // Pai e Mãe definem para todos; o adulto acompanhado ("Outro usuário") define o próprio (Raio-X S27).
+  if (eu?.papel !== 'gestor' && !(eu?.funcao === 'outro' && membro === eu?.id)) return { erro: 'Só os responsáveis podem fazer isso' };
   // Celular e Computador: o total é a soma; o aparelho em 0h00 não conta (fica vazio no previsto).
   const formato = 'aparelho';
   const m = lerMinutos(fd, formato); if (m.erro) return m;
   if (!m.min_celular) m.min_celular = null;
   if (!m.min_computador) m.min_computador = null;
   if (m.min_celular == null && m.min_computador == null) return { erro: 'Coloque o tempo do celular ou do computador.' };
-  const modo = ['dia', 'dias', 'semana'].includes(fd.get('modo')) ? fd.get('modo') : 'dias';
+  const umDia = fd.get('modo') === 'dia';
   const hoje = hojeISO();
   const inicio = data(fd.get('inicio')) || hoje;
-  let dias, ini, fim;
-  if (modo === 'dia') {
-    dias = [new Date(inicio + 'T12:00:00Z').getUTCDay()]; ini = inicio; fim = inicio;
+  if (inicio < hoje) return { erro: 'Escolha hoje ou um dia depois' };
+  let dias, fim = null;
+  if (umDia) {
+    dias = [new Date(inicio + 'T12:00:00Z').getUTCDay()]; fim = inicio;
   } else {
-    dias = modo === 'semana' ? [0, 1, 2, 3, 4, 5, 6] : fd.getAll('dias').map(Number).filter((n) => n >= 0 && n <= 6);
+    dias = [...new Set(fd.getAll('dias').map(Number).filter((n) => n >= 0 && n <= 6))];
     if (!dias.length) return { erro: 'Escolha os dias da semana' };
-    ini = inicio; fim = data(fd.get('fim'));
-    if (fim && fim < ini) return { erro: 'O fim deve ser depois do início' };
+    fim = data(fd.get('fim'));
+    if (fim && fim < inicio) return { erro: 'O fim deve ser depois do início' };
   }
   const { error } = await supabase.from('ra_tela_previsto').insert({
-    familia_id: eu.familia_id, membro_id: uuid(fd.get('membro')), formato, dias_semana: dias, vigencia_inicio: ini, vigencia_fim: fim,
-    fixado: modo !== 'dia' && !fim, ...m, criado_por: eu.id,
+    familia_id: eu.familia_id, membro_id: membro, formato, dias_semana: dias, vigencia_inicio: inicio, vigencia_fim: fim,
+    fixado: !umDia && !fim, ...m, criado_por: eu.id,
   });
   if (error) return traduzirErro(error);
-  if (fd.has('tela_hora')) {
-    const erroLanc = await mudarLancamentoTela(supabase, eu, uuid(fd.get('membro')), fd);
-    if (erroLanc) return { erro: erroLanc };
-  }
+  await trocarPrevistosAntigos(supabase, eu, membro, { umDia, dias, inicio, substitui: uuid(fd.get('substitui')) });
+  if (!umDia) await ajustarDiasTela(supabase, membro);
   revalidar();
   return { ok: true };
 }
 
-// Aba Tela: "Lançar sempre às", "Pode adiar" e "Exige justificativa" da tarefa "Lançar tempo de tela".
+// O previsto novo substitui o antigo nos mesmos dias (Raio-X S14). O antigo para na véspera
+// (ou some, se ainda nem tinha começado); os dias que sobram dele continuam valendo.
+// Editando (substitui), o previsto editado sai inteiro. Os dias que já passaram ficam nos relatórios.
+async function trocarPrevistosAntigos(supabase, eu, membro, { umDia, dias, inicio, substitui }) {
+  const hoje = hojeISO();
+  const { data: regras } = await supabase.from('ra_tela_previsto').select('*').eq('membro_id', membro)
+    .or(`vigencia_fim.is.null,vigencia_fim.gte.${hoje}`).order('criado_em', { ascending: false });
+  const [nova, ...antigas] = regras || [];
+  if (!nova) return;
+  const vespera = addDias(inicio, -1);
+  for (const r of antigas) {
+    const soUmDia = r.vigencia_fim != null && r.vigencia_fim === r.vigencia_inicio;
+    const editada = r.id === substitui;
+    if (umDia) {
+      // "Só um dia" novo troca só o "só um dia" antigo da mesma data (ou o que está sendo editado).
+      if (editada || (soUmDia && r.vigencia_inicio === inicio)) await supabase.from('ra_tela_previsto').delete().eq('id', r.id);
+      continue;
+    }
+    if (soUmDia && !editada) continue;
+    const comuns = r.dias_semana.filter((d) => dias.includes(d));
+    if (!editada && !comuns.length) continue;
+    if (r.vigencia_fim && r.vigencia_fim < inicio) continue;
+    if (r.vigencia_inicio < inicio) await supabase.from('ra_tela_previsto').update({ vigencia_fim: vespera, fixado: false }).eq('id', r.id);
+    else await supabase.from('ra_tela_previsto').delete().eq('id', r.id);
+    const resto = editada ? [] : r.dias_semana.filter((d) => !dias.includes(d));
+    if (resto.length) {
+      await supabase.from('ra_tela_previsto').insert({
+        familia_id: r.familia_id, membro_id: r.membro_id, formato: r.formato, dias_semana: resto,
+        vigencia_inicio: r.vigencia_inicio > inicio ? r.vigencia_inicio : inicio, vigencia_fim: r.vigencia_fim, fixado: r.fixado,
+        min_celular: r.min_celular, min_computador: r.min_computador, min_total: r.min_total, origem: r.origem, criado_por: eu.id,
+      });
+    }
+  }
+}
+
+// Aba Tela › cartão "Lançamento": horário, "Pode adiar" e "Exige justificativa". Salva sozinho ao mudar (Raio-X S9).
 // O horário novo vale também para as próximas pendentes.
-async function mudarLancamentoTela(supabase, eu, membroId, fd) {
+export async function salvarLancamentoTela(_, fd) {
+  const supabase = await supabaseServer();
+  const { data: eu } = await supabase.rpc('ra_eu');
+  if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
+  const membroId = uuid(fd.get('membro'));
   const h = hora(fd.get('tela_hora'));
-  if (!h) return 'Escolha o horário de lançar o tempo de tela';
+  if (!h) return { erro: 'Escolha o horário de lançar o tempo de tela' };
   const { data: t, error } = await supabase.from('ra_tarefas').select('id, hora_inicio').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
-  if (error) return traduzirErro(error).erro;
-  if (!t) return '';
+  if (error) return traduzirErro(error);
+  if (!t) return { erro: 'Ligue o tempo de tela desta pessoa primeiro.' };
   const outro = membroId !== eu.id;
   const { error: e2 } = await supabase.from('ra_tarefas').update({
     hora_inicio: h, permite_adiar: outro && fd.get('tela_adiar') === '1', exige_justificativa: outro && fd.get('tela_justificativa') === '1',
   }).eq('id', t.id);
-  if (e2) return traduzirErro(e2).erro;
+  if (e2) return traduzirErro(e2);
   if (t.hora_inicio?.slice(0, 5) !== h) await supabase.from('ra_ocorrencias').update({ hora_inicio: h }).eq('tarefa_id', t.id).eq('status', 'pendente').gte('data', hojeISO());
-  return '';
+  revalidar();
+  return { ok: true };
 }
 
 export async function encerrarPrevisto(fd) {
   const supabase = await supabaseServer();
   const ontem = new Date(Date.now() - 86400000 - 3 * 3600000).toISOString().slice(0, 10);
-  await supabase.from('ra_tela_previsto').update({ vigencia_fim: ontem }).eq('id', uuid(fd.get('id')));
-  revalidatePath('/tela');
+  const { data: r } = await supabase.from('ra_tela_previsto').select('id, membro_id, vigencia_inicio').eq('id', uuid(fd.get('id'))).maybeSingle();
+  if (!r) return;
+  // Ainda nem começou: some de vez. Já valeu algum dia: para ontem (os relatórios continuam iguais).
+  if (r.vigencia_inicio > ontem) await supabase.from('ra_tela_previsto').delete().eq('id', r.id);
+  else await supabase.from('ra_tela_previsto').update({ vigencia_fim: ontem }).eq('id', r.id);
+  await ajustarDiasTela(supabase, r.membro_id);
+  revalidar();
 }
 
 export async function salvarTelaReal(_, fd) {

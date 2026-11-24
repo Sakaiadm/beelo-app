@@ -17,8 +17,8 @@ import { hojeISO } from '@/lib/util';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
-  // Ícone Tela: só aparece quando o tempo de tela está ligado (para Pai/Mãe: para alguém do grupo).
-  const telaLigada = gestor ? (membros || []).some((m) => m.ativo && m.tela_ativo) : !!eu.tela_ativo;
+  // Pai e Mãe: sempre (é lá que ligam para cada pessoa). Os outros: só com o tempo de tela ligado.
+  const telaLigada = gestor || !!eu.tela_ativo;
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const a = acesso(eu);
   const itens = gestor

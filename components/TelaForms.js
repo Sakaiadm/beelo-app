@@ -1,165 +1,196 @@
 'use client';
-import Icone from './Icone';
-import { useState } from 'react';
+import { useRef, useState } from 'react';
+import Link from 'next/link';
 import Form from './Form';
 import Foto from './Foto';
-import { salvarPrevisto, salvarTelaReal, proporTela } from '@/app/acoes';
-import { fmtMin, parseMin } from '@/lib/util';
+import TempoCampo from './TempoCampo';
 import RelogioHora from './RelogioHora';
+import { salvarPrevisto, salvarTelaReal, proporTela, salvarLancamentoTela } from '@/app/acoes';
+import { fmtMin, parseMin } from '@/lib/util';
 import { aparelhosDo } from '@/lib/aparelhos';
+import { prepararSom } from '@/lib/festa';
 
-const v = (m) => (m == null ? '' : fmtMin(m));
-
+const TODOS = [0, 1, 2, 3, 4, 5, 6];
 const SEG_SEX = [1, 2, 3, 4, 5];
-const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
-const DIAS_ABREV = ['Dom.', 'Seg.', 'Ter.', 'Qua.', 'Qui.', 'Sex.', 'Sáb.'];
-const ROTULO = { uma: 'Uma vez', diaria: 'Diariamente', semana: 'Seg. a Sex.' };
+// Segunda primeiro, como no calendário do Brasil.
+const ORDEM = [1, 2, 3, 4, 5, 6, 0];
+const LETRA = ['D', 'S', 'T', 'Q', 'Q', 'S', 'S'];
+const NOME_DIA = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
+const igual = (a, b) => a.length === b.length && [...a].sort().join() === [...b].sort().join();
+const minOuZero = (t) => { const m = parseMin(t); return Number.isNaN(m) ? NaN : m || 0; };
 
-export function PrevistoForm({ membro, hoje, horaLancar, adiar, justificativa, outro }) {
-  const [cel, setCel] = useState('0h00');
-  const [pc, setPc] = useState('0h00');
-  const mc = parseMin(cel), mp = parseMin(pc);
-  const total = (Number.isNaN(mc) ? 0 : mc || 0) + (Number.isNaN(mp) ? 0 : mp || 0);
-  const zerado = !Number.isNaN(mc) && !Number.isNaN(mp) && total === 0;
-  const [opcao, setOpcao] = useState('semana'); // uma | diaria | semana | pers
-  const [dias, setDias] = useState(SEG_SEX);
-  const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
-  const [inicio, setInicio] = useState(hoje);
-  const [fim, setFim] = useState('');
-  const uma = opcao === 'uma';
-  const modo = uma ? 'dia' : opcao === 'diaria' ? 'semana' : 'dias';
-  const diasEnviados = opcao === 'semana' ? SEG_SEX : opcao === 'pers' ? dias : [];
-  const resumo = opcao === 'pers' ? [...dias].sort().map((d) => DIAS_ABREV[d]).join(', ').replace(/, ([^,]*)$/, ' e $1') : ROTULO[opcao];
-  const escolher = (o) => { setOpcao(o); setFolha(null); };
-  const alternarDia = (d) => setDias((x) => (x.includes(d) ? x.filter((y) => y !== d) : [...x, d]));
-  const voltarPers = () => { if (dias.length === 0) setDias(SEG_SEX); setOpcao('pers'); setFolha('repetir'); };
+// Dias da semana em bolinhas, na própria tela (Raio-X S12).
+function DiasBolinhas({ dias, setDias }) {
+  const alternar = (d) => setDias((x) => (x.includes(d) ? (x.length > 1 ? x.filter((y) => y !== d) : x) : [...x, d]));
+  return (
+    <>
+      <div className="dias7" role="group" aria-label="Dias da semana">
+        {ORDEM.map((d) => (
+          <button key={d} type="button" className={dias.includes(d) ? 'on' : ''} aria-pressed={dias.includes(d)} aria-label={NOME_DIA[d]} onClick={() => alternar(d)}>{LETRA[d]}</button>
+        ))}
+      </div>
+      <div className="chips" style={{ marginTop: 8 }}>
+        <button type="button" className={igual(dias, TODOS) ? 'on' : ''} onClick={() => setDias(TODOS)}>Todos os dias</button>
+        <button type="button" className={igual(dias, SEG_SEX) ? 'on' : ''} onClick={() => setDias(SEG_SEX)}>Seg. a Sex.</button>
+      </div>
+    </>
+  );
+}
+
+// Previsto: já vem com o atual (ou com a sugestão), dias em bolinhas, tempos prontos e
+// "Mais opções" para começo, fim e "só um dia". Salvar um novo para os mesmos dias troca o antigo.
+// - inicial: { cel, pc, dias, inicio, fim, umDia }  - substitui: id do previsto que está sendo editado
+// - outros: [{ nome, cel, pc, dias }] para "Usar o mesmo de…" (Raio-X S31)
+export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], cancelarHref }) {
+  const ini = inicial || { cel: 180, pc: null, dias: TODOS };
+  const [versao, setVersao] = useState(0);
+  const [cel, setCel] = useState(ini.cel || 0);
+  const [pc, setPc] = useState(ini.pc || 0);
+  const [dias, setDias] = useState(ini.dias?.length ? ini.dias : TODOS);
+  const [umDia, setUmDia] = useState(!!ini.umDia);
+  const [inicio, setInicio] = useState(ini.inicio && ini.inicio > hoje ? ini.inicio : hoje);
+  const [fim, setFim] = useState(ini.fim && !ini.umDia ? ini.fim : '');
+  const [base, setBase] = useState({ cel: ini.cel || null, pc: ini.pc || null });
+  const total = (Number.isNaN(cel) ? 0 : cel) + (Number.isNaN(pc) ? 0 : pc);
+  const zerado = total === 0;
+  const copiar = (o) => { setBase({ cel: o.cel, pc: o.pc }); setCel(o.cel || 0); setPc(o.pc || 0); if (o.dias?.length) setDias(o.dias); setVersao((v) => v + 1); };
+  const modo = umDia ? 'dia' : 'dias';
   return (
     <Form acao={salvarPrevisto} okTxt="Previsto salvo.">
       <input type="hidden" name="membro" value={membro} />
       <input type="hidden" name="modo" value={modo} />
-      <input type="hidden" name="fim" value={uma ? '' : fim} />
-      {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
-      <input type="hidden" name="formato" value="aparelho" />
-      <div className="linha">
-        <div><label htmlFor={`pc-${membro}`}>Celular</label><input id={`pc-${membro}`} name="celular" value={cel} onChange={(e) => setCel(e.target.value)} onFocus={(e) => e.target.select()} inputMode="text" /></div>
-        <div><label htmlFor={`pp-${membro}`}>Computador</label><input id={`pp-${membro}`} name="computador" value={pc} onChange={(e) => setPc(e.target.value)} onFocus={(e) => e.target.select()} inputMode="text" /></div>
-      </div>
-      <p className="total-dia">Total do dia: <b>{Math.floor(total / 60)}h{String(total % 60).padStart(2, '0')}</b></p>
-      <label htmlFor="repetir-tela">Repetir</label>
-      <button id="repetir-tela" type="button" className="campo-botao" onClick={() => setFolha('repetir')}><span>{resumo}</span><span aria-hidden="true">›</span></button>
-      <div className="linha">
-        <div><label htmlFor={`pi-${membro}`}>{uma ? 'Dia' : 'Começa em'}</label><input id={`pi-${membro}`} type="date" name="inicio" min={hoje} value={inicio} onChange={(e) => setInicio(e.target.value)} required /></div>
-        {!uma && (
-          <div><label htmlFor={`pf-${membro}`}>Termina em</label>
-            {fim ? (
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input id={`pf-${membro}`} type="date" value={fim} min={inicio} onChange={(e) => setFim(e.target.value)} />
-                <button type="button" className="btn sec peq" onClick={() => setFim('')} aria-label="Nunca termina">Nunca</button>
-              </div>
-            ) : (
-              <button id={`pf-${membro}`} type="button" className="campo-botao" onClick={() => setFim(inicio)}><span>Nunca</span><span aria-hidden="true">›</span></button>
-            )}</div>
-        )}
-      </div>
-      {(folha === 'repetir' || folha === 'pers') && (
-        <div className="folha" role="dialog" aria-modal="true" aria-label={folha === 'pers' ? 'Personalizar' : 'Repetir'}>
-          <div className="folha-in">
-            <div className="folha-cab">
-              <button type="button" className="folha-volta" aria-label="Voltar" onClick={folha === 'pers' ? voltarPers : () => setFolha(null)}><Icone nome="esq" tam={26} /></button>
-              <h2>{folha === 'pers' ? 'Personalizar' : 'Repetir'}</h2>
-            </div>
-            {folha === 'repetir' && (
-              <div className="folha-lista">
-                {['uma', 'diaria', 'semana'].map((o) => (
-                  <button key={o} type="button" className={opcao === o ? 'sel' : ''} onClick={() => escolher(o)}>{ROTULO[o]}</button>
-                ))}
-                <button type="button" className={opcao === 'pers' ? 'sel' : ''} onClick={() => { if (dias.length === 0) setDias(SEG_SEX); setFolha('pers'); }}>
-                  <span>Personalizar{opcao === 'pers' ? ` · ${resumo}` : ''}</span><span aria-hidden="true">›</span>
-                </button>
-              </div>
-            )}
-            {folha === 'pers' && (
-              <div className="folha-lista">
-                {DIAS_NOME.map((n, i) => ({ n, i })).sort((x, y) => ((x.i + 6) % 7) - ((y.i + 6) % 7)).map(({ n, i }) => (
-                  <button key={i} type="button" role="checkbox" aria-checked={dias.includes(i)} onClick={() => alternarDia(i)}>
-                    <span>{n}</span><span className={`bolinha ${dias.includes(i) ? 'on' : ''}`} aria-hidden="true">{dias.includes(i) ? '✓' : ''}</span>
-                  </button>
-                ))}
-              </div>
-            )}
-          </div>
+      <input type="hidden" name="fim" value={umDia ? '' : fim} />
+      {substitui && <input type="hidden" name="substitui" value={substitui} />}
+      {!umDia && dias.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
+      {!substitui && outros.length > 0 && (
+        <div style={{ marginBottom: 6 }}>
+          <span className="peq-cinza">Usar o mesmo de</span>
+          <div className="chips" style={{ marginTop: 6 }}>{outros.map((o) => <button key={o.nome} type="button" onClick={() => copiar(o)}>{o.nome}</button>)}</div>
         </div>
       )}
-      {horaLancar && <><label htmlFor={`hl-${membro}`}>Lançar sempre às</label><RelogioHora id={`hl-${membro}`} name="tela_hora" rotulo="Lançar sempre às" defaultValue={horaLancar} />
-        {outro && <>
-          <label className="check" style={{ marginTop: 12 }}><input type="checkbox" name="tela_adiar" value="1" defaultChecked={adiar} />Pode adiar</label>
-          <label className="check"><input type="checkbox" name="tela_justificativa" value="1" defaultChecked={justificativa} />Exige justificativa se atrasar</label>
-        </>}
-      </>}
+      <TempoCampo key={`c${versao}`} id={`pc-${membro}`} name="celular" rotulo="Celular" valor={base.cel} aoMudar={setCel} />
+      <TempoCampo key={`p${versao}`} id={`pp-${membro}`} name="computador" rotulo="Computador" valor={base.pc} aoMudar={setPc} />
+      <p className="total-dia">Total do dia: <b>{fmtMin(total)}</b></p>
+      {!umDia && <><label>Dias</label><DiasBolinhas dias={dias} setDias={setDias} /></>}
+      <details className="mais-op" open={umDia || !!fim || inicio !== hoje || undefined}>
+        <summary>Mais opções</summary>
+        <label className="check" style={{ marginTop: 4 }}><input type="checkbox" checked={umDia} onChange={(e) => setUmDia(e.target.checked)} />Só um dia</label>
+        <div className="linha">
+          <div><label htmlFor={`pi-${membro}`}>{umDia ? 'Dia' : 'Começa em'}</label><input id={`pi-${membro}`} type="date" name="inicio" min={hoje} value={inicio} onChange={(e) => setInicio(e.target.value)} required /></div>
+          {!umDia && (
+            <div><label htmlFor={`pf-${membro}`}>Termina em</label>
+              {fim ? (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input id={`pf-${membro}`} type="date" value={fim} min={inicio} onChange={(e) => setFim(e.target.value)} />
+                  <button type="button" className="btn sec peq" onClick={() => setFim('')} aria-label="Nunca termina">Nunca</button>
+                </div>
+              ) : (
+                <button id={`pf-${membro}`} type="button" className="campo-botao" onClick={() => setFim(inicio)}><span>Nunca</span><span aria-hidden="true">›</span></button>
+              )}</div>
+          )}
+        </div>
+      </details>
       {zerado && <p className="total-dia">Coloque o tempo do celular ou do computador.</p>}
-      <button className="btn bloco" style={{ marginTop: zerado ? 10 : 14 }} disabled={zerado}>Salvar previsto</button>
+      <button className="btn bloco" style={{ marginTop: zerado ? 10 : 14 }} disabled={zerado}>{substitui ? 'Salvar alteração' : 'Salvar previsto'}</button>
+      {substitui && cancelarHref && <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 8 }} href={cancelarHref}>Cancelar</Link>}
     </Form>
   );
 }
 
-export function RealForm({ eu, data, previsto, atual, membroId, familia }) {
+// "Lançar sempre às", "Pode adiar" e "Exige justificativa": salvam sozinhos ao mudar (Raio-X S9, S13).
+export function LancamentoForm({ membro, hora, adiar: adiar0, justificativa: just0, outro }) {
+  const ref = useRef(null);
+  const [adiar, setAdiar] = useState(!!adiar0);
+  const [just, setJust] = useState(!!just0);
+  const enviar = () => setTimeout(() => ref.current?.querySelector('form')?.requestSubmit(), 0);
+  return (
+    <div ref={ref}>
+      <Form acao={salvarLancamentoTela} okTxt="Salvo.">
+        <input type="hidden" name="membro" value={membro} />
+        {adiar && <input type="hidden" name="tela_adiar" value="1" />}
+        {just && <input type="hidden" name="tela_justificativa" value="1" />}
+        <label htmlFor={`hl-${membro}`}>Lançar sempre às</label>
+        <RelogioHora id={`hl-${membro}`} name="tela_hora" rotulo="Lançar sempre às" defaultValue={hora || '08:00'}
+          horarios={['07:00', '08:00', '12:00', '19:00', '21:00']} aoMudar={enviar} />
+        {outro && <>
+          <div className="lin-chave" style={{ marginTop: 10 }}><span>Pode adiar</span>
+            <button type="button" role="switch" aria-checked={adiar} aria-label="Pode adiar" className={`chave ${adiar ? 'on' : ''}`} onClick={() => { setAdiar(!adiar); enviar(); }} /></div>
+          <div className="lin-chave"><span>Exige justificativa se atrasar</span>
+            <button type="button" role="switch" aria-checked={just} aria-label="Exige justificativa se atrasar" className={`chave ${just ? 'on' : ''}`} onClick={() => { setJust(!just); enviar(); }} /></div>
+        </>}
+      </Form>
+    </div>
+  );
+}
+
+// Lançar o tempo de ontem. O previsto aparece como texto ("de 2h00") ao lado do nome do aparelho (S20).
+// crianca: "Quanto tempo você usou ontem?" com botões grandes (S25). aoConcluir: para a tarefa de Hoje (S19).
+export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca, aoConcluir }) {
   const formato = previsto?.formato === 'total' ? 'total' : 'aparelho';
   const { cel, pc } = aparelhosDo(previsto);
+  const [obs, setObs] = useState(!!atual?.obs);
+  const de = (m) => (previsto && m != null ? <small className="de-prev">de {fmtMin(m)}</small> : null);
+  const campo = (id, name, nome, prev, valor) => (
+    <div className="tempo-real">
+      <div className="tempo-nome"><b>{nome}</b>{de(prev)}</div>
+      <TempoCampo id={id} name={name} valor={valor} grande={crianca} required />
+    </div>
+  );
   return (
-    <Form acao={salvarTelaReal} okTxt="Tempo de tela salvo.">
+    <Form acao={salvarTelaReal} okTxt={crianca ? 'Pronto! Tempo de tela lançado.' : 'Tempo de tela salvo.'} aoConcluir={aoConcluir}>
       <input type="hidden" name="data" value={data} />
       <input type="hidden" name="formato" value={formato} />
       <input type="hidden" name="membro" value={membroId} />
+      {crianca && <h2 style={{ margin: '0 0 8px' }}>Quanto tempo você usou ontem?</h2>}
+      {!crianca && (
+        <details className="como-achar">
+          <summary>Veja em Bem-estar digital ou Tempo de Uso. <span>Como achar?</span></summary>
+          <p>Android: Configurações › Bem-estar digital.<br />iPhone: Ajustes › Tempo de Uso › Ver Todas as Atividades.</p>
+        </details>
+      )}
       {formato === 'total' ? (
-        <>
-          <div className="linha">
-            <div><label>Total previsto</label><input value={previsto ? fmtMin(previsto.min_total) : 'Não definido'} readOnly disabled /></div>
-            <div><label htmlFor="rt">Realizado (total)</label><input id="rt" name="total" placeholder="ex.: 2h30" defaultValue={v(atual?.min_total)} required /></div>
-          </div>
-          <div style={{ marginTop: 8 }}><Foto nome="foto_celular" familia={familia} membro={eu} /></div>
-        </>
+        <>{campo(`rt-${data}`, 'total', 'Total', previsto?.min_total, atual?.min_total ?? null)}
+          <div style={{ marginTop: 8 }}><Foto nome="foto_celular" familia={familia} membro={eu} /></div></>
       ) : (
         <>
-          {cel && <>
-            <div className="linha">
-              <div><label>Celular previsto</label><input value={previsto ? fmtMin(previsto.min_celular) : 'Não definido'} readOnly disabled /></div>
-              <div><label htmlFor="rc">Celular realizado</label><input id="rc" name="celular" placeholder="ex.: 2h10" defaultValue={v(atual?.min_celular)} required /></div>
-            </div>
-            <div style={{ marginTop: 8 }}><Foto nome="foto_celular" familia={familia} membro={eu} /></div>
-          </>}
-          {pc && <>
-            <div className="linha">
-              <div><label>Computador previsto</label><input value={previsto ? fmtMin(previsto.min_computador) : 'Não definido'} readOnly disabled /></div>
-              <div><label htmlFor="rp">Computador realizado</label><input id="rp" name="computador" placeholder="ex.: 45min" defaultValue={v(atual?.min_computador)} required /></div>
-            </div>
-            <div style={{ marginTop: 8 }}><Foto nome="foto_computador" familia={familia} membro={eu} /></div>
-          </>}
+          {cel && <>{campo(`rc-${data}`, 'celular', 'Celular', previsto?.min_celular, atual?.min_celular ?? null)}
+            {!crianca && <div style={{ marginTop: 8 }}><Foto nome="foto_celular" familia={familia} membro={eu} /></div>}</>}
+          {pc && <>{campo(`rp-${data}`, 'computador', 'Computador', previsto?.min_computador, atual?.min_computador ?? null)}
+            {!crianca && <div style={{ marginTop: 8 }}><Foto nome="foto_computador" familia={familia} membro={eu} /></div>}</>}
         </>
       )}
-      <label htmlFor="obs">Observação (opcional)</label>
-      <input id="obs" name="obs" maxLength={300} defaultValue={atual?.obs || ''} placeholder="ex.: trabalho da faculdade no computador" />
-      <button className="btn bloco" style={{ marginTop: 14 }}>Salvar</button>
+      {!crianca && (obs ? (
+        <><label htmlFor={`obs-${data}`}>Observação</label>
+          <input id={`obs-${data}`} name="obs" maxLength={300} defaultValue={atual?.obs || ''} placeholder="ex.: trabalho da faculdade no computador" /></>
+      ) : <button type="button" className="link-mais" onClick={() => setObs(true)}>+ Observação</button>)}
+      <button className="btn bloco" style={{ marginTop: 14 }} onPointerDown={prepararSom} onKeyDown={prepararSom}>Salvar</button>
     </Form>
   );
 }
 
-export function PropostaForm({ hoje, formato, aparelhos = { cel: true, pc: true } }) {
+const MOTIVOS = ['Trabalho da escola', 'Filme em família', 'Viagem'];
+const MAIS = [30, 60, 90, 120].map((m) => ({ rotulo: '+' + fmtMin(m).replace('h00', 'h'), min: m }));
+
+// Pedir mais tempo para um dia: começa no previsto de hoje e sobe de 30 em 30 minutos (S24).
+export function PropostaForm({ hoje, previsto }) {
+  const formato = previsto?.formato === 'total' ? 'total' : 'aparelho';
+  const aparelhos = aparelhosDo(previsto);
+  const [motivo, setMotivo] = useState('');
   return (
-    <Form acao={proporTela} okTxt="Proposta enviada. Seus pais vão validar." limpar>
+    <Form acao={proporTela} okTxt="Pedido enviado. Seus responsáveis vão responder." limpar>
       <input type="hidden" name="formato" value={formato} />
       <label htmlFor="pdata">Dia</label>
       <input id="pdata" type="date" name="data" min={hoje} defaultValue={hoje} required />
       {formato === 'total' ? (
-        <><label htmlFor="ptot">Total que você precisa</label><input id="ptot" name="total" placeholder="3h00" required /></>
-      ) : (
-        <div className="linha">
-          {aparelhos.cel && <div><label htmlFor="pcel">Celular</label><input id="pcel" name="celular" placeholder="2h00" required /></div>}
-          {aparelhos.pc && <div><label htmlFor="ppc">Computador</label><input id="ppc" name="computador" placeholder="3h00" required /></div>}
-        </div>
-      )}
+        <TempoCampo id="ptot" name="total" rotulo="Total que você precisa" valor={previsto?.min_total ?? null} base={previsto?.min_total ?? 0} prontos={MAIS} required />
+      ) : (<>
+        {aparelhos.cel && <TempoCampo id="pcel" name="celular" rotulo="Celular" valor={previsto?.min_celular ?? null} base={previsto?.min_celular ?? 0} prontos={MAIS} required />}
+        {aparelhos.pc && <TempoCampo id="ppc" name="computador" rotulo="Computador" valor={previsto?.min_computador ?? null} base={previsto?.min_computador ?? 0} prontos={MAIS} required />}
+      </>)}
       <label htmlFor="pmot">Motivo</label>
-      <input id="pmot" name="motivo" required minLength={3} maxLength={500} placeholder="ex.: trabalho da faculdade" />
-      <button className="btn sec" style={{ marginTop: 12 }}>Propor outro previsto</button>
+      <div className="chips" style={{ marginBottom: 8 }}>{MOTIVOS.map((m) => <button key={m} type="button" className={motivo === m ? 'on' : ''} onClick={() => setMotivo(m)}>{m}</button>)}</div>
+      <input id="pmot" name="motivo" required minLength={3} maxLength={500} value={motivo} onChange={(e) => setMotivo(e.target.value)} placeholder="ou escreva aqui" />
+      <button className="btn sec" style={{ marginTop: 12 }}>Pedir mais tempo</button>
     </Form>
   );
 }

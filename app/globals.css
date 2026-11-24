@@ -549,3 +549,38 @@ main.ideias { max-width: 600px; }
 .g7v { font-size: 11px; margin-top: 4px; font-variant-numeric: tabular-nums; color: var(--cinza); }
 .g7v .mais { color: var(--erro); font-weight: 800; }
 .g7v .menos { color: var(--ok); font-weight: 800; }
+
+/* Tempo de tela (Raio-X): campo de tempo com − / + e botões prontos, dias em bolinhas, "Mais opções" */
+.tempo-campo { margin-bottom: 4px; }
+.tempo-linha { display: flex; gap: 8px; align-items: center; }
+.tempo-linha input { flex: 1; min-width: 0; text-align: center; font-weight: 700; }
+.tempo-linha .btn { font-size: 22px; line-height: 1; }
+.tempo-campo .chips { margin-top: 8px; }
+.tempo-campo.grande .tempo-linha input { font-size: 22px; min-height: 56px; }
+.tempo-campo.grande .tempo-linha .btn { width: 56px; min-height: 56px; font-size: 26px; }
+.tempo-campo.grande .chips button { min-height: 52px; padding: 0 20px; font-size: 18px; font-weight: 700; }
+.tempo-real { margin-top: 10px; }
+.tempo-nome { display: flex; align-items: baseline; gap: 8px; margin-bottom: 6px; }
+.tempo-nome b { font-size: 15px; }
+.de-prev { color: var(--cinza); font-size: 13px; }
+.dias7 { display: flex; gap: 6px; }
+.dias7 button { flex: 1; max-width: 46px; aspect-ratio: 1; border-radius: 50%; border: 1.5px solid var(--campo); background: var(--cartao); color: var(--texto); font: inherit; font-weight: 700; font-size: 15px; cursor: pointer; padding: 0; }
+.dias7 button.on { background: #1a6fe0; border-color: #1a6fe0; color: #fff; }
+.mais-op > summary { cursor: pointer; font-weight: 700; color: var(--azul); list-style: none; padding: 6px 0; }
+.mais-op > summary::-webkit-details-marker { display: none; }
+.mais-op > summary::after { content: " ›"; }
+.mais-op[open] > summary::after { content: " ⌄"; }
+.card.mais-op > summary { color: var(--texto); font-size: 17px; }
+.como-achar { margin: 0 0 6px; font-size: 14px; color: var(--cinza); }
+.como-achar summary { cursor: pointer; list-style: none; }
+.como-achar summary::-webkit-details-marker { display: none; }
+.como-achar summary span { color: var(--azul); font-weight: 700; }
+.como-achar p { margin: 6px 0 0; }
+.link-mais { background: none; border: 0; padding: 10px 0 0; color: var(--azul); font: inherit; font-weight: 700; cursor: pointer; }
+.prev-linha { display: flex; gap: 10px; align-items: center; padding: 10px 0; border-bottom: 1px solid var(--borda); }
+.prev-linha.on .prev-txt b { color: var(--azul); }
+.prev-txt { flex: 1; min-width: 0; text-decoration: none; color: var(--texto); }
+.prev-txt b { display: block; }
+.prev-txt small { display: block; font-size: 13px; color: var(--cinza); }
+.tarefa-link { padding: 12px 14px; }
+.tarefa-acao { padding: 0 14px 12px; }

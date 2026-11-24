@@ -39,16 +39,17 @@ export default async function Hoje({ searchParams }) {
   const comHora = doDia.filter((x) => x.o.hora_inicio).sort(prio);
   const restantes = doDia.filter((x) => !x.st.startsWith('cumprida') && !['adiada', 'adiamento_pedido'].includes(x.st)).length;
   const estrelas = alvo.modo_crianca && total ? Math.round((feitas / total) * 5) : null;
-  let lembrarTela = false;
-  if (!gestor && eu.tela_ativo && dia === hoje) {
-    // Com a tarefa "Lançar tempo de tela" (SQL 0011), a própria tarefa lembra; a faixa fica só para quem ainda não tem a tarefa.
-    const { data: tt, error: e } = await supabase.from('ra_tarefas').select('id').eq('responsavel_id', eu.id).eq('especial', 'tela').eq('ativa', true).limit(1);
-    if (e || !tt?.length) {
-      const { data } = await supabase.from('ra_tela_real').select('id').eq('membro_id', eu.id).eq('data', addDias(hoje, -1)).maybeSingle();
-      lembrarTela = !data;
-    }
-  }
-  const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1 });
+  // Tarefa "Lançar tempo de tela" da própria pessoa: o lançamento abre ali mesmo, sem trocar de tela (Raio-X S19).
+  const telaOcs = [...pendentesAntes, ...doDia].filter((x) => x.o.membro_id === eu.id && x.o.tarefa?.especial === 'tela' && !x.st.startsWith('cumprida') && x.o.data <= hoje);
+  const telaDados = Object.fromEntries(await Promise.all(telaOcs.map(async (x) => {
+    const d = addDias(x.o.data, -1);
+    const [{ data: p }, { data: atual }] = await Promise.all([
+      supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: d }),
+      supabase.from('ra_tela_real').select('*').eq('membro_id', eu.id).eq('data', d).maybeSingle(),
+    ]);
+    return [x.o.id, { data: d, previsto: p?.[0] || null, atual: atual || null, crianca: !gestor && !!eu.modo_crianca }];
+  })));
+  const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, tela: telaDados[x.o.id] });
 
   return (
     <main className="estreito">
@@ -90,8 +91,6 @@ export default async function Hoje({ searchParams }) {
           </div>
         )}
       </div>
-
-      {lembrarTela && <div className="aviso info">Falta lançar o tempo de tela de ontem. <Link prefetch={false} href="/tela">Lançar agora</Link></div>}
 
       {pendentesAntes.length > 0 && <>
         <div className="grupo-titulo">Atrasadas de dias anteriores</div>

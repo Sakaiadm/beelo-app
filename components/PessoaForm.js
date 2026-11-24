@@ -11,15 +11,13 @@ import CorFolha, { CorBotao } from './CorFolha';
 import { statusConvite } from '@/lib/statusConvite';
 import ReenviarConvite from './ReenviarConvite';
 import ConfirmarBotao from './ConfirmarBotao';
-import RepetirCampo, { opcaoDaTarefa } from './RepetirCampo';
 
-export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId, existentes = [], telaTarefa, hoje }) {
+export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId, existentes = [] }) {
   const [nome, setNome] = useState(m?.nome || '');
   const [email, setEmail] = useState(m?.email || '');
   const [funcao, setFuncao] = useState(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''));
   const [cor, setCor] = useState(m?.cor || corInicial || '#1a6fe0');
   const [ativo, setAtivo] = useState(m ? m.ativo : true);
-  const [tela, setTela] = useState(m ? m.tela_ativo : false);
   const [crianca, setCrianca] = useState(!!m?.modo_crianca);
   const [chaves, setChaves] = useState(chavesIniciais(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''), m?.permissoes));
   const [folha, setFolha] = useState(false);
@@ -49,7 +47,6 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         <input type="hidden" name="funcao" value={funcao} />
         <input type="hidden" name="cor" value={cor} />
         {ativo && <input type="hidden" name="ativo" value="1" />}
-        {tela && <input type="hidden" name="tela_ativo" value="1" />}
         {crianca2 && <input type="hidden" name="modo_crianca" value="1" />}
         {Object.entries(chaves).map(([k, on]) => on && <input key={k} type="hidden" name={`perm_${k}`} value="1" />)}
         {m ? (
@@ -88,12 +85,6 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
               </>
             )}
           </>
-        )}
-        <div className="lin-chave"><span>Tempo de tela</span><button type="button" role="switch" aria-checked={tela} aria-label="Tempo de tela" className={`chave ${tela ? 'on' : ''}`} onClick={() => setTela(!tela)} /></div>
-        {tela && (
-          <div style={{ marginBottom: 12 }}>
-            <RepetirCampo nome="tela" rotulo="Lançar tempo de tela · Repetir" inicial={opcaoDaTarefa(telaTarefa)} dataInicial={telaTarefa?.tipo === 'pontual' ? telaTarefa.data_inicio : null} hoje={hoje} />
-          </div>
         )}
         <div className="lin-chave"><span>Acesso ativo{eu && <small>Você não pode desativar a si mesmo</small>}</span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}

@@ -9,6 +9,7 @@ import { concluir, desfazer, justificar, pedirAdiamento, definirHorario, conferi
 import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana } from '@/lib/util';
 import { useFila } from '@/lib/fila';
 import { prepararSom, comemorar } from '@/lib/festa';
+import { RealForm } from './TelaForms';
 
 const ICONE_STATUS = {
   cumprida: ['hoje', 'var(--ok)'], cumprida_atraso: ['hoje', 'var(--ok)'], justificada: ['hoje', 'var(--aviso)'],
@@ -16,7 +17,7 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima }) {
+export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima, tela }) {
   const [aba, setAba] = useState(null);
   const [festa, setFesta] = useState(false);
   // Sem internet: o que foi feito e está guardado no aparelho já aparece na tela, com o selo "Aguardando internet".
@@ -56,6 +57,8 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
       <div className="topo-t">
         {futura && podeConcluir ? (
           <button type="button" className="circulo" onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={26} /></button>
+        ) : podeConcluir && oc.tarefa?.especial === 'tela' && tela ? (
+          <button type="button" className="circulo" onClick={() => alternar('tela')} aria-expanded={aba === 'tela'} aria-label="Lançar tempo de tela" title="Lançar tempo de tela"><Icone nome={ic} cor={cor} tam={26} /></button>
         ) : podeConcluir && oc.tarefa?.especial === 'tela' ? (
           <Link prefetch={false} className="circulo" href="/tela" aria-label="Lançar tempo de tela" title="Lançar tempo de tela"><Icone nome={ic} cor={cor} tam={26} /></Link>
         ) : podeConcluir && !oc.tarefa?.exige_foto ? (
@@ -123,6 +126,11 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
         </div>
       )}
 
+      {aba === 'tela' && tela && (
+        <div className="painel-acao">
+          <RealForm eu={oc.membro_id} membroId={oc.membro_id} familia={familia} data={tela.data} previsto={tela.previsto} atual={tela.atual} crianca={tela.crianca} aoConcluir={festejar} />
+        </div>
+      )}
       {aba === 'concluir' && (
         <div className="painel-acao">
           <Form acao={concluir} aoConcluir={festejar} msgSemInternet="Sem internet. Tarefas com foto só podem ser concluídas com internet. Tente de novo quando a conexão voltar.">

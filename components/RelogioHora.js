@@ -13,7 +13,8 @@ const HORAS = [
 ];
 const MINUTOS = Array.from({ length: 12 }, (_, i) => ({ i, r: R_FORA, v: i * 5 }));
 
-export default function RelogioHora({ id, name, rotulo, defaultValue = '08:00' }) {
+// horarios: botões prontos antes do relógio (Raio-X S13); "Outro" abre o relógio. aoMudar(v): avisa a tela.
+export default function RelogioHora({ id, name, rotulo, defaultValue = '08:00', horarios, aoMudar }) {
   const [valor, setValor] = useState(defaultValue);
   const [aberto, setAberto] = useState(false);
   const [modo, setModo] = useState('hora');
@@ -27,13 +28,24 @@ export default function RelogioHora({ id, name, rotulo, defaultValue = '08:00' }
   const sel = modo === 'hora' ? h : m;
   const marcado = itens.find((x) => x.v === sel) || (modo === 'min' ? { i: Math.round(m / 5) % 12, r: R_FORA, v: m } : null);
   const escolher = (v) => { if (modo === 'hora') { setH(v); setModo('min'); } else setM(v); };
-  const pronto = () => { setValor(`${pad(h)}:${pad(m)}`); setAberto(false); };
+  const definir = (v) => { setValor(v); aoMudar?.(v); };
+  const pronto = () => { definir(`${pad(h)}:${pad(m)}`); setAberto(false); };
+  const outro = horarios && !horarios.includes(valor);
   return (
     <>
       <input type="hidden" name={name} value={valor} />
-      <button id={id} type="button" className="campo-botao" onClick={abrir} aria-label={`${rotulo}: ${valor}`}>
-        <span style={{ fontWeight: 600 }}>{valor}</span><span className="relogio-ic" aria-hidden="true"><Icone nome="relogio" tam={20} /></span>
-      </button>
+      {horarios ? (
+        <div className="chips" role="group" aria-label={rotulo}>
+          {horarios.map((x) => <button key={x} id={x === horarios[0] ? id : undefined} type="button" className={valor === x ? 'on' : ''} aria-pressed={valor === x} onClick={() => definir(x)}>{x}</button>)}
+          <button type="button" className={outro ? 'on' : ''} onClick={abrir} aria-label={`${rotulo}: outro horário${outro ? ', ' + valor : ''}`}>
+            <Icone nome="relogio" tam={16} cor={outro ? '#fff' : undefined} /> {outro ? valor : 'Outro'}
+          </button>
+        </div>
+      ) : (
+        <button id={id} type="button" className="campo-botao" onClick={abrir} aria-label={`${rotulo}: ${valor}`}>
+          <span style={{ fontWeight: 600 }}>{valor}</span><span className="relogio-ic" aria-hidden="true"><Icone nome="relogio" tam={20} /></span>
+        </button>
+      )}
       {aberto && (
         <div className="relogio-fundo" role="dialog" aria-modal="true" aria-label={rotulo} onClick={(e) => { if (e.target === e.currentTarget) setAberto(false); }}>
           <div className="relogio">
