@@ -14,9 +14,13 @@ import Conexao from '@/components/Conexao';
 import Festa from '@/components/Festa';
 import LampadaBtn from '@/components/LampadaBtn';
 import { hojeISO } from '@/lib/util';
+import { redirect } from 'next/navigation';
+import { pendencias } from '@/lib/aceite';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
+  // Termos e Privacidade ainda não aceitos nesta versão (ou criança do grupo sem autorização do responsável).
+  if (pendencias(eu, membros, gestor).algum) redirect('/aceite');
   // Pai e Mãe: sempre (é lá que ligam para cada pessoa). Os outros: só com o tempo de tela ligado.
   const telaLigada = gestor || !!eu.tela_ativo;
   const urls = await urlsAvatares(supabase, [eu.avatar]);

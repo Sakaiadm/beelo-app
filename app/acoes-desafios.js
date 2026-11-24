@@ -6,6 +6,7 @@ import { supabaseServer } from '@/lib/supabase/server';
 import { esquecerSessoes } from '@/lib/sessao';
 import { traduzirErro } from '@/lib/rede';
 import { hojeISO, addDias, agoraHHMM } from '@/lib/util';
+import { COLS_MEMBRO } from '@/lib/membros';
 import { desafioDe, perfil, recompensaDe, diasPorMeta, opcoesMeta, PREMIOS, PREMIOS_FAMILIA, MAX_POR_PESSOA } from '@/lib/desafios';
 
 function revalidar() { esquecerSessoes(); revalidatePath('/', 'layout'); }
@@ -73,7 +74,7 @@ export async function criarDesafio(_, fd) {
   const c = desafioDe(fd.get('catalogo'));
   if (!c) return { erro: 'Escolha um desafio' };
   const gestor = eu.papel === 'gestor';
-  const { data: membros } = await supabase.from('ra_membros').select('*').eq('familia_id', eu.familia_id).eq('ativo', true);
+  const { data: membros } = await supabase.from('ra_membros').select(COLS_MEMBRO).eq('familia_id', eu.familia_id).eq('ativo', true);
   const familia = fd.get('quem') === 'familia' || c.para === 'f';
   let alvos = familia ? [null] : fd.getAll('quem').map(uuid).filter(Boolean).map((id) => (membros || []).find((m) => m.id === id)).filter(Boolean);
   if (!gestor) {
