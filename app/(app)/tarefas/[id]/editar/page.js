@@ -3,11 +3,13 @@ import { exigirMembro } from '@/lib/sessao';
 import { hojeISO } from '@/lib/util';
 import TarefaForm from '@/components/TarefaForm';
 import ExcluirTarefa from '@/components/ExcluirTarefa';
+import Voltar from '@/components/Voltar';
+import { lerVolta, hrefVolta } from '@/lib/volta';
 
 export default async function Editar({ params, searchParams }) {
   const { id } = await params;
   const sp = await searchParams;
-  const voltar = /^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : '';
+  const voltar = lerVolta(sp);
   const { supabase, membros, gestor, eu } = await exigirMembro();
   const { data: t } = await supabase.from('ra_tarefas').select('*').eq('id', id).maybeSingle();
   if (!t) notFound();
@@ -18,7 +20,7 @@ export default async function Editar({ params, searchParams }) {
   const pessoas = gestor ? [eu, ...filhos] : filhos;
   return (
     <main className="estreito">
-      <div className="cab"><h1 className="titulo">Editar tarefa</h1></div>
+      <Voltar href={hrefVolta(voltar)} titulo="Editar tarefa" />
       <TarefaForm t={t} euId={eu.id} filhos={pessoas} categorias={categorias || []} gestor={gestor} hoje={hojeISO()} voltar={voltar} />
       <ExcluirTarefa id={t.id} voltar={voltar} titulo={t.titulo} detalhe={membros.find((m) => m.id === t.responsavel_id)?.nome} />
     </main>

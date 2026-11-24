@@ -772,3 +772,51 @@ a.lin-des:hover { border-color: var(--azul); }
 /* Espaço no fim da tela para o botão + não cobrir a última tarefa. */
 main:has(> .fab) { padding-bottom: 104px; }
 @media (max-width: 760px) { main:has(> .fab) { padding-bottom: 168px; } }
+
+/* ===== Lote 2b do Raio-X: Agenda e Nova tarefa ===== */
+/* U19 / V5: um só seletor de pessoa (pílulas com o nome e a cor) */
+.pessoas-pil { display: flex; gap: 8px; overflow-x: auto; scrollbar-width: none; padding: 2px 2px 6px; margin-bottom: 12px; }
+.pessoas-pil::-webkit-scrollbar { display: none; }
+.pessoas-pil > a, .pessoas-pil > button { flex: none; display: inline-flex; align-items: center; gap: 8px; min-height: 44px; padding: 0 16px 0 12px; border-radius: 999px; border: 1.5px solid var(--campo); background: var(--cartao); color: var(--texto); font: inherit; font-size: var(--f-apoio); font-weight: 600; text-decoration: none; cursor: pointer; white-space: nowrap; }
+.pessoas-pil i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.pessoas-pil .on { background: var(--azul); border-color: var(--azul); color: #fff; font-weight: 700; }
+.pessoas-pil .on i { box-shadow: 0 0 0 2px #fff; }
+/* U16: cabeçalho da Agenda numa linha */
+.nv-curta { display: flex; align-items: center; gap: 2px; font-weight: 700; font-size: var(--f-apoio); white-space: nowrap; }
+.nv-curta .seta { width: 44px; height: 44px; display: grid; place-items: center; color: var(--azul); border-radius: 12px; }
+/* U14: semana com 7 bolinhas de dia e a lista embaixo */
+.dias-ag { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: 4px; margin-bottom: 6px; }
+.dias-ag a { display: flex; flex-direction: column; align-items: center; gap: 2px; padding: 8px 0; border-radius: 14px; border: 1.5px solid var(--borda); background: var(--cartao); color: var(--texto); text-decoration: none; min-height: 72px; }
+.dias-ag small { font-size: var(--f-etq); color: var(--cinza); font-weight: 700; }
+.dias-ag b { font-size: var(--f-cartao); }
+.dias-ag em { font-style: normal; font-size: var(--f-etq); color: var(--cinza); font-weight: 600; }
+.dias-ag a.hoje { border-color: var(--azul); }
+.dias-ag a.tudo em { color: var(--ok); }
+.dias-ag a.on { background: var(--azul); border-color: var(--azul); color: #fff; }
+.dias-ag a.on small, .dias-ag a.on em { color: #e6f0fe; }
+.so-pc { display: none !important; }
+.ag-lista { max-width: 680px; }
+/* U18: em "Todos", um título por pessoa */
+.ag-pessoa { margin-bottom: 6px; }
+.ag-pessoa > summary { display: flex; align-items: center; gap: 10px; min-height: 44px; cursor: pointer; list-style: none; font-size: var(--f-texto); }
+.ag-pessoa > summary::-webkit-details-marker { display: none; }
+.ag-pessoa > summary i { width: 12px; height: 12px; border-radius: 50%; flex: none; }
+.ag-pessoa > summary span { color: var(--cinza); font-size: var(--f-apoio); }
+.ag-pessoa > summary::after { content: '⌄'; margin-left: auto; color: var(--cinza); }
+.ag-pessoa:not([open]) > summary::after { content: '›'; }
+@media (min-width: 1024px) {
+  .dias-ag { display: none; }
+  .so-pc { display: grid !important; margin-bottom: 16px; }
+  .semana .dia.sel { box-shadow: inset 0 0 0 2px var(--azul); }
+}
+/* U20 / U24 / U25: formulário curto, sugestões na tela e frases curtas nas chaves */
+.sug-rapidas { margin-top: 8px; }
+.sug-rapidas button { font-size: var(--f-apoio); }
+.sug-rapidas .ver-todas { color: var(--azul); font-weight: 700; display: inline-flex; align-items: center; gap: 6px; }
+.form-mais { margin-top: 14px; border-top: 1px solid var(--borda); padding-top: 4px; }
+.form-mais > summary { min-height: 44px; display: flex; align-items: center; }
+.chaves-form { display: grid; gap: 14px; margin-top: 16px; }
+.chaves-form .check { align-items: flex-start; }
+.chaves-form .check > span { display: flex; flex-direction: column; gap: 2px; padding-top: 3px; }
+.chaves-form .check small { color: var(--cinza); font-weight: 500; font-size: var(--f-apoio); }
+.vt + .card, .vt + form { margin-top: 4px; }

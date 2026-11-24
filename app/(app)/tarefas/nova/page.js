@@ -1,6 +1,8 @@
 import { exigirMembro } from '@/lib/sessao';
 import { hojeISO } from '@/lib/util';
 import TarefaForm from '@/components/TarefaForm';
+import Voltar from '@/components/Voltar';
+import { lerVolta, hrefVolta } from '@/lib/volta';
 
 export default async function Nova({ searchParams }) {
   const sp = await searchParams;
@@ -8,10 +10,11 @@ export default async function Nova({ searchParams }) {
   const { data: categorias } = await supabase.from('ra_categorias').select('*').order('ordem');
   const filhos = membros.filter((m) => m.papel === 'filho' && m.ativo);
   const pessoas = gestor ? [eu, ...filhos] : filhos;
+  const voltar = lerVolta(sp);
   return (
     <main className="estreito">
-      <div className="cab"><h1 className="titulo">Nova tarefa</h1></div>
-      <TarefaForm paraId={gestor ? pessoas.find((p) => p.id === sp?.m)?.id : undefined} euId={eu.id} filhos={pessoas} categorias={categorias || []} gestor={gestor} hoje={/^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : hojeISO()} voltar={/^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : ''} />
+      <Voltar href={hrefVolta(voltar)} titulo="Nova tarefa" />
+      <TarefaForm paraId={gestor ? pessoas.find((p) => p.id === sp?.m)?.id : undefined} euId={eu.id} filhos={pessoas} categorias={categorias || []} gestor={gestor} hoje={/^\d{4}-\d{2}-\d{2}$/.test(sp?.d || '') ? sp.d : hojeISO()} voltar={voltar} />
     </main>
   );
 }

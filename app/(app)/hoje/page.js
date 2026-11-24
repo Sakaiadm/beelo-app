@@ -12,6 +12,7 @@ import { carregarDesafios, desafiosLigados, paraComemorar, vitrineDe } from '@/l
 import { perfil } from '@/lib/desafios';
 import { mensagem, Estrela, Hexagono } from '@/components/DesafioCartao';
 import BotaoMais from '@/components/BotaoMais';
+import Pessoas from '@/components/Pessoas';
 import Comemorar from '@/components/Comemorar';
 
 export const dynamic = 'force-dynamic';
@@ -67,9 +68,9 @@ export default async function Hoje({ searchParams }) {
   // Lista de criança (Raio-X U7): uma lista só, círculo grande e sem Adiar/Horário.
   const crianca = !gestor && alvo.id === eu.id && !!eu.modo_crianca;
   // Editar direto no Hoje (U11): os pais editam tudo; cada pessoa edita a tarefa que ela mesma criou para si.
-  const editar = (o) => o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${o.membro_id}` : null) : gestor || (o.tarefa?.criada_por === eu.id && o.membro_id === eu.id) ? `/tarefas/${o.tarefa_id}/editar?d=${o.data}` : null;
+  const editar = (o) => o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${o.membro_id}` : null) : gestor || (o.tarefa?.criada_por === eu.id && o.membro_id === eu.id) ? `/tarefas/${o.tarefa_id}/editar?${new URLSearchParams({ d: o.data, volta: `/hoje${veTodos ? `?m=${alvo.id}` : ''}` })}` : null;
   const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, tela: telaDados[x.o.id], crianca, editarHref: editar(x.o) });
-  const novaHref = `/tarefas/nova?${new URLSearchParams({ ...(dia !== hoje ? { d: dia } : {}), ...(gestor ? { m: alvo.id } : {}) })}`;
+  const novaHref = `/tarefas/nova?${new URLSearchParams({ ...(dia !== hoje ? { d: dia } : {}), ...(gestor ? { m: alvo.id } : {}), volta: `/hoje${veTodos ? `?m=${alvo.id}` : ''}` })}`;
   const temLado = desAlvo.length > 0 || cofre || (des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id)) || (!gestor && dia === hoje);
 
   return (
@@ -86,9 +87,7 @@ export default async function Hoje({ searchParams }) {
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto={gestor ? 'Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar.' : 'Receba um aviso quando tiver novidade nas suas tarefas.'} />
 
       {veTodos && pessoasDia.length > 1 && (
-        <div className="abas" style={{ marginBottom: 14 }}>
-          {pessoasDia.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}${dia !== hoje ? `&d=${dia}` : ''}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
-        </div>
+        <Pessoas rotulo="Pessoa" itens={pessoasDia.map((f) => ({ id: f.id, nome: f.id === eu.id ? 'Eu' : f.nome, cor: f.cor, href: `/hoje?m=${f.id}${dia !== hoje ? `&d=${dia}` : ''}`, on: f.id === alvo.id }))} />
       )}
 
       {/* Tarefas primeiro (U1): o quadro azul vira uma faixa fina. */}

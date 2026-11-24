@@ -1,7 +1,7 @@
 'use client';
 import { useRef, useState } from 'react';
 import Link from 'next/link';
-import HoraFim from './HoraFim';
+import HorarioCampo from './HorarioCampo';
 import Icone from './Icone';
 import Form from './Form';
 import Foto from './Foto';
@@ -170,7 +170,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
             {quando === 'outro' && (
               <div className="linha">
                 <div><label htmlFor={`d-${oc.id}`}>Nova data</label><input id={`d-${oc.id}`} type="date" name="data" min={hoje} required /></div>
-                <div><label htmlFor={`h-${oc.id}`}>Novo horário (opcional)</label><input id={`h-${oc.id}`} type="time" name="hora" /></div>
+                <div><label htmlFor={`h-${oc.id}`}>Novo horário (opcional)</label><HorarioCampo id={`h-${oc.id}`} nomes={{ inicio: 'hora' }} /></div>
               </div>
             )}
             {quando && <Motivos id={`m-${oc.id}`} name="motivo" rotulo="Motivo" botao="Pedir para adiar" />}
@@ -181,11 +181,8 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
         <div className="painel-acao">
           <Form acao={definirHorario} fila="definirHorario" rotulo={`Horário de “${t}”`} okTxt="Horário salvo.">
             <input type="hidden" name="oc" value={oc.id} />
-            <div className="linha">
-              <div><label htmlFor={`i-${oc.id}`}>Início</label><input id={`i-${oc.id}`} type="time" name="inicio" defaultValue={hhmm(oc.hora_inicio)} /></div>
-              <div><label htmlFor={`f-${oc.id}`}>Fim (opcional)</label><HoraFim id={`f-${oc.id}`} name="fim" defaultValue={hhmm(oc.hora_fim) || ''} /></div>
-            </div>
-            <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '8px 0 0' }}>Deixe em branco para “sem horário”.</p>
+            <label htmlFor={`i-${oc.id}`} style={{ marginTop: 0 }}>Horário</label>
+            <HorarioCampo id={`i-${oc.id}`} inicio={hhmm(oc.hora_inicio) || ''} fim={hhmm(oc.hora_fim) || ''} nomes={{ inicio: 'inicio', fim: 'fim' }} />
             <button className="btn" style={{ marginTop: 10 }}>Salvar horário</button>
           </Form>
         </div>

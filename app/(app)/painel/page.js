@@ -186,7 +186,7 @@ export default async function Painel() {
           </div>
         </div>
       </div>
-      {gestor && <BotaoMais href="/tarefas/nova" />}
+      {gestor && <BotaoMais href="/tarefas/nova?volta=/painel" />}
     </main>
   );
 }

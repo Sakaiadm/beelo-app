@@ -1,11 +1,15 @@
 'use client';
 import Icone from './Icone';
-import HoraFim from './HoraFim';
+import HorarioCampo from './HorarioCampo';
+import Pessoas from './Pessoas';
 import { useState } from 'react';
 import Form from './Form';
 import { salvarTarefa } from '@/app/acoes';
 import { hhmm } from '@/lib/util';
 import { SUGESTOES, IDADES, ICONE_CAT, resumoSugestao } from '@/lib/sugestoes';
+
+// Sugestões que aparecem já na tela, abaixo do campo Tarefa (Raio-X U24).
+const RAPIDAS = ['Arrumar a cama', 'Arrumar o quarto', 'Lavar a louça', 'Ler por 20 minutos', 'Escovar os dentes', 'Lição de casa'];
 
 const SEG_SEX = [1, 2, 3, 4, 5];
 const DIAS_NOME = ['domingo', 'segunda-feira', 'terça-feira', 'quarta-feira', 'quinta-feira', 'sexta-feira', 'sábado'];
@@ -33,15 +37,19 @@ function opcaoInicial(t) {
 }
 
 export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar, euId, paraId }) {
+  // Para quem (U21): ao criar, dá para marcar várias pessoas; ao editar, é uma só.
+  const [para, setPara] = useState(() => [t?.responsavel_id || paraId || (filhos.find((f) => f.id !== euId) || filhos[0])?.id].filter(Boolean));
+  const escolherPessoa = (id) => setPara((x) => (t?.id ? [id] : x.includes(id) ? (x.length > 1 ? x.filter((y) => y !== id) : x) : [...x, id]));
   const [opcao, setOpcao] = useState(opcaoInicial(t));
   const [dias, setDias] = useState(t?.recorrencia === 'dias_semana' && t.dias_semana?.length ? [...t.dias_semana] : SEG_SEX);
   const [folha, setFolha] = useState(null); // null | 'repetir' | 'pers'
   const [fim, setFim] = useState(t?.data_fim || '');
-  const [comHora, setComHora] = useState(!!t?.hora_inicio);
   const [titulo, setTitulo] = useState(t?.titulo || '');
   const [cat, setCat] = useState(t?.categoria_id || '');
-  const [horaIni, setHoraIni] = useState(hhmm(t?.hora_inicio));
-  const [horaFim, setHoraFim] = useState(hhmm(t?.hora_fim));
+  const [hora, setHora] = useState({ i: hhmm(t?.hora_inicio) || '', f: hhmm(t?.hora_fim) || '', n: 0 });
+  const comHora = !!hora.i;
+  const [adiar, setAdiar] = useState(t ? !!t.permite_adiar : false);
+  const [justif, setJustif] = useState(!!t?.exige_justificativa);
   const [foto, setFoto] = useState(!!t?.exige_foto);
   const [prio, setPrio] = useState(!!t?.prioritaria);
   const [fCat, setFCat] = useState('Casa');
@@ -63,9 +71,10 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
   const usar = (x) => {
     setTitulo(x.nome); setOpcao(x.rec); setDias(x.dias || SEG_SEX); setFoto(!!x.foto);
     setCat(categorias.find((c) => c.nome.toLowerCase().startsWith(x.cat.toLowerCase()))?.id || '');
-    setComHora(!!x.hora); setHoraIni(x.hora || ''); setHoraFim(''); setFolha(null);
+    setHora((h) => ({ i: x.hora || '', f: '', n: h.n + 1 })); setFolha(null);
   };
   const catsSug = [...new Set(SUGESTOES.map((x) => x.cat))];
+  const rapidas = RAPIDAS.map((n) => SUGESTOES.find((x) => x.nome === n)).filter(Boolean);
   const listaSug = SUGESTOES.filter((x) => x.cat === fCat && (!fIdade || x.idade.includes(fIdade)));
   const voltarPers = () => { if (dias.length === 0) setDias(SEG_SEX); setOpcao('pers'); setFolha('repetir'); };
   return (
@@ -76,43 +85,23 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       <input type="hidden" name="recorrencia" value={opcao === 'semana' || opcao === 'pers' ? 'dias_semana' : opcao === 'uma' ? '' : opcao} />
       {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
       <input type="hidden" name="data_fim" value={uma ? '' : fim} />
-      {t?.id ? <label htmlFor="titulo">Tarefa</label> : (
-        <div className="rot-sug">
-          <label htmlFor="titulo">Tarefa</label>
-          <button type="button" className="btn peq sugestao-btn" onClick={() => setFolha('sug')}><Icone nome="lampada" tam={18} cor="#fff" />Sugestões</button>
+      <label htmlFor="titulo" style={{ marginTop: 0 }}>Tarefa</label>
+      <input id="titulo" name="titulo" required maxLength={100} value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Arrumar o quarto" />
+      {!t?.id && (
+        <div className="chips sug-rapidas" aria-label="Sugestões">
+          {rapidas.map((x) => <button key={x.nome} type="button" onClick={() => usar(x)}>{x.nome}</button>)}
+          <button type="button" className="ver-todas" onClick={() => setFolha('sug')}><Icone nome="lampada" tam={16} />Ver todas</button>
         </div>
       )}
-      <input id="titulo" name="titulo" required maxLength={100} value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Arrumar o quarto" />
-      <div className="linha">
-        {gestor && (
-          <div><label htmlFor="responsavel">Para quem</label>
-            <select id="responsavel" name="responsavel" defaultValue={t?.responsavel_id || paraId || (filhos.find((f) => f.id !== euId) || filhos[0])?.id} required>
-              {filhos.map((f) => <option key={f.id} value={f.id}>{f.id === euId ? `Eu mesmo (${f.nome})` : f.nome}</option>)}
-            </select></div>
-        )}
-        <div><label htmlFor="categoria">Categoria</label>
-          <select id="categoria" name="categoria" value={cat} onChange={(e) => setCat(e.target.value)}>
-            <option value="">Sem categoria</option>
-            {categorias.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
-          </select></div>
-      </div>
+      {gestor && <>
+        <label>Para quem</label>
+        <Pessoas rotulo="Para quem" multi={!t?.id} aoEscolher={escolherPessoa} itens={filhos.map((f) => ({ id: f.id, nome: f.id === euId ? 'Eu' : f.nome, cor: f.cor, on: para.includes(f.id) }))} />
+        {para.map((id) => <input key={id} type="hidden" name="responsavel" value={id} />)}
+      </>}
       <label htmlFor="repetir">Repetir</label>
       <button id="repetir" type="button" className="campo-botao" onClick={() => setFolha('repetir')}><span>{resumo}</span><span aria-hidden="true">›</span></button>
-      <div className="linha">
-        <div><label htmlFor="data_inicio">{uma ? 'Data' : 'Começa em'}</label>
-          <input id="data_inicio" type="date" name="data_inicio" value={inicio} onChange={(e) => setInicio(e.target.value)} required /></div>
-        {!uma && (
-          <div><label htmlFor="fim_data">Termina em</label>
-            {fim ? (
-              <div style={{ display: 'flex', gap: 8 }}>
-                <input id="fim_data" type="date" value={fim} onChange={(e) => setFim(e.target.value)} />
-                <button type="button" className="btn sec peq" onClick={() => setFim('')} aria-label="Nunca termina">Nunca</button>
-              </div>
-            ) : (
-              <button id="fim_data" type="button" className="campo-botao" onClick={() => setFim(inicio)}><span>Nunca</span><span aria-hidden="true">›</span></button>
-            )}</div>
-        )}
-      </div>
+      <label htmlFor="horario">Horário</label>
+      <HorarioCampo key={hora.n} inicio={hora.i} fim={hora.f} aoMudar={(i, f) => setHora((h) => ({ ...h, i, f }))} />
       {folha === 'sug' && (
         <div className="folha" role="dialog" aria-modal="true" aria-label="Sugestões">
           <div className="folha-in">
@@ -167,41 +156,65 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
           </div>
         </div>
       )}
-      <label className="check" style={{ marginTop: 16 }}>
-        <input type="checkbox" checked={comHora} onChange={(e) => setComHora(e.target.checked)} />Tem horário definido
-      </label>
-      <input type="hidden" name="com_horario" value={comHora ? '1' : '0'} />
-      {comHora ? (
-        <div className="linha">
-          <div><label htmlFor="hora_inicio">Início</label><input id="hora_inicio" type="time" name="hora_inicio" required value={horaIni} onChange={(e) => setHoraIni(e.target.value)} /></div>
-          <div><label htmlFor="hora_fim">Fim (opcional)</label><HoraFim id="hora_fim" name="hora_fim" value={horaFim || ''} onChange={setHoraFim} /></div>
-        </div>
-      ) : (
-        <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '6px 0 0' }}>
-          Sem horário: vale o dia todo{gestor ? ' e a pessoa pode encaixar o horário dela.' : '. Você pode pôr horário depois, na tela Hoje.'}
-        </p>
-      )}
-      <div style={{ display: 'grid', gap: 12, marginTop: 16 }}>
-        <label className="check"><input type="checkbox" name="exige_foto" value="1" checked={foto} onChange={(e) => setFoto(e.target.checked)} />Exige foto para concluir</label>
-        {gestor && <label className="check"><input type="checkbox" name="permite_adiar" value="1" defaultChecked={t?.permite_adiar} />Pode adiar</label>}
-        {gestor && <label className="check"><input type="checkbox" name="exige_justificativa" value="1" defaultChecked={t?.exige_justificativa} />Exige justificativa se atrasar</label>}
-        <label className="check"><input type="checkbox" name="prioritaria" value="1" checked={prio} onChange={(e) => setPrio(e.target.checked)} />Prioritária <Icone nome="bandeira" tam={16} cor="var(--prio)" /></label>
-        {prio && (comHora ? (
-          <div>
-            <label htmlFor="lembrete_min" style={{ marginTop: 0 }}>Lembrete extra</label>
-            <select id="lembrete_min" name="lembrete_min" defaultValue={t?.lembrete_min || 15}>
-              <option value="15">15 min antes do horário</option>
-              <option value="30">30 min antes do horário</option>
-              <option value="60">1 h antes do horário</option>
-              <option value="0">Sem lembrete extra</option>
-            </select>
+      <details className="mais-op form-mais" open={!!t?.id && !!(t.descricao || t.exige_foto || t.prioritaria || t.data_fim)}>
+        <summary>Mais opções</summary>
+        <label>Categoria</label>
+        {categorias.length <= 5 ? (
+          <div className="seg" role="radiogroup" aria-label="Categoria">
+            {[{ id: '', nome: 'Nenhuma' }, ...categorias].map((c) => <button key={c.id || 'x'} type="button" role="radio" aria-checked={cat === c.id} className={cat === c.id ? 'on' : ''} onClick={() => setCat(c.id)}>{c.nome}</button>)}
           </div>
-        ) : <p className="ajuda" style={{ margin: 0 }}>Ganha a bandeirinha e vem primeiro na lista. O lembrete extra só vale para tarefa com horário.</p>)}
-      </div>
-      <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '8px 0 0' }}>Tudo desligado: a pessoa conclui com um toque, sem foto, e não pode adiar. Foto: precisa ser de hoje. Justificativa: sem ela, a tarefa atrasada não conclui.</p>
-      <label htmlFor="descricao">Detalhes (opcional)</label>
-      <textarea id="descricao" name="descricao" maxLength={1000} defaultValue={t?.descricao || ''} />
+        ) : (
+          <select id="categoria" value={cat} onChange={(e) => setCat(e.target.value)} aria-label="Categoria">
+            <option value="">Sem categoria</option>
+            {categorias.map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}
+          </select>
+        )}
+        <input type="hidden" name="categoria" value={cat} />
+        <div className="linha">
+          <div><label htmlFor="data_inicio">{uma ? 'Data' : 'Começa em'}</label>
+            <input id="data_inicio" type="date" name="data_inicio" value={inicio} onChange={(e) => setInicio(e.target.value)} required /></div>
+          {!uma && (
+            <div><label htmlFor="fim_data">Termina em</label>
+              {fim ? (
+                <div style={{ display: 'flex', gap: 8 }}>
+                  <input id="fim_data" type="date" value={fim} onChange={(e) => setFim(e.target.value)} />
+                  <button type="button" className="btn sec peq" onClick={() => setFim('')} aria-label="Nunca termina">Nunca</button>
+                </div>
+              ) : (
+                <button id="fim_data" type="button" className="campo-botao" onClick={() => setFim(inicio)}><span>Nunca</span><span aria-hidden="true">›</span></button>
+              )}</div>
+          )}
+        </div>
+        <div className="chaves-form">
+          <label className="check"><input type="checkbox" name="exige_foto" value="1" checked={foto} onChange={(e) => setFoto(e.target.checked)} /><span>Exige foto para concluir{foto && <small>A foto precisa ser de hoje.</small>}</span></label>
+          {gestor && <label className="check"><input type="checkbox" name="permite_adiar" value="1" checked={adiar} onChange={(e) => setAdiar(e.target.checked)} /><span>Pode adiar{adiar && <small>A pessoa pede e você aprova.</small>}</span></label>}
+          {gestor && <label className="check"><input type="checkbox" name="exige_justificativa" value="1" checked={justif} onChange={(e) => setJustif(e.target.checked)} /><span>Exige justificativa se atrasar{justif && <small>Sem ela, a tarefa atrasada não conclui.</small>}</span></label>}
+          <label className="check"><input type="checkbox" name="prioritaria" value="1" checked={prio} onChange={(e) => setPrio(e.target.checked)} /><span>Prioritária <Icone nome="bandeira" tam={16} cor="var(--prio)" />{prio && <small>Vem primeiro na lista.</small>}</span></label>
+          {prio && comHora && (
+            <div>
+              <label style={{ marginTop: 0 }}>Lembrete extra</label>
+              <LembreteExtra inicial={t?.lembrete_min} />
+            </div>
+          )}
+        </div>
+        <label htmlFor="descricao">Detalhes (opcional)</label>
+        <textarea id="descricao" name="descricao" maxLength={1000} defaultValue={t?.descricao || ''} />
+      </details>
       <button className="btn bloco" style={{ marginTop: 16 }}>Salvar tarefa</button>
     </Form>
+  );
+}
+
+// Lembrete extra: 4 opções lado a lado (Raio-X V6: até 5 opções, sem lista suspensa).
+function LembreteExtra({ inicial }) {
+  const [v, setV] = useState(String(inicial || 15));
+  const ops = [['15', '15 min'], ['30', '30 min'], ['60', '1 h'], ['0', 'Nenhum']];
+  return (
+    <>
+      <div className="seg" role="radiogroup" aria-label="Lembrete extra">
+        {ops.map(([k, r]) => <button key={k} type="button" role="radio" aria-checked={v === k} className={v === k ? 'on' : ''} onClick={() => setV(k)}>{r}</button>)}
+      </div>
+      <input type="hidden" name="lembrete_min" value={v} />
+    </>
   );
 }
