@@ -728,3 +728,47 @@ button.cartao-l { width: 100%; font: inherit; text-align: left; cursor: pointer;
   .des-dias { gap: 3px; }
   .des-dias i { width: 30px; height: 30px; }
 }
+
+/* ===== Lote 2a do Raio-X: Hoje e cartão de tarefa ===== */
+/* U1: faixa fina no lugar do quadro azul */
+.faixa-dia { display: grid; grid-template-columns: 1fr; gap: 8px; background: #1a6fe0; color: #fff; border-radius: 14px; padding: 12px 16px; margin-bottom: 14px; }
+.faixa-dia .faixa-l { display: flex; align-items: baseline; justify-content: space-between; gap: 10px; }
+.faixa-dia b { font-size: var(--f-texto); font-weight: 800; }
+.faixa-dia small { font-size: var(--f-apoio); color: #e6f0fe; font-weight: 600; }
+.faixa-dia .barra { background: rgba(255,255,255,.3); height: 8px; }
+.faixa-dia .barra > div { background: #fff; }
+.faixa-dia .estrelas { display: flex; gap: 4px; }
+.faixa-dia .estrelas svg { fill: rgba(255,255,255,.3); }
+.faixa-dia .estrelas svg.on { fill: #f5b82e; }
+/* U1: desafios e cofrinho em uma linha cada */
+.lin-des { display: flex; align-items: center; gap: 12px; background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px; padding: 12px 14px; margin-bottom: 8px; color: var(--texto); text-decoration: none; }
+.lin-des .des-ic { width: 38px; height: 38px; }
+.lin-des .corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.lin-des .corpo b { font-size: var(--f-texto); }
+.lin-des .corpo small { font-size: var(--f-apoio); color: var(--cinza); }
+.lin-des > i { font-style: normal; color: var(--cinza); font-size: 20px; }
+a.lin-des:hover { border-color: var(--azul); }
+.hoje-lado { margin-top: 18px; }
+.hoje-lado .aviso.dica { margin-top: 14px; }
+/* U4: o cartão inteiro abre os detalhes */
+.tarefa .topo-t { cursor: pointer; }
+.tarefa .det .acoes { margin-top: 4px; }
+.motivos .chips { margin-top: 2px; }
+/* U7: círculo grande na lista da criança */
+.circulo.grande { width: 56px; height: 56px; }
+/* U12: botão + sempre no mesmo lugar */
+.fab { position: fixed; right: 16px; bottom: 24px; z-index: 30; width: 56px; height: 56px; border-radius: 50%; background: #1a6fe0; color: #fff; display: grid; place-items: center; box-shadow: 0 6px 16px rgba(26,111,224,.4); text-decoration: none; }
+.fab:hover { filter: brightness(1.07); }
+.fab:focus-visible { outline: 3px solid var(--texto); outline-offset: 3px; }
+@media (max-width: 760px) { .fab { bottom: calc(84px + env(safe-area-inset-bottom)); } }
+@media print { .fab { display: none; } }
+/* V9: no computador, o Hoje usa a largura da tela (tarefas à esquerda; desafios e dica à direita). Formulários com 720 px. */
+@media (min-width: 1024px) {
+  main.estreito { max-width: 720px; }
+  main.hoje-tela { max-width: 1080px; }
+  .hoje-grade { display: grid; grid-template-columns: minmax(0, 1fr) 340px; gap: 24px; align-items: start; }
+  .hoje-lado { margin-top: 0; position: sticky; top: 16px; }
+}
+/* Espaço no fim da tela para o botão + não cobrir a última tarefa. */
+main:has(> .fab) { padding-bottom: 104px; }
+@media (max-width: 760px) { main:has(> .fab) { padding-bottom: 168px; } }

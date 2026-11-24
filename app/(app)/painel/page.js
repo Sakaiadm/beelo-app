@@ -1,5 +1,6 @@
 import AvisosConvite from '@/components/AvisosConvite';
 import Link from 'next/link';
+import BotaoMais from '@/components/BotaoMais';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
@@ -62,7 +63,6 @@ export default async function Painel() {
       {filhos.length > 0 && <DicaFaixa membro={eu.id} hoje={hoje} cands={dicas} />}
       <div className="cab">
         <div><h1 className="titulo">{familia.nome}</h1><p className="sub">{dataTitulo(hoje)}</p></div>
-        {gestor && <Link prefetch={false} className="btn" href="/tarefas/nova"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>}
       </div>
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto="Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar." />
       <div className="kpis">
@@ -186,6 +186,7 @@ export default async function Painel() {
           </div>
         </div>
       </div>
+      {gestor && <BotaoMais href="/tarefas/nova" />}
     </main>
   );
 }

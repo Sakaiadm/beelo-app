@@ -10,7 +10,8 @@ import DicaFaixa from '@/components/DicaFaixa';
 import { fatos, candidatosFilho } from '@/lib/dicas';
 import { carregarDesafios, desafiosLigados, paraComemorar, vitrineDe } from '@/lib/desafiosDados';
 import { perfil } from '@/lib/desafios';
-import { DesafioCartao, Estrela, Hexagono } from '@/components/DesafioCartao';
+import { mensagem, Estrela, Hexagono } from '@/components/DesafioCartao';
+import BotaoMais from '@/components/BotaoMais';
 import Comemorar from '@/components/Comemorar';
 
 export const dynamic = 'force-dynamic';
@@ -63,85 +64,95 @@ export default async function Hoje({ searchParams }) {
   // Lista de desejos: o desejo aprovado que a pessoa está juntando aparece no cartão do desafio.
   const desejoMeta = cofre && !cofre.sugerida && cofre.meta?.membro_id === alvo.id ? cofre.meta : null;
   const desAprovado = des && alvo.id === eu.id ? des.desejos.find((x) => x.membro_id === eu.id && x.desejo === 'aprovado' && Date.now() - new Date(x.respondido_em).getTime() < 2 * 86400e3) : null;
-  const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, tela: telaDados[x.o.id] });
+  // Lista de criança (Raio-X U7): uma lista só, círculo grande e sem Adiar/Horário.
+  const crianca = !gestor && alvo.id === eu.id && !!eu.modo_crianca;
+  // Editar direto no Hoje (U11): os pais editam tudo; cada pessoa edita a tarefa que ela mesma criou para si.
+  const editar = (o) => o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${o.membro_id}` : null) : gestor || (o.tarefa?.criada_por === eu.id && o.membro_id === eu.id) ? `/tarefas/${o.tarefa_id}/editar?d=${o.data}` : null;
+  const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, tela: telaDados[x.o.id], crianca, editarHref: editar(x.o) });
+  const novaHref = `/tarefas/nova?${new URLSearchParams({ ...(dia !== hoje ? { d: dia } : {}), ...(gestor ? { m: alvo.id } : {}) })}`;
+  const temLado = desAlvo.length > 0 || cofre || (des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id)) || (!gestor && dia === hoje);
 
   return (
-    <main className="estreito">
-      {!gestor && dia === hoje && <DicaFaixa membro={eu.id} hoje={hoje} cands={candidatosFilho(fatos(comSt, eu.id, hoje), hoje)} />}
+    <main className="estreito hoje-tela">
       <div className="cab">
         <div>
           <h1 className="titulo">{alvo.id !== eu.id ? `Dia de ${alvo.nome}` : `Olá, ${eu.nome}`}</h1>
           <p className="sub">{dataTitulo(dia)}</p>
         </div>
-        <div className="acoes">
-          <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, -1)}${veTodos ? `&m=${alvo.id}` : ''}`} aria-label="Dia anterior"><Icone nome="esq" tam={18} /></Link>
-          {dia !== hoje && <Link prefetch={false} className="btn sec peq" href={`/hoje${veTodos ? `?m=${alvo.id}` : ''}`}>Hoje</Link>}
-          <Link prefetch={false} className="btn sec peq" href={`/hoje?d=${addDias(dia, 1)}${veTodos ? `&m=${alvo.id}` : ''}`} aria-label="Próximo dia"><Icone nome="dir" tam={18} /></Link>
-        </div>
+        {/* Hoje só com o dia de hoje (U10): os outros dias ficam na Agenda. */}
+        {dia !== hoje && <Link prefetch={false} className="btn sec peq" href={`/hoje${veTodos ? `?m=${alvo.id}` : ''}`}>Voltar para hoje</Link>}
       </div>
 
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto={gestor ? 'Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar.' : 'Receba um aviso quando tiver novidade nas suas tarefas.'} />
 
       {veTodos && pessoasDia.length > 1 && (
         <div className="abas" style={{ marginBottom: 14 }}>
-          {pessoasDia.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}&d=${dia}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
+          {pessoasDia.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}${dia !== hoje ? `&d=${dia}` : ''}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
         </div>
       )}
 
-      <div className="kpi destaque" style={{ marginBottom: 14 }}>
-        <small>{alvo.id !== eu.id ? `Dia de ${alvo.nome}` : dia === hoje ? 'Seu dia' : 'Dia'}</small>
-        <strong>{feitas} <span style={{ fontSize: 'var(--f-texto)', color: '#e6f0fe' }}>de {total} feitas</span></strong>
-        <div className="barra" style={{ marginTop: 10, background: 'rgba(255,255,255,.25)' }}><div style={{ width: `${total ? (feitas / total) * 100 : 0}%`, background: '#fff' }} /></div>
+      {/* Tarefas primeiro (U1): o quadro azul vira uma faixa fina. */}
+      <div className="faixa-dia" aria-label={`${feitas} de ${total} tarefas feitas`}>
+        <div className="faixa-l"><b>{feitas} de {total} feitas</b>{daSemana.length > 0 && <small>Semana: {semFeitas} de {daSemana.length}</small>}</div>
+        <div className="barra"><div style={{ width: `${total ? (feitas / total) * 100 : 0}%` }} /></div>
         {estrelas != null && (
           <div className="estrelas" aria-label={`${estrelas} de 5 estrelas hoje`}>
-            {[0, 1, 2, 3, 4].map((i) => <svg key={i} width="26" height="26" viewBox="0 0 24 24" className={i < estrelas ? 'on' : ''} aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>)}
-            <span>{estrelas} de 5 estrelas hoje</span>
-          </div>
-        )}
-        {daSemana.length > 0 && (
-          <div className="semana-kpi">
-            <div className="l"><span>Semana (seg. a dom.)</span><span><b>{semFeitas}</b> de {daSemana.length} feitas</span></div>
-            <div className="barra"><div style={{ width: `${(semFeitas / daSemana.length) * 100}%` }} /></div>
+            {[0, 1, 2, 3, 4].map((i) => <svg key={i} width="22" height="22" viewBox="0 0 24 24" className={i < estrelas ? 'on' : ''} aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>)}
           </div>
         )}
       </div>
 
       {des && alvo.id === eu.id && <Comemorar itens={paraComemorar(des.periodos, eu, des.desafios)} nome={eu.nome.split(' ')[0]} />}
       {desAprovado && <div className="aviso ok" role="status">Os pais aprovaram seu desejo: {desAprovado.nome}!</div>}
-      {desAlvo.map((d) => (
-        <DesafioCartao key={d.id} d={d} p={d.atual} href="/desafios">
-          {desejoMeta && d.membro_id === alvo.id && ['estrelas', 'semanas'].includes(d.recompensa) && (
-            <div className="frase">{desejoMeta.moeda === 'semanas' ? <Hexagono tam={18} /> : <Estrela tam={18} />}<span>Cumprindo este desafio: <b>{d.recompensa === 'semanas' ? '+1 semana' : `+${d.estrelas || 10}`} para {desejoMeta.nome}</b>.</span></div>
-          )}
-        </DesafioCartao>
-      ))}
-      {des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id) && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 14 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio da semana</Link>}
-      {cofre && (
-        <Link prefetch={false} href={alvo.id === eu.id ? '/desafios/cofrinho' : `/desafios/cofrinho?m=${alvo.id}`} className="card des-card">
-          <div className="des-top"><span className="des-ic mel">{cofre.moeda === 'semanas' ? <Hexagono tam={24} /> : <Estrela tam={22} />}</span>
-            <span><b>{cofre.moeda === 'semanas' ? 'Semanas conquistadas' : alvo.id === eu.id ? 'Meu cofrinho' : `Cofrinho de ${alvo.nome}`}</b><small>{cofre.tem} {cofre.moeda === 'semanas' ? (cofre.tem === 1 ? 'semana' : 'semanas') : 'estrelinhas guardadas'}</small></span>
-            <span className="seta" style={{ color: 'var(--cinza)', fontSize: 20 }} aria-hidden="true">›</span></div>
-          {cofre.meta && <div className="vit" style={{ borderTop: '1px solid var(--borda)', marginTop: 12, paddingBottom: 0 }}><span className="corpo"><b>{cofre.meta.nome}</b><small>{Math.min(cofre.tem, cofre.meta.custo)} de {cofre.meta.custo}{cofre.tem < cofre.meta.custo ? ` · faltam ${cofre.meta.custo - cofre.tem}` : ' · já dá para trocar!'}</small><div className="barra"><div style={{ width: `${Math.min(100, (cofre.tem / cofre.meta.custo) * 100)}%` }} /></div></span></div>}
-        </Link>
-      )}
 
+      <div className="hoje-grade">
+        <section className="hoje-tarefas">
+          {crianca ? (
+            [...pendentesAntes, ...semHora, ...comHora].map((x) => <Tarefa key={x.o.id} {...props(x)} />)
+          ) : <>
+            {pendentesAntes.length > 0 && <>
+              <div className="grupo-titulo">Ficou de outro dia</div>
+              {pendentesAntes.map((x) => <Tarefa key={x.o.id} {...props(x)} />)}
+            </>}
+            {semHora.length > 0 && <>
+              <div className="grupo-titulo">A qualquer hora</div>
+              {semHora.map((x) => <Tarefa key={x.o.id} {...props(x)} />)}
+            </>}
+            {comHora.length > 0 && <>
+              <div className="grupo-titulo">Com hora marcada</div>
+              {comHora.map((x) => <Tarefa key={x.o.id} {...props(x)} />)}
+            </>}
+          </>}
+          {doDia.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
+        </section>
 
-      {pendentesAntes.length > 0 && <>
-        <div className="grupo-titulo">Atrasadas de dias anteriores</div>
-        {pendentesAntes.map((x) => <Tarefa key={x.o.id} {...props(x)} />)}
-      </>}
+        {temLado && (
+          <aside className="hoje-lado">
+            {(desAlvo.length > 0 || cofre) && <div className="grupo-titulo">Desafios e conquistas</div>}
+            {desAlvo.map((d) => (
+              <Link prefetch={false} key={d.id} className="lin-des" href="/desafios">
+                <span className={`des-ic${d.membro_id ? '' : ' mel'}`}><Icone nome={d.icone || 'hoje'} tam={20} /></span>
+                <span className="corpo"><b>{d.membro_id ? d.titulo : `Família: ${d.titulo}`}</b><small>{mensagem(d, d.atual)}</small>
+                  {desejoMeta && d.membro_id === alvo.id && ['estrelas', 'semanas'].includes(d.recompensa) && <small>Cumprindo: {d.recompensa === 'semanas' ? '+1 semana' : `+${d.estrelas || 10}`} para {desejoMeta.nome}</small>}</span>
+                <i aria-hidden="true">›</i>
+              </Link>
+            ))}
+            {cofre && (
+              <Link prefetch={false} className="lin-des" href={alvo.id === eu.id ? '/desafios/cofrinho' : `/desafios/cofrinho?m=${alvo.id}`}>
+                <span className="des-ic mel">{cofre.moeda === 'semanas' ? <Hexagono tam={22} /> : <Estrela tam={20} />}</span>
+                <span className="corpo"><b>{cofre.moeda === 'semanas' ? 'Semanas conquistadas' : alvo.id === eu.id ? 'Meu cofrinho' : `Cofrinho de ${alvo.nome}`}</b>
+                  <small>{cofre.tem} {cofre.moeda === 'semanas' ? (cofre.tem === 1 ? 'semana' : 'semanas') : 'estrelinhas'}{cofre.meta ? ` · ${cofre.meta.nome}: ${Math.min(cofre.tem, cofre.meta.custo)} de ${cofre.meta.custo}` : ''}</small></span>
+                <i aria-hidden="true">›</i>
+              </Link>
+            )}
+            {des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id) && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 14 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio da semana</Link>}
+            {/* Dica do dia no fim da lista, sem empurrar as tarefas (U9, opção B). */}
+            {!gestor && dia === hoje && <DicaFaixa membro={eu.id} hoje={hoje} cands={candidatosFilho(fatos(comSt, eu.id, hoje), hoje)} />}
+          </aside>
+        )}
+      </div>
 
-      {semHora.length > 0 && <>
-        <div className="grupo-titulo">Sem horário · qualquer hora do dia</div>
-        {semHora.map((x) => <Tarefa key={x.o.id} {...props(x)} />)}
-      </>}
-      {comHora.length > 0 && <>
-        <div className="grupo-titulo">Com horário</div>
-        {comHora.map((x) => <Tarefa key={x.o.id} {...props(x)} />)}
-      </>}
-      {doDia.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
-
-      <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href={`/tarefas/nova?${new URLSearchParams({ ...(dia !== hoje ? { d: dia } : {}), ...(gestor ? { m: alvo.id } : {}) })}`}><Icone nome="mais" tam={18} />{gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'}</Link>
+      <BotaoMais href={novaHref} rotulo={gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'} />
     </main>
   );
 }

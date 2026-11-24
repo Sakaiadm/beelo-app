@@ -6,7 +6,8 @@ import Icone from './Icone';
 import Form from './Form';
 import Foto from './Foto';
 import { concluir, desfazer, justificar, pedirAdiamento, definirHorario, conferir } from '@/app/acoes';
-import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana } from '@/lib/util';
+import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana, addDias } from '@/lib/util';
+import Motivos from './Motivos';
 import { useFila } from '@/lib/fila';
 import { prepararSom, comemorar } from '@/lib/festa';
 import { RealForm } from './TelaForms';
@@ -17,7 +18,7 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima, tela }) {
+export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima, tela, crianca }) {
   const [aba, setAba] = useState(null);
   const [festa, setFesta] = useState(false);
   // Sem internet: o que foi feito e está guardado no aparelho já aparece na tela, com o selo "Aguardando internet".
@@ -34,12 +35,14 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
   };
   const [aviso, setAviso] = useState('');
   const [aberto, setAberto] = useState(false);
+  const [quando, setQuando] = useState(null);
   const cat = oc.tarefa?.categoria;
   const [fundo, letra] = CORES_CAT[cat?.cor] || CORES_CAT.cinza;
   const feita = st === 'cumprida' || st === 'cumprida_atraso';
   const atrasada = st === 'atrasada' || st === 'nao_cumprida';
   const [ic, cor] = ICONE_STATUS[st] || ICONE_STATUS.pendente;
-  const horario = oc.hora_inicio ? `${hhmm(oc.hora_inicio)}${oc.hora_fim ? '–' + hhmm(oc.hora_fim) : ''}` : 'Sem horário';
+  const temHora = !!oc.hora_inicio;
+  const horario = temHora ? `${hhmm(oc.hora_inicio)}${oc.hora_fim ? '–' + hhmm(oc.hora_fim) : ''}` : 'Sem horário';
   const podeConcluir = dono && !feita && st !== 'adiamento_pedido' && st !== 'adiada';
   const futura = oc.data > hoje;
   const outraPessoa = (gestor || confere) && !dono;
@@ -54,29 +57,30 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
 
   return (
     <div ref={ref} className={`tarefa ${feita ? 'feita' : ''} ${atrasada ? 'atrasada' : ''} ${festa ? 'festa' : ''}`}>
-      <div className="topo-t">
+      <div className="topo-t" onClick={(e) => { if (!e.target.closest('button, a, form, input, textarea, label')) setAberto(!aberto); }}>
         {futura && podeConcluir ? (
-          <button type="button" className="circulo" onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={26} /></button>
+          <button type="button" className={`circulo${crianca ? ' grande' : ''}`} onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
         ) : podeConcluir && oc.tarefa?.especial === 'tela' && tela ? (
-          <button type="button" className="circulo" onClick={() => alternar('tela')} aria-expanded={aba === 'tela'} aria-label="Lançar tempo de tela" title="Lançar tempo de tela"><Icone nome={ic} cor={cor} tam={26} /></button>
+          <button type="button" className={`circulo${crianca ? ' grande' : ''}`} onClick={() => alternar('tela')} aria-expanded={aba === 'tela'} aria-label="Lançar tempo de tela" title="Lançar tempo de tela"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
         ) : podeConcluir && oc.tarefa?.especial === 'tela' ? (
-          <Link prefetch={false} className="circulo" href="/tela" aria-label="Lançar tempo de tela" title="Lançar tempo de tela"><Icone nome={ic} cor={cor} tam={26} /></Link>
+          <Link prefetch={false} className={`circulo${crianca ? ' grande' : ''}`} href="/tela" aria-label="Lançar tempo de tela" title="Lançar tempo de tela"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></Link>
         ) : podeConcluir && !oc.tarefa?.exige_foto ? (
           <Form acao={concluir} fila="concluir" rotulo={`Concluir “${t}”`} discreto aoConcluir={festejar}><input type="hidden" name="oc" value={oc.id} />
-            <button className="circulo" onPointerDown={prepararSom} onKeyDown={prepararSom} aria-label={`Concluir ${oc.tarefa?.titulo}`} title="Marcar como feita"><Icone nome={ic} cor={cor} tam={26} /></button>
+            <button className={`circulo${crianca ? ' grande' : ''}`} onPointerDown={prepararSom} onKeyDown={prepararSom} aria-label={`Concluir ${oc.tarefa?.titulo}`} title="Marcar como feita"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
           </Form>
         ) : podeConcluir ? (
-          <button className="circulo" onClick={() => alternar('concluir')} aria-label={`Concluir ${oc.tarefa?.titulo} com foto`} title="Esta tarefa pede foto"><Icone nome={ic} cor={cor} tam={26} /></button>
+          <button className={`circulo${crianca ? ' grande' : ''}`} onClick={() => alternar('concluir')} aria-label={`Concluir ${oc.tarefa?.titulo} com foto`} title="Esta tarefa pede foto"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
         ) : outraPessoa && !feita && (st === 'pendente' || st === 'atrasada') ? (
-          <button type="button" className="circulo" onClick={() => setAviso(`Quem marca é ${quemMarca || 'a própria pessoa'}. Você confere depois que a tarefa for marcada.`)} aria-label={`Quem marca ${oc.tarefa?.titulo}`} title="Só a própria pessoa marca"><Icone nome={ic} cor={cor} tam={26} /></button>
+          <button type="button" className={`circulo${crianca ? ' grande' : ''}`} onClick={() => setAviso(`Quem marca é ${quemMarca || 'a própria pessoa'}. Você confere depois que a tarefa for marcada.`)} aria-label={`Quem marca ${oc.tarefa?.titulo}`} title="Só a própria pessoa marca"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
         ) : (
-          <span className="circulo"><Icone nome={ic} cor={cor} tam={26} rotulo={STATUS_TXT[st]} /></span>
+          <span className={`circulo${crianca ? ' grande' : ''}`}><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} rotulo={STATUS_TXT[st]} /></span>
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="tt">{oc.tarefa?.prioritaria && <span className="prio-ic" title="Prioritária"><Icone nome="bandeira" tam={15} cor="var(--prio)" rotulo="Prioritária" /></span>}{oc.tarefa?.titulo}</div>
-          <div className="meta">{horario}{oc.tarefa?.especial === 'tela' ? ' · tempo de ontem' : ''}{nomeMembro ? ` · ${nomeMembro}` : ''}</div>
-          {(selo || cat) && (
+          {(oc.tarefa?.especial === 'tela' || nomeMembro) && <div className="meta">{[oc.tarefa?.especial === 'tela' ? 'tempo de ontem' : '', nomeMembro || ''].filter(Boolean).join(' · ')}</div>}
+          {(selo || cat || temHora) && (
             <div className="selos">
+              {temHora && <span className="tg cz">{horario}</span>}
               {selo && <span className={`selo-st ${selo[1]}`}>{selo[0]}</span>}
               {cat && <span className="pilula" style={{ background: fundo, color: letra }}>{cat.nome}</span>}
             </div>
@@ -102,20 +106,24 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
               <a href={fotoUrl} target="_blank" rel="noreferrer"><img src={fotoUrl} alt={`Foto de ${oc.tarefa?.titulo}`} /></a>
             </>
           )}
-          {editarHref && <div className="acoes"><Link prefetch={false} className="btn sec peq" href={editarHref}><Icone nome="lapis" tam={16} />Editar</Link></div>}
+          {((dono && !gestor && !crianca && ((st === 'pendente' || st === 'atrasada') && oc.tarefa?.permite_adiar || !feita && !oc.horario_travado)) || (dono && !gestor && feita && !oc.conferido) || editarHref) && (
+            <div className="acoes">
+              {dono && !gestor && !crianca && (st === 'pendente' || st === 'atrasada') && oc.tarefa?.permite_adiar ? <button type="button" className="btn sec peq" onClick={() => alternar('adiar')}>Adiar</button> : null}
+              {dono && !gestor && !crianca && !feita && !oc.horario_travado && <button type="button" className="btn sec peq" onClick={() => alternar('horario')}>Horário</button>}
+              {dono && !gestor && feita && !oc.conferido && (
+                <Form acao={desfazer} fila="desfazer" rotulo={`Desfazer “${t}”`} discreto><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Desfazer</button></Form>
+              )}
+              {editarHref && <Link prefetch={false} className="btn sec peq" href={editarHref}><Icone nome="lapis" tam={16} />Editar</Link>}
+            </div>
+          )}
         </div>
       )}
 
-      {aviso && <div className="aviso erro" role="alert" style={{ marginTop: 8 }}>{aviso}</div>}
+      {aviso && <div className="aviso info" role="status" style={{ marginTop: 8, marginBottom: 0 }}>{aviso}</div>}
 
-      {dono && !gestor && (
+      {dono && !gestor && atrasada && (
         <div className="acoes" style={{ marginTop: 8 }}>
-          {atrasada && <button className="btn sec peq" onClick={() => alternar('justificar')}>Justificar</button>}
-          {(st === 'pendente' || st === 'atrasada') && oc.tarefa?.permite_adiar ? <button className="btn sec peq" onClick={() => alternar('adiar')}>Adiar</button> : null}
-          {!feita && !oc.horario_travado && <button className="btn sec peq" onClick={() => alternar('horario')}>Horário</button>}
-          {feita && !oc.conferido && (
-            <Form acao={desfazer} fila="desfazer" rotulo={`Desfazer “${t}”`} discreto><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Desfazer</button></Form>
-          )}
+          <button type="button" className="btn sec peq" onClick={() => alternar('justificar')}>Justificar</button>
         </div>
       )}
 
@@ -144,9 +152,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
         <div className="painel-acao">
           <Form acao={justificar} fila="justificar" rotulo={`Justificativa de “${t}”`} okTxt="Justificativa enviada aos pais.">
             <input type="hidden" name="oc" value={oc.id} />
-            <label htmlFor={`j-${oc.id}`}>Por que atrasou?</label>
-            <textarea id={`j-${oc.id}`} name="texto" required minLength={3} maxLength={500} />
-            <button className="btn" style={{ marginTop: 10 }}>Enviar justificativa</button>
+            <Motivos id={`j-${oc.id}`} name="texto" rotulo="Por que atrasou?" botao="Enviar justificativa" />
           </Form>
         </div>
       )}
@@ -154,13 +160,20 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
         <div className="painel-acao">
           <Form acao={pedirAdiamento} fila="pedirAdiamento" rotulo={`Pedido para adiar “${t}”`} okTxt="Pedido enviado. Os pais vão responder.">
             <input type="hidden" name="oc" value={oc.id} />
-            <div className="linha">
-              <div><label htmlFor={`d-${oc.id}`}>Nova data</label><input id={`d-${oc.id}`} type="date" name="data" min={hoje} required /></div>
-              <div><label htmlFor={`h-${oc.id}`}>Novo horário (opcional)</label><input id={`h-${oc.id}`} type="time" name="hora" /></div>
+            <label>Para quando?</label>
+            <div className="chips" role="radiogroup" aria-label="Para quando?">
+              {[['Amanhã', addDias(hoje, 1)], ['Depois de amanhã', addDias(hoje, 2)], ['Outro dia', 'outro']].map(([r, v]) => (
+                <button key={v} type="button" role="radio" aria-checked={quando === v} className={quando === v ? 'on' : ''} onClick={() => setQuando(v)}>{r}</button>
+              ))}
             </div>
-            <label htmlFor={`m-${oc.id}`}>Motivo</label>
-            <textarea id={`m-${oc.id}`} name="motivo" required minLength={3} maxLength={500} />
-            <button className="btn" style={{ marginTop: 10 }}>Adiar</button>
+            {quando && quando !== 'outro' && <input type="hidden" name="data" value={quando} />}
+            {quando === 'outro' && (
+              <div className="linha">
+                <div><label htmlFor={`d-${oc.id}`}>Nova data</label><input id={`d-${oc.id}`} type="date" name="data" min={hoje} required /></div>
+                <div><label htmlFor={`h-${oc.id}`}>Novo horário (opcional)</label><input id={`h-${oc.id}`} type="time" name="hora" /></div>
+              </div>
+            )}
+            {quando && <Motivos id={`m-${oc.id}`} name="motivo" rotulo="Motivo" botao="Pedir para adiar" />}
           </Form>
         </div>
       )}

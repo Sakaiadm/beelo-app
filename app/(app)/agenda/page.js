@@ -2,6 +2,7 @@ import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
 import Link from 'next/link';
+import BotaoMais from '@/components/BotaoMais';
 import { hojeISO, addDias, inicioMes, fimMes, dataLonga, periodoSemana, diaSemana, statusExibido, hhmm, DIAS } from '@/lib/util';
 import Icone from '@/components/Icone';
 import Calendario from '@/components/Calendario';
@@ -48,7 +49,6 @@ export default async function Agenda({ searchParams }) {
         <div className="tit"><h1 className="titulo">Agenda</h1>{emHoje
           ? <span className="hoje-peq on" aria-current="date" title="Você está vendo hoje">Hoje</span>
           : <Link prefetch={false} className="hoje-peq" href={qs({ d: hoje })} title="Voltar para hoje">Hoje</Link>}</div>
-        <Link prefetch={false} className="btn" href={`/tarefas/nova?d=${d}`}><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
       </div>
       {sp.aviso === 'amanha' && <div className="aviso ok" role="status">Tarefa salva. Como o horário de hoje já passou, ela começa amanhã.</div>}
       <div className="seg" role="tablist" aria-label="Visão">
@@ -106,6 +106,7 @@ export default async function Agenda({ searchParams }) {
           ))}
         </div>
       )}
+      <BotaoMais href={`/tarefas/nova?d=${d}`} />
     </main>
   );
 }
