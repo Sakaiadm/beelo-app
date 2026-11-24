@@ -3,7 +3,6 @@ import { acesso } from '@/lib/papeis';
 import { lerFiltros, dadosRelatorio } from '@/lib/relatorio';
 import { telaResumo, totalReal } from '@/lib/tela';
 import Link from 'next/link';
-import Pessoas from '@/components/Pessoas';
 import { hojeISO, dataComAno, dataCurta, fmtMin, STATUS_TXT, CORES_VIVAS, inicioSemana, DIAS, hhmm, addDias } from '@/lib/util';
 import Imprimir from '@/components/Imprimir';
 
@@ -109,8 +108,10 @@ export default async function Relatorios({ searchParams }) {
       <div className="cab"><div><h1 className="titulo">Relatórios</h1></div></div>
       {periodo}
       <div className="nao-imprimir">
-        <Pessoas rotulo="Pessoa" itens={[{ id: 'todas', nome: 'Todas', cor: null, href: url({ m: '' }), on: !f.m },
-          ...filhos.filter((x) => x.ativo).map((x) => ({ id: x.id, nome: x.nome, cor: x.cor, href: url({ m: x.id }), on: f.m === x.id }))]} />
+        <div className="seg pessoas" aria-label="Pessoa">
+          <Link prefetch={false} href={url({ m: '' })} className={!f.m ? 'on' : ''}>Todas</Link>
+          {filhos.filter((x) => x.ativo).map((x) => <Link prefetch={false} key={x.id} href={url({ m: x.id })} className={f.m === x.id ? 'on' : ''}>{x.id === eu.id ? 'Eu' : x.nome}</Link>)}
+        </div>
         <details className="card mais-filtros" open={maisFiltros}>
           <summary>Mais filtros{maisFiltros ? ' (em uso)' : ''}</summary>
           <form className="filtros" method="get">
