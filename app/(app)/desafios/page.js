@@ -60,7 +60,7 @@ export default async function Desafios({ searchParams }) {
         <div className="card">
           <h2>Desafios e prêmios</h2>
           <p style={{ margin: '0 0 10px', lineHeight: 1.5 }}>Um desafio por semana para cada pessoa, com meta sugerida pelo app, dia coringa e renovação automática. A criança junta estrelinhas num cofrinho que não vence; o adolescente junta semanas conquistadas; a família pode ter uma meta juntos com um prêmio de vivência.</p>
-          <p className="sub" style={{ fontSize: 13, margin: '0 0 14px' }}>Função em teste (beta). Fica desligada até você ligar, e pode desligar quando quiser: nada se perde.</p>
+          <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '0 0 14px' }}>Função em teste (beta). Fica desligada até você ligar, e pode desligar quando quiser: nada se perde.</p>
           <Form acao={ligarDesafios}><input type="hidden" name="ligar" value="1" /><button className="btn bloco">Ligar os desafios</button></Form>
         </div>
       </main>
@@ -89,9 +89,9 @@ export default async function Desafios({ searchParams }) {
 
   const cartaoFamilia = daFamilia.map((d) => (
     <DesafioCartao key={d.id} d={d} p={d.atual}>
-      {d.premio && <p className="sub" style={{ fontSize: 13, margin: '8px 0 0' }}>Prêmio da família: <b>{d.premio}</b></p>}
+      {d.premio && <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '8px 0 0' }}>Prêmio da família: <b>{d.premio}</b></p>}
       {contrib.length > 0 && ['pct', 'pct_cada'].includes(d.tipo) && (
-        <div className="barras-h contrib" style={{ marginTop: 14, fontSize: 13 }}>
+        <div className="barras-h contrib" style={{ marginTop: 14, fontSize: 'var(--f-apoio)' }}>
           {contrib.map(({ p, n, f }) => <div className="l" key={p.id}><span>{p.nome}</span><div className="barra"><div style={{ width: `${(f / n) * 100}%` }} /></div><span>{Math.round((f / n) * 100)}%</span></div>)}
         </div>
       )}
@@ -167,7 +167,7 @@ export default async function Desafios({ searchParams }) {
                     {d.prox && <Form acao={subirMeta}><input type="hidden" name="id" value={d.id} /><input type="hidden" name="meta" value={d.prox} /><button className="btn peq">Subir a meta para {textoMeta(d, d.prox)}</button></Form>}
                     <ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} detalhe={m.nome} pergunta="O que já foi conquistado continua no mural e no cofrinho." sim="Sim, encerrar" icone="bloquear" />
                   </div>
-                  {d.prox && <p className="sub" style={{ fontSize: 13, margin: '8px 0 0' }}>3 semanas seguidas cumpridas. Hora de um passo a mais?</p>}
+                  {d.prox && <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '8px 0 0' }}>3 semanas seguidas cumpridas. Hora de um passo a mais?</p>}
                 </DesafioCartao>
               ))}
               {ds.length < MAX_POR_PESSOA && (
@@ -213,7 +213,7 @@ export default async function Desafios({ searchParams }) {
         <Link prefetch={false} href="/desafios/cofrinho" className="card des-card">
           <div className="des-top"><span className="des-ic mel"><Icone nome="check" tam={22} /></span><span><b>Semanas conquistadas</b><small>Não vencem. Você decide quando usar.</small></span><span className="seta" style={{ color: 'var(--cinza)', fontSize: 20 }} aria-hidden="true">›</span></div>
           <div className="hexes">{Array.from({ length: Math.max(6, Math.min(v.tem + 1, 12)) }, (_, i) => <Hexagono key={i} tam={30} on={i < v.tem} />)}</div>
-          {v.tem > 12 && <p className="sub" style={{ fontSize: 13, margin: 0 }}>{v.tem} semanas guardadas.</p>}
+          {v.tem > 12 && <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: 0 }}>{v.tem} semanas guardadas.</p>}
         </Link>
       )}
       <Item href="/desafios/mural" icone="check" titulo="Mural de conquistas" sub="Desafios cumpridos e medalhas" mel />

@@ -30,7 +30,7 @@ function Historico({ linhas }) {
           <tr key={r.id}>
             <td>{dataCurta(r.data)}</td><td className="num">{prev != null ? fmtMin(prev) : '—'}</td><td className="num">{fmtMin(real)}</td>
             <td className="num" style={{ fontWeight: 700, color: dif == null ? undefined : dif > 0 ? 'var(--erro)' : 'var(--ok)' }}>{dif == null ? '—' : (dif > 0 ? '+' : '') + fmtMin(dif)}</td>
-            <td style={{ fontSize: 13, color: 'var(--cinza)' }}>{r.min_celular == null && r.min_computador == null ? 'total' : [r.min_celular != null && `cel ${fmtMin(r.min_celular)}`, r.min_computador != null && `pc ${fmtMin(r.min_computador)}`].filter(Boolean).join(' · ')}{r.foto_celular || r.foto_computador ? ' · com foto' : ''}{r.obs ? ` · ${r.obs}` : ''}</td>
+            <td style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>{r.min_celular == null && r.min_computador == null ? 'total' : [r.min_celular != null && `cel ${fmtMin(r.min_celular)}`, r.min_computador != null && `pc ${fmtMin(r.min_computador)}`].filter(Boolean).join(' · ')}{r.foto_celular || r.foto_computador ? ' · com foto' : ''}{r.obs ? ` · ${r.obs}` : ''}</td>
           </tr>
         );
       })}</tbody>
@@ -126,7 +126,7 @@ export default async function Tela({ searchParams }) {
             {!crianca && <>
               <details className="mais-op" style={{ marginTop: 12 }}><summary>Precisa de mais tempo num dia?</summary>
                 <PropostaForm hoje={hoje} previsto={pHoje?.[0]} /></details>
-              {(props || []).length > 0 && <div style={{ marginTop: 12, fontSize: 13, color: 'var(--cinza)' }}>
+              {(props || []).length > 0 && <div style={{ marginTop: 12, fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>
                 {props.map((x) => <div key={x.id}>{dataCurta(x.data)}: {x.status === 'pendente' ? 'aguardando resposta' : x.status}</div>)}</div>}
             </>}
           </div>

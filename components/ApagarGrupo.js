@@ -11,7 +11,7 @@ export default function ApagarGrupo({ nome }) {
   if (!aberto) return <button type="button" className="btn perigo sec" onClick={() => setAberto(true)}>Apagar o grupo</button>;
   return (
     <Form acao={apagarGrupo}>
-      <p style={{ margin: '0 0 10px', fontSize: 14, lineHeight: 1.5 }}>
+      <p style={{ margin: '0 0 10px', fontSize: 'var(--f-apoio)', lineHeight: 1.5 }}>
         Isto apaga <b>tudo</b> do grupo <b>{nome}</b>: pessoas, tarefas, fotos, tempo de tela, desafios e histórico. Não dá para desfazer.
         Se quiser guardar uma cópia, toque antes em Baixar meus dados.
       </p>

@@ -40,7 +40,7 @@ export default async function Aceite() {
       <AceiteForm meu={p.meu} crianca={crianca}
         menores={p.menores.map((m) => ({ id: m.id, nome: m.nome }))} />
       <form action="/auth/sair" method="post" style={{ marginTop: 8, textAlign: 'center' }}>
-        <button style={{ background: "none", border: 0, padding: 8, fontSize: 13, color: "var(--cinza)", textDecoration: "underline", cursor: "pointer" }}>Sair</button>
+        <button style={{ background: "none", border: 0, padding: 8, fontSize: 'var(--f-apoio)', color: "var(--cinza)", textDecoration: "underline", cursor: "pointer" }}>Sair</button>
       </form>
     </main>
   );

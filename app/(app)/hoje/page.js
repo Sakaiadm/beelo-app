@@ -90,7 +90,7 @@ export default async function Hoje({ searchParams }) {
 
       <div className="kpi destaque" style={{ marginBottom: 14 }}>
         <small>{alvo.id !== eu.id ? `Dia de ${alvo.nome}` : dia === hoje ? 'Seu dia' : 'Dia'}</small>
-        <strong>{feitas} <span style={{ fontSize: 15, color: '#e6f0fe' }}>de {total} feitas</span></strong>
+        <strong>{feitas} <span style={{ fontSize: 'var(--f-texto)', color: '#e6f0fe' }}>de {total} feitas</span></strong>
         <div className="barra" style={{ marginTop: 10, background: 'rgba(255,255,255,.25)' }}><div style={{ width: `${total ? (feitas / total) * 100 : 0}%`, background: '#fff' }} /></div>
         {estrelas != null && (
           <div className="estrelas" aria-label={`${estrelas} de 5 estrelas hoje`}>

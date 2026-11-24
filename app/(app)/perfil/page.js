@@ -49,7 +49,7 @@ export default async function Perfil() {
         </div>
       )}
       <div className="card"><h2>Privacidade e seus dados</h2>
-        <p style={{ margin: '0 0 10px', fontSize: 14, lineHeight: 1.5 }}>
+        <p style={{ margin: '0 0 10px', fontSize: 'var(--f-apoio)', lineHeight: 1.5 }}>
           <a href="/termos">Termos de uso</a> · <a href="/privacidade">Privacidade</a> · <a href="/consentimento">Termo de consentimento</a>
         </p>
         {eu.termos_aceitos_em && <p className="peq-cinza" style={{ margin: '0 0 12px' }}>Você aceitou em {new Date(eu.termos_aceitos_em).toLocaleDateString('pt-BR', { timeZone: 'America/Sao_Paulo' })} (versão {eu.termos_versao}).</p>}

@@ -39,8 +39,8 @@ export default function TelaGrafico({ dias }) {
       <div className="g7v">{linhas.map((d) => (
         <div key={d.data} className={d.dif > 0 ? 'mais' : d.dif < 0 ? 'menos' : ''}>{d.dif == null ? '—' : d.dif === 0 ? 'igual' : (d.dif > 0 ? '+' : '') + fmtMin(d.dif)}</div>
       ))}</div>
-      <div className="legenda"><span><i style={{ background: '#1a6fe0' }} />Previsto</span><span><i style={{ background: 'var(--ok)' }} />Dentro</span><span><i style={{ background: 'var(--erro)' }} />Passou</span></div>
-      {lancados > 0 && <p style={{ margin: '12px 0 0', fontSize: 14 }}>Dentro do previsto em <b>{dentro} de {lancados}</b> {lancados === 1 ? 'dia lançado' : 'dias lançados'}.</p>}
+      <div className="legenda"><span><i className="lg-prev" />Previsto</span><span><i className="lg-ok" />Dentro</span><span><i className="lg-passou" />Passou</span></div>
+      {lancados > 0 && <p style={{ margin: '12px 0 0', fontSize: 'var(--f-apoio)' }}>Dentro do previsto em <b>{dentro} de {lancados}</b> {lancados === 1 ? 'dia lançado' : 'dias lançados'}.</p>}
     </div>
   );
 }

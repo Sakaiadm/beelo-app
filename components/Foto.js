@@ -61,7 +61,7 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHo
         <button type="button" className="btn sec peq icone" aria-label="Tirar foto" title="Tirar foto" onClick={() => cam.current.click()}><Icone nome="camera" tam={20} /></button>
         <button type="button" className="btn sec peq icone" aria-label="Escolher da galeria" title="Escolher da galeria" onClick={() => gal.current.click()}><Icone nome="galeria" tam={20} /></button>
         {estado.previa && <img src={estado.previa} alt="Prévia da foto" className="foto-mini" />}
-        <span style={{ fontSize: 13, color: estado.msg.startsWith('Essa foto') ? 'var(--erro)' : 'var(--cinza)' }}>
+        <span style={{ fontSize: 'var(--f-apoio)', color: estado.msg.startsWith('Essa foto') ? 'var(--erro)' : 'var(--cinza)' }}>
           {estado.msg || (obrigatoria ? 'Foto obrigatória' : 'Foto opcional') + (soHoje ? ' · de hoje' : '')}
         </span>
       </div>

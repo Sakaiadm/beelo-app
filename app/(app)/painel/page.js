@@ -66,11 +66,11 @@ export default async function Painel() {
       </div>
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto="Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar." />
       <div className="kpis">
-        <div className="kpi destaque"><small>Cumpridas hoje</small><strong>{kHoje.feitas} <span style={{ fontSize: 16 }}>de {kHoje.total}</span></strong>
+        <div className="kpi destaque"><small>Cumpridas hoje</small><strong>{kHoje.feitas} <span style={{ fontSize: 'var(--f-texto)' }}>de {kHoje.total}</span></strong>
           <em>{pessoas.map((f) => ({ f, k: conta(doDia.filter((x) => x.o.membro_id === f.id)) })).filter((x) => x.k.total > 0).map(({ f, k }) => `${f.nome} ${k.feitas}/${k.total}`).join(' · ') || 'Sem tarefas hoje'}</em></div>
         <div className="kpi"><small>Atrasadas (7 dias)</small><strong style={{ color: atrasadas.length ? 'var(--erro)' : undefined }}>{atrasadas.length}</strong><em>{justif.length} {justif.length === 1 ? 'justificativa para avaliar' : 'justificativas para avaliar'}</em></div>
         <div className="kpi"><small>Pedidos aguardando</small><strong style={{ color: pend ? 'var(--aviso)' : undefined }}>{pend}</strong><em>Adiamentos, justificativas e tempo de tela</em></div>
-        <div className="kpi"><small>Semana</small><strong>{kSem.total ? Math.round((kSem.feitas / kSem.total) * 100) : 0}<span style={{ fontSize: 16 }}>%</span></strong>
+        <div className="kpi"><small>Semana</small><strong>{kSem.total ? Math.round((kSem.feitas / kSem.total) * 100) : 0}<span style={{ fontSize: 'var(--f-texto)' }}>%</span></strong>
           <div className="barra" style={{ marginTop: 10 }}><div style={{ width: `${kSem.total ? (kSem.feitas / kSem.total) * 100 : 0}%` }} /></div></div>
       </div>
 
@@ -82,10 +82,10 @@ export default async function Painel() {
           {paraEntregar > 0 && <div className="aviso info" style={{ margin: '12px 0 0' }}>{paraEntregar === 1 ? '1 prêmio para entregar' : `${paraEntregar} prêmios para entregar`}</div>}
           {paraAprovar > 0 && <div className="aviso info" style={{ margin: '12px 0 0' }}>{paraAprovar === 1 ? '1 desejo para aprovar' : `${paraAprovar} desejos para aprovar`}</div>}
           {des.desafios.length > 0 && (
-            <div className="barras-h contrib" style={{ marginTop: 14, fontSize: 13 }}>
+            <div className="barras-h contrib" style={{ marginTop: 14, fontSize: 'var(--f-apoio)' }}>
               {des.desafios.map((d) => {
                 const p = d.atual, w = p?.meta ? Math.min(100, (p.progresso / p.meta) * 100) : 0;
-                return <div className="l" key={d.id}><span>{d.membro_id ? nome[d.membro_id] : 'Família'}</span><div className="barra" title={d.titulo}><div style={{ width: `${w}%`, background: p?.status === 'cumprido' ? 'var(--ok)' : undefined }} /></div><span>{p?.status === 'cumprido' ? 'feito' : `${Math.round(w)}%`}</span></div>;
+                return <div className="l" key={d.id}><span>{d.membro_id ? nome[d.membro_id] : 'Família'}</span><div className="barra" title={d.titulo}><div style={{ width: `${w}%`, background: p?.status === 'cumprido' ? 'var(--g-ok)' : undefined }} /></div><span>{p?.status === 'cumprido' ? 'feito' : `${Math.round(w)}%`}</span></div>;
               })}
             </div>
           )}
@@ -182,7 +182,7 @@ export default async function Painel() {
         <div className="lado">
           <div className="card">
             <Calendario mes={hoje} porDia={porDia} hoje={hoje} sel={null} link={(x, dia) => (dia ? `/agenda?v=dia&d=${x}` : `/agenda?v=mes&d=${x}`)} />
-            <p style={{ fontSize: 13, color: 'var(--cinza)', margin: '12px 0 0' }}>A cor mostra quanto da rotina foi cumprida no dia. Toque num dia para ver as tarefas.</p>
+            <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '12px 0 0' }}>A cor mostra quanto da rotina foi cumprida no dia. Toque num dia para ver as tarefas.</p>
           </div>
         </div>
       </div>

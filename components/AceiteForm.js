@@ -35,7 +35,7 @@ export default function AceiteForm({ meu, crianca, menores = [] }) {
       )}
       {menores.length > 0 && (
         <>
-          <h2 style={{ fontSize: 16, margin: meu ? '18px 0 6px' : '0 0 6px' }}>Autorização do responsável</h2>
+          <h2 style={{ fontSize: 'var(--f-texto)', margin: meu ? '18px 0 6px' : '0 0 6px' }}>Autorização do responsável</h2>
           <p className="peq-cinza" style={{ margin: '0 0 10px' }}>
             A lei pede que o pai, a mãe ou o responsável legal autorize, em destaque, o uso dos dados de crianças e adolescentes. Leia o {doc('/consentimento', 'Termo de consentimento')}.
           </p>

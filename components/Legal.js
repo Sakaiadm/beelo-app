@@ -15,7 +15,7 @@ export function PaginaLegal({ titulo, children, links }) {
     <main className="estreito">
       <a href="/" className="logo-beelo" role="img" aria-label="beelo" style={{ marginBottom: 18 }} />
       <h1 className="titulo">{titulo}</h1>
-      <p style={{ color: 'var(--cinza)', fontSize: 14, margin: '6px 0 16px' }}>Versão beta · versão {VERSAO_TERMOS} · atualizado em {ATUALIZADO_EM}</p>
+      <p style={{ color: 'var(--cinza)', fontSize: 'var(--f-apoio)', margin: '6px 0 16px' }}>Versão beta · versão {VERSAO_TERMOS} · atualizado em {ATUALIZADO_EM}</p>
       <div className="card texto-legal">
         {children}
         <p style={{ marginBottom: 0, marginTop: 22 }}>{links}</p>

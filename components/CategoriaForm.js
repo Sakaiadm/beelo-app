@@ -22,7 +22,7 @@ export default function CategoriaForm({ c }) {
         <div className="cat-paleta" role="radiogroup" aria-label="Cor">
           {Object.keys(CORES_CAT).map((k) => (
             <button key={k} type="button" role="radio" aria-checked={k === cor} aria-label={NOMES_CORES[k] || k} title={NOMES_CORES[k] || k}
-              className={k === cor ? 'sel' : ''} style={{ background: CORES_VIVAS[k] }} onClick={() => setCor(k)} />
+              className={k === cor ? 'sel' : ''} style={{ background: CORES_VIVAS[k], color: CORES_VIVAS[k] }} onClick={() => setCor(k)} />
           ))}
         </div>
         <button className="btn bloco cat-bt">{c ? 'Salvar' : 'Criar categoria'}</button>
