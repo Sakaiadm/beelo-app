@@ -642,3 +642,12 @@ button.cartao-l { width: 100%; font: inherit; text-align: left; cursor: pointer;
 .como-funciona ul { margin: 6px 0 0; padding-left: 18px; font-size: 13.5px; line-height: 1.45; }
 .como-funciona li { margin-bottom: 3px; }
 .vit:has(> form .dupla) { flex-wrap: wrap; }
+
+/* Tempo de tela: 3 tempos prontos na mesma linha do campo; abas de pessoa centralizadas no título */
+.tempo-linha { gap: 6px; flex-wrap: wrap; }
+.tempo-linha input { flex: 1 1 56px; min-width: 56px; padding-left: 4px; padding-right: 4px; }
+.tempo-linha .chips { margin-top: 0; flex-wrap: nowrap; flex: none; }
+.tempo-linha .chips { gap: 4px; }
+.tempo-linha .chips button { min-height: 44px; padding: 0 9px; }
+.cab.centro { align-items: center; }
+.cab.centro .abas { margin: 0; }

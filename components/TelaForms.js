@@ -169,7 +169,7 @@ export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca
 }
 
 const MOTIVOS = ['Trabalho da escola', 'Filme em família', 'Viagem'];
-const MAIS = [30, 60, 90, 120].map((m) => ({ rotulo: '+' + fmtMin(m).replace('h00', 'h'), min: m }));
+const MAIS = [30, 60, 120].map((m) => ({ rotulo: '+' + fmtMin(m).replace('h00', 'h'), min: m }));
 
 // Pedir mais tempo para um dia: começa no previsto de hoje e sobe de 30 em 30 minutos (S24).
 export function PropostaForm({ hoje, previsto }) {
