@@ -76,6 +76,15 @@ if (process.env.MOCK_DESAFIOS === '1') {
     { id: id(834), familia_id: FAM, catalogo: 'u2', nome: 'Escolher o passeio do fim de semana', custo: 2, moeda: 'semanas', faixa: 'teen', ativo: true },
     { id: id(835), familia_id: FAM, catalogo: 'u10', nome: 'Voltar 1 hora mais tarde no sábado', custo: 4, moeda: 'semanas', faixa: 'teen', ativo: true },
   ];
+  // Lista de desejos (SQL 0017): MOCK_DESEJOS=1 (esperando e "agora não"); MOCK_DESEJO_OK=1 (um aprovado, meta do cofrinho).
+  if (process.env.MOCK_DESEJOS === '1') tabelas.ra_premios.push(
+    { id: id(850), familia_id: FAM, nome: 'Patins', sugerido: 'Patins', custo: 1, moeda: 'estrelas', faixa: 'todos', ativo: false, membro_id: E, desejo: 'esperando', criado_em: agora },
+    { id: id(851), familia_id: FAM, nome: 'Celular', sugerido: 'Celular', custo: 1, moeda: 'estrelas', faixa: 'todos', ativo: false, membro_id: E, desejo: 'agora_nao', resposta: 'Esse fica para uma data especial, combinado?', criado_em: dia(-3) + 'T20:00:00Z', respondido_em: agora },
+    { id: id(852), familia_id: FAM, nome: 'Show com amigos', sugerido: 'Show com amigos', custo: 1, moeda: 'semanas', faixa: 'teen', ativo: false, membro_id: A, desejo: 'esperando', criado_em: dia(-1) + 'T19:05:00Z' });
+  if (process.env.MOCK_DESEJO_OK === '1') {
+    tabelas.ra_premios.push({ id: id(853), familia_id: FAM, nome: 'Bicicleta nova', sugerido: 'Bicicleta', custo: 80, moeda: 'estrelas', faixa: 'todos', ativo: true, membro_id: E, desejo: 'aprovado', regra: 'Usar capacete', criado_em: dia(-2) + 'T19:05:00Z', respondido_em: agora });
+    const e = membros.find((x) => x.id === E); if (e) e.cofrinho_meta = id(853);
+  }
   tabelas.ra_premio_pedidos = [{ id: id(840), familia_id: FAM, membro_id: E, premio_id: id(831), nome: 'Açaí', custo: 25, moeda: 'estrelas', status: 'pedido', criado_em: agora }];
 }
 export const usuarios = { 'tok-pai': { id: id(91), email: 'pai@t.com', eu: membros[0] }, 'tok-filho': { id: id(92), email: 'edu@t.com', eu: membros[2] }, 'tok-ado': { id: id(94), email: 'alice@t.com', eu: membros[3] }, 'tok-estranho': { id: id(93), email: 'x@t.com', eu: null } };
@@ -87,7 +96,7 @@ function filtrar(rows, params) {
     const [op, ...rest] = v.split('.'); const val = rest.join('.');
     const f = {
       eq: (x) => String(x[k]) === val, neq: (x) => String(x[k]) !== val, gte: (x) => String(x[k]) >= val, lte: (x) => String(x[k]) <= val,
-      in: (x) => val.replace(/[()"]/g, '').split(',').includes(String(x[k])), is: (x) => x[k] == null,
+      in: (x) => val.replace(/[()"]/g, '').split(',').includes(String(x[k])), is: (x) => x[k] == null, not: (x) => (val === 'is.null' ? x[k] != null : true),
     }[op];
     if (f) out = out.filter(f);
   }

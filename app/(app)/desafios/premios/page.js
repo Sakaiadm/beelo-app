@@ -8,6 +8,7 @@ import Voltar from '@/components/Voltar';
 import Form from '@/components/Form';
 import Icone from '@/components/Icone';
 import { alternarPremio, adicionarPremio } from '@/app/acoes-desafios';
+import EditarPremio from '@/components/EditarPremio';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,12 +17,14 @@ const FAIXA = { ate8: 'até 8 anos', mais8: '9 anos ou mais', todos: 'qualquer i
 // Vitrine de prêmios: o app já começa com uma seleção; os pais tiram, voltam ou acrescentam (do banco ou um prêmio próprio).
 export default async function Premios({ searchParams }) {
   const sp = await searchParams;
-  const { supabase, familia } = await exigirGestor();
+  const { supabase, familia, membros } = await exigirGestor();
   if (!desafiosLigados(familia)) redirect('/desafios');
   const aba = sp?.a === 'teen' ? 'teen' : 'crianca';
   const { data: todos } = await supabase.from('ra_premios').select('*').order('custo');
   const naAba = (f) => (aba === 'teen' ? f === 'teen' : f !== 'teen');
-  const meus = (todos || []).filter((p) => naAba(p.faixa));
+  // Desejos ainda sem resposta (ou com "agora não") ficam fora da vitrine.
+  const meus = (todos || []).filter((p) => naAba(p.faixa) && (!p.desejo || p.desejo === 'aprovado'));
+  const nomeDe = Object.fromEntries((membros || []).map((m) => [m.id, m.nome]));
   const usados = new Set((todos || []).filter((p) => p.ativo).map((p) => p.catalogo));
   const banco = PREMIOS.filter((p) => naAba(p.faixa) && !usados.has(p.id));
   const Moeda = aba === 'teen' ? Hexagono : Estrela;
@@ -38,7 +41,8 @@ export default async function Premios({ searchParams }) {
         {meus.map((p) => (
           <div key={p.id} className={`vit${p.ativo ? '' : ' apagado'}`}>
             <span className="des-ic mel"><Moeda tam={22} /></span>
-            <span className="corpo"><b>{p.nome}</b><small>{p.custo} {un} · {FAIXA[p.faixa]}{p.ativo ? '' : ' · fora da vitrine'}</small></span>
+            <span className="corpo"><b>{p.nome}</b><small>{p.custo} {un} · {p.membro_id ? `desejo de ${nomeDe[p.membro_id] || 'alguém'}` : FAIXA[p.faixa]}{p.ativo ? '' : ' · fora da vitrine'}</small></span>
+            <EditarPremio premio={p} un={un} />
             <Form acao={alternarPremio} simples><input type="hidden" name="id" value={p.id} /><input type="hidden" name="ativo" value={p.ativo ? '0' : '1'} /><button className="btn sec peq">{p.ativo ? 'Tirar' : 'Voltar'}</button></Form>
           </div>
         ))}

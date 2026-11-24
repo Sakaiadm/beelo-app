@@ -54,6 +54,7 @@ export default async function Painel() {
   // Desafios (beta): resumo com o andamento de cada desafio e os prêmios para entregar.
   const des = gestor && desafiosLigados(familia) ? await carregarDesafios(supabase, { eu, membros }) : null;
   const paraEntregar = des ? des.pedidos.filter((p) => p.status === 'pedido').length : 0;
+  const paraAprovar = des ? des.desejos.filter((x) => x.desejo === 'esperando').length : 0;
   const pend = (adiamentos?.length || 0) + justif.length + (propostas?.length || 0);
 
   return (
@@ -79,6 +80,7 @@ export default async function Painel() {
             <span><b>Desafios da semana</b><small>{des.desafios.length ? `${des.desafios.filter((d) => d.atual?.status === 'cumprido').length} de ${des.desafios.length} cumpridos` : 'Nenhum desafio ainda. Toque para escolher.'}</small></span>
             <span className="selo-beta">beta</span></div>
           {paraEntregar > 0 && <div className="aviso info" style={{ margin: '12px 0 0' }}>{paraEntregar === 1 ? '1 prêmio para entregar' : `${paraEntregar} prêmios para entregar`}</div>}
+          {paraAprovar > 0 && <div className="aviso info" style={{ margin: '12px 0 0' }}>{paraAprovar === 1 ? '1 desejo para aprovar' : `${paraAprovar} desejos para aprovar`}</div>}
           {des.desafios.length > 0 && (
             <div className="barras-h contrib" style={{ marginTop: 14, fontSize: 13 }}>
               {des.desafios.map((d) => {

@@ -606,3 +606,4 @@ button.cartao-l { width: 100%; font: inherit; text-align: left; cursor: pointer;
 .titulo-beta { display: flex; align-items: center; gap: 10px; flex-wrap: wrap; }
 .como-funciona ul { margin: 6px 0 0; padding-left: 18px; font-size: 13.5px; line-height: 1.45; }
 .como-funciona li { margin-bottom: 3px; }
+.vit:has(> form .dupla) { flex-wrap: wrap; }

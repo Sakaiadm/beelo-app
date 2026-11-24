@@ -13,6 +13,7 @@ const uuid = (v) => (/^[0-9a-f-]{36}$/i.test(String(v || '')) ? String(v) : null
 const txt = (fd, k, max = 80) => { const v = fd.get(k); return v == null ? null : String(v).trim().slice(0, max) || null; };
 const semAcentos = (s) => String(s || '').normalize('NFD').replace(/[̀-ͯ]/g, '').trim().toLowerCase();
 const faltaSql = (e) => /ra_desafio|ra_premio|ra_cofrinho|desafios_beta|mural_visivel|premios_ate8|cofrinho_meta/.test(String(e?.message || ''));
+const faltaSqlDesejos = (e) => /ra_desejo|desejo|membro_id/.test(String(e?.message || '')) && /function|column|schema cache/.test(String(e?.message || ''));
 const erroDe = (e) => (faltaSql(e) ? { erro: 'Para usar os desafios, rode antes o SQL 0016 no Supabase.' } : traduzirErro(e));
 
 async function quemSou(supabase) {
@@ -248,4 +249,44 @@ export async function adicionarPremio(_, fd) {
   if (error) return erroDe(error);
   revalidar();
   return { ok: true, msg: 'Prêmio na vitrine.' };
+}
+
+// ===== Lista de desejos (SQL 0017) =====
+async function rpcDesejo(nome, args) {
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc(nome, args);
+  if (error) return faltaSqlDesejos(error) ? { erro: 'Para usar a lista de desejos, rode antes o SQL 0017 no Supabase.' } : erroDe(error);
+  revalidar();
+  return { ok: true };
+}
+export async function sugerirDesejo(_, fd) {
+  const nome = txt(fd, 'nome');
+  if (!nome) return { erro: 'Escreva o que você quer.' };
+  const r = await rpcDesejo('ra_desejo_sugerir', { p_nome: nome, p_foto: txt(fd, 'foto', 300) });
+  return r.ok ? { ok: true, msg: 'Enviado! Os pais vão responder.' } : r;
+}
+export async function responderDesejo(_, fd) {
+  const aprovar = fd.get('aprovar') === '1';
+  const custo = Number(fd.get('custo'));
+  if (aprovar && !(custo >= 1 && custo <= 1000)) return { erro: 'Escolha quanto o desejo vale.' };
+  if (aprovar && !txt(fd, 'nome')) return { erro: 'Dê um nome para o prêmio.' };
+  const r = await rpcDesejo('ra_desejo_responder', {
+    p_id: uuid(fd.get('id')), p_aprovar: aprovar, p_nome: txt(fd, 'nome'), p_custo: aprovar ? Math.round(custo) : null,
+    p_regra: txt(fd, 'regra', 200), p_resposta: txt(fd, 'resposta', 200),
+  });
+  return r.ok ? { ok: true, msg: aprovar ? 'Desejo aprovado. Já virou a meta do cofrinho.' : 'Resposta enviada.' } : r;
+}
+// Vitrine: os pais ajustam o nome e o preço de um prêmio (também dos desejos aprovados).
+export async function editarPremio(_, fd) {
+  const supabase = await supabaseServer();
+  const eu = await quemSou(supabase);
+  if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
+  const nome = txt(fd, 'nome');
+  const custo = Number(fd.get('custo'));
+  if (!nome) return { erro: 'Dê um nome para o prêmio' };
+  if (!(custo >= 1 && custo <= 1000)) return { erro: 'O valor vai de 1 a 1000.' };
+  const { error } = await supabase.from('ra_premios').update({ nome, custo: Math.round(custo) }).eq('id', uuid(fd.get('id')));
+  if (error) return erroDe(error);
+  revalidar();
+  return { ok: true, msg: 'Prêmio atualizado.' };
 }

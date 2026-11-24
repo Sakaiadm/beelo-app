@@ -57,6 +57,9 @@ export default async function Hoje({ searchParams }) {
   const desAlvo = des ? des.desafios.filter((d) => d.membro_id === alvo.id || !d.membro_id) : [];
   const pfAlvo = perfil(alvo);
   const cofre = des && pfAlvo !== 'j' && (desAlvo.some((d) => d.membro_id) || des.saldo[alvo.id]?.estrelas || des.saldo[alvo.id]?.semanas) ? vitrineDe(alvo, des.premios, des.saldo) : null;
+  // Lista de desejos: o desejo aprovado que a pessoa está juntando aparece no cartão do desafio.
+  const desejoMeta = cofre && !cofre.sugerida && cofre.meta?.membro_id === alvo.id ? cofre.meta : null;
+  const desAprovado = des && alvo.id === eu.id ? des.desejos.find((x) => x.membro_id === eu.id && x.desejo === 'aprovado' && Date.now() - new Date(x.respondido_em).getTime() < 2 * 86400e3) : null;
   const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1 });
 
   return (
@@ -101,7 +104,14 @@ export default async function Hoje({ searchParams }) {
       </div>
 
       {des && alvo.id === eu.id && <Comemorar itens={paraComemorar(des.periodos, eu, des.desafios)} nome={eu.nome.split(' ')[0]} />}
-      {desAlvo.map((d) => <DesafioCartao key={d.id} d={d} p={d.atual} href="/desafios" />)}
+      {desAprovado && <div className="aviso ok" role="status">Os pais aprovaram seu desejo: {desAprovado.nome}!</div>}
+      {desAlvo.map((d) => (
+        <DesafioCartao key={d.id} d={d} p={d.atual} href="/desafios">
+          {desejoMeta && d.membro_id === alvo.id && ['estrelas', 'semanas'].includes(d.recompensa) && (
+            <div className="frase">{desejoMeta.moeda === 'semanas' ? <Hexagono tam={18} /> : <Estrela tam={18} />}<span>Cumprindo este desafio: <b>{d.recompensa === 'semanas' ? '+1 semana' : `+${d.estrelas || 10}`} para {desejoMeta.nome}</b>.</span></div>
+          )}
+        </DesafioCartao>
+      ))}
       {des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id) && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 14 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio da semana</Link>}
       {cofre && (
         <Link prefetch={false} href={alvo.id === eu.id ? '/desafios/cofrinho' : `/desafios/cofrinho?m=${alvo.id}`} className="card des-card">

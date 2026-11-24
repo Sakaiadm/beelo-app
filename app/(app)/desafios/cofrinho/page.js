@@ -1,6 +1,8 @@
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
-import { carregarDesafios, desafiosLigados, vitrineDe } from '@/lib/desafiosDados';
+import { carregarDesafios, desafiosLigados, vitrineDe, desejosVisiveis } from '@/lib/desafiosDados';
+import Icone from '@/components/Icone';
+import SugerirDesejo from '@/components/SugerirDesejo';
 import { perfil } from '@/lib/desafios';
 import { addDias, dataCurta } from '@/lib/util';
 import { Estrela, Hexagono } from '@/components/DesafioCartao';
@@ -27,6 +29,8 @@ export default async function Cofrinho({ searchParams }) {
   const nestaSemana = (mov || []).filter((x) => x.valor > 0 && x.criado_em.slice(0, 10) >= semana).reduce((s, x) => s + x.valor, 0);
   const esperando = dados.pedidos.filter((p) => p.membro_id === m.id && p.status === 'pedido');
   const maior = (p) => v.lista.find((x) => x.custo > v.tem && x.id !== p.id && x.custo > p.custo) || null;
+  const meus = desejosVisiveis(dados.desejos, m.id);
+  const nEsperando = meus.filter((x) => x.desejo === 'esperando').length;
   const titulo = semanas ? (proprio ? 'Semanas conquistadas' : `Semanas de ${m.nome}`) : (proprio ? 'Meu cofrinho' : `Cofrinho de ${m.nome}`);
 
   return (
@@ -44,10 +48,25 @@ export default async function Cofrinho({ searchParams }) {
 
       {v.meta && (
         <div className="card des-card">
-          <small className="peq-cinza" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em' }}>{v.sugerida ? 'Próximo prêmio (sugestão do app)' : 'Juntando para'}</small>
+          <small className="peq-cinza" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em' }}>{v.sugerida ? 'Próximo prêmio (sugestão do app)' : v.meta.membro_id ? `Juntando para (${proprio ? 'meu desejo' : 'desejo'})` : 'Juntando para'}</small>
           <div className="vit" style={{ paddingBottom: 0 }}><span className="corpo"><b>{v.meta.nome}</b><small>{semanas ? <Hexagono tam={14} /> : <Estrela tam={14} />} {Math.min(v.tem, v.meta.custo)} de {v.meta.custo}{v.tem < v.meta.custo ? ` · faltam ${v.meta.custo - v.tem}` : ''}</small><div className="barra"><div style={{ width: `${Math.min(100, (v.tem / v.meta.custo) * 100)}%` }} /></div></span></div>
         </div>
       )}
+
+      {(proprio || meus.length > 0) && <>
+        <div className="grupo-titulo">{proprio ? 'Meus desejos' : `Desejos de ${m.nome}`}</div>
+        <div className="card" style={{ padding: '12px 18px' }}>
+          {meus.length === 0 && <div className="vazio" style={{ padding: '6px 0' }}>Tem algo que você quer muito? Sugira aos pais.</div>}
+          {meus.map((x) => (
+            <div className="vit" key={x.id}>
+              <span className="des-ic"><Icone nome="presente" tam={22} /></span>
+              <span className="corpo"><b>{x.sugerido || x.nome}</b>
+                <small>{x.desejo === 'esperando' ? (proprio ? 'Esperando os pais' : 'Esperando a resposta. Veja em Desafios.') : `Os pais: “${x.resposta}”`}</small></span>
+            </div>
+          ))}
+          {proprio && <SugerirDesejo familia={m.familia_id} membro={m.id} esperando={nEsperando} moeda={v.moeda} />}
+        </div>
+      </>}
 
       <div className="grupo-titulo">{semanas ? 'Combinados para usar as semanas' : 'Prêmios combinados'}</div>
       <div className="card" style={{ padding: '12px 18px' }}>
@@ -55,7 +74,7 @@ export default async function Cofrinho({ searchParams }) {
         {v.lista.map((p) => (
           <div className="vit" key={p.id}>
             <span className="des-ic mel">{semanas ? <Hexagono tam={22} /> : <Estrela tam={22} />}</span>
-            <span className="corpo"><b>{p.nome}</b><small>{p.custo} {semanas ? (p.custo === 1 ? 'semana' : 'semanas') : 'estrelinhas'}{v.tem < p.custo ? ` · faltam ${p.custo - v.tem}` : ''}</small>
+            <span className="corpo"><b>{p.nome}</b><small>{p.custo} {semanas ? (p.custo === 1 ? 'semana' : 'semanas') : 'estrelinhas'}{p.membro_id ? (proprio ? ' · meu desejo' : ' · desejo') : ''}{p.regra ? ` · ${p.regra}` : ''}{v.tem < p.custo ? ` · faltam ${p.custo - v.tem}` : ''}</small>
               {v.tem < p.custo && <div className="barra"><div style={{ width: `${(v.tem / p.custo) * 100}%` }} /></div>}</span>
             {v.tem >= p.custo
               ? <TrocarPremio premio={p} membro={proprio ? null : m.id} tem={v.tem} moeda={v.moeda} maior={maior(p)} />
