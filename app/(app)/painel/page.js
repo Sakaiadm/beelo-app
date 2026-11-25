@@ -189,7 +189,7 @@ export default async function Painel({ searchParams }) {
             const item = ({ o, datas, lembrado, todasJust }) => (
               <div key={o.id} className="tarefa atrasada atr-lin">
                 <Link prefetch={false} href={`/hoje?m=${o.membro_id}&d=${o.data}#t-${o.id}`} className="tarefa-ir">
-                  <span><span className="tt">{nome[o.membro_id]} · {o.tarefa?.titulo} está atrasada</span>
+                  <span><span className="tt">{nome[o.membro_id]} · {o.tarefa?.titulo} <span className="selo-st erro" style={{ marginLeft: 6 }}>Atrasada</span></span>
                     <span className="meta">{datas.length > 1 ? `${datas.length} dias (${datas.sort().map(dataCurta).join(', ')})` : `${dataCurta(o.data)}${o.hora_inicio ? ' ' + o.hora_inicio.slice(0, 5) : ''}`} · {todasJust ? 'justificativa enviada' : 'sem justificativa ainda'}</span></span>
                   <Icone nome="dir" tam={20} />
                 </Link>
