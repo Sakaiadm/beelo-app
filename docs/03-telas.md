@@ -62,3 +62,11 @@ Os mais importantes: `Tarefa.js` (cartão de tarefa), `TarefaForm.js`, `Form.js`
 2. Lê dados com `supabase.from('ra_...')` ou `lib/dados.js` (o banco filtra pela família por RLS).
 3. Desenha com componentes; formulários usam `components/Form.js` e uma ação de `app/acoes.js`.
 4. A ação grava por `rpc`, chama `esquecerSessoes()` e `revalidatePath()`; a tela refaz a leitura.
+
+## Aviso de chegada ("Cheguei" / "Tudo certo")
+
+- Pai e Mãe criam em Nova tarefa, escolhendo **O que é: Chegada** (`components/TarefaForm.js`): título livre ("Chegar na escola"), horário esperado opcional e duas chaves (lembrar a pessoa; avisar os pais se ainda não chegou).
+- Na tela Hoje, o cartão da tarefa (`components/Tarefa.js`) mostra um botão grande: **Cheguei** para quem usa o modo criança (Divertido ou Calmo) e **Tudo certo** para adolescente e adultos. A mecânica é a mesma; muda só a escrita. Tocar comemora conforme o jeito de ver e avisa os responsáveis.
+- Lembrete: o sino e o push (como os outros avisos) e, em Hoje, um cartão suave "Já chegou?" (`components/ChegadaLembrete.js`) com **Cheguei** e **Ainda não**.
+- Chegada nunca aparece como "Atrasada" (`lib/util.js`, `statusExibido`). Cada responsável liga ou desliga o aviso em Meu perfil ("Quando alguém avisar que chegou").
+- Fora do escopo por decisão: botão "Preciso de ajuda" e localização.

@@ -25,7 +25,7 @@ export default async function Perfil() {
   // Jeito de ver o beelo: só aparece depois do SQL 0022 (com ele, a coluna jeito_livre vem preenchida).
   const comJeito = !gestor && temJeito(eu) && eu.jeito_livre !== undefined;
   const visao = !gestor && visaoCrianca(eu);
-  const n = { concluida: 'todas', justificativa: true, adiamento: true, tela: true, tarefa_filho: true, ...(eu.notif || {}) };
+  const n = { concluida: 'todas', justificativa: true, adiamento: true, tela: true, tarefa_filho: true, chegada: true, ...(eu.notif || {}) };
   return (
     <main className="estreito perfil">
       <VoltarHistorico href="/" titulo="Meu perfil" />

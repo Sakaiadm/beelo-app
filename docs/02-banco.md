@@ -40,7 +40,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 - **Família e pessoas:** `ra_criar_familia`, `ra_editar_familia`, `ra_cor_familia`, `ra_definir_responsavel`, `ra_vincular`, `ra_excluir_membro`, `ra_apagar_familia`, `ra_autorizar`, `ra_aceitar`, `ra_meu_avatar`, `ra_minha_cor`, `ra_meu_jeito` (`app/acoes.js`)
 - **Tarefas do dia:** `ra_gerar_ocorrencias`, `ra_concluir` / `ra_concluir2`, `ra_desfazer`, `ra_justificar`, `ra_avaliar_justificativa`, `ra_conferir`, `ra_conferir_auto`, `ra_definir_horario`, `ra_pedir_adiamento`, `ra_adiar_livre`, `ra_responder_adiamento`
 - **Tempo de tela:** `ra_tela_previsto_dia`, `ra_propor_tela`, `ra_responder_tela`, `ra_tela_ajustar_tarefa`
-- **Avisos:** `ra_notificar`, `ra_notificar_gestores`, `ra_gerar_lembretes`, `ra_lembrar_tarefa`, `ra_lembrar_tela`, `ra_meu_resumo`, `ra_minhas_notif`, `ra_push_inscrever`, `ra_push_cancelar`, `ra_push_teste`, `ra_push_pendentes`, `ra_push_concluir`, `ra_push_segredo_ok`, `ra_push_definir_segredo` (as quatro últimas, o despachante da VPS)
+- **Avisos:** `ra_notificar`, `ra_notificar_gestores`, `ra_gerar_lembretes`, `ra_lembrar_tarefa`, `ra_lembrar_tela`, `ra_meu_resumo`, `ra_minhas_notif`, `ra_cheguei`, `ra_push_inscrever`, `ra_push_cancelar`, `ra_push_teste`, `ra_push_pendentes`, `ra_push_concluir`, `ra_push_segredo_ok`, `ra_push_definir_segredo` (as quatro últimas, o despachante da VPS)
 - **Desafios e prêmios:** `ra_desafios_atualizar`, `ra_desafio_calc`, `ra_desafio_base`, `ra_desafio_encerrar`, `ra_desafio_premiar`, `ra_desafio_visto`, `ra_periodo_inicio`, `ra_periodo_fim`, `ra_premio_pedir`, `ra_premio_entregar`, `ra_cofrinho_meta`, `ra_desejo_sugerir`, `ra_desejo_responder`, `ra_desafio_sugerir`, `ra_desafio_sugestao_fechar`, `ra_mural_todos`
 - **Administração do beelo:** `ra_admin_familias`, `ra_admin_membros`, `ra_admin_criar_familia`, `ra_admin_ativar_familia`, `ra_admin_cores`
 - **Gatilhos (automáticos, o app não chama):** `ra_tg_tarefa_nova`, `ra_tg_tela_real`, `ra_tg_tela_conclui`, `ra_tg_desafio_proprio`, `ra_seed_categorias`, `ra_log`
@@ -78,3 +78,11 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 
 ## Como testar o banco
 `bash testes/banco-local.sh` sobe um PostgreSQL local descartável (não toca no Supabase real) e roda as trilhas de `supabase/testes/` (`trilha_banco.sql`, `trilha_desafios.sql`, `trilha_desejos.sql`).
+
+## Aviso de chegada (migração 0027)
+
+- **Tarefa de chegada:** `ra_tarefas.especial = 'chegada'` (mesma ideia do tempo de tela). Colunas novas: `chegada_lembrar` (lembrete suave só para a pessoa, padrão ligado) e `chegada_avisar_pais` (padrão desligado). Em `ra_ocorrencias`: `chegada_pais_em` (guarda que o "ainda sem confirmação" já foi avisado).
+- **`ra_cheguei(p_oc)`:** só a própria pessoa, só no dia; marca como feita e já conferida, grava a hora (`concluida_em`) e avisa os responsáveis ("Alice chegou na escola, 7h28"). Tocar de novo não repete o aviso.
+- **`ra_gerar_lembretes`** (roda a cada minuto pelo despachante): 15 min depois do horário, lembrete só para a pessoa; 30 min depois, se ligado na tarefa, "ainda sem confirmação" aos responsáveis; chegada de dia passado sem toque vira `cancelada` em silêncio (não aparece atrasada nem conta em desafios).
+- **Avisos:** a chave `chegada` em `ra_membros.notif` (padrão ligada) vale para os dois avisos aos responsáveis. Sem localização de nenhum tipo.
+- Teste do banco: `supabase/testes/trilha_chegada.sql`.

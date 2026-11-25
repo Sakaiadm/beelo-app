@@ -1,6 +1,6 @@
 // @arquivo  page.js: tela Hoje: as tarefas do dia da pessoa, com concluir, foto, adiar e justificar.
 // @tipo     tela
-// @usa      banco ra_tela_real, rpc ra_tela_previsto_dia, components/AvisosConvite, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/util, components/Tarefa, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/DesafioCartao, components/Comemorar
+// @usa      components/ChegadaLembrete, banco ra_tela_real, rpc ra_tela_previsto_dia, components/AvisosConvite, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/util, components/Tarefa, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/DesafioCartao, components/Comemorar
 // @usado-por Next.js (rota /hoje)
 import AvisosConvite from '@/components/AvisosConvite';
 import { visaoCrianca } from '@/lib/jeito';
@@ -8,7 +8,7 @@ import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import { ocorrencias, urlsFotos } from '@/lib/dados';
-import { hojeISO, addDias, dataTitulo, statusExibido, diaSemana } from '@/lib/util';
+import { hojeISO, addDias, dataTitulo, statusExibido, diaSemana, agoraHHMM, hhmm } from '@/lib/util';
 import Tarefa from '@/components/Tarefa';
 import Icone from '@/components/Icone';
 import LampadaFlutuante from '@/components/LampadaFlutuante';
@@ -17,6 +17,7 @@ import { carregarDesafios, desafiosLigados, paraComemorar, vitrineDe } from '@/l
 import { perfil } from '@/lib/desafios';
 import { mensagem, Estrela, Hexagono } from '@/components/DesafioCartao';
 import Comemorar from '@/components/Comemorar';
+import ChegadaLembrete from '@/components/ChegadaLembrete';
 
 export const dynamic = 'force-dynamic';
 
@@ -74,6 +75,11 @@ export default async function Hoje({ searchParams }) {
   const desAprovado = des && alvo.id === eu.id ? des.desejos.find((x) => x.membro_id === eu.id && x.desejo === 'aprovado' && Date.now() - new Date(x.respondido_em).getTime() < 2 * 86400e3) : null;
   // Lista de criança (Raio-X U7): uma lista só, círculo grande e sem Adiar/Horário.
   const crianca = !gestor && alvo.id === eu.id && visaoCrianca(eu);
+  // Chegada: 15 min depois do horário, a própria pessoa vê um cartão suave "Já chegou?" (só se os pais ligaram o lembrete).
+  const minutos = (h) => { const [a, b] = String(h || '').split(':').map(Number); return a * 60 + b; };
+  const botaoChegada = crianca ? 'Cheguei' : 'Tudo certo';
+  const lembretesChegada = dia === hoje && alvo.id === eu.id ? doDia.filter((x) => x.o.membro_id === eu.id && x.o.tarefa?.especial === 'chegada' && x.o.tarefa?.chegada_lembrar && x.st === 'pendente' && x.o.hora_inicio
+    && minutos(agoraHHMM()) >= minutos(hhmm(x.o.hora_inicio)) + 15) : [];
   // Editar direto no Hoje (U11): os pais editam tudo; cada pessoa edita a tarefa que ela mesma criou para si.
   const editar = (o) => o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${o.membro_id}` : null) : gestor || (o.tarefa?.criada_por === eu.id && o.membro_id === eu.id) ? `/tarefas/${o.tarefa_id}/editar?${new URLSearchParams({ d: o.data, volta: `/hoje${veTodos ? `?m=${alvo.id}` : ''}` })}` : null;
   const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, dia: festaDia, tela: telaDados[x.o.id], crianca, editarHref: editar(x.o) });
@@ -99,6 +105,12 @@ export default async function Hoje({ searchParams }) {
           {pessoasDia.map((f) => <Link prefetch={false} key={f.id} href={`/hoje?m=${f.id}${dia !== hoje ? `&d=${dia}` : ''}`} className={f.id === alvo.id ? 'on' : ''} aria-current={f.id === alvo.id ? 'page' : undefined}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
         </div>
       )}
+
+      {lembretesChegada.map((x) => {
+        const t = x.o.tarefa.titulo;
+        const desc = /^chegar +/i.test(t) ? t.replace(/^chegar +/i, 'chegou ') : `chegou: ${t}`;
+        return <ChegadaLembrete key={x.o.id} oc={x.o.id} pergunta={`Já ${desc}?`} botao={botaoChegada} />;
+      })}
 
       {/* Tarefas primeiro (U1): o quadro azul vira uma faixa fina. */}
       <div className="faixa-dia" aria-label={`${feitas} de ${total} tarefas feitas`}>
