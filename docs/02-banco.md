@@ -28,7 +28,7 @@ Toda tabela tem **RLS** (segurança por linha): cada pessoa só enxerga e mexe n
 | `ra_desafio_periodos` | Cada semana/mês de um desafio: progresso, status (andamento, cumprido, não cumprido) | `lib/desafiosDados.js` |
 | `ra_premios` | Prêmios da família (nome, custo em estrelas ou semanas, faixa de idade) | `app/(app)/desafios/premios` |
 | `ra_premio_pedidos` | Prêmio pedido → entregue / cancelado. Também a lista de desejos | `DesejoAprovar.js`, `SugerirDesejo.js` |
-| `ra_desafio_sugestoes` | Sugestões de desafio feitas pela criança, esperando Pai/Mãe (esperando, criado, agora_nao). SQL 0027 | `components/SugerirDesafio.js`, `app/(app)/desafios/page.js` |
+| `ra_desafio_sugestoes` | Sugestões de desafio feitas pela criança, esperando Pai/Mãe (esperando, criado, agora_nao). SQL 0028 | `components/SugerirDesafio.js`, `app/(app)/desafios/page.js` |
 | `ra_cofrinho` | Livro-caixa de estrelinhas e semanas (+ entradas, − trocas; nunca vencem) | `app/(app)/desafios/cofrinho` |
 | `ra_aceites` | Registro de aceite de termos, privacidade e autorização do responsável (LGPD) | `lib/aceite.js`, `aceitarTermos` |
 
@@ -72,7 +72,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0021 A e B | Automações: resumo do dia, conferir sozinho, convite parado, prêmio esperando. **Há duas 0021: rode A, depois B** |
 | 0022 | Jeito de ver o beelo e ano aproximado de nascimento |
 | 0023 | Separa papel de parentesco (Pai, Mãe, Adulto que ajuda, Filho(a)) |
-| 0027 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |
+| 0028 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |
 
 ⚠️ Ordem importa: algumas migrações dizem no cabeçalho "rode ANTES do app novo" (0021 A, 0022) ou "SÓ DEPOIS" (0020). Leia a primeira linha de cada arquivo antes de rodar.
 

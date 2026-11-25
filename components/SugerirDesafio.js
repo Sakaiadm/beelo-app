@@ -3,7 +3,7 @@
 // @tipo      componente
 // @usa       app/acoes-desafios (sugerirDesafio), components/Form
 // @usado-por app/(app)/desafios/page.js (criança sem desafio)
-// @banco     ra_desafio_sugestoes (SQL 0027, pela função ra_desafio_sugerir)
+// @banco     ra_desafio_sugestoes (SQL 0028, pela função ra_desafio_sugerir)
 // @decisao   25/11 Thomas: criança PODE sugerir; quem cria o desafio continua sendo Pai ou Mãe.
 import { useState } from 'react';
 import Form from './Form';

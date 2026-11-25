@@ -1,4 +1,4 @@
--- 0027: a criança sugere um desafio e Pai e Mãe aprovam (criando o desafio) ou dizem "agora não".
+-- 0028: a criança sugere um desafio e Pai e Mãe aprovam (criando o desafio) ou dizem "agora não".
 -- @banco ra_desafio_sugestoes (nova)
 -- @rpc ra_desafio_sugerir (criança), ra_desafio_sugestao_fechar (Pai e Mãe)
 -- @cuidado Ninguém grava na tabela direto: só pelas duas funções. A criança só vê as próprias sugestões.

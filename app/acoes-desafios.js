@@ -299,7 +299,7 @@ export async function editarPremio(_, fd) {
   return { ok: true, msg: 'Prêmio atualizado.' };
 }
 
-// ═══ SEÇÃO: Criança sugere desafio (SQL 0027) ═══
+// ═══ SEÇÃO: Criança sugere desafio (SQL 0028) ═══
 // @rpc ra_desafio_sugerir, ra_desafio_sugestao_fechar
 export async function sugerirDesafio(_, fd) {
   const supabase = await supabaseServer();
@@ -308,7 +308,7 @@ export async function sugerirDesafio(_, fd) {
   const c = desafioDe(fd.get('catalogo'));
   if (!c || !c.para.includes('c')) return { erro: 'Escolha um desafio da lista.' };
   const { error } = await supabase.rpc('ra_desafio_sugerir', { p_catalogo: c.id, p_titulo: c.t });
-  if (error) return /ra_desafio_sugerir|ra_desafio_sugestoes/.test(String(error.message)) && /function|schema cache|relation/.test(String(error.message)) ? { erro: 'Para sugerir desafios, rode antes o SQL 0027 no Supabase.' } : erroDe(error);
+  if (error) return /ra_desafio_sugerir|ra_desafio_sugestoes/.test(String(error.message)) && /function|schema cache|relation/.test(String(error.message)) ? { erro: 'Para sugerir desafios, rode antes o SQL 0028 no Supabase.' } : erroDe(error);
   revalidar();
   return { ok: true, msg: 'Enviado! Os pais vão responder.' };
 }

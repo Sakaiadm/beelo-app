@@ -3,7 +3,7 @@
 // @usa       lib/desafiosDados.js, lib/desafios.js, lib/sugestoesDesafio.js, components/DesafiosTopo, DesafiosVazio, SugerirDesafio, app/acoes-desafios.js; tabelas ra_desafio*, ra_premios, ra_cofrinho*
 // @usado-por menu de baixo (Desafios), cartões do Hoje e do Painel
 // @cuidado   Abas e "Ajustes" só no ramo do gestor (Ajustes fica discreto no pé). Sem setinha de voltar para Pai/Mãe; o filho mantém a setinha.
-//            Desligado: gestor vê o cartão "Ligar os desafios"; os outros vão para /hoje. Sugestão da criança: tabela ra_desafio_sugestoes (SQL 0027).
+//            Desligado: gestor vê o cartão "Ligar os desafios"; os outros vão para /hoje. Sugestão da criança: tabela ra_desafio_sugestoes (SQL 0028).
 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -37,7 +37,7 @@ function Titulo({ texto }) {
   return <div className="cab"><div><h1 className="titulo titulo-beta">{texto} <span className="selo-beta">beta</span></h1></div></div>;
 }
 
-// Sugestões que as crianças fizeram (SQL 0027). Sem a tabela ainda, a lista vem vazia e o resto da tela funciona.
+// Sugestões que as crianças fizeram (SQL 0028). Sem a tabela ainda, a lista vem vazia e o resto da tela funciona.
 async function sugestoesAbertas(supabase) {
   const { data, error } = await supabase.from('ra_desafio_sugestoes').select('id, membro_id, catalogo, titulo, criado_em').eq('status', 'esperando').order('criado_em'); // @banco ra_desafio_sugestoes
   return error ? [] : data || [];
@@ -241,7 +241,7 @@ export default async function Desafios({ searchParams }) {
   // ===== Criança, adolescente e adultos =====
   const pf = perfil(eu);
   const meus = deQuem(eu.id);
-  // Criança sem desafio: pode sugerir um aos pais (SQL 0027). Quem cria continua sendo Pai ou Mãe.
+  // Criança sem desafio: pode sugerir um aos pais (SQL 0028). Quem cria continua sendo Pai ou Mãe.
   const sugsMinhas = pf === 'c' ? (await sugestoesAbertas(supabase)).filter((x) => x.membro_id === eu.id) : [];
   const idsSug = pf === 'c' && meus.length === 0 ? (await sugestoesDesafio(supabase, [{ id: eu.id, perfil: 'c' }], dados.hoje)).sugestoes[eu.id] || [] : [];
   const paraSugerir = idsSug.map((x) => desafioDe(x.id)).filter((c) => c && c.para.includes('c')).slice(0, 3).map(({ id, t, d }) => ({ id, t, d }));

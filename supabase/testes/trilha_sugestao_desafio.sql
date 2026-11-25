@@ -1,4 +1,4 @@
--- @arquivo trilha_sugestao_desafio.sql: teste do SQL 0027 (criança sugere desafio, Pai/Mãe respondem). Transação que termina em RAISE com o relatório.
+-- @arquivo trilha_sugestao_desafio.sql: teste do SQL 0028 (criança sugere desafio, Pai/Mãe respondem). Transação que termina em RAISE com o relatório.
 -- Uso: depois de bash testes/banco-local.sh, rode: psql -h /var/tmp/pgra -p 5499 -U postgres -d ra -f supabase/testes/trilha_sugestao_desafio.sql
 do $$
 declare
