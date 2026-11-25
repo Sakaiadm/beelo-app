@@ -11,6 +11,10 @@ fi
 P="psql -h $D -p 5499 -U postgres -v ON_ERROR_STOP=1 -q"
 $P -c "drop database if exists ra" -c "create database ra" >/dev/null
 $P -d ra -f "$R/supabase/testes/stub_supabase_local.sql"
-for f in "$R"/supabase/migrations/*.sql; do $P -d ra -f "$f" 2>&1 | grep -v NOTICE || true; done
+# @cuidado: a coluna "sexo" existe em produção mas nenhuma migração a cria; aqui ela é criada antes da 0020 para o banco de teste montar.
+for f in "$R"/supabase/migrations/*.sql; do
+  case "$f" in *0020_*) $P -d ra -c "alter table public.ra_membros add column if not exists sexo text" ;; esac
+  $P -d ra -f "$f" 2>&1 | grep -v NOTICE || true
+done
 $P -d ra -c "insert into public.ra_familias(nome) values ('Nossa família')"
 $P -d ra -f "$R/supabase/testes/trilha_banco.sql" 2>&1 | sed -n '/RELATORIO_TESTES/,/CONTEXT/p' | grep -v CONTEXT

@@ -1,6 +1,8 @@
 -- Trilha de testes do banco do beelo.
 -- Roda tudo dentro de uma transação e termina com RAISE EXCEPTION contendo o relatório:
 -- assim NADA fica gravado (todos os dados de teste são desfeitos automaticamente).
+-- @cuidado: a 0019 fecha a criação de grupos novos; o teste abre o cadastro só neste banco descartável.
+insert into public.ra_config(chave, valor) values ('cadastro_aberto','1') on conflict (chave) do update set valor = '1';
 do $$
 declare
   r text := '';
@@ -48,7 +50,7 @@ begin
   perform public.ra_minhas_notif('{"concluida":"com_foto","justificativa":false,"adiamento":true,"tela":true,"tarefa_filho":true}');
   select notif->>'concluida' into t from public.ra_membros where id = G;
   if t = 'com_foto' then nok := nok + 1; r := r || E'OK  2.5 Pai escolhe os próprios avisos (só conclusão com foto, sem justificativas)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 2.5 preferências\n'; end if;
-  insert into public.ra_membros(familia_id, email, nome, papel, notif) values (fam, 'teste-mae@teste.local', 'Mãe Teste', 'gestor', '{"concluida":"nenhuma"}') returning id into G2;
+  insert into public.ra_membros(familia_id, email, nome, papel) values (fam, 'teste-mae@teste.local', 'Mãe Teste', 'gestor') returning id into G2; update public.ra_membros set notif = '{"concluida":"nenhuma"}' where id = G2;
   select justificativa_obrigatoria into b from public.ra_familias where id = fam;
   if b = false then nok := nok + 1; r := r || E'OK  2.5b Justificativa começa como opcional (padrão)\n'; else nfalha := nfalha + 1; r := r || E'FALHA 2.5b padrão da justificativa\n'; end if;
   update public.ra_familias set nome = 'TESTE 2', justificativa_obrigatoria = true, avatar = 'preset:m3' where id = fam; get diagnostics n = row_count;
