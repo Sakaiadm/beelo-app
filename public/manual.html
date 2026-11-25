@@ -174,9 +174,31 @@ a:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
   .fecho { break-before: page; border-top: 0; margin-top: 0; padding-top: 0; }
   .fim { break-inside: avoid; }
 }
+
+/* Busca dentro do manual (25/11) */
+.busca-btn { position: fixed; top: max(10px, env(safe-area-inset-top, 0px)); right: 12px; z-index: 60; display: inline-flex; align-items: center; gap: 6px; height: 34px; padding: 0 12px; border-radius: 999px; border: 1px solid var(--borda); background: var(--cartao); color: var(--azul); font: 700 13px var(--fonte); box-shadow: 0 2px 8px var(--sombra); cursor: pointer; }
+.busca-btn:hover, .busca-btn:focus-visible { border-color: var(--azul); outline: none; }
+.busca-barra { position: fixed; left: 0; right: 0; top: 0; z-index: 70; display: flex; align-items: center; gap: 6px; padding: max(8px, env(safe-area-inset-top, 0px)) 10px 8px; background: var(--cartao); border-bottom: 1px solid var(--borda); box-shadow: 0 4px 14px var(--sombra); }
+.busca-barra[hidden], .busca-btn[hidden] { display: none; }
+.busca-barra input { flex: 1; min-width: 0; height: 40px; border-radius: 12px; border: 1px solid var(--borda); background: var(--fundo); color: var(--texto); padding: 0 12px; font: 500 16px var(--fonte); }
+.busca-barra input:focus { outline: 2px solid var(--azul); outline-offset: 0; }
+.busca-n { font-size: 12px; font-weight: 700; color: var(--cinza); white-space: nowrap; min-width: 4.2em; text-align: center; }
+.busca-barra button { flex: 0 0 auto; width: 38px; height: 38px; display: grid; place-items: center; border-radius: 10px; border: 1px solid var(--borda); background: var(--cartao); color: var(--azul); cursor: pointer; }
+mark.busca { background: #ffe08a; color: #13203a; border-radius: 3px; padding: 0 1px; }
+mark.busca.atual { background: #f5b82e; outline: 2px solid var(--azul); }
+.cap { scroll-margin-top: 64px; }
+@media print { .busca-btn, .busca-barra { display: none !important; } }
 </style>
 </head>
 <body>
+<button class="busca-btn" type="button" aria-expanded="false" aria-controls="busca-barra"><svg viewBox="0 0 24 24" width="16" height="16" fill="none" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" aria-hidden="true"><circle cx="11" cy="11" r="6.5"/><path d="M16 16l4.5 4.5"/></svg>Buscar</button>
+<div class="busca-barra" id="busca-barra" role="search" hidden>
+<input type="search" id="busca-q" placeholder="Buscar neste manual" aria-label="Buscar neste manual" autocomplete="off" enterkeyhint="search">
+<span class="busca-n" role="status" aria-live="polite"></span>
+<button type="button" class="busca-ant" aria-label="Resultado anterior"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 15l6-6 6 6"/></svg></button>
+<button type="button" class="busca-prox" aria-label="Próximo resultado"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"/></svg></button>
+<button type="button" class="busca-fechar" aria-label="Fechar a busca"><svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2.6" stroke-linecap="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"/></svg></button>
+</div>
 <header class="capa faixa">
 <div class="miolo capa-grade">
 <div class="capa-txt">
@@ -403,5 +425,56 @@ a:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; }
 <p>As telas são do app real, com nomes de exemplo (Família Silva: Carlos, Ana, Lucas e Sofia). Versão beta, novembro de 2026.</p>
 </footer>
 </div></main>
+<script>
+/* Busca dentro do manual (25/11): botão Buscar no canto, destaca tudo, vai ao primeiro e tem setas. Sem acento. Aceita ?q=termo vindo da Ajuda. */
+(function(){
+var btn=document.querySelector(".busca-btn"),bar=document.getElementById("busca-barra"),inp=document.getElementById("busca-q"),n=bar.querySelector(".busca-n"),main=document.querySelector("main"),marks=[],atual=-1,tempo;
+var PARADAS=" de da do das dos a o as os um uma e em no na para por com que como eu meu minha seu sua quero saber posso fazer ";
+function norm(s){return s.toLowerCase().replace(/[^\u0000-\u007f]/g,function(c){return c.normalize("NFD").replace(/[\u0300-\u036f]/g,"")})}
+function limpar(){marks.forEach(function(m){var p=m.parentNode;if(!p)return;p.replaceChild(document.createTextNode(m.textContent),m);p.normalize()});marks=[];atual=-1}
+function achar(termos){
+  var w=document.createTreeWalker(main,NodeFilter.SHOW_TEXT,{acceptNode:function(t){var p=t.parentNode.nodeName;return /^(SCRIPT|STYLE|NOSCRIPT)$/.test(p)||!t.nodeValue.trim()?NodeFilter.FILTER_REJECT:NodeFilter.FILTER_ACCEPT}}),nos=[],t;
+  while((t=w.nextNode()))nos.push(t);
+  var total=0;
+  nos.forEach(function(no){
+    var txt=no.nodeValue,nt=norm(txt);if(nt.length!==txt.length)return;
+    var faixas=[];
+    termos.forEach(function(q){var i=0;while((i=nt.indexOf(q,i))>-1){faixas.push([i,i+q.length]);i+=q.length}});
+    if(!faixas.length)return;
+    faixas.sort(function(a,b){return a[0]-b[0]});
+    var lim=[];faixas.forEach(function(f){var u=lim[lim.length-1];if(u&&f[0]<=u[1])u[1]=Math.max(u[1],f[1]);else lim.push(f)});
+    for(var k=lim.length-1;k>=0;k--){var r=document.createRange();r.setStart(no,lim[k][0]);r.setEnd(no,lim[k][1]);var m=document.createElement("mark");m.className="busca";r.surroundContents(m);total++}
+  });
+  marks=[].slice.call(main.querySelectorAll("mark.busca"));
+  return total;
+}
+function buscar(q,inicial){
+  limpar();var f=norm(q.trim()).replace(/\s+/g," ");
+  if(f.length<2){n.textContent="";return}
+  var achou=achar([f]);
+  if(!achou&&f.indexOf(" ")>-1){var ts=f.split(" ").filter(function(x){return x.length>=3&&PARADAS.indexOf(" "+x+" ")<0});if(ts.length)achou=achar(ts)}
+  if(!achou){n.textContent=inicial?"":"Nada encontrado";return}
+  var i=0;
+  if(inicial&&location.hash){var cap=document.getElementById(location.hash.slice(1));if(cap)for(var k=0;k<marks.length;k++)if(cap.contains(marks[k])){i=k;break}}
+  ir(i,!inicial||!location.hash);
+}
+function ir(i,rolar){
+  if(!marks.length)return;
+  if(atual>=0&&marks[atual])marks[atual].classList.remove("atual");
+  atual=(i+marks.length)%marks.length;marks[atual].classList.add("atual");
+  n.textContent=(atual+1)+" de "+marks.length;
+  if(rolar!==false)marks[atual].scrollIntoView({block:"center",behavior:"smooth"});
+}
+function abrir(){bar.hidden=false;btn.hidden=true;btn.setAttribute("aria-expanded","true");inp.focus();inp.select()}
+function fechar(){limpar();n.textContent="";inp.value="";bar.hidden=true;btn.hidden=false;btn.setAttribute("aria-expanded","false");btn.focus()}
+btn.addEventListener("click",abrir);
+bar.querySelector(".busca-fechar").addEventListener("click",fechar);
+bar.querySelector(".busca-prox").addEventListener("click",function(){ir(atual+1)});
+bar.querySelector(".busca-ant").addEventListener("click",function(){ir(atual-1)});
+inp.addEventListener("input",function(){clearTimeout(tempo);tempo=setTimeout(function(){buscar(inp.value)},150)});
+inp.addEventListener("keydown",function(e){if(e.key==="Enter"){e.preventDefault();ir(atual+(e.shiftKey?-1:1))}else if(e.key==="Escape")fechar()});
+try{var q=new URLSearchParams(location.search).get("q");if(q){bar.hidden=false;btn.hidden=true;btn.setAttribute("aria-expanded","true");inp.value=q;buscar(q,true)}}catch(e){}
+})();
+</script>
 </body>
 </html>

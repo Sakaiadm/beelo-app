@@ -951,6 +951,15 @@ a.tarefa-ir > svg { color: var(--cinza); flex: none; }
 .ajuda-atalhos .linha-ir:last-child { border-bottom: 0; }
 .linha-ir small { display: block; color: var(--cinza); font-weight: 500; font-size: var(--f-etq); }
 .ajuda-busca { margin-bottom: 14px; }
+/* Busca da Ajuda (25/11): pergunta, respostas prontas e perguntas grandes da criança */
+.ajuda-pergunta { display: block; font-weight: 800; font-size: var(--f-texto); margin: 4px 0 8px; }
+.ajuda-resp { padding: 12px 0; border-top: 1px solid var(--borda); }
+.ajuda-resp:first-of-type { border-top: 0; }
+.ajuda-resp p { margin: 4px 0 10px; line-height: 1.5; display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; overflow: hidden; }
+.ajuda-grande { padding: 4px 16px; margin-bottom: 10px; }
+.ajuda-grande .ajuda-item { border-bottom: 0; }
+.ajuda-grande .ajuda-item summary { min-height: 60px; align-items: center; font-size: 18px; font-weight: 700; }
+.ajuda-grande .ajuda-item p { font-size: 17px; text-align: left; }
 .ajuda-grupo .ajuda-item:first-of-type { border-top: 0; }
 /* U64 a U66: Meu perfil vale na hora */
 .meu-nome b { display: block; font-size: var(--f-cartao); }
