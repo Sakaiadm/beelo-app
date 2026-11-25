@@ -24,7 +24,7 @@ const AVISOS = { criado: 'Desafio criado. Ele renova sozinho toda semana.', ence
 function Titulo({ texto, acao, volta = '/painel' }) {
   return (
     <div className="cab">
-      <div className="vt" style={{ alignItems: 'flex-start' }}><Link prefetch={false} className="volta" href={volta} aria-label="Voltar"><Icone nome="esq" tam={26} /></Link><div><h1 className="titulo titulo-beta"><span className="des-ic mel" ><Icone nome="trofeu" tam={26} /></span>{texto} <span className="selo-beta">beta</span></h1><p className="sub">A semana vai de segunda a domingo.</p></div></div>
+      <div className="vt" style={{ alignItems: 'flex-start' }}><Link prefetch={false} className="volta" href={volta} aria-label="Voltar"><Icone nome="esq" tam={26} /></Link><div><h1 className="titulo titulo-beta">{texto} <span className="selo-beta">beta</span></h1><p className="sub">A semana vai de segunda a domingo.</p></div></div>
       {acao}
     </div>
   );
