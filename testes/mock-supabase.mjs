@@ -8,8 +8,9 @@ const G = id(1), M = id(2), E = id(3), A = id(4);
 const TV = '2026-11-24';
 const membros = [
   { id: G, familia_id: FAM, nome: 'Thomas', papel: 'gestor', cor: '#0f4fae', email: 'pai@t.com', ativo: true, tela_ativo: true, user_id: id(91), termos_versao: TV },
-  { id: M, familia_id: FAM, nome: 'Mãe', papel: 'gestor', cor: '#7a3fb0', email: null, ativo: true, tela_ativo: true, user_id: null },
+  { id: M, familia_id: FAM, nome: 'Mãe', papel: 'gestor', cor: '#7a3fb0', email: null, ativo: true, tela_ativo: true, user_id: id(95), termos_versao: TV },
   { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', jeito_livre: true, modo_crianca: process.env.MOCK_CRIANCA === '1', jeito: process.env.MOCK_JEITO || undefined, cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92), termos_versao: TV },
+  { id: id(5), familia_id: FAM, nome: 'Bia', papel: 'filho', cor: '#2e7d32', email: 'bia@t.com', ativo: true, tela_ativo: false, user_id: null }, // convidada que ainda não entrou
   { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: 'alice@t.com', ativo: true, tela_ativo: false, user_id: id(94), termos_versao: TV },
 ];
 if (process.env.MOCK_CHEGADA === '1') membros.forEach((m) => { m.termos_versao = '2026-11-24'; });
@@ -36,7 +37,7 @@ const ocorr = [
   oc(5, tarefas[1], hoje, { status: 'cumprida', concluida_em: new Date().toISOString(), foto_path: `${FAM}/${E}/foto.jpg` }),
   oc(6, tarefas[0], dia(1)), oc(7, tarefas[0], dia(2)),
   oc(8, tarefas[2], dia(-1), { status: 'cumprida', concluida_em: dia(-1) + 'T18:00:00Z', conferido: 'conferido' }),
-  oc(12, tarefas[3], hoje),
+  oc(12, tarefas[3], hoje), oc(13, tarefas[4], hoje), // 13: Lavar a louça (exige foto, 23:30)
   oc(9, tarefas[2], hoje), oc(10, tarefas[2], dia(2)),
 ];
 if (process.env.MOCK_CHEGADA === '1') {
@@ -97,7 +98,7 @@ if (process.env.MOCK_DESAFIOS === '1') {
   }
   tabelas.ra_premio_pedidos = [{ id: id(840), familia_id: FAM, membro_id: E, premio_id: id(831), nome: 'Açaí', custo: 25, moeda: 'estrelas', status: 'pedido', criado_em: agora }];
 }
-export const usuarios = { 'tok-pai': { id: id(91), email: 'pai@t.com', eu: membros[0] }, 'tok-filho': { id: id(92), email: 'edu@t.com', eu: membros[2] }, 'tok-ado': { id: id(94), email: 'alice@t.com', eu: membros[3] }, 'tok-estranho': { id: id(93), email: 'x@t.com', eu: null } };
+export const usuarios = { 'tok-pai': { id: id(91), email: 'pai@t.com', eu: membros[0] }, 'tok-filho': { id: id(92), email: 'edu@t.com', eu: membros[2] }, 'tok-ado': { id: id(94), email: 'alice@t.com', eu: membros.find((x) => x.id === A) }, 'tok-mae': { id: id(95), email: 'mae@t.com', eu: membros.find((x) => x.id === M) }, 'tok-estranho': { id: id(93), email: 'x@t.com', eu: null } };
 export const log = [];
 function filtrar(rows, params) {
   let out = rows;
@@ -139,6 +140,8 @@ http.createServer((req, res) => {
     if (falha.rpc && u.pathname === '/rest/v1/rpc/' + falha.rpc) return send(Number(falha.code) || 400, { code: falha.code === '401' ? 'PGRST301' : 'P0001', message: falha.msg || 'erro' });
     if (u.pathname === '/auth/v1/user') return usr ? send(200, { id: usr.id, email: usr.email, aud: 'authenticated', role: 'authenticated', app_metadata: {}, user_metadata: {} }) : send(401, { message: 'invalid' });
     if (u.pathname === '/auth/v1/verify') { const b = JSON.parse(body || '{}'); return b.token_hash === 'ok-hash' ? send(200, { access_token: 'tok-pai', token_type: 'bearer', expires_in: 3600, expires_at: 4102444800, refresh_token: 'r', user: { id: 'x', email: 'pai@t.com', aud: 'authenticated', role: 'authenticated' } }) : send(403, { code: 403, error_code: 'otp_expired', msg: 'expired' }); }
+    // Pedido do link por e-mail (entrar sem senha). /__falha?otp=429 simula "vários links seguidos".
+    if (u.pathname === '/auth/v1/otp') return falha.otp ? send(Number(falha.otp), Number(falha.otp) === 429 ? { code: 'over_email_send_rate_limit', message: 'email rate limit exceeded' } : { message: 'Erro interno do servidor' }) : send(200, {});
     if (u.pathname === '/auth/v1/logout') return send(204);
     if (u.pathname.startsWith('/storage/v1/object/sign/')) { const b = JSON.parse(body || '{}'); return send(200, (b.paths || []).map((p) => ({ path: p, signedURL: '/object/sign/x?token=t', error: null }))); }
     if (u.pathname.startsWith('/storage/v1/object/') && req.method === 'POST') return send(200, { Key: u.pathname.slice(19), Id: 'x' });
@@ -146,6 +149,8 @@ http.createServer((req, res) => {
     if (!m) return send(404, { message: 'nada' });
     if (m[1]) {
       if (m[2] === 'ra_eu' || m[2] === 'ra_vincular') return send(200, usr?.eu || null);
+      // @regra desde a 0020 o e-mail das pessoas só sai por esta função (só Pai e Mãe recebem)
+      if (m[2] === 'ra_emails_grupo') return tok === 'tok-pai' ? send(200, membros.map((x) => ({ id: x.id, email: x.email || null }))) : send(200, []);
       if (m[2] === 'ra_sou_super') return send(200, tok === 'tok-pai');
       if (m[2] === 'ra_admin_familias') return tok === 'tok-pai' ? send(200, adminFamilias) : send(400, { message: 'Apenas o administrador geral' });
       if (m[2] === 'ra_admin_membros') return tok === 'tok-pai' ? send(200, [{ id: id(701), nome: 'Ana', email: 'ana@t.com', funcao: 'mae', papel: 'gestor', ativo: true, entrou: false, responsavel: true }]) : send(400, { message: 'Apenas o administrador geral' });

@@ -86,7 +86,7 @@ const out = []; let falhas = 0;
 for (const [quem, nome, url, passo, esperado] of casos.filter((c) => !process.env.SO || c[1].includes(process.env.SO))) {
   const ctx = await browser.newContext({ viewport: { width: 390, height: 844 } });
   await ctx.addCookies([{ name: 'sb-127-auth-token', value: sess('tok-' + quem), url: BASE }]);
-  const p = await ctx.newPage(); const erros = [];
+  const p = await ctx.newPage(); p.setDefaultTimeout(5000); const erros = [];
   p.on('pageerror', (e) => erros.push(e.message));
   try {
     await p.goto(BASE + url, { waitUntil: 'networkidle' }); await lerLog();
