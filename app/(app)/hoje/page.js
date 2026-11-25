@@ -1,4 +1,5 @@
 import AvisosConvite from '@/components/AvisosConvite';
+import { visaoCrianca } from '@/lib/jeito';
 import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
@@ -44,7 +45,7 @@ export default async function Hoje({ searchParams }) {
   const semHora = doDia.filter((x) => !x.o.hora_inicio).sort(prio);
   const comHora = doDia.filter((x) => x.o.hora_inicio).sort(prio);
   const restantes = doDia.filter((x) => !x.st.startsWith('cumprida') && !['adiada', 'adiamento_pedido'].includes(x.st)).length;
-  const estrelas = alvo.modo_crianca && total ? Math.round((feitas / total) * 5) : null;
+  const estrelas = visaoCrianca(alvo) && total ? Math.round((feitas / total) * 5) : null;
   // Para a comemoração do fim do dia: dias seguidos com tudo feito (contando hoje) e os dias completos da semana.
   const diaOk = (d) => { const l = comSt.filter((x) => x.o.data === d && x.st !== 'adiada'); return l.length > 0 && l.every((x) => x.st.startsWith('cumprida')); };
   let seqAntes = 0; while (seqAntes < 7 && diaOk(addDias(hoje, -(seqAntes + 1)))) seqAntes++;
@@ -57,7 +58,7 @@ export default async function Hoje({ searchParams }) {
       supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: d }),
       supabase.from('ra_tela_real').select('*').eq('membro_id', eu.id).eq('data', d).maybeSingle(),
     ]);
-    return [x.o.id, { data: d, previsto: p?.[0] || null, atual: atual || null, crianca: !gestor && !!eu.modo_crianca }];
+    return [x.o.id, { data: d, previsto: p?.[0] || null, atual: atual || null, crianca: !gestor && visaoCrianca(eu) }];
   })));
   // Desafios (beta): o desafio da pessoa e o cofrinho logo abaixo do quadro azul, só no dia de hoje.
   const des = desafiosLigados(fam) && dia === hoje ? await carregarDesafios(supabase, { eu, membros }) : null;
@@ -68,7 +69,7 @@ export default async function Hoje({ searchParams }) {
   const desejoMeta = cofre && !cofre.sugerida && cofre.meta?.membro_id === alvo.id ? cofre.meta : null;
   const desAprovado = des && alvo.id === eu.id ? des.desejos.find((x) => x.membro_id === eu.id && x.desejo === 'aprovado' && Date.now() - new Date(x.respondido_em).getTime() < 2 * 86400e3) : null;
   // Lista de criança (Raio-X U7): uma lista só, círculo grande e sem Adiar/Horário.
-  const crianca = !gestor && alvo.id === eu.id && !!eu.modo_crianca;
+  const crianca = !gestor && alvo.id === eu.id && visaoCrianca(eu);
   // Editar direto no Hoje (U11): os pais editam tudo; cada pessoa edita a tarefa que ela mesma criou para si.
   const editar = (o) => o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${o.membro_id}` : null) : gestor || (o.tarefa?.criada_por === eu.id && o.membro_id === eu.id) ? `/tarefas/${o.tarefa_id}/editar?${new URLSearchParams({ d: o.data, volta: `/hoje${veTodos ? `?m=${alvo.id}` : ''}` })}` : null;
   const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, dia: festaDia, tela: telaDados[x.o.id], crianca, editarHref: editar(x.o) });

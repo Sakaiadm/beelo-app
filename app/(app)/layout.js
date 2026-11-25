@@ -1,4 +1,5 @@
 import ChaveLinha from '@/components/ChaveLinha';
+import { visaoCrianca, jeitoDe } from '@/lib/jeito';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import Link from 'next/link';
@@ -59,7 +60,7 @@ export default async function AppLayout({ children }) {
       <Selo n={naoLidas} />
       <Conexao />
       {children}
-      <Festa crianca={!gestor && !!eu.modo_crianca} nome={(eu.nome || '').split(' ')[0]} />
+      <Festa crianca={!gestor && visaoCrianca(eu)} calmo={!gestor && jeitoDe(eu) === 'calmo'} nome={(eu.nome || '').split(' ')[0]} />
       <Menu itens={itens} baixo />
       <ChaveLinha />
     </>

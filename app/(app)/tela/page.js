@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { visaoCrianca } from '@/lib/jeito';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { telaResumo, totalReal, textoPrevisto, telaSemana } from '@/lib/tela';
@@ -86,7 +87,7 @@ export default async function Tela({ searchParams }) {
 
   if (!gestor) {
     if (!eu.tela_ativo) redirect('/hoje');
-    const crianca = !!eu.modo_crianca;
+    const crianca = visaoCrianca(eu);
     const adulto = eu.funcao === 'outro';
     // Sempre o tempo de ontem (S23). Um dia que ficou faltando abre pelo aviso, com ?d=.
     const dia = /^\d{4}-\d{2}-\d{2}$/.test(sp.d || '') && sp.d < ontem && sp.d >= addDias(hoje, -14) ? sp.d : ontem;

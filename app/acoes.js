@@ -10,6 +10,7 @@ import { esquecerSessoes } from '@/lib/sessao';
 import { traduzirErro } from '@/lib/rede';
 import { emailsDoGrupo } from '@/lib/membros';
 import { VERSAO_TERMOS } from '@/lib/contato';
+import { jeitoValido, jeitoPorIdade, anoAgora } from '@/lib/jeito';
 
 // Depois de qualquer alteração: limpa o que estava guardado e manda as telas buscarem de novo.
 function revalidar() { esquecerSessoes(); revalidatePath('/', 'layout'); }
@@ -78,7 +79,7 @@ export async function conferirTodas(_, fd) {
 }
 
 // Enquanto o banco ainda não recebeu a 0009 (prioritária e modo criança), salva sem esses campos em vez de dar erro.
-const NOVAS = ['prioritaria', 'lembrete_min', 'modo_crianca', 'adiar_livre'];
+const NOVAS = ['prioritaria', 'lembrete_min', 'modo_crianca', 'adiar_livre', 'jeito', 'jeito_livre'];
 const semColuna = (e) => !!e && NOVAS.some((c) => String(e.message || '').includes(c));
 const semNovas = (reg) => Object.fromEntries(Object.entries(reg).filter(([k]) => !NOVAS.includes(k)));
 
@@ -181,6 +182,11 @@ export async function salvarPessoa(_, fd) {
     modo_crianca: temModoCrianca(f.id) && fd.get('modo_crianca') === '1',
     cor: /^#[0-9a-f]{6}$/i.test(fd.get('cor') || '') ? fd.get('cor') : '#1a6fe0',
   };
+  // Jeito de ver o beelo (SQL 0022): só no modo criança. O jeito vai só quando Pai ou Mãe mexeram na lista.
+  if (reg.modo_crianca) {
+    reg.jeito_livre = fd.get('jeito_livre') === '1';
+    if (jeitoValido(fd.get('jeito'))) reg.jeito = fd.get('jeito');
+  }
   if (!reg.nome) return { erro: 'Informe o nome' };
   const id = uuid(fd.get('id'));
   if (await nomeRepetido(supabase, 'ra_membros', eu.familia_id, reg.nome, id)) return { erro: 'Já existe uma pessoa com esse nome neste grupo. Use outro nome, por exemplo com o sobrenome.' };
@@ -632,6 +638,33 @@ export async function salvarPerfil(_, fd) {
   const r = await rpc('ra_meu_avatar', { p_caminho: a || null });
   // Avatar de criança: "Avatar salvo."; foto ou imagem: "Foto salva." (texto padrão do formulário).
   return r?.ok && a.startsWith('preset:') ? { ok: true, msg: 'Avatar salvo.' } : r;
+}
+
+// Meu perfil: a própria pessoa (no modo criança) escolhe o jeito de ver o beelo.
+export async function salvarJeito(_, fd) {
+  const j = String(fd.get('jeito') || '');
+  if (!jeitoValido(j)) return { erro: 'Escolha um jeito' };
+  return rpc('ra_meu_jeito', { p_jeito: j });
+}
+
+// Painel: Pai ou Mãe contam a idade (o app guarda só o ano aproximado). Sem jeito escolhido ainda,
+// começa pelo da idade: até 9 anos Divertido, de 10 a 12 Calmo, 13 ou mais Como os adultos.
+export async function salvarIdade(_, fd) {
+  const supabase = await supabaseServer();
+  const { data: eu } = await supabase.rpc('ra_eu');
+  if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
+  const id = uuid(fd.get('membro'));
+  const idade = Number(fd.get('idade'));
+  if (!id || !Number.isInteger(idade) || idade < 3 || idade > 17) return { erro: 'Escolha a idade' };
+  const { data: m, error: e1 } = await supabase.from('ra_membros').select('id, jeito').eq('id', id).eq('familia_id', eu.familia_id).maybeSingle();
+  if (e1) return traduzirErro(e1);
+  if (!m) return { erro: 'Pessoa não encontrada' };
+  const reg = { idade_ano: anoAgora() - idade, premios_ate8: idade <= 8 };
+  if (!m.jeito) reg.jeito = jeitoPorIdade(idade);
+  const { error } = await supabase.from('ra_membros').update(reg).eq('id', id).eq('familia_id', eu.familia_id);
+  if (error) return traduzirErro(error);
+  revalidar();
+  return { ok: true, msg: 'Idade salva.' };
 }
 
 export async function salvarAvisos(_, fd) {
