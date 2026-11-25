@@ -44,10 +44,12 @@ Variáveis opcionais (só os nomes; valores ficam no `.env` da VPS, que nunca va
 
 Pasta `testes/`: usam um Supabase falso (`mock-supabase.mjs`) para percorrer telas e ações (`rotas.mjs`, `acoes.mjs`, `offline.mjs`, `push.mjs`). O banco tem sua trilha própria em `supabase/testes/` (rodar com `bash testes/banco-local.sh`, precisa de PostgreSQL 16).
 
-- `testes/acoes-novas.mjs`: botões e formulários de Desafios, Vitrine, desejos, tarefas e cadastros (rodar com o app em 127.0.0.1:3100 e `MOCK_DESAFIOS=1 MOCK_DESEJOS=1` no Supabase falso; `SO="texto"` roda só um caso).
+- `testes/bateria-telas.mjs` (126 casos): o que cada papel vê, redirecionamentos, navegação, links e a letra embutida. Rodar com `MOCK_DESAFIOS=1 MOCK_DESEJOS=1`.
+- `testes/bateria-comunicacao.mjs` (115 casos): e-mail de convite e de entrada (usa `testes/smtp-falso.mjs` e o app com `SMTP_HOST=127.0.0.1 SMTP_PORT=2525 ... APP_URL=http://127.0.0.1:3100`), logos sem imagem quebrada, links para beeloapp.com, tela de login, `/auth/confirm`, `/auth/callback`, reenvio de convite e leitura no claro/escuro/celular. Não envia e-mail de verdade.
+- `testes/acoes-novas.mjs` (76 casos): botões e formulários de Desafios, Vitrine, desejos, tarefas e cadastros (rodar com o app em 127.0.0.1:3100 e `MOCK_DESAFIOS=1 MOCK_DESEJOS=1` no Supabase falso; `SO="texto"` roda só um caso).
 - Criança no Supabase falso: `MOCK_CRIANCA=1` e `MOCK_JEITO=divertido|calmo`.
 - `testes/acoes.mjs` está desatualizado em vários pontos (telas mudaram desde as PRs 62 a 64); prefira `acoes-novas.mjs`.
-- As trilhas do banco (`trilha_banco`, `trilha_desafios`, `trilha_desejos`) passam: 112, 25 e 22 testes.
+- As trilhas do banco (`trilha_banco`, `trilha_desafios`, `trilha_desejos`) passam: 112, 25 e 22 testes (rodar a primeira com `bash testes/banco-local.sh`; as outras com `psql -d ra -f supabase/testes/<nome>.sql` depois dela).
 
 ## Regras que não mudam
 
