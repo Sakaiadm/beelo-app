@@ -33,7 +33,7 @@ tudo que **grava** passa por uma ação em `app/acoes*.js`, que chama uma funç�
 | 🟦 Tempo de tela | `app/(app)/tela`, `lib/tela.js`, `lib/aparelhos.js`, migrações 0011, 0015, 0018 |
 | 🟦 Desafios, prêmios, cofrinho | `app/(app)/desafios/*`, `lib/desafios.js` (catálogo fixo), `lib/desafiosDados.js`, `app/acoes-desafios.js`, migrações 0016, 0017 |
 | 🟦 Comemorações e sons | `lib/festa.js`, `lib/festaAnim.js`, `components/Comemorar.js`, `Festa.js`, `SomConcluir.js` |
-| 🟦 Dicas e ideias | `lib/dicas.js`, `lib/dicasMotor.js` (roda no aparelho), `lib/ideias.js`, `components/LampadaFlutuante.js` |
+| 🟦 Dicas e ideias | `lib/dicas.js`, `lib/dicasMotor.js` (roda no aparelho), `lib/ideias.js`, `components/LampadaFlutuante.js` | Abrir a lâmpada (topo ou flutuante) marca TODAS as ideias novas como vistas (`marcarTodasVistas`); o número só some assim.
 | 🟦 Cadastros | `app/(app)/config/*` (pessoas, categorias, famílias, ajustes), `components/PessoaForm.js` |
 | 🟪 Avisos no celular | `lib/despachante.js`, `instrumentation.js`, `public/sw.js`, `components/AvisosCelular.js`, migração 0005 |
 | 🟪 E-mail de convite | `lib/convite.js`, `lib/email.js`, `deploy/config-email.sh` |

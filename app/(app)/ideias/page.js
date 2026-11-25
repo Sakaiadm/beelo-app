@@ -4,7 +4,7 @@ import { acesso } from '@/lib/papeis';
 import { hojeISO } from '@/lib/util';
 import { TEMAS, FILHOS, achar, ideiaDaSemana } from '@/lib/ideias';
 import Icone from '@/components/Icone';
-import { MarcarVista, JaVistas } from '@/components/IdeiasCliente';
+import { MarcarVista, MarcarTodasVistas, JaVistas } from '@/components/IdeiasCliente';
 
 export const dynamic = 'force-dynamic';
 
@@ -108,6 +108,7 @@ export default async function Ideias({ searchParams }) {
           {FILHOS.ideias.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={q({ i: i.id })}><span className="cat-bolinha" /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
         </div>
       </>}
+      <MarcarTodasVistas membro={eu.id} hoje={hoje} />
       <div style={{ marginTop: 16 }}><JaVistas membro={eu.id} paraPais={podePais} /></div>
       <p className="sub ideias-missao">Fazer da rotina da família um caminho de responsabilidade, parceria e carinho.</p>
     </main>

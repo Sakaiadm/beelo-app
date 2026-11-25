@@ -1,4 +1,9 @@
 'use client';
+// @arquivo  LampadaBtn.js: lâmpada do topo, com o número de ideias novas.
+// @tipo     componente
+// @usa      lib/dicasMotor.js (pendentes), evento 'ra-dicas'
+// @usado-por app/(app)/layout.js
+// @cuidado  o número só some quando 'pend' esvazia: ver marcarTodasVistas em lib/dicasMotor.js.
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Icone from './Icone';
