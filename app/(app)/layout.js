@@ -18,7 +18,6 @@ import LampadaBtn from '@/components/LampadaBtn';
 import { hojeISO } from '@/lib/util';
 import { redirect } from 'next/navigation';
 import { pendencias } from '@/lib/aceite';
-import { desafiosLigados } from '@/lib/desafiosDados';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
@@ -29,11 +28,10 @@ export default async function AppLayout({ children }) {
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const a = acesso(eu);
   // Responsáveis: Painel, Agenda, Relatórios, Desafios (se ativos), Tela e Cadastros (sempre à direita).
-  const comDesafios = gestor && desafiosLigados(familia);
   const itens = gestor
     ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
        { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' },
-       ...(comDesafios ? [{ href: '/desafios', txt: 'Desafios', icone: 'trofeu' }] : []),
+       { href: '/desafios', txt: 'Desafios', icone: 'trofeu' },
        ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []),
        { href: '/config', txt: 'Cadastros', icone: 'config' }]
     : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
