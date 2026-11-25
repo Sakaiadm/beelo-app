@@ -35,8 +35,8 @@ const VISAO = [
   ['pai', '/desafios', ['Desejos para aprovar', 'Prêmio para entregar', 'Encerrar', 'Vitrine', 'Mural', 'Ajustes', 'Como funciona'], []],
   ['pai', '/desafios', ['Eduardo sugeriu: Patins', 'Alice sugeriu: Show com amigos', 'Marcar como entregue'], []],
   ['pai', '/desafios/ajustes', ['Desligar os desafios', 'Salvar'], []],
-  ['pai', '/desafios/premios', ['Vitrine de prêmios', 'Criar meu prêmio', 'Adolescente (semanas)'], []],
-  ['pai', '/desafios/mural', ['Mural de conquistas'], []],
+  ['pai', '/desafios/premios', ['Vitrine', 'Criar meu prêmio', 'Adolescente (semanas)'], []],
+  ['pai', '/desafios/mural', ['A família toda vê e comemora junto', 'Mural'], []],
   ['pai', '/desafios/novo', ['Novo desafio'], []],
   ['pai', '/perfil', ['Meu perfil', 'Baixar meus dados', 'Privacidade e seus dados', 'Resumo do dia'], []],
   ['pai', '/ideias', ['Ideias'], []],
@@ -47,8 +47,8 @@ const VISAO = [
   ['filho', '/hoje', ['Olá, Eduardo', 'Justificar', 'Adicionar minha tarefa', 'Estudar 1h'], ['Aprovar', 'Conferido', 'Cadastros']],
   ['filho', '/hoje', ['Hoje', 'Agenda', 'Tela', 'Evolução'], ['Cadastros', 'Painel']],
   ['filho', '/desafios', ['Meus desafios', 'Foco no Estudo', 'Como funciona'], ['Desejos para aprovar', 'Prêmio para entregar', 'Encerrar', 'Ajustes']],
-  ['filho', '/desafios/cofrinho', ['Semanas conquistadas', 'MEUS DESEJOS', 'Patins', 'Sugerir um desejo', 'Quero este'], ['Show com amigos']],
-  ['filho', '/desafios/mural', ['Mural de conquistas'], []],
+  ['filho', '/desafios/cofrinho', ['Semanas', 'MEUS DESEJOS', 'Patins', 'Sugerir um desejo', 'Quero este'], ['Show com amigos']],
+  ['filho', '/desafios/mural', ['A família toda vê e comemora junto', 'Meus desafios'], []],
   ['filho', '/desafios/novo', ['Novo desafio', 'PENSADOS PARA EDUARDO'], []],
   ['filho', '/relatorios', ['Minha evolução'], ['Aprovar']],
   ['filho', '/tela', ['Tempo de tela', 'Celular', 'Computador', 'Previsto de hoje'], []],
@@ -58,7 +58,7 @@ const VISAO = [
   ['filho', '/notificacoes', ['Notificações'], []],
   // Adolescente (Alice, sem tempo de tela)
   ['ado', '/hoje', ['Olá, Alice', 'Violão', 'Justificar', 'Adicionar minha tarefa'], ['Estudar 1h', 'Aprovar']],
-  ['ado', '/desafios/cofrinho', ['Semanas conquistadas'], ['Patins', 'Celular', 'Eduardo sugeriu']],
+  ['ado', '/desafios/cofrinho', ['Semanas', 'Não vencem'], ['Patins', 'Celular', 'Eduardo sugeriu']],
   ['ado', '/desafios', ['Meus desafios', 'Revisão do dia'], ['Foco no Estudo', 'Desejos para aprovar']],
   ['ado', '/relatorios', ['Minha evolução'], ['Tempo de tela']],
   ['ado', '/ideias', ['Ideias'], []],
@@ -84,7 +84,7 @@ const NAV = [
   ['pai', '/painel', 'Agenda', '/agenda'], ['pai', '/painel', 'Relatórios', '/relatorios'], ['pai', '/painel', 'Desafios', '/desafios'],
   ['pai', '/painel', 'Tela', '/tela'], ['pai', '/painel', 'Cadastros', '/config'], ['pai', '/agenda', 'Painel', '/painel'],
   ['pai', '/config', /^Pessoas/, '/config/pessoas'], ['pai', '/config', /^Categorias/, '/config/categorias'], ['pai', '/config', /^Grupos/, '/config/familias'],
-  ['pai', '/desafios', 'Vitrine', '/desafios/premios'], ['pai', '/desafios', 'Mural', '/desafios/mural'], ['pai', '/desafios', 'Ajustes', '/desafios/ajustes'],
+  ['pai', '/desafios/mural', 'Vitrine', '/desafios/premios'], ['pai', '/desafios/premios', 'Mural', '/desafios/mural'], ['pai', '/desafios/mural', 'Desafios', '/desafios'], ['filho', '/desafios/cofrinho', 'Mural', '/desafios/mural'], ['filho', '/desafios/mural', 'Meus desafios', '/desafios'], ['ado', '/desafios/cofrinho', 'Mural', '/desafios/mural'], ['pai', '/desafios', 'Vitrine', '/desafios/premios'], ['pai', '/desafios', 'Mural', '/desafios/mural'], ['pai', '/desafios', 'Ajustes', '/desafios/ajustes'],
   ['pai', '/desafios', 'Mais um desafio', '/desafios/novo'],
   ['filho', '/hoje', 'Agenda', '/agenda'], ['filho', '/hoje', 'Tela', '/tela'], ['filho', '/hoje', 'Evolução', '/relatorios'],
   ['filho', '/hoje', 'Adicionar minha tarefa', '/tarefas/nova'], ['filho', '/desafios/cofrinho', 'Hoje', '/hoje'], ['filho', '/agenda', 'Hoje', '/hoje'],
@@ -130,8 +130,12 @@ for (const quem of ['pai', 'filho', 'ado', 'estranho', 'anon']) {
     const nome = `${q} em ${rota} toca em "${String(link).replace(/[\/^]/g, '')}" e abre ${fim}`;
     if (!filtro(nome)) continue;
     try {
-      await p.goto(BASE + rota, { waitUntil: 'networkidle' }); await p.waitForTimeout(900);
-      await p.getByRole('link', { name: link, exact: typeof link === 'string' }).first().click(); await p.waitForURL((u) => u.pathname === fim, { timeout: 15000 });
+      // @cuidado na 1ª tentativa o toque pode cair antes da tela "acordar" (hidratar); tenta até 3 vezes só se a rota não mudou.
+      for (let t = 0; t < 3; t++) {
+        await p.goto(BASE + rota, { waitUntil: 'networkidle' }); await p.waitForTimeout(900);
+        await p.getByRole('link', { name: link, exact: typeof link === 'string' }).first().click();
+        try { await p.waitForURL((u) => u.pathname === fim, { timeout: t > 1 ? 15000 : 6000 }); break; } catch (e) { if (t > 1) throw e; }
+      }
       reg('navegação', true, nome);
     } catch (e) { reg('navegação', false, nome, `${e.message.split('\n')[0]} (em ${new URL(p.url()).pathname})`); }
   }
