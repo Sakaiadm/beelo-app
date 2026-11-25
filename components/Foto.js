@@ -26,14 +26,20 @@ function fotoDeHoje(d) {
   const hoje = dia(new Date()), ontem = dia(new Date(Date.now() - 86400e3));
   return dia(d) === hoje || (dia(d) === ontem && horaBR() < 7);
 }
-export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHoje }) {
+// grande: prévia grande com "Tirar outra" / "Da galeria" (seção 42). aoMudar(caminho): avisa quando a foto fica pronta ou é refeita.
+export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHoje, grande, aoMudar }) {
   const cam = useRef(null), gal = useRef(null);
   const [estado, setEstado] = useState({ caminho: '', previa: '', msg: '', em: '' });
 
+  // @decisao a foto que foi trocada antes de concluir é apagada do armazenamento (a política 0029 só deixa apagar foto sem uso).
+  function descartar(caminho) {
+    if (caminho) supabaseBrowser().storage.from('rotina-fotos').remove([caminho]).catch(() => {});
+  }
   async function escolher(e) {
     const arq = e.target.files?.[0];
     e.target.value = '';
     if (!arq) return;
+    descartar(estado.caminho); aoMudar?.('');
     const { data } = await dataDaFoto(arq);
     if (soHoje && !fotoDeHoje(data)) {
       const quando = data.toLocaleDateString('pt-BR', { day: '2-digit', month: '2-digit' });
@@ -49,6 +55,7 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHo
       if (r.tempoEsgotado) { setEstado({ caminho: '', previa: '', msg: 'A internet está lenta e a foto não terminou de enviar. Tente de novo, de preferência no Wi-Fi.', em: '' }); return; }
       if (r.error) throw r.error;
       setEstado({ caminho, previa: URL.createObjectURL(blob), msg: '', em: data.toISOString() });
+      aoMudar?.(caminho);
     } catch (err) {
       if (falhaDeRede(err)) avisarFalhaDeRede();
       setEstado({ caminho: '', previa: '', msg: falhaDeRede(err) ? MSG.semInternetFoto : 'Não foi possível enviar a foto. Tente de novo.', em: '' });
@@ -61,6 +68,18 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHo
       <input type="hidden" name={`${nome}_em`} value={estado.em} />
       <input ref={cam} type="file" accept="image/*" capture="environment" hidden onChange={escolher} />
       <input ref={gal} type="file" accept="image/*" hidden onChange={escolher} />
+      {grande ? (
+        <div>
+          {estado.previa && <img src={estado.previa} alt="Prévia da foto" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 14, border: '1px solid var(--borda)', display: 'block' }} />}
+          <div style={{ display: 'flex', gap: 8, marginTop: estado.previa ? 8 : 0 }}>
+            <button type="button" className="btn sec peq" style={{ flex: 1 }} onClick={() => cam.current.click()}><Icone nome="camera" tam={18} />{estado.previa ? 'Tirar outra' : 'Tirar foto'}</button>
+            <button type="button" className="btn sec peq" style={{ flex: 1 }} onClick={() => gal.current.click()}><Icone nome="galeria" tam={18} />Da galeria</button>
+          </div>
+          <div style={{ fontSize: 'var(--f-apoio)', marginTop: 6, color: estado.msg.startsWith('Essa foto') ? 'var(--erro)' : 'var(--cinza)' }}>
+            {estado.msg || (estado.previa ? 'Confira se a foto ficou boa. Se não, toque em Tirar outra.' : (obrigatoria ? 'Foto obrigatória' : 'Foto opcional') + (soHoje ? ' · de hoje' : ''))}
+          </div>
+        </div>
+      ) : (
       <div style={{ display: 'flex', gap: 8, alignItems: 'center', flexWrap: 'wrap' }}>
         <button type="button" className="btn sec peq icone" aria-label="Tirar foto" title="Tirar foto" onClick={() => cam.current.click()}><Icone nome="camera" tam={20} /></button>
         <button type="button" className="btn sec peq icone" aria-label="Escolher da galeria" title="Escolher da galeria" onClick={() => gal.current.click()}><Icone nome="galeria" tam={20} /></button>
@@ -68,7 +87,8 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHo
         <span style={{ fontSize: 'var(--f-apoio)', color: estado.msg.startsWith('Essa foto') ? 'var(--erro)' : 'var(--cinza)' }}>
           {estado.msg || (obrigatoria ? 'Foto obrigatória' : 'Foto opcional') + (soHoje ? ' · de hoje' : '')}
         </span>
-      </div>
+        </div>
+      )}
     </div>
   );
 }

@@ -41,6 +41,18 @@ export async function concluir(_, fd) {
   const em = foto && !Number.isNaN(Date.parse(fd.get('foto_em'))) ? new Date(fd.get('foto_em')).toISOString() : null;
   return rpc('ra_concluir2', { p_oc: uuid(fd.get('oc')), p_foto: foto, p_foto_em: em });
 }
+// Trocar a foto de uma tarefa já concluída (migração 0029): a foto antiga é apagada do armazenamento.
+export async function trocarFoto(_, fd) {
+  const foto = caminhoFoto(fd.get('foto'));
+  if (!foto) return { erro: 'Tire ou escolha a foto nova' };
+  const em = !Number.isNaN(Date.parse(fd.get('foto_em'))) ? new Date(fd.get('foto_em')).toISOString() : null;
+  const supabase = await supabaseServer();
+  const { data, error } = await supabase.rpc('ra_trocar_foto', { p_oc: uuid(fd.get('oc')), p_foto: foto, p_foto_em: em });
+  if (error) return traduzirErro(error);
+  if (data) await supabase.storage.from('rotina-fotos').remove([data]); // se falhar, só sobra uma foto sem uso
+  revalidar();
+  return { ok: true };
+}
 // Aviso de chegada: um toque marca como feita, grava a hora e avisa os responsáveis (migração 0027). Sem localização.
 export async function cheguei(_, fd) { return rpc('ra_cheguei', { p_oc: uuid(fd.get('oc')) }); }
 export async function desfazer(_, fd) { return rpc('ra_desfazer', { p_oc: uuid(fd.get('oc')) }); }

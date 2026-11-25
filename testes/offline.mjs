@@ -226,8 +226,8 @@ await caso('Foto sem internet: avisa antes de tentar enviar', async (ctx, erros)
   await ctx.setOffline(true);
   await p.locator('.painel-acao input[type=file]:not([capture])').setInputFiles({ name: 'f.jpg', mimeType: 'image/jpeg', buffer: Buffer.from('x') });
   await p.getByText('A foto só pode ser enviada com internet').waitFor({ timeout: 4000 });
-  await p.getByRole('button', { name: 'Concluir', exact: true }).click();
-  await p.getByText('Tarefas com foto só podem ser concluídas com internet').waitFor({ timeout: 4000 });
+  // Seção 42: sem foto enviada, o botão "Concluir com esta foto" fica desligado.
+  if (!(await p.getByRole('button', { name: 'Concluir com esta foto' }).isDisabled())) throw new Error('o botão devia estar desligado sem foto');
   await tela(p, '9-foto-sem-internet');
   await ctx.setOffline(false);
 });

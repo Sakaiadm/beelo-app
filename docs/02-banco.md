@@ -86,3 +86,8 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 - **`ra_gerar_lembretes`** (roda a cada minuto pelo despachante): 15 min depois do horário, lembrete só para a pessoa; 30 min depois, se ligado na tarefa, "ainda sem confirmação" aos responsáveis; chegada de dia passado sem toque vira `cancelada` em silêncio (não aparece atrasada nem conta em desafios).
 - **Avisos:** a chave `chegada` em `ra_membros.notif` (padrão ligada) vale para os dois avisos aos responsáveis. Sem localização de nenhum tipo.
 - Teste do banco: `supabase/testes/trilha_chegada.sql`.
+
+## Trocar a foto da tarefa (migração 0029)
+
+- **`ra_trocar_foto(p_oc, p_foto, p_foto_em)`:** só a própria pessoa, só em tarefa já concluída com foto e **antes do responsável conferir**. A foto nova segue a regra de concluir (precisa ser de hoje). Grava `foto_trocada_em`, não mexe em `concluida_em` e devolve o caminho da foto antiga, que o app apaga do armazenamento. Avisa os responsáveis como o aviso de conclusão ("Alice trocou a foto: …").
+- **Política `ra_foto_del`:** deixa apagar só foto da própria pessoa que não está em nenhuma tarefa. Também apaga a foto trocada antes de concluir (feito por `components/Foto.js`).
