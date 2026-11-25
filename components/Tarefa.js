@@ -20,7 +20,7 @@ const ICONE_STATUS = {
   adiada: ['relogio', 'var(--cinza)'], pendente: ['circulo', 'var(--cinza)'],
 };
 
-export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima, tela, crianca }) {
+export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima, tela, crianca, dia }) {
   const [aba, setAba] = useState(null);
   const [festa, setFesta] = useState(false);
   // Sem internet: o que foi feito e está guardado no aparelho já aparece na tela, com o selo "Aguardando internet".
@@ -33,7 +33,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
   const festejar = () => {
     const r = ref.current?.querySelector('.circulo')?.getBoundingClientRect();
     setAba(null); setFesta(true); setTimeout(() => setFesta(false), 1000);
-    comemorar({ ultima, x: r ? r.left + r.width / 2 : null, y: r ? r.top + r.height / 2 : null });
+    comemorar({ ultima, dia, x: r ? r.left + r.width / 2 : null, y: r ? r.top + r.height / 2 : null });
   };
   const [aviso, setAviso] = useState('');
   const [aberto, setAberto] = useState(false);

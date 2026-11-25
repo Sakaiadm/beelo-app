@@ -1,30 +1,34 @@
 'use client';
-import { useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { desafioVisto } from '@/app/acoes-desafios';
-import { prepararSom, tocarSom } from '@/lib/festa';
+import Icone from './Icone';
 
-const STAR = 'M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z';
-const E = ({ t, style }) => <svg width={t} height={t} viewBox="0 0 24 24" aria-hidden="true" style={{ fill: 'var(--mel)', flex: 'none', ...style }}><path d={STAR} /></svg>;
-const SOLTAS = [[10, 18, 22, -12], [82, 22, 18, 15], [18, 46, 14, 20], [78, 50, 24, -8], [46, 8, 16, 0], [6, 72, 16, 10], [88, 78, 14, -20]];
-
-// Desafio cumprido: comemoração na hora em que a pessoa abre o app (uma vez só).
-export default function Comemorar({ itens, nome }) {
+// Desafio cumprido: comemoração na hora em que a pessoa abre o app (uma vez só por desafio).
+// Aprovado pelo Thomas em 25/11 (animações em lib/festaAnim.js):
+// - criança com prêmio: presente surpresa com o selo e as moedas indo para o cofrinho;
+// - criança sem prêmio: o selo Favo com faixa desce como um carimbo;
+// - adulto: cartão discreto, o anel fecha e vira check, com o som Cristal.
+// A criança toca para abrir: assim o som pode tocar (regra dos navegadores).
+export default function Comemorar({ itens, nome, crianca }) {
   const [fila, setFila] = useState(itens || []);
-  if (!fila.length) return null;
+  const ic = useRef(null), rodando = useRef(null);
   const x = fila[0];
-  const premio = x.d.recompensa === 'estrelas' ? `+${x.d.estrelas} estrelinhas no cofrinho` : x.d.recompensa === 'semanas' ? 'Mais uma semana conquistada' : null;
-  const ok = () => { prepararSom(); tocarSom('escadinha'); desafioVisto(x.id); setFila(fila.slice(1)); };
-  return (
-    <div className="balao-fundo" role="dialog" aria-modal="true" aria-labelledby="comemora-tit">
-      {SOLTAS.map(([l, t, s, r], i) => <span key={i} className="festa-est" style={{ left: `${l}%`, top: `${t}%`, transform: `rotate(${r}deg)` }}><E t={s} /></span>)}
-      <div className="balao" style={{ position: 'relative' }}>
-        <div style={{ display: 'flex', justifyContent: 'center', gap: 4 }}><E t={30} /><E t={40} /><E t={30} /></div>
-        <h2 id="comemora-tit" style={{ fontSize: 'var(--f-tela)' }}>Desafio cumprido!</h2>
-        <p>{x.titulo}. Você foi constante{nome ? `, ${nome}` : ''}!</p>
-        {premio && <div className="aviso ok" style={{ margin: 0, textAlign: 'center' }}>{premio}</div>}
-        <p style={{ fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>{x.d.periodo === 'mes' ? 'No dia 1º começa um mês novo.' : 'Na segunda começa uma semana nova.'}</p>
-        <div className="balao-bts"><button type="button" className="btn" onClick={ok} autoFocus>Eba!</button></div>
-      </div>
-    </div>
-  );
+  useEffect(() => {
+    if (!x || rodando.current === x.id) return;
+    rodando.current = x.id;
+    (async () => {
+      const A = await import('@/lib/festaAnim');
+      const premio = x.d.recompensa === 'estrelas' ? `+${x.d.estrelas} estrelinhas no cofrinho` : x.d.recompensa === 'semanas' ? 'Mais uma semana conquistada' : null;
+      const sub = `Você foi constante${nome ? `, ${nome}` : ''}! ${x.d.periodo === 'mes' ? 'No dia 1º começa um mês novo.' : 'Na segunda começa uma semana nova.'}`;
+      const icone = ic.current?.querySelector('svg')?.innerHTML || '';
+      if (!crianca) await A.conquistaAdulto({ titulo: x.titulo, sub, premio });
+      else if (premio) await A.presenteCrianca({ nome: x.titulo, icone, titulo: x.titulo, sub, premio, n: x.d.recompensa === 'estrelas' ? x.d.estrelas || 0 : 0 });
+      else await A.seloCrianca({ nome: x.titulo, icone, titulo: x.titulo, sub });
+      desafioVisto(x.id);
+      setFila((f) => f.slice(1));
+    })();
+  }, [x, crianca, nome]);
+  if (!x) return null;
+  // O desenho do desafio (o mesmo ícone da lista) vai para o meio do selo.
+  return <span ref={ic} hidden aria-hidden="true"><Icone nome={x.d.icone || 'hoje'} tam={24} /></span>;
 }
