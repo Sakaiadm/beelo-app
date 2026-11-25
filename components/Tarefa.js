@@ -11,7 +11,7 @@ import HorarioCampo from './HorarioCampo';
 import Icone from './Icone';
 import Form from './Form';
 import Foto from './Foto';
-import { concluir, cheguei, desfazer, justificar, pedirAdiamento, adiarLivre, definirHorario, conferir } from '@/app/acoes';
+import { concluir, trocarFoto, cheguei, desfazer, justificar, pedirAdiamento, adiarLivre, definirHorario, conferir } from '@/app/acoes';
 import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana, addDias } from '@/lib/util';
 import Motivos from './Motivos';
 import Responder from './Responder';
@@ -29,6 +29,7 @@ const ICONE_STATUS = {
 export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, familia, fotoUrl, nomeMembro, hoje, editarHref, quemMarca, ultima, tela, crianca, dia }) {
   const [aba, setAba] = useState(null);
   const [festa, setFesta] = useState(false);
+  const [fotoPronta, setFotoPronta] = useState(false); // foto já enviada, pronta para concluir ou trocar
   // Sem internet: o que foi feito e está guardado no aparelho já aparece na tela, com o selo "Aguardando internet".
   const guardados = useFila().filter((x) => x.dados?.oc === oc.id);
   const ultimo = [...guardados].reverse().find((x) => x.tipo === 'concluir' || x.tipo === 'desfazer');
@@ -98,6 +99,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
               {chegada && <span className="selo-st conf">Chegada</span>}
               {temHora && <span className="tg cz">{chegada ? `Esperado ${horario}` : horario}</span>}
               {selo && <span className={`selo-st ${selo[1]}`}>{selo[0]}</span>}
+              {oc.foto_trocada_em && !oc.conferido && (gestor || confere) && !dono && <span className="tg cz">foto trocada {new Date(oc.foto_trocada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })}</span>}
               {cat && <span className="pilula" style={{ background: fundo, color: letra }}>{cat.nome}</span>}
             </div>
           )}
@@ -125,7 +127,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
           {oc.justificativa && <div className="l"><span>Justificativa</span><span>“{oc.justificativa}”{oc.justificativa_status === 'aceita' ? ' (aceita)' : oc.justificativa_status === 'recusada' ? ' (recusada)' : ''}</span></div>}
           {fotoUrl && (
             <>
-              <div className="l"><span>Foto</span><span>{oc.foto_tirada_em ? `tirada ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' })} às ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })}` : 'enviada'}</span></div>
+              <div className="l"><span>Foto</span><span>{oc.foto_tirada_em ? `${oc.foto_trocada_em ? `trocada às ${new Date(oc.foto_trocada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })} · ` : ''}tirada ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', day: '2-digit', month: '2-digit' })} às ${new Date(oc.foto_tirada_em).toLocaleString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' })}` : 'enviada'}</span></div>
               <a href={fotoUrl} target="_blank" rel="noreferrer"><img src={fotoUrl} alt={`Foto de ${oc.tarefa?.titulo}`} /></a>
             </>
           )}
@@ -136,6 +138,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
                 <Form acao={adiarLivre} discreto><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Adiar 1 dia</button></Form>
               )}
               {dono && !gestor && !crianca && !feita && !oc.horario_travado && <button type="button" className="btn sec peq" onClick={() => alternar('horario')}>Horário</button>}
+              {dono && !gestor && feita && !oc.conferido && fotoUrl && <button type="button" className="btn sec peq" onClick={() => { setFotoPronta(false); alternar('trocar'); }}>Trocar foto</button>}
               {dono && !gestor && feita && !oc.conferido && (
                 <Form acao={desfazer} fila="desfazer" rotulo={`Desfazer “${t}”`} discreto><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Desfazer</button></Form>
               )}
@@ -166,8 +169,18 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
         <div className="painel-acao">
           <Form acao={concluir} aoConcluir={festejar} msgSemInternet="Sem internet. Tarefas com foto só podem ser concluídas com internet. Tente de novo quando a conexão voltar.">
             <input type="hidden" name="oc" value={oc.id} />
-            <Foto familia={familia} membro={oc.membro_id} obrigatoria={oc.tarefa?.exige_foto} soHoje />
-            <button className="btn icone" onPointerDown={prepararSom} onKeyDown={prepararSom} style={{ marginTop: 10, width: 56 }} aria-label="Concluir" title="Concluir"><Icone nome="check" tam={24} cor="#fff" /></button>
+            <Foto familia={familia} membro={oc.membro_id} obrigatoria={oc.tarefa?.exige_foto} soHoje grande aoMudar={(c) => setFotoPronta(!!c)} />
+            {/* Seção 42: só conclui depois de ver a foto e tocar em "Concluir com esta foto". */}
+            <button className="btn bloco" disabled={!fotoPronta} onPointerDown={prepararSom} onKeyDown={prepararSom} style={{ marginTop: 10 }}><Icone nome="check" tam={20} cor="#fff" />Concluir com esta foto</button>
+          </Form>
+        </div>
+      )}
+      {aba === 'trocar' && (
+        <div className="painel-acao">
+          <Form acao={trocarFoto} aoConcluir={() => { setAba(null); setFotoPronta(false); }} okTxt="Foto trocada." msgSemInternet="Sem internet. Para trocar a foto, conecte-se ao Wi-Fi ou aos dados móveis e tente de novo.">
+            <input type="hidden" name="oc" value={oc.id} />
+            <Foto familia={familia} membro={oc.membro_id} obrigatoria soHoje grande aoMudar={(c) => setFotoPronta(!!c)} />
+            <button className="btn bloco" disabled={!fotoPronta} style={{ marginTop: 10 }}>Usar esta foto</button>
           </Form>
         </div>
       )}

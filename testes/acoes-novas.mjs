@@ -41,7 +41,7 @@ const casos = [
   ['filho', 'Concluir tarefa sem foto', '/hoje', async (p) => { await p.waitForTimeout(600); await p.getByRole('button', { name: 'Concluir Estudar 1h', exact: true }).first().click(); }, /rpc\/ra_concluir/],
   // ===== Fotos de comprovação =====
   ['filho', 'Foto antiga da galeria é recusada', '/hoje', async (p) => { await enviarFoto(p, velha); if (!(await p.getByText('Essa foto é de 01/01').count())) throw new Error('não recusou'); }, null, /ra_concluir2 .*"p_foto":"/],
-  ['filho', 'Foto tirada agora é aceita e concluir manda a foto', '/hoje', async (p) => { await enviarFoto(p, nova); await p.getByRole('button', { name: 'Concluir', exact: true }).click(); }, /rpc\/ra_concluir2 .*"p_foto":"11111111.*"p_foto_em":"20/],
+  ['filho', 'Foto tirada agora é aceita e concluir manda a foto', '/hoje', async (p) => { await enviarFoto(p, nova); await p.getByRole('button', { name: 'Concluir com esta foto' }).click(); }, /rpc\/ra_concluir2 .*"p_foto":"11111111.*"p_foto_em":"20/],
   ['filho', 'Tarefa que não exige foto não oferece foto', '/hoje', async (p) => { await p.waitForTimeout(600); if (await p.getByRole('button', { name: /Concluir Estudar 1h com foto/ }).count()) throw new Error('ofereceu foto'); }, null],
   ['filho', 'Tarefa que exige foto oferece "com foto"', '/hoje', async (p) => { await p.waitForTimeout(600); if (!(await p.getByRole('button', { name: 'Concluir Lavar a louça com foto' }).count())) throw new Error('não ofereceu'); }, null],
   // ===== Nova tarefa: repetição e opções =====
