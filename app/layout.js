@@ -21,7 +21,7 @@ const ABERTURA = TELAS.flatMap(([w, h, r]) => ['claro', 'escuro'].map((t) => ({
 
 export const metadata = {
   title: 'beelo',
-  description: 'Tarefas, agenda e acompanhamento para pais e filhos.',
+  description: 'Tarefas, agenda e acompanhamento para responsáveis e pessoas do grupo.',
   manifest: '/manifest.json',
   icons: { icon: '/icone.svg', apple: '/apple-touch-icon.png' },
   // Android (Chrome): acompanha o tamanho de letra escolhido no celular (Raio-X V8).

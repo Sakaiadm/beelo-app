@@ -33,3 +33,6 @@ Pai e Mãe também veem atalhos para os outros dois manuais, para saber o que ca
 
 Cobertos: entrada e instalação, pessoas, papel e parentesco, grupos, tarefas, Painel, agenda, relatórios, tempo de tela, modo criança e jeito de ver, Desafios, Cofrinho, Vitrine, desejos e prêmios, Mural e privacidade, "Como funciona", guia da Mel (beta), lâmpada de ideias, offline, Ajuda.
 **Ainda não documentados como prontos**: novo layout de Desafios em abas (Opção A, aplicado em 25/11: a Ajuda do app já cita "Desafios › Vitrine/Mural"; falta atualizar os manuais em PDF) e o aviso de chegada "Cheguei". Quando entrarem, atualize `conteudo.py` e a lista `PAIS`/`ADOLESCENTE`/`CRIANCA` no mesmo PR.
+
+## Palavras neutras (responsáveis, pessoas e grupos)
+Na Ajuda (parte dos responsáveis e do administrador), na Privacidade e na descrição do app, o texto usa "responsáveis", "pessoas" e "grupo" onde a frase é geral. Ficam como estão: o lema da marca, os nomes dos papéis (Pai, Mãe, Filho(a)), os textos falados com a criança ("seus pais") e os nomes de botões e abas da tela, para a Ajuda continuar igual ao que a pessoa vê.

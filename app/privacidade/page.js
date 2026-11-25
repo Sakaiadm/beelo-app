@@ -14,7 +14,7 @@ export default function Privacidade() {
       <h2>Em poucas palavras</h2>
       <ul>
         <li>Guardamos só o que o beelo precisa para organizar a rotina do seu grupo.</li>
-        <li>Pai, Mãe e quem eles autorizarem veem o grupo. Cada pessoa vê o que é seu. Outros grupos não veem nada.</li>
+        <li>Os responsáveis (Pai e Mãe) e quem eles autorizarem veem o grupo. Cada pessoa vê o que é seu. Outros grupos não veem nada.</li>
         <li>Não vendemos dados, não mostramos anúncios, não criamos perfil para publicidade e não usamos rastreadores.</li>
         <li>Dados de crianças e adolescentes só entram com a autorização do pai, da mãe ou do responsável legal.</li>
         <li>Você pode baixar, corrigir ou apagar os seus dados quando quiser.</li>
@@ -47,7 +47,7 @@ export default function Privacidade() {
       <h2>Quem vê o quê</h2>
       <ul>
         <li><b>Pai e Mãe:</b> tudo do grupo, inclusive fotos, tempo de tela, pedidos, histórico e os e-mails das pessoas.</li>
-        <li><b>Adulto que ajuda, com as chaves liberadas:</b> o painel, as conferências e os relatórios, conforme o que os pais liberarem.</li>
+        <li><b>Adulto que ajuda, com as chaves liberadas:</b> o painel, as conferências e os relatórios, conforme o que os responsáveis liberarem.</li>
         <li><b>Cada pessoa:</b> as próprias tarefas, fotos e tempo de tela, além do nome e da foto das pessoas do grupo.</li>
         <li><b>Outros grupos:</b> nada. Essa regra é conferida no próprio banco de dados.</li>
       </ul>
