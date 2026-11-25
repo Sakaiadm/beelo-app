@@ -129,7 +129,7 @@ export default async function Hoje({ searchParams }) {
             </>}
           </>}
           {doDia.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
-          <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href={novaHref}><Icone nome="mais" tam={18} />{gestor ? 'Nova tarefa' : 'Adicionar minha tarefa'}</Link>
+          <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href={novaHref}><Icone nome="mais" tam={18} />{gestor ? 'Tarefa' : 'Adicionar minha tarefa'}</Link>
         </section>
 
         {temLado && (

@@ -101,7 +101,7 @@ export default async function Painel() {
     <main>
       <div className="cab">
         <div><h1 className="titulo">{familia.nome}</h1><p className="sub">{dataTitulo(hoje)}</p></div>
-        {gestor && <Link prefetch={false} className="btn" href="/tarefas/nova?volta=/painel"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>}
+        {gestor && <Link prefetch={false} className="btn" href="/tarefas/nova?volta=/painel"><Icone nome="mais" tam={18} cor="#fff" />Tarefa</Link>}
       </div>
 
       {passos && <PrimeirosPassos passos={passos} chave={`beelo_primeiros_${eu.familia_id}`} />}

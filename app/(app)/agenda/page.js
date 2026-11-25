@@ -56,7 +56,7 @@ export default async function Agenda({ searchParams }) {
         <div className="tit"><h1 className="titulo">Agenda</h1>{emHoje
           ? <span className="hoje-peq on" aria-current="date" title="Você está vendo hoje">Hoje</span>
           : <Link prefetch={false} className="hoje-peq" href={qs({ d: hoje })} title="Voltar para hoje">Hoje</Link>}</div>
-        <Link prefetch={false} className="btn" href={`/tarefas/nova?${new URLSearchParams({ d: d < hoje ? hoje : d, volta: qs({}), ...(filtroM && gestor ? { m: filtroM } : {}) })}`}><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>
+        <Link prefetch={false} className="btn" href={`/tarefas/nova?${new URLSearchParams({ d: d < hoje ? hoje : d, volta: qs({}), ...(filtroM && gestor ? { m: filtroM } : {}) })}`}><Icone nome="mais" tam={18} cor="#fff" />Tarefa</Link>
       </div>
       {sp.aviso === 'amanha' && <div className="aviso ok" role="status">Tarefa salva. Como o horário de hoje já passou, ela começa amanhã.</div>}
       <div className="seg" role="tablist" aria-label="Visão">
