@@ -171,18 +171,25 @@ export default async function Painel() {
           {atrasadas.length > 0 && <div id="atrasadas" className="alvo-ancora" />}
           {(() => {
             // U35: tocar abre o dia da pessoa já na tarefa. Só as 3 primeiras à vista; o resto abre num toque.
-            const item = ({ o }) => (
+            // Mesma tarefa atrasada em mais de um dia (ex.: diária com justificativa esperando): uma linha só, com um só Lembrar.
+            const grupos = [];
+            atrasadas.forEach(({ o }) => {
+              const g = grupos.find((x) => x.o.membro_id === o.membro_id && x.o.tarefa_id === o.tarefa_id);
+              if (g) { g.datas.push(o.data); if (o.data > g.o.data) g.o = o; g.lembrado = [g.lembrado, o.lembrado_em].filter(Boolean).sort().pop(); g.todasJust = g.todasJust && !!o.justificativa; }
+              else grupos.push({ o, datas: [o.data], lembrado: o.lembrado_em, todasJust: !!o.justificativa });
+            });
+            const item = ({ o, datas, lembrado, todasJust }) => (
               <div key={o.id} className="tarefa atrasada atr-lin">
                 <Link prefetch={false} href={`/hoje?m=${o.membro_id}&d=${o.data}#t-${o.id}`} className="tarefa-ir">
                   <span><span className="tt">{nome[o.membro_id]} · {o.tarefa?.titulo} está atrasada</span>
-                    <span className="meta">{dataCurta(o.data)}{o.hora_inicio ? ' ' + o.hora_inicio.slice(0, 5) : ''} · {o.justificativa ? 'justificativa enviada' : 'sem justificativa ainda'}</span></span>
+                    <span className="meta">{datas.length > 1 ? `${datas.length} dias (${datas.sort().map(dataCurta).join(', ')})` : `${dataCurta(o.data)}${o.hora_inicio ? ' ' + o.hora_inicio.slice(0, 5) : ''}`} · {todasJust ? 'justificativa enviada' : 'sem justificativa ainda'}</span></span>
                   <Icone nome="dir" tam={20} />
                 </Link>
-                {gestor && o.membro_id !== eu.id && <LembrarBotao oc={o.id} nome={nome[o.membro_id]} />}
+                {gestor && o.membro_id !== eu.id && <LembrarBotao oc={o.id} nome={nome[o.membro_id]} lembradoEm={lembrado || null} />}
               </div>
             );
-            return <>{atrasadas.slice(0, 3).map(item)}
-              {atrasadas.length > 3 && <details className="mais-atr"><summary>Ver mais {atrasadas.length - 3 === 1 ? '1 atrasada' : `${atrasadas.length - 3} atrasadas`}</summary>{atrasadas.slice(3).map(item)}</details>}</>;
+            return <>{grupos.slice(0, 3).map(item)}
+              {grupos.length > 3 && <details className="mais-atr"><summary>Ver mais {grupos.length - 3 === 1 ? '1 atrasada' : `${grupos.length - 3} atrasadas`}</summary>{grupos.slice(3).map(item)}</details>}</>;
           })()}
         </div>
       )}
@@ -190,7 +197,7 @@ export default async function Painel() {
       {/* U30 e U31: os 4 números em 2 por 2, e cada um abre o que conta. */}
       <div className="kpis k4">
         <a href="#hoje" className="kpi destaque"><small>Cumpridas hoje</small><strong>{kHoje.feitas} <span style={{ fontSize: 'var(--f-texto)' }}>de {kHoje.total}</span></strong></a>
-        <a href={atrasadas.length ? '#atrasadas' : '#hoje'} className="kpi"><small>Atrasadas (7 dias)</small><strong style={{ color: atrasadas.length ? 'var(--erro)' : undefined }}>{atrasadas.length}</strong><em>{justif.length === 0 ? 'nada para avaliar' : justif.length === 1 ? '1 justificativa' : `${justif.length} justificativas`}</em></a>
+        <a href={atrasadas.length ? '#atrasadas' : '#hoje'} className="kpi"><small>Atrasadas hoje</small><strong style={{ color: atrasadas.length ? 'var(--erro)' : undefined }}>{atrasadas.length}</strong><em>{justif.length === 0 ? 'nada para avaliar' : justif.length === 1 ? '1 justificativa' : `${justif.length} justificativas`}</em></a>
         <a href={nPedidos ? '#pedidos' : '#hoje'} className="kpi"><small>Pedidos aguardando</small><strong style={{ color: pend ? 'var(--aviso)' : undefined }}>{pend}</strong><em>adiamentos, justificativas e tela</em></a>
         <Link prefetch={false} href="/relatorios?per=semana" className="kpi"><small>Semana</small><strong>{pctSem}<span style={{ fontSize: 'var(--f-texto)' }}>%</span></strong>
           <div className="barra" style={{ marginTop: 10 }}><div style={{ width: `${pctSem}%` }} /></div></Link>
