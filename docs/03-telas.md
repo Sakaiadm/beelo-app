@@ -45,7 +45,7 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | `/auth/confirm` | `app/auth/confirm/route.js` | rota que confirma o link de e-mail (convite, entrar sem senha). | — |
 | `/auth/sair` | `app/auth/sair/route.js` | rota que encerra a sessão e volta para o login. | — |
 | `/consentimento` | `app/consentimento/page.js` | página pública com o texto de consentimento (LGPD). | — |
-| `/login` | `app/login/page.js` | tela de login: entrar com Google ou com um link enviado ao e-mail (sem senha). | — |
+| `/login` | `app/login/page.js` | tela de login: entrar com Google ou receber um link de entrada por e-mail (sem senha); o convite mostra quem convidou e o grupo. | — |
 | `/` | `app/page.js` | raiz "/": decide se vai para Painel, Hoje ou Sem acesso. | — |
 | `/privacidade` | `app/privacidade/page.js` | página pública da política de privacidade. | — |
 | `/sem-acesso` | `app/sem-acesso/page.js` | tela para quem entrou mas ainda não tem cadastro numa família. | — |

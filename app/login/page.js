@@ -1,5 +1,5 @@
 'use client';
-// @arquivo  page.js: tela de login: entrar com Google ou com um link enviado ao e-mail (sem senha).
+// @arquivo  page.js: tela de login: entrar com Google ou receber um link de entrada por e-mail (sem senha); o convite mostra quem convidou e o grupo.
 // @tipo     tela
 // @usa      lib/supabase/client, lib/rede, lib/contato
 // @usado-por Next.js (rota /login)
@@ -32,7 +32,7 @@ export default function Login() {
     // U72: o e-mail usado da última vez neste aparelho já vem preenchido.
     try { const ult = localStorage.getItem('beelo_email'); if (ult && !q.get('email')) setEmail(ult); } catch {}
     if (q.get('email')) setEmail(q.get('email'));
-    if (q.get('erro')) setMsg({ tipo: 'erro', txt: 'Esse link não vale mais (ele só funciona uma vez e por pouco tempo). Peça um novo link de acesso abaixo.' });
+    if (q.get('erro')) setMsg({ tipo: 'erro', txt: 'Esse link não vale mais (ele só funciona uma vez e por pouco tempo). Peça um novo link de entrada abaixo.' });
     if (q.get('apagado')) setMsg({ tipo: 'ok', txt: 'O grupo e todos os dados dele foram apagados. Obrigado por usar o beelo.' });
     if (q.get('expirou')) setMsg({ tipo: 'erro', txt: 'Sua sessão expirou. Entre de novo para continuar.' });
     const conv = (q.get('email') || '').trim().toLowerCase();
@@ -40,7 +40,9 @@ export default function Login() {
     if (conv && (q.get('ja') || q.get('convite'))) document.cookie = `convite_email=${encodeURIComponent(conv)}; path=/; max-age=${7 * 86400}; samesite=lax`;
     const gmail = /@(gmail|googlemail)\.com$/.test(conv);
     if (q.get('ja')) setAviso(conv ? `Você já tem cadastro com ${conv}. Entre com esse mesmo e-mail.` : 'Você já tem cadastro. Entre com sua conta.');
-    else if (q.get('convite')) setAviso(conv ? `Seu convite é para ${conv}. Entre com esse mesmo e-mail: toque em Enviar link de acesso${gmail ? ' ou em Entrar com Google' : ''}.` : 'Você foi convidado. Confirme seu e-mail e toque em Enviar link de acesso.');
+    else if (q.get('convite') && q.get('de') && q.get('grupo')) setAviso(`${q.get('de').slice(0, 60)} convidou você para o grupo ${q.get('grupo').slice(0, 60)}. ${conv ? `Entre com o e-mail ${conv}: ` : ''}toque em Receber link de entrada por e-mail${gmail ? ' ou em Entrar com Google' : ''}.`);
+    else if (q.get('convite') && q.get('de') && q.get('grupo')) setAviso(`${q.get('de').slice(0, 60)} convidou você para o grupo ${q.get('grupo').slice(0, 60)}. ${conv ? `Entre com o e-mail ${conv}: t` : 'T'}oque em Receber link de entrada por e-mail${gmail ? ' ou em Entrar com Google' : ''}.`);
+    else if (q.get('convite')) setAviso(conv ? `Seu convite é para ${conv}. Entre com esse mesmo e-mail: toque em Receber link de entrada por e-mail${gmail ? ' ou em Entrar com Google' : ''}.` : 'Você foi convidado. Confirme seu e-mail e toque em Receber link de entrada por e-mail.');
   }, []);
   const volta = () => `${window.location.origin}/auth/callback`;
 
@@ -111,7 +113,7 @@ export default function Login() {
       <div style={{ flex: 1, background: 'var(--cartao)', borderRadius: '28px 28px 0 0', marginTop: -28, padding: '28px 24px' }}>
         <div style={{ maxWidth: 420, margin: '0 auto' }}>
           <h2 style={{ margin: 0, fontSize: 'var(--f-tela)', fontWeight: 800 }}>Entrar</h2>
-          <p style={{ margin: '6px 0 18px', color: 'var(--cinza)', fontSize: 'var(--f-apoio)' }}>Só entra quem foi convidado pelos pais.</p>
+          <p style={{ margin: '6px 0 18px', color: 'var(--cinza)', fontSize: 'var(--f-apoio)' }}>Tarefas, agenda e acompanhamento da sua família ou grupo.</p>
           {aviso && !msg && <div className="aviso ok" role="status">{aviso}</div>}
           {msg && <div className={`aviso ${msg.tipo}`}>{msg.txt}</div>}
           <button className="btn sec bloco" onClick={google} disabled={carregando} style={{ color: 'var(--texto)', borderColor: 'var(--campo)' }}>
@@ -124,7 +126,8 @@ export default function Login() {
           <form onSubmit={porEmail}>
             <label htmlFor="email">E-mail</label>
             <input id="email" type="email" required value={email} onChange={(e) => setEmail(e.target.value)} autoComplete="email" />
-            <button className="btn bloco" style={{ marginTop: 12 }} disabled={carregando}>Enviar link de acesso</button>
+            <button className="btn bloco" style={{ marginTop: 12 }} disabled={carregando}>Receber link de entrada por e-mail</button>
+            <p style={{ textAlign: 'center', fontSize: 'var(--f-apoio)', color: 'var(--cinza)', margin: '8px 0 0' }}>Você não precisa de senha.</p>
           </form>
           <p style={{ marginTop: 22, textAlign: 'center', fontSize: 'var(--f-etq)', color: 'var(--cinza)' }}>
             Seus dados ficam só com a família.
