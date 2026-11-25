@@ -41,6 +41,8 @@ export async function concluir(_, fd) {
   const em = foto && !Number.isNaN(Date.parse(fd.get('foto_em'))) ? new Date(fd.get('foto_em')).toISOString() : null;
   return rpc('ra_concluir2', { p_oc: uuid(fd.get('oc')), p_foto: foto, p_foto_em: em });
 }
+// Aviso de chegada: um toque marca como feita, grava a hora e avisa os responsáveis (migração 0027). Sem localização.
+export async function cheguei(_, fd) { return rpc('ra_cheguei', { p_oc: uuid(fd.get('oc')) }); }
 export async function desfazer(_, fd) { return rpc('ra_desfazer', { p_oc: uuid(fd.get('oc')) }); }
 export async function justificar(_, fd) { return rpc('ra_justificar', { p_oc: uuid(fd.get('oc')), p_texto: txt(fd, 'texto') }); }
 export async function pedirAdiamento(_, fd) {
@@ -111,6 +113,13 @@ export async function salvarTarefa(_, fd) {
     exige_justificativa: eu.papel === 'gestor' ? fd.get('exige_justificativa') === '1' : false,
     prioritaria: fd.get('prioritaria') === '1',
   };
+  // @regra chegada: só Pai e Mãe criam. Lembrar a pessoa (padrão ligado) e avisar os pais (padrão desligado) são por tarefa.
+  if (eu.papel === 'gestor' && fd.get('chegada') === '1') {
+    reg.especial = 'chegada'; reg.chegada_lembrar = fd.get('chegada_lembrar') === '1'; reg.chegada_avisar_pais = fd.get('chegada_avisar_pais') === '1';
+    reg.prioritaria = false; reg.exige_foto = false; reg.exige_justificativa = false; reg.permite_adiar = false;
+  } else if (eu.papel === 'gestor' && fd.get('era_chegada') === '1') {
+    reg.especial = null; reg.chegada_lembrar = true; reg.chegada_avisar_pais = false;
+  }
   // U54: adiar 1 dia sem pedir, uma vez por semana (só com "Pode adiar" ligado).
   reg.adiar_livre = eu.papel === 'gestor' && reg.permite_adiar && fd.get('adiar_livre') === '1';
   reg.lembrete_min = reg.prioritaria && reg.hora_inicio && [15, 30, 60].includes(Number(fd.get('lembrete_min'))) ? Number(fd.get('lembrete_min')) : null;
@@ -673,7 +682,7 @@ export async function salvarAvisos(_, fd) {
   return rpc('ra_minhas_notif', { p_prefs: {
     concluida: !concluir ? 'nenhuma' : fd.get('sem_foto') === '1' ? 'todas' : 'com_foto',
     justificativa: fd.get('justificativa') === '1', adiamento: fd.get('adiamento') === '1',
-    tela: fd.get('tela') === '1', tarefa_filho: fd.get('tarefa_filho') === '1',
+    tela: fd.get('tela') === '1', tarefa_filho: fd.get('tarefa_filho') === '1', chegada: fd.get('chegada') === '1',
   } });
 }
 

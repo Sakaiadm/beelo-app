@@ -13,13 +13,14 @@ const ITENS = [
   ['adiamento', 'Quando pedir para adiar'],
   ['tela', 'Quando propor tempo de tela'],
   ['tarefa_filho', 'Quando criar uma tarefa para si'],
+  ['chegada', 'Quando alguém avisar que chegou', 'Inclui o "ainda sem confirmação", se você ligou na tarefa'],
 ];
 
 export default function AvisosGestor({ inicial }) {
   const [v, setV] = useState({
     concluir: inicial.concluida !== 'nenhuma', sem_foto: inicial.concluida !== 'com_foto',
     justificativa: inicial.justificativa !== false, adiamento: inicial.adiamento !== false,
-    tela: inicial.tela !== false, tarefa_filho: inicial.tarefa_filho !== false,
+    tela: inicial.tela !== false, tarefa_filho: inicial.tarefa_filho !== false, chegada: inicial.chegada !== false,
   });
   // "Avisar tudo" só fica ligado quando todos os avisos estão ligados.
   const todos = Object.keys(v);

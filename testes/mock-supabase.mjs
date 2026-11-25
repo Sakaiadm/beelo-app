@@ -12,6 +12,7 @@ const membros = [
   { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', jeito_livre: true, modo_crianca: process.env.MOCK_CRIANCA === '1', cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92) },
   { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: 'alice@t.com', ativo: true, tela_ativo: false, user_id: null },
 ];
+if (process.env.MOCK_CHEGADA === '1') membros.forEach((m) => { m.termos_versao = '2026-11-24'; });
 const cats = [{ id: id(20), familia_id: FAM, nome: 'Estudo', cor: 'indigo', ordem: 1 }, { id: id(21), familia_id: FAM, nome: 'Casa', cor: 'laranja', ordem: 2 }];
 const tarefas = [
   { id: id(30), familia_id: FAM, titulo: 'Estudar 1h', descricao: 'Matemática', categoria_id: id(20), responsavel_id: E, tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [], data_inicio: dia(-10), data_fim: null, hora_inicio: '19:00:00', hora_fim: '20:00:00', exige_foto: false, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, prioritaria: true, lembrete_min: 15, categoria: cats[0] },
@@ -20,8 +21,13 @@ const tarefas = [
 ];
 tarefas.push({ id: id(35), familia_id: FAM, titulo: 'Lançar tempo de tela', descricao: null, categoria_id: null, responsavel_id: E, especial: 'tela', tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [], data_inicio: dia(-10), data_fim: null, hora_inicio: '08:00:00', hora_fim: null, exige_foto: false, permite_adiar: false, exige_justificativa: false, criada_por: G, ativa: true, categoria: null });
 tarefas.push({ id: id(34), familia_id: FAM, titulo: 'Lavar a louça', descricao: null, categoria_id: id(21), responsavel_id: E, tipo: 'pontual', recorrencia: null, dias_semana: [], data_inicio: hoje, data_fim: null, hora_inicio: '23:30:00', hora_fim: null, exige_foto: true, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, categoria: cats[1] });
-const tRef = (t) => ({ id: t.id, prioritaria: !!t.prioritaria, titulo: t.titulo, descricao: t.descricao, exige_foto: t.exige_foto, permite_adiar: t.permite_adiar, exige_justificativa: t.exige_justificativa, criada_por: t.criada_por, tipo: t.tipo, categoria: t.categoria });
+const tRef = (t) => ({ id: t.id, prioritaria: !!t.prioritaria, titulo: t.titulo, descricao: t.descricao, exige_foto: t.exige_foto, permite_adiar: t.permite_adiar, exige_justificativa: t.exige_justificativa, criada_por: t.criada_por, tipo: t.tipo, categoria: t.categoria, ...(t.especial === 'chegada' ? { especial: 'chegada', chegada_lembrar: t.chegada_lembrar, chegada_avisar_pais: t.chegada_avisar_pais } : {}) });
 const oc = (n, t, d, extra = {}) => ({ id: id(100 + n), tarefa_id: t.id, familia_id: FAM, membro_id: t.responsavel_id, data: d, hora_inicio: t.hora_inicio, hora_fim: t.hora_fim, horario_travado: t.criada_por !== t.responsavel_id, status: 'pendente', concluida_em: null, foto_path: null, conferido: null, justificativa: null, justificativa_status: null, tarefa: tRef(t), ...extra });
+// MOCK_CHEGADA=1: duas chegadas de hoje do Eduardo (uma pendente, uma já avisada), para as telas do aviso de chegada.
+if (process.env.MOCK_CHEGADA === '1') {
+  const base = { familia_id: FAM, descricao: null, categoria_id: null, responsavel_id: E, especial: 'chegada', tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [], data_inicio: dia(-10), data_fim: null, hora_fim: null, exige_foto: false, permite_adiar: false, exige_justificativa: false, criada_por: G, ativa: true, categoria: null, chegada_lembrar: true, chegada_avisar_pais: true };
+  tarefas.push({ ...base, id: id(36), titulo: 'Chegar na escola', hora_inicio: '00:10:00' }, { ...base, id: id(37), titulo: 'Chegar em casa', hora_inicio: '23:00:00' });
+}
 const ocorr = [
   oc(1, tarefas[0], dia(-3), { status: 'cumprida', concluida_em: dia(-3) + 'T22:00:00Z' }),
   oc(2, tarefas[0], dia(-2), { justificativa: 'Estava doente', justificativa_status: 'pendente' }),
@@ -33,6 +39,9 @@ const ocorr = [
   oc(12, tarefas[3], hoje),
   oc(9, tarefas[2], hoje), oc(10, tarefas[2], dia(2)),
 ];
+if (process.env.MOCK_CHEGADA === '1') {
+  ocorr.push(oc(13, tarefas.find((t) => t.id === id(36)), hoje), oc(14, tarefas.find((t) => t.id === id(37)), hoje, { status: 'cumprida', concluida_em: new Date().toISOString(), conferido: 'conferido' }));
+}
 const familias = [{ id: FAM, nome: 'Família Sakai', avatar: null, ativa: true, foto_max_horas: 2, criado_em: dia(-40) + 'T12:00:00Z' }];
 const adminFamilias = [
   { ...familias[0], gestores: 'Thomas <pai@t.com>, Mãe', n_gestores: 2, n_filhos: 2, n_ativos: 2, tarefas: 3, oc_30d: 10, cumpridas_30d: 3, ultima_acao: new Date().toISOString() },
