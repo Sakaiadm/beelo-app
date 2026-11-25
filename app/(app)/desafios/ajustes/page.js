@@ -10,7 +10,7 @@ import { salvarAjustesDesafios, ligarDesafios } from '@/app/acoes-desafios';
 export const dynamic = 'force-dynamic';
 
 export default async function AjustesDesafios() {
-  const { membros, familia } = await exigirGestor();
+  const { membros, familia, superAdmin } = await exigirGestor();
   if (!desafiosLigados(familia)) redirect('/desafios');
   const criancas = membros.filter((m) => m.ativo && perfil(m) === 'c');
   return (
@@ -32,11 +32,14 @@ export default async function AjustesDesafios() {
         </>}
         <button className="btn bloco" style={{ marginTop: 16 }}>Salvar</button>
       </Form>
+      {/* @regra Só o administrador geral vê a chave de desligar o beta (SQL 0025 também recusa os demais). */}
+      {superAdmin && (
       <div className="card">
         <h2>Desligar os desafios</h2>
         <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '0 0 12px' }}>Some das telas de todos. Nada se perde: ao ligar de novo, os desafios, o cofrinho e o mural voltam como estavam.</p>
         <ConfirmarBotao acao={ligarDesafios} simples={false} campos={{ ligar: '0' }} rotulo="Desligar os desafios" classe="btn perigo bloco" titulo="Desligar os desafios?" pergunta="Os desafios somem das telas de todos. Nada se perde: ao ligar de novo, tudo volta como estava." sim="Sim, desligar" icone="bloquear" />
       </div>
+      )}
     </main>
   );
 }

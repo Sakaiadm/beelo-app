@@ -56,7 +56,7 @@ function Saldo({ m, saldo }) {
 
 export default async function Desafios({ searchParams }) {
   const sp = await searchParams;
-  const { supabase, eu, membros, gestor, familia } = await exigirMembro();
+  const { supabase, eu, membros, gestor, familia, superAdmin } = await exigirMembro();
 
   if (!desafiosLigados(familia)) {
     if (!gestor) redirect('/hoje');
@@ -66,8 +66,10 @@ export default async function Desafios({ searchParams }) {
         <div className="card">
           <h2>Desafios e prêmios</h2>
           <p style={{ margin: '0 0 10px', lineHeight: 1.5 }}>Um desafio por semana para cada pessoa, com meta sugerida pelo app, dia coringa e renovação automática. A criança junta estrelinhas num cofrinho que não vence; o adolescente junta semanas conquistadas; a família pode ter uma meta juntos com um prêmio de vivência.</p>
-          <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '0 0 14px' }}>Função em teste (beta). Fica desligada até você ligar, e pode desligar quando quiser: nada se perde.</p>
-          <Form acao={ligarDesafios}><input type="hidden" name="ligar" value="1" /><button className="btn bloco">Ligar os desafios</button></Form>
+          <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '0 0 14px' }}>Função em teste (beta). Fica desligada até o administrador geral ligar; desligando, nada se perde.</p>
+          {superAdmin
+            ? <Form acao={ligarDesafios}><input type="hidden" name="ligar" value="1" /><button className="btn bloco">Ligar os desafios</button></Form>
+            : <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: 0 }}>Ainda não está disponível para o seu grupo.</p>}
         </div>
       </main>
     );

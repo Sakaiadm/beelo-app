@@ -34,6 +34,10 @@ export async function ligarDesafios(_, fd) {
   const supabase = await supabaseServer();
   const eu = await quemSou(supabase);
   if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
+  // @regra Thomas 25/11: ligar/desligar o beta é SÓ do administrador geral (a chave de "voltar o sistema inteiro").
+  // O banco também recusa (SQL 0025, gatilho em ra_familias); aqui a recusa vem antes, com mensagem clara.
+  const { data: ehSuper } = await supabase.rpc('ra_sou_super');
+  if (ehSuper !== true) return { erro: 'Só o administrador geral pode ligar ou desligar os desafios' };
   const ligar = fd.get('ligar') === '1';
   const { error } = await supabase.from('ra_familias').update({ desafios_beta: ligar }).eq('id', eu.familia_id);
   if (error) return erroDe(error);
