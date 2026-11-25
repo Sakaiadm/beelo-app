@@ -1,3 +1,9 @@
+// @arquivo   desafios/page.js: tela Desafios (gestor vê tudo e liga/desliga o beta; os outros veem "Meus desafios").
+// @tipo      tela
+// @usa       lib/desafiosDados.js, lib/desafios.js, app/acoes-desafios.js; tabelas ra_desafio*, ra_premios, ra_cofrinho*
+// @usado-por menu de baixo (Desafios), cartões do Hoje e do Painel
+// @cuidado   Pílulas Mural/Vitrine/Ajustes só no ramo do gestor. Desligado: gestor vê o cartão "Ligar os desafios"; os outros vão para /hoje.
+
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
@@ -50,7 +56,7 @@ function Saldo({ m, saldo }) {
 
 export default async function Desafios({ searchParams }) {
   const sp = await searchParams;
-  const { supabase, eu, membros, gestor, familia } = await exigirMembro();
+  const { supabase, eu, membros, gestor, familia, superAdmin } = await exigirMembro();
 
   if (!desafiosLigados(familia)) {
     if (!gestor) redirect('/hoje');
@@ -60,8 +66,10 @@ export default async function Desafios({ searchParams }) {
         <div className="card">
           <h2>Desafios e prêmios</h2>
           <p style={{ margin: '0 0 10px', lineHeight: 1.5 }}>Um desafio por semana para cada pessoa, com meta sugerida pelo app, dia coringa e renovação automática. A criança junta estrelinhas num cofrinho que não vence; o adolescente junta semanas conquistadas; a família pode ter uma meta juntos com um prêmio de vivência.</p>
-          <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '0 0 14px' }}>Função em teste (beta). Fica desligada até você ligar, e pode desligar quando quiser: nada se perde.</p>
-          <Form acao={ligarDesafios}><input type="hidden" name="ligar" value="1" /><button className="btn bloco">Ligar os desafios</button></Form>
+          <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '0 0 14px' }}>Função em teste (beta). Fica desligada até o administrador geral ligar; desligando, nada se perde.</p>
+          {superAdmin
+            ? <Form acao={ligarDesafios}><input type="hidden" name="ligar" value="1" /><button className="btn bloco">Ligar os desafios</button></Form>
+            : <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: 0 }}>Ainda não está disponível para o seu grupo.</p>}
         </div>
       </main>
     );
@@ -111,13 +119,13 @@ export default async function Desafios({ searchParams }) {
       <main className="estreito">
         <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
         <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Desafio</Link>} />
-        <div className="des-atalhos" aria-label="Mais telas dos desafios">
+        <ComoFunciona perfil="gestor" membro={eu.id}>
           <Link prefetch={false} className="btn sec peq" href="/desafios/mural"><Icone nome="check" tam={18} />Mural</Link>
           <Link prefetch={false} className="btn sec peq" href="/desafios/premios"><Icone nome="etiqueta" tam={18} />Vitrine</Link>
+          {/* @regra Ajustes só para quem é gestor (Pai/Mãe): este bloco só existe no ramo do gestor. */}
           <Link prefetch={false} className="btn sec peq" href="/desafios/ajustes"><Icone nome="ajustes" tam={18} />Ajustes</Link>
-        </div>
+        </ComoFunciona>
         {aviso}
-        <ComoFunciona perfil="gestor" membro={eu.id} />
 
         {esperando.length > 0 && (
           <div className="card des-card" id="desejos">
