@@ -1001,3 +1001,40 @@ a.tarefa-ir > svg { color: var(--cinza); flex: none; }
 .lamp-fechar { position: absolute; top: 6px; right: 6px; width: 36px; height: 36px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: var(--trilho); color: var(--cinza); display: grid; place-items: center; }
 @media (min-width: 761px) { .lamp-fixa { right: 24px; bottom: 24px; } .lamp-balao { right: 20px; bottom: 94px; } .lamp-espaco { height: 40px; } }
 @media print { .lamp-fixa, .lamp-balao, .lamp-espaco { display: none; } }
+
+/* Lote 5: Tela, Desafios e menu (Raio-X U80 a U97) */
+.tela-cab { align-items: center; flex-wrap: nowrap; }
+.tela-cab .titulo { margin: 0; }
+.eng { flex: none; width: 44px; height: 44px; border-radius: 50%; border: 1px solid var(--borda); background: var(--cartao); color: var(--cinza); display: grid; place-items: center; cursor: pointer; padding: 0; }
+.eng.on { background: var(--azul); border-color: var(--azul); color: #fff; }
+.tela-ajustes { margin-bottom: 6px; }
+.prev-fechado > summary { display: flex; align-items: center; justify-content: space-between; gap: 12px; cursor: pointer; list-style: none; min-height: 44px; font-size: var(--f-texto); }
+.prev-fechado > summary::-webkit-details-marker { display: none; }
+.prev-fechado > summary b { color: var(--azul); font-size: var(--f-apoio); flex: none; }
+.prev-fechado[open] > summary { margin-bottom: 8px; }
+.des-atalhos { display: flex; gap: 8px; flex-wrap: wrap; margin: -6px 0 14px; }
+.des-atalhos .btn { gap: 6px; }
+.des-card:target { outline: 2px solid var(--azul); outline-offset: 2px; }
+.sem-desafio p { margin: 0 0 10px; line-height: 1.45; }
+.sem-desafio .acoes { display: flex; gap: 8px; flex-wrap: wrap; }
+.banco input[type="search"], .folha-in input[type="search"] { width: 100%; box-sizing: border-box; margin-bottom: 12px; }
+.banco-grupo { padding: 4px 16px; margin-bottom: 10px; }
+.banco-grupo > summary { display: flex; align-items: center; gap: 10px; min-height: 48px; cursor: pointer; list-style: none; font-size: var(--f-texto); }
+.banco-grupo > summary::-webkit-details-marker { display: none; }
+.banco-grupo > summary span { color: var(--cinza); font-size: var(--f-apoio); margin-left: auto; }
+.banco-grupo > summary::after { content: '›'; color: var(--cinza); font-size: 20px; }
+.banco-grupo[open] > summary::after { content: '⌄'; }
+.banco-grupo .cartao-l { margin: 0 0 8px; }
+.banco-grupo > form { margin: 0; }
+button.vit-linha { display: flex; align-items: center; gap: 12px; width: 100%; background: transparent; border: 0; border-top: 1px solid var(--borda); padding: 12px 0; font: inherit; color: var(--texto); text-align: left; cursor: pointer; min-height: 56px; }
+.vit-col { display: block; padding: 0; }
+.vit-col > .vit-linha { border-top: 0; }
+.vit-col .seta { color: var(--cinza); font-size: 20px; }
+.vit-linha .corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.vit-linha .mais-ic { width: 44px; height: 44px; border-radius: 12px; background: var(--azul); display: grid; place-items: center; flex: none; }
+.vit-ed { padding: 0 0 14px; }
+.criar-premio { margin-bottom: 12px; }
+.des-crianca .des-dias { gap: 8px; }
+.des-crianca .des-dias i { width: 44px; height: 44px; }
+.des-crianca .des-msg { font-size: var(--f-cartao); font-weight: 800; }
+.des-crianca .des-top b { font-size: var(--f-cartao); }

@@ -36,9 +36,9 @@ export default async function Mural({ searchParams }) {
     <main className="estreito">
       <Voltar href="/desafios" titulo="Mural de conquistas" sub={familia.mural_visivel === 'pais' ? 'Visível só para os pais e para cada pessoa.' : 'A família toda vê e comemora junto.'} />
       {visiveis.length > 1 && (
-        <div className="abas" style={{ marginBottom: 14 }}>
-          <Link prefetch={false} href="/desafios/mural" className={!sel ? 'ativo' : ''}>Todos</Link>
-          {visiveis.map((m) => <Link prefetch={false} key={m.id} href={`/desafios/mural?m=${m.id}`} className={sel?.id === m.id ? 'ativo' : ''}>{m.nome}</Link>)}
+        <div className="seg pessoas">
+          <Link prefetch={false} href="/desafios/mural" className={!sel ? 'on' : ''}>Todos</Link>
+          {visiveis.map((m) => <Link prefetch={false} key={m.id} href={`/desafios/mural?m=${m.id}`} className={sel?.id === m.id ? 'on' : ''}>{m.nome}</Link>)}
         </div>
       )}
       {(sel ? [sel] : visiveis).map((m) => {

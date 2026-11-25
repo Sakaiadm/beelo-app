@@ -153,7 +153,7 @@ export default async function Painel() {
 
       {des && (
         // U38: os desafios numa linha só; as barras por pessoa ficam na tela de Desafios.
-        <Link prefetch={false} href="/desafios" className="card des-card des-linha">
+        <Link prefetch={false} href={paraAprovar > 0 ? '/desafios#desejos' : paraEntregar > 0 ? '/desafios#premios' : '/desafios'} className="card des-card des-linha">
           <span className="des-ic mel"><Icone nome="check" tam={20} /></span>
           <span className="des-txt"><b>Desafios da semana</b><small>{des.desafios.length ? `${cumpridos} de ${des.desafios.length} cumpridos` : 'Nenhum desafio ainda. Toque para escolher.'}</small></span>
           {paraEntregar > 0 && <span className="tg mel">{paraEntregar === 1 ? '1 prêmio para entregar' : `${paraEntregar} prêmios para entregar`}</span>}

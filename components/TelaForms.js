@@ -112,7 +112,7 @@ export function LancamentoForm({ membro, hora, adiar: adiar0, justificativa: jus
 
 // Lançar o tempo de ontem. O previsto aparece como texto ("de 2h00") ao lado do nome do aparelho (S20).
 // crianca: "Quanto tempo você usou ontem?" com botões grandes (S25). aoConcluir: para a tarefa de Hoje (S19).
-export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca, aoConcluir }) {
+export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca, aoConcluir, jaSabe }) {
   const formato = previsto?.formato === 'total' ? 'total' : 'aparelho';
   const { cel, pc } = aparelhosDo(previsto);
   const [obs, setObs] = useState(!!atual?.obs);
@@ -131,7 +131,7 @@ export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca
       {crianca && <h2 style={{ margin: '0 0 8px' }}>Quanto tempo você usou ontem?</h2>}
       {!crianca && (
         <details className="como-achar">
-          <summary>Veja em Bem-estar digital ou Tempo de Uso. <span>Como achar?</span></summary>
+          <summary>{jaSabe ? <span>Como achar o tempo de ontem?</span> : <>Veja em Bem-estar digital ou Tempo de Uso. <span>Como achar?</span></>}</summary>
           <p>Android: Configurações › Bem-estar digital.<br />iPhone: Ajustes › Tempo de Uso › Ver Todas as Atividades.</p>
         </details>
       )}
