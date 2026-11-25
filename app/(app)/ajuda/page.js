@@ -1,7 +1,9 @@
-// @arquivo  page.js: Ajuda com busca, mais procuradas e blocos por assunto.
+// @arquivo  page.js: Ajuda com busca, mais procuradas e blocos por assunto, uma por perfil (responsável, adolescente, criança).
 // @tipo     tela
 // @usa      lib/jeito, lib/sessao, lib/papeis, components/VoltarHistorico, components/Icone, components/AjudaBusca, lib/contato
-// @usado-por Next.js (rota /ajuda)
+// @usado-por Next.js (rota /ajuda); o livro do topo (app/(app)/layout.js) abre esta tela
+// @regra    25/11 Thomas: cada perfil tira dúvidas com a sua visão e a sua linguagem; a criança lê frases curtas.
+// @cuidado  Mudou uma função? Atualize aqui e nos manuais públicos (public/manual*.html, gerados fora do repositório; veja docs/09-manuais.md).
 import Link from 'next/link';
 import { visaoCrianca } from '@/lib/jeito';
 import { exigirMembro } from '@/lib/sessao';
@@ -15,28 +17,64 @@ import { publicoDe } from '@/lib/guia';
 
 export const dynamic = 'force-dynamic';
 
-const FILHO = [
+// ═══ SEÇÃO: Perguntas do adolescente (Filho(a) "como os adultos") e do adulto que ajuda ═══
+const ADOLESCENTE = [
   ['Como ver o que tenho para fazer', 'Toque em Hoje. As tarefas aparecem em três grupos: Ficou de outro dia, A qualquer hora e Com hora marcada. Em Agenda você vê a semana e o mês. Toque na tarefa para abrir os detalhes dela.'],
   ['Como concluir uma tarefa', 'Toque no círculo ao lado da tarefa. Se a tarefa pede foto, o app abre a câmera ou a galeria. Escolha uma foto tirada hoje. A foto vale até as 7 da manhã do dia seguinte. Depois de enviar, a tarefa fica com o check verde.'],
   ['Por que o app não aceita minha foto', 'A foto precisa ser do dia da tarefa. Se for de outro dia, o app avisa. Tire a foto de novo e envie.'],
-  ['Como adiar uma tarefa', 'Toque na tarefa para abrir os detalhes e depois em Adiar. Escolha Amanhã, Depois de amanhã ou Outro dia, e o motivo. Seus responsáveis recebem o pedido e respondem. Se não aparece o botão Adiar, essa tarefa não pode ser adiada.'],
-  ['Tarefa atrasada e justificativa', 'Se a tarefa passou do horário, você pode tocar em Justificar e contar o motivo. Em algumas tarefas, se ela ficou para outro dia, a justificativa é obrigatória antes de concluir. Isso depende do que seus responsáveis definiram.'],
+  ['Como adiar uma tarefa', 'Toque na tarefa para abrir os detalhes e depois em Adiar. Escolha Amanhã, Depois de amanhã ou Outro dia, e conte o motivo. Seus responsáveis recebem o pedido e respondem. Se não aparece o botão Adiar, essa tarefa não pode ser adiada.'],
+  ['Tarefa atrasada e justificativa', 'Se a tarefa passou do horário, toque em Justificar e conte o motivo. Em algumas tarefas, se ela ficou para outro dia, a justificativa é obrigatória antes de concluir. Isso depende do que seus responsáveis definiram.'],
+  ['Como escolher o meu desafio', 'No cartão Desafios e conquistas, em Hoje, abra Meus desafios e toque em Escolher meu desafio. Veja a meta e as regras e escolha. O desafio renova sozinho toda segunda. Os desafios ainda estão em teste (beta).'],
+  ['O que são semanas conquistadas', 'Cada semana em que você cumpre a meta do desafio vira uma semana conquistada. Elas não vencem. Você usa quando quiser, nos combinados de autonomia que aparecem em Semanas conquistadas, tocando em Usar.'],
+  ['Dia coringa', 'Um dia difícil na semana vira dia coringa e não conta contra você. A semana não se perde por causa dele.'],
+  ['Como sugerir um desejo', 'Em Semanas conquistadas, vá em Meus desejos e toque em Sugerir um desejo. Você pode ter até 3 desejos esperando. Seus responsáveis aprovam e definem o preço em semanas. Se não der agora, eles respondem com uma mensagem.'],
+  ['Quem vê meus desejos e pedidos', 'Só você e seus responsáveis. Seus irmãos não veem os seus desejos nem os seus pedidos de prêmio em aberto. O mural de conquistas pode ser da família toda ou só dos responsáveis e de cada pessoa: quem escolhe são eles.'],
   ['Tempo de tela', 'Se estiver ativado para você, a aba Tela mostra o tempo previsto e o realizado. Toque na tarefa “Lançar tempo de tela” e coloque o tempo de ontem (celular e computador). Se quiser, envie a foto do relatório do aparelho. Precisa de mais tempo num dia? Peça na aba Tela, e seus responsáveis decidem.'],
   ['Ideias (a lâmpada)', 'A lâmpada no topo abre as Ideias: dicas curtas para você crescer com a sua rotina. De vez em quando aparece uma faixa com uma ideia em Hoje. Toque no X para fechar ou em Ver ideia para ler. Em Meu perfil você desliga essas dicas.'],
-  ['Evolução', 'Mostra como você está indo nesta semana ou neste mês: quantas tarefas fez, quantas no dia certo e o seu melhor dia. No modo criança aparecem as estrelas de cada dia.'],
-  ['Meu perfil, foto e avatar', 'Toque no seu nome ou foto no topo. Lá você escolhe uma foto sua ou um avatar e a sua cor. Vale na hora, sem botão Salvar. Também ativa os avisos no celular.'],
+  ['Dicas da Mel', 'Se o guia da Mel estiver ativo no seu grupo, aparecem dicas curtas quando você usa cada tela. Toque em Entendi ou Pular. Em Ajuda › Guia da Mel você recomeça o guia.'],
+  ['Evolução', 'Mostra como você está indo nesta semana ou neste mês: quantas tarefas fez, quantas no dia certo e o seu melhor dia.'],
+  ['Meu perfil, foto e modo escuro', 'Toque no seu nome ou foto no topo. Lá você escolhe uma foto sua ou um avatar e a sua cor. Vale na hora, sem botão Salvar. Também ativa os avisos no celular e o modo escuro.'],
   ['Avisos neste aparelho', 'Em Meu perfil, no cartão Avisos, toque em Ativar avisos neste aparelho e permita. Use Enviar um teste para conferir. O sininho no topo guarda a lista de avisos. Tocar em um aviso o marca como lido.'],
 ];
 
+// ═══ SEÇÃO: Perguntas da criança (modo criança, Divertido e Calmo): frases curtas ═══
+const CRIANCA = [
+  ['Como eu faço uma tarefa', 'Toque no círculo ao lado da tarefa quando terminar. Saem estrelinhas e toca uma musiquinha!'],
+  ['Marquei sem querer', 'Sem problema! Toque de novo na tarefa para desfazer.'],
+  ['A tarefa pede foto', 'Toque no círculo e escolha tirar uma foto. A foto tem que ser de hoje. Foto antiga não vale. Precisa de internet.'],
+  ['Esqueci ou não deu tempo', 'Tudo bem! Toque em Justificar e conte o que aconteceu, ou toque em Adiar e escolha outro dia. Seus pais respondem.'],
+  ['O que são as 5 estrelas do dia', 'Cada tarefa feita acende estrelas. Acendeu todas? Dia completo! Parabéns!'],
+  ['O que é o desafio da semana', 'É uma missão. Toque em Desafios e conquistas, na tela de hoje. Faça as tarefas e as bolinhas ficam verdes. Cumpriu a meta? Você ganha estrelinhas!'],
+  ['O que é o dia coringa', 'Teve um dia difícil? Ele vira dia coringa e não estraga a sua semana.'],
+  ['O meu cofrinho', 'As estrelinhas ficam guardadas no cofrinho. Elas não somem! Toque em Meu cofrinho para ver quantas você tem e o próximo prêmio.'],
+  ['Como eu troco por um prêmio', 'No cofrinho, quando der para trocar, toque em Trocar. Quer juntar mais para um prêmio maior? Toque em Continuar juntando. Seus pais combinam como entregar.'],
+  ['Como eu peço uma coisa que quero', 'No cofrinho, em Meus desejos, toque em Sugerir um desejo e escreva. Seus pais olham e respondem. Só você e seus pais veem.'],
+  ['Como eu crio uma tarefa minha', 'Toque em Adicionar minha tarefa, escreva o nome e escolha o dia. Esse botão só aparece se seus pais deixarem.'],
+  ['Como eu troco o meu rostinho', 'Toque no seu nome, lá em cima, e depois em Meu perfil. Toque no lápis da foto e escolha Avatar.'],
+  ['Divertido ou Calmo', 'Em Meu perfil, em Como eu quero ver o beelo, você escolhe Divertido (estrelinhas, sons e festa), Calmo (festa curtinha e sons suaves) ou Como os adultos.'],
+  ['Quem é a Mel', 'É a abelhinha do beelo. Às vezes ela aparece com uma dica rapidinha. Toque em Entendi ou em Pular.'],
+  ['Ficou sem internet', 'Pode marcar as tarefas do mesmo jeito. Quando a internet voltar, o app envia tudo sozinho.'],
+  ['Preciso de ajuda', 'Peça a um adulto para ler o manual com você. Toque em Manual do app, aqui no alto.'],
+];
+
+// ═══ SEÇÃO: Perguntas dos responsáveis (Pai e Mãe) ═══
 const PAIS = [
   ['Visão geral', 'Painel mostra o dia de cada pessoa e o que precisa da sua atenção: tarefas atrasadas, pedidos de adiamento, justificativas e tempo de tela. Agenda mostra as tarefas por dia, semana e mês, Relatórios mostra o cumprimento, Tela cuida do tempo de tela e Cadastros guarda o grupo, as pessoas e as categorias.'],
-  ['Cadastrar o grupo e as pessoas', 'Em Cadastros, abra Meu grupo para trocar o nome ou a foto. Em Pessoas, toque em Nova pessoa e informe o nome, quem é e o e-mail dela. O convite chega por e-mail, e você também pode avisar pelo WhatsApp. Ao entrar, ela já cai no grupo certo.'],
+  ['Cadastrar o grupo e as pessoas', 'Em Cadastros, abra Meu grupo para trocar o nome ou a foto. Em Pessoas, toque em + Pessoa e informe o nome, o e-mail dela, o parentesco (opcional) e o papel. O convite chega por e-mail, e você também pode avisar pelo WhatsApp. Ao entrar, ela já cai no grupo certo.'],
   ['Criar uma tarefa', 'No Painel ou na Agenda, toque em + Tarefa. Escolha a pessoa (ou você mesmo), o nome, a categoria, os dias e o horário (o horário é opcional). Salve.'],
   ['As cinco chaves de cada tarefa', 'Tem horário definido: a tarefa passa a ter hora de início (e fim, se quiser). Pode adiar: a pessoa pode pedir para adiar. Exige foto: ela só conclui com uma foto do dia. Exige justificativa: se ficar para outro dia, ela precisa explicar antes de concluir. Prioritária: ganha a bandeirinha e vem primeiro na lista. Todas começam desligadas. Ligue só nas tarefas que precisam.'],
+  ['Papéis e parentesco', 'O papel decide o que a pessoa pode fazer: Pai e Mãe (responsáveis, acesso total), Adulto que ajuda (cuida das próprias tarefas e só acompanha o que você liberar) e Filho(a) (faz as próprias tarefas e o próprio tempo de tela). O parentesco (Avó, Tia, Cuidador, Enteado…) é só um rótulo no perfil e não muda permissões.'],
+  ['Modo criança e jeito de ver', 'No cadastro da pessoa, ative o Modo criança (bom até uns 10 anos): estrelinhas, festa e cofrinho de estrelinhas. Quem está no modo criança escolhe em Meu perfil o jeito de ver: Divertido, Calmo ou Como os adultos. O jeito muda só a aparência; o cofrinho segue o modo criança que você escolheu.'],
+  ['Desafios (beta)', 'Em Desafios, toque em + Desafio, escolha para quem (uma ou mais pessoas, ou a Família toda) e um desafio sugerido. O app propõe meta e prêmio. Cada pessoa pode ter até 2 desafios. Renova toda segunda, com dia coringa. Criança junta estrelinhas, adolescente junta semanas conquistadas e adultos acompanham o percentual. Se aparecer Ligar os desafios, quem ativa é o administrador geral. O botão Como funciona explica tudo na própria tela.'],
+  ['Vitrine de prêmios e cofrinho', 'Em Desafios › Vitrine, escolha a aba Criança (estrelinhas) ou Adolescente (semanas), tire ou acrescente prêmios do banco ou crie o seu. Para ver o cofrinho de alguém, toque nas estrelinhas ao lado do nome dela. Quando ela troca por um prêmio, ele aparece em Prêmio para entregar: toque em Marcar como entregue.'],
+  ['Desejos dos filhos', 'Quando alguém sugere um desejo, ele aparece em Desejos para aprovar, na tela Desafios. Toque em Aprovar (dá para ajustar nome e preço) ou em Agora não, com uma mensagem carinhosa.'],
+  ['Mural, ajustes e privacidade', 'Em Desafios › Mural estão os desafios cumpridos, os prêmios entregues e as medalhas. Em Ajustes, escolha: A família toda vê ou Só os pais e a própria pessoa (isso também esconde dos irmãos os desafios e pedidos). Os desejos e pedidos em aberto são só da própria pessoa e dos responsáveis. Só os responsáveis montam a vitrine; só o administrador geral ativa ou desativa os desafios.'],
+  ['Guia da Mel (beta)', 'A Mel mostra dicas curtas, uma por vez (no máximo uma nova por dia). Para os responsáveis, começa pela entrada: primeira pessoa, grupo e primeira tarefa. Ela só aparece se o administrador geral ativar a caixinha Guia da Mel em Cadastros. Em Ajuda › Guia da Mel você recomeça o guia.'],
+  ['Manuais de cada perfil', 'Cada perfil tem o seu manual: este para Pai e Mãe, um para adolescentes e um para crianças, com linguagem simples. Abra os outros em Manual do adolescente e Manual da criança, aqui no alto, para ver o que cada um vê.'],
   ['Ver ou editar uma tarefa', 'Na Agenda ou no Hoje, toque na tarefa para ver os detalhes, com a foto quando houver. Para mudar regras, horário ou dias, toque em Editar, dentro dos detalhes.'],
   ['Conferir o que as pessoas fizeram', 'Tarefas concluídas aparecem com Conferido e Refazer. Conferido confirma. Refazer devolve a tarefa à pessoa. Depois de tocar, dá para desfazer por 5 segundos.'],
   ['Pedidos de adiamento e justificativas', 'Aparecem no Painel e no sino. Toque em Aprovar ou Agora não, ali mesmo no aviso ou no Painel. Depois de tocar, dá para desfazer por 5 segundos. Você escolhe em Meu perfil quais avisos quer receber.'],
-  ['Tempo de tela', 'Na aba Tela, em “Quem lança tempo de tela”, ligue para cada pessoa (e para você). Depois defina o previsto: tempo do celular e do computador e os dias. A pessoa lança o tempo de ontem na tarefa de Hoje e você acompanha a diferença.'],
+  ['Tempo de tela', 'Na aba Tela, em “Quem lança tempo de tela”, ative para cada pessoa (e para você). Depois defina o previsto: tempo do celular e do computador e os dias. A pessoa lança o tempo de ontem na tarefa de Hoje e você acompanha a diferença.'],
   ['Ideias (a lâmpada)', 'A lâmpada no topo abre ideias de conduta: como começar o combinado, o que fazer quando o filho resiste ou esquece, adolescentes e o que evitar. A aba Filhos mostra o que eles leem. De vez em quando, no Painel, aparece uma faixa com a ideia certa para o momento, no máximo uma por dia. Em Meu perfil você desliga essas dicas.'],
   ['Relatórios', 'Toque no período (Semana, Mês ou Outro) e na pessoa: muda na hora. Categoria e situação ficam em Mais filtros. Toque em cada parte para abrir. O botão Exportar PDF, no fim da tela, gera o relatório para guardar ou imprimir.'],
   ['Categorias', 'Em Cadastros, Categorias, você cria, renomeia ou apaga categorias e muda a cor delas.'],
@@ -51,26 +89,34 @@ const ADMIN = [
 ];
 
 // As 5 mais procuradas de cada público (Raio-X U69).
-const TOP_PAIS = ['Criar uma tarefa', 'Pedidos de adiamento e justificativas', 'Conferir o que as pessoas fizeram', 'Cadastrar o grupo e as pessoas', 'Avisos neste aparelho'];
-const TOP_FILHO = ['Como concluir uma tarefa', 'Como adiar uma tarefa', 'Tarefa atrasada e justificativa', 'Por que o app não aceita minha foto', 'Avisos neste aparelho'];
+const TOP_PAIS = ['Criar uma tarefa', 'Pedidos de adiamento e justificativas', 'Desafios (beta)', 'Cadastrar o grupo e as pessoas', 'Papéis e parentesco'];
+const TOP_FILHO = ['Como concluir uma tarefa', 'Como adiar uma tarefa', 'Tarefa atrasada e justificativa', 'Como escolher o meu desafio', 'Como sugerir um desejo'];
+const TOP_CRIANCA = ['Como eu faço uma tarefa', 'Marquei sem querer', 'O meu cofrinho', 'Como eu peço uma coisa que quero', 'Preciso de ajuda'];
 const WHATS = 'https://wa.me/55' + CONTATO.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent('Oi! Preciso de ajuda com o beelo.');
 
 export default async function Ajuda() {
   const { gestor, superAdmin, eu, familia } = await exigirMembro();
-  const manual = gestor || acesso(eu).painel ? '/manual' : visaoCrianca(eu) ? '/manual/crianca' : '/manual/pessoa';
+  // @regra O livro do topo abre esta tela, e "Manual do app" leva ao manual do PERFIL de quem está logado:
+  // responsáveis (e adulto que ajuda com painel) → /manual; criança (Divertido/Calmo) → /manual/crianca; demais → /manual/pessoa.
+  const crianca = !gestor && visaoCrianca(eu);
+  const manual = gestor || acesso(eu).painel ? '/manual' : crianca ? '/manual/crianca' : '/manual/pessoa';
+  const rotuloManual = gestor ? 'Manual do app para Pai e Mãe' : crianca ? 'Manual do app para crianças' : 'Manual do app';
   const grupos = [
     ...(superAdmin ? [{ titulo: 'Administrador geral', itens: ADMIN }] : []),
     ...(gestor ? [{ titulo: 'Para responsáveis', itens: PAIS }] : []),
-    { titulo: gestor ? 'O que as pessoas veem' : 'Como usar o app', itens: FILHO },
+    gestor ? { titulo: 'O que o adolescente vê', itens: ADOLESCENTE } : { titulo: crianca ? 'Perguntas e respostas' : 'Como usar o app', itens: crianca ? CRIANCA : ADOLESCENTE },
+    ...(gestor ? [{ titulo: 'O que a criança vê', itens: CRIANCA }] : []),
   ];
   const todas = grupos.flatMap((g) => g.itens);
-  const top = (gestor ? TOP_PAIS : TOP_FILHO).map((t) => todas.find((x) => x[0] === t)).filter(Boolean);
+  const top = (gestor ? TOP_PAIS : crianca ? TOP_CRIANCA : TOP_FILHO).map((t) => todas.find((x) => x[0] === t)).filter(Boolean);
   return (
     <main className="estreito">
       <VoltarHistorico href="/" titulo="Ajuda" />
       {/* U67: um lugar só para ajuda. O livro do topo também abre esta tela. */}
       <div className="card ajuda-atalhos">
-        <a href={`${manual}?app=1`} className="linha-ir"><Icone nome="livro" tam={20} /><span>Manual do app</span><Icone nome="dir" tam={20} /></a>
+        <a href={`${manual}?app=1`} className="linha-ir"><Icone nome="livro" tam={20} /><span>{rotuloManual}</span><Icone nome="dir" tam={20} /></a>
+        {gestor && <a href="/manual/pessoa?app=1" className="linha-ir"><Icone nome="livro" tam={20} /><span>Manual do adolescente<small>O que ele vê no app</small></span><Icone nome="dir" tam={20} /></a>}
+        {gestor && <a href="/manual/crianca?app=1" className="linha-ir"><Icone nome="livro" tam={20} /><span>Manual da criança<small>Linguagem simples, com estrelinhas</small></span><Icone nome="dir" tam={20} /></a>}
         <a href={WHATS} target="_blank" rel="noopener noreferrer" className="linha-ir"><Icone nome="fala" tam={20} /><span>Falar com a gente<small>WhatsApp {CONTATO.whatsapp}</small></span><Icone nome="dir" tam={20} /></a>
         <Link prefetch={false} href="/seguranca" className="linha-ir"><Icone nome="escudo" tam={20} /><span>Segurança e privacidade</span><Icone nome="dir" tam={20} /></Link>
       </div>
