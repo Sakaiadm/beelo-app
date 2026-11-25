@@ -1,6 +1,7 @@
 import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
 import Icone from '@/components/Icone';
+import GuiaChave from '@/components/GuiaChave';
 
 export const dynamic = 'force-dynamic';
 
@@ -31,6 +32,7 @@ export default async function Config({ searchParams }) {
         : <Item href={`/config/familias/${familia.id}`} icone="familia" titulo="Meu grupo" sub={familia.nome} />}
       <Item href="/config/pessoas" icone="pessoa" titulo="Pessoas" sub={`${n} ${n === 1 ? 'pessoa' : 'pessoas'}`} />
       <Item href="/config/categorias" icone="etiqueta" titulo="Categorias" sub={`${nCat ?? 0} categorias`} />
+      {superAdmin && <GuiaChave familiaId={familia.id} ligado={familia.guia_mel === true} />}
     </main>
   );
 }

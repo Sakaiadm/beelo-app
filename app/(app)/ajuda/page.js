@@ -6,6 +6,8 @@ import VoltarHistorico from '@/components/VoltarHistorico';
 import Icone from '@/components/Icone';
 import AjudaBusca from '@/components/AjudaBusca';
 import { CONTATO } from '@/lib/contato';
+import GuiaAjuda from '@/components/GuiaAjuda';
+import { publicoDe } from '@/lib/guia';
 
 export const dynamic = 'force-dynamic';
 
@@ -50,7 +52,7 @@ const TOP_FILHO = ['Como concluir uma tarefa', 'Como adiar uma tarefa', 'Tarefa 
 const WHATS = 'https://wa.me/55' + CONTATO.whatsapp.replace(/\D/g, '') + '?text=' + encodeURIComponent('Oi! Preciso de ajuda com o beelo.');
 
 export default async function Ajuda() {
-  const { gestor, superAdmin, eu } = await exigirMembro();
+  const { gestor, superAdmin, eu, familia } = await exigirMembro();
   const manual = gestor || acesso(eu).painel ? '/manual' : visaoCrianca(eu) ? '/manual/crianca' : '/manual/pessoa';
   const grupos = [
     ...(superAdmin ? [{ titulo: 'Administrador geral', itens: ADMIN }] : []),
@@ -68,6 +70,7 @@ export default async function Ajuda() {
         <a href={WHATS} target="_blank" rel="noopener noreferrer" className="linha-ir"><Icone nome="fala" tam={20} /><span>Falar com a gente<small>WhatsApp {CONTATO.whatsapp}</small></span><Icone nome="dir" tam={20} /></a>
         <Link prefetch={false} href="/seguranca" className="linha-ir"><Icone nome="escudo" tam={20} /><span>Segurança e privacidade</span><Icone nome="dir" tam={20} /></Link>
       </div>
+      {familia.guia_mel === true && publicoDe(eu, gestor) && <GuiaAjuda membro={eu.id} gestor={gestor} />}
       <AjudaBusca top={top} grupos={grupos} />
     </main>
   );

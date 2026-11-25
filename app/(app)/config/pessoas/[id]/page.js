@@ -15,7 +15,7 @@ export default async function Pessoa({ params }) {
   return (
     <main className="estreito">
       <Voltar href="/config/pessoas" titulo={m.nome} />
-      <PessoaForm m={m} familia={familia.id} url={urls[m.avatar]} usadas={membros.filter((x) => x.id !== m.id).map((x) => x.cor)} euId={eu.id} />
+      <PessoaForm m={m} familia={familia.id} url={urls[m.avatar]} usadas={membros.filter((x) => x.id !== m.id).map((x) => x.cor)} euId={eu.id} guia={familia.guia_mel === true} />
     </main>
   );
 }
