@@ -44,6 +44,11 @@ Variáveis opcionais (só os nomes; valores ficam no `.env` da VPS, que nunca va
 
 Pasta `testes/`: usam um Supabase falso (`mock-supabase.mjs`) para percorrer telas e ações (`rotas.mjs`, `acoes.mjs`, `offline.mjs`, `push.mjs`). O banco tem sua trilha própria em `supabase/testes/` (rodar com `bash testes/banco-local.sh`, precisa de PostgreSQL 16).
 
+- `testes/acoes-novas.mjs`: botões e formulários de Desafios, Vitrine, desejos, tarefas e cadastros (rodar com o app em 127.0.0.1:3100 e `MOCK_DESAFIOS=1 MOCK_DESEJOS=1` no Supabase falso; `SO="texto"` roda só um caso).
+- Criança no Supabase falso: `MOCK_CRIANCA=1` e `MOCK_JEITO=divertido|calmo`.
+- `testes/acoes.mjs` está desatualizado em vários pontos (telas mudaram desde as PRs 62 a 64); prefira `acoes-novas.mjs`.
+- As trilhas do banco (`trilha_banco`, `trilha_desafios`, `trilha_desejos`) passam: 112, 25 e 22 testes.
+
 ## Regras que não mudam
 
 - Mudou comportamento? Mexa no banco por **migração numerada nova**, nunca editando as antigas.

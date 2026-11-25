@@ -19,7 +19,7 @@ export default function BancoPremios({ itens, un, teen }) {
   const faixas = teen ? FAIXAS_SEMANA : FAIXAS_ESTRELA;
   const achados = q.trim() ? itens.filter((p) => sem(p.nome).includes(sem(q.trim()))) : null;
   const linha = (p) => (
-    <Form key={p.id} acao={adicionarPremio} simples>
+    <Form key={p.id} acao={adicionarPremio}>
       <input type="hidden" name="catalogo" value={p.id} />
       <button className="vit vit-linha" aria-label={`Acrescentar ${p.nome}`}>
         <span className="corpo"><b>{p.nome}</b><small>{p.custo} {un} · {FAIXA[p.faixa]}</small></span>

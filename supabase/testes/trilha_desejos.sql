@@ -93,6 +93,26 @@ begin
   execute 'reset role';
   if (select cofrinho_meta from public.ra_membros where id = C) is null and (select sum(valor) from public.ra_cofrinho where membro_id = C) = 10 then nok := nok + 1; r := r || E'OK  W16 Ao juntar, troca o desejo como qualquer prêmio\n'; else nfalha := nfalha + 1; r := r || 'FALHA W16 meta=' || coalesce((select cofrinho_meta::text from public.ra_membros where id = C),'null') || ' soma=' || coalesce((select sum(valor)::text from public.ra_cofrinho where membro_id = C),'null') || E'\n'; end if;
 
+  -- ===== Privacidade entre irmãos (SQL 0026) =====
+  -- @regra filho não lê desejo nem pedido de prêmio do irmão; pai/mãe leem tudo.
+  execute 'reset role';
+  insert into public.ra_premio_pedidos(familia_id, membro_id, premio_id, nome, custo, moeda, status)
+    select fam, T, id, nome, 1, 'estrelas', 'pedido' from public.ra_premios where membro_id = T limit 1;
+  perform set_config('request.jwt.claims', cri, true); execute 'set local role authenticated';
+  select count(*) into n from public.ra_premios where membro_id = T;
+  if n = 0 then nok := nok + 1; r := r || E'OK  W20 Criança não vê desejos da irmã\n'; else nfalha := nfalha + 1; r := r || 'FALHA W20 viu ' || n || E'\n'; end if;
+  select count(*) into n from public.ra_premio_pedidos where membro_id = T;
+  if n = 0 then nok := nok + 1; r := r || E'OK  W21 Criança não vê pedido de prêmio da irmã\n'; else nfalha := nfalha + 1; r := r || 'FALHA W21 viu ' || n || E'\n'; end if;
+  select count(*) into n from public.ra_premios where membro_id = C;
+  if n >= 1 then nok := nok + 1; r := r || E'OK  W22 Criança vê os próprios desejos\n'; else nfalha := nfalha + 1; r := r || E'FALHA W22\n'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', ado, true); execute 'set local role authenticated';
+  select count(*) into n from public.ra_premios where membro_id = C;
+  if n = 0 then nok := nok + 1; r := r || E'OK  W23 Adolescente não vê desejos do irmão\n'; else nfalha := nfalha + 1; r := r || 'FALHA W23 viu ' || n || E'\n'; end if;
+  execute 'reset role'; perform set_config('request.jwt.claims', pai, true); execute 'set local role authenticated';
+  select count(*) into n from public.ra_premios where membro_id in (C, T); select count(*) + n into n from public.ra_premio_pedidos where membro_id = T;
+  if n >= 3 then nok := nok + 1; r := r || E'OK  W24 Pai e mãe veem desejos e pedidos de todos\n'; else nfalha := nfalha + 1; r := r || 'FALHA W24 viu ' || n || E'\n'; end if;
+  execute 'reset role';
+
   -- ===== Pai não sugere =====
   perform set_config('request.jwt.claims', pai, true);
   execute 'set local role authenticated';

@@ -32,7 +32,11 @@ begin
   perform public.ra_gerar_ocorrencias(segp, seg + 6);
   select public.ra_desafios_atualizar() into n;
   if n = 0 then nok := nok + 1; r := r || E'OK  D1 Com o beta desligado, nada é calculado\n'; else nfalha := nfalha + 1; r := r || E'FALHA D1\n'; end if;
-  update public.ra_familias set desafios_beta = true where id = fam;
+  begin update public.ra_familias set desafios_beta = true where id = fam; nfalha := nfalha + 1; r := r || E'FALHA D1b Pai comum ligou os desafios\n';
+  exception when others then nok := nok + 1; r := r || E'OK  D1b Pai comum não liga os desafios (só o administrador geral)\n'; end;
+  -- @cuidado: desde a 0025 só o administrador geral liga; o teste liga como dono do banco.
+  execute 'reset role'; perform set_config('request.jwt.claims', '', true); update public.ra_familias set desafios_beta = true where id = fam;
+  perform set_config('request.jwt.claims', json_build_object('sub', gU, 'email', 'des-pai@teste.local', 'role', 'authenticated')::text, true); execute 'set local role authenticated';
   insert into public.ra_premios(familia_id, catalogo, nome, custo, moeda, faixa) values (fam, 's1', 'Escolher a sobremesa', 10, 'estrelas', 'todos') returning id into pr;
   insert into public.ra_premios(familia_id, catalogo, nome, custo, moeda, faixa) values (fam, 'v4', 'Cinema', 60, 'estrelas', 'todos') returning id into pr2;
   nok := nok + 1; r := r || E'OK  D2 Pai liga o beta e monta a vitrine\n';

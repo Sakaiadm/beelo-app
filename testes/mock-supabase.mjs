@@ -9,8 +9,8 @@ const TV = '2026-11-24';
 const membros = [
   { id: G, familia_id: FAM, nome: 'Thomas', papel: 'gestor', cor: '#0f4fae', email: 'pai@t.com', ativo: true, tela_ativo: true, user_id: id(91), termos_versao: TV },
   { id: M, familia_id: FAM, nome: 'Mãe', papel: 'gestor', cor: '#7a3fb0', email: null, ativo: true, tela_ativo: true, user_id: null },
-  { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', jeito_livre: true, modo_crianca: process.env.MOCK_CRIANCA === '1', cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92) },
-  { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: 'alice@t.com', ativo: true, tela_ativo: false, user_id: null },
+  { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', jeito_livre: true, modo_crianca: process.env.MOCK_CRIANCA === '1', jeito: process.env.MOCK_JEITO || undefined, cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92), termos_versao: TV },
+  { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: 'alice@t.com', ativo: true, tela_ativo: false, user_id: id(94), termos_versao: TV },
 ];
 const cats = [{ id: id(20), familia_id: FAM, nome: 'Estudo', cor: 'indigo', ordem: 1 }, { id: id(21), familia_id: FAM, nome: 'Casa', cor: 'laranja', ordem: 2 }];
 const tarefas = [

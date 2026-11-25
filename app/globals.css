@@ -1039,8 +1039,9 @@ button.vit-linha { display: flex; align-items: center; gap: 12px; width: 100%; b
 .vit-linha .mais-ic { width: 44px; height: 44px; border-radius: 12px; background: var(--azul); display: grid; place-items: center; flex: none; }
 .vit-ed { padding: 0 0 14px; }
 .criar-premio { margin-bottom: 12px; }
-.des-crianca .des-dias { gap: 8px; }
-.des-crianca .des-dias i { width: 44px; height: 44px; }
+/* @cuidado Bolinhas grandes do modo criança: encolhem para caber (7 x 44 px + espaços passava da tela em 360 e 390 px). */
+.des-crianca .des-dias { gap: 6px; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.des-crianca .des-dias i { width: 100%; max-width: 44px; height: auto; aspect-ratio: 1 / 1; }
 .des-crianca .des-msg { font-size: var(--f-cartao); font-weight: 800; }
 .des-crianca .des-top b { font-size: var(--f-cartao); }
 
