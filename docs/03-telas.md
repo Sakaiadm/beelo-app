@@ -51,6 +51,8 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | `/sem-acesso` | `app/sem-acesso/page.js` | tela para quem entrou mas ainda não tem cadastro numa família. | — |
 | `/termos` | `app/termos/page.js` | página pública dos termos de uso. | — |
 
+**Atrasos no Painel (regra):** tarefa que se repete expira à meia-noite (vira "não cumprida", `statusExibido` em `lib/util.js`); só segue atrasada se há justificativa esperando resposta. Tarefa de uma vez só segue atrasada até ser feita. A mesma tarefa em mais de um dia aparece numa linha só. O botão Lembrar vira o selo "Lembrado às 15h" (hora de `lembrado_em`) e volta após 2 horas.
+
 ## Peças de tela (`components/`) 🟦
 
 74 componentes. Os que começam com `'use client'` rodam no aparelho (têm estado e toque); os outros são desenhados no servidor.
