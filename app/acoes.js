@@ -4,7 +4,7 @@ import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
 import { parseMin, hojeISO, addDias, agoraHHMM, CORES_CAT } from '@/lib/util';
 import { validarEmail } from '@/lib/email';
-import { funcaoDe, nomeFuncao, temModoCrianca } from '@/lib/papeis';
+import { funcaoDe, nomeFuncao, temModoCrianca, parentescoValido } from '@/lib/papeis';
 import { emailConfigurado, enviarEmailConvite } from '@/lib/convite';
 import { esquecerSessoes } from '@/lib/sessao';
 import { traduzirErro } from '@/lib/rede';
@@ -178,6 +178,7 @@ export async function salvarPessoa(_, fd) {
   f.chaves.forEach(([k]) => { permissoes[k] = fd.get(`perm_${k}`) === '1'; });
   const reg = {
     nome: txt(fd, 'nome', 60), email: v.email || null, papel: f.papel, funcao: f.id, permissoes,
+    parentesco: parentescoValido(fd.get('parentesco')) ? fd.get('parentesco') : null,
     ativo: fd.get('ativo') === '1',
     modo_crianca: temModoCrianca(f.id) && fd.get('modo_crianca') === '1',
     cor: /^#[0-9a-f]{6}$/i.test(fd.get('cor') || '') ? fd.get('cor') : '#1a6fe0',

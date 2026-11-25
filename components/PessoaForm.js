@@ -6,7 +6,7 @@ import AvatarUpload from './AvatarUpload';
 import Avatar from './Avatar';
 import { salvarPessoa, excluirPessoa } from '@/app/acoes';
 import { validarEmail } from '@/lib/email';
-import { FUNCOES, funcaoDe, chavesIniciais, rotuloFuncao, nomeFuncao, temModoCrianca } from '@/lib/papeis';
+import { FUNCOES, PARENTESCOS, parentescoDe, nomeListaParentesco, funcaoDe, chavesIniciais, rotuloFuncao, nomeFuncao, temModoCrianca } from '@/lib/papeis';
 import CorFolha, { CorBotao } from './CorFolha';
 import { statusConvite } from '@/lib/statusConvite';
 import ReenviarConvite from './ReenviarConvite';
@@ -17,7 +17,8 @@ import JeitoEscolha from './JeitoEscolha';
 export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId, existentes = [] }) {
   const [nome, setNome] = useState(m?.nome || '');
   const [email, setEmail] = useState(m?.email || '');
-  const [funcao, setFuncao] = useState(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''));
+  const [funcao, setFuncao] = useState(funcaoDe(m?.funcao)?.id || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''));
+  const [parentesco, setParentesco] = useState(m?.parentesco || (m?.funcao === 'sobrinho' ? 'sobrinho' : ''));
   const [cor, setCor] = useState(m?.cor || corInicial || '#1a6fe0');
   const [ativo, setAtivo] = useState(m ? m.ativo : true);
   const [crianca, setCrianca] = useState(!!m?.modo_crianca);
@@ -27,12 +28,18 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const [jeito, setJeito] = useState(m ? jeitoDe({ ...m, modo_crianca: true }) : 'divertido');
   const [jeitoMexido, setJeitoMexido] = useState(false);
   const [livre, setLivre] = useState(m?.jeito_livre !== false);
-  const [chaves, setChaves] = useState(chavesIniciais(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''), m?.permissoes));
+  const [chaves, setChaves] = useState(chavesIniciais(funcaoDe(m?.funcao)?.id || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''), m?.permissoes));
   const [folha, setFolha] = useState(false);
   const [autorizo, setAutorizo] = useState(false);
   const v = validarEmail(email);
   const f = funcaoDe(funcao);
   const mudaFuncao = (id) => { setFuncao(id); setChaves(chavesIniciais(id, null)); };
+  // Escolher o parentesco sugere o papel (quem cadastra pode trocar). Em pessoa já cadastrada, o papel não muda sozinho.
+  const mudaParentesco = (id) => {
+    setParentesco(id);
+    const sug = parentescoDe(id)?.papel;
+    if (!m && sug) mudaFuncao(sug);
+  };
   const eu = m && m.id === euId;
   // Em "Adicionar pessoa", o e-mail digitado já é de alguém deste grupo (ex.: o responsável
   // cadastrado junto com o grupo): não dá erro, o botão só manda o convite para essa pessoa.
@@ -57,6 +64,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
       <Form acao={salvarPessoa} okTxt="Salvo." limpar={!m} className="card">
         {m && <input type="hidden" name="id" value={m.id} />}
         <input type="hidden" name="funcao" value={funcao} />
+        <input type="hidden" name="parentesco" value={parentesco} />
         <input type="hidden" name="cor" value={cor} />
         {ativo && <input type="hidden" name="ativo" value="1" />}
         {crianca2 && <input type="hidden" name="modo_crianca" value="1" />}
@@ -78,11 +86,18 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         </div>
         {email && !v.ok && <p className="erro-campo" role="alert">{v.msg}</p>}
         {v.ok && v.sugestao && <p className="sug-campo">Você quis dizer <button type="button" onClick={() => setEmail(v.sugestao)}>{v.sugestao}</button>? Toque para corrigir.</p>}
+        <label htmlFor="p-parentesco">Parentesco (opcional)</label>
+        <select id="p-parentesco" value={parentesco} onChange={(e) => mudaParentesco(e.target.value)}>
+          <option value="">Sem parentesco</option>
+          {PARENTESCOS.map((x) => <option key={x.id} value={x.id}>{nomeListaParentesco(x)}</option>)}
+        </select>
+        <p className="peq-cinza">Só aparece no perfil. Não muda o que a pessoa pode fazer.</p>
         <label htmlFor="p-papel">Papel</label>
         <select id="p-papel" value={funcao} onChange={(e) => mudaFuncao(e.target.value)} required={!ja}>
           <option value="" disabled>Selecione</option>
           {FUNCOES.map((x) => <option key={x.id} value={x.id}>{x.ga ? `${x.nome}(a)` : x.nome}</option>)}
         </select>
+        {!m && parentescoDe(parentesco)?.papel && parentescoDe(parentesco).papel === funcao && <p className="peq-cinza">Sugerido pelo parentesco. Você pode mudar.</p>}
         {f && (
           <>
             <div className="caixa-papel"><b>{rotuloFuncao(f.id, null)}:</b> {f.desc}</div>
