@@ -1,6 +1,6 @@
 // @arquivo  page.js: Painel da família (Pai, Mãe e quem acompanha): atrasos, pedidos, resumo do dia.
 // @tipo     tela
-// @usa      banco ra_adiamentos, banco ra_tela_proposta, banco ra_tarefas, components/LembrarBotao, components/PrimeirosPassos, components/SugestaoDesafio, lib/sugestoesDesafio, components/AvisosConvite, components/IdadePergunta, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/tela, lib/util, components/Calendario, components/Form, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/Responder, lib/respostas, app/acoes
+// @usa      banco ra_adiamentos, banco ra_tela_proposta, banco ra_tarefas, components/LembrarBotao, components/PrimeirosPassos, components/SugestaoDesafio, lib/sugestoesDesafio, components/AvisosConvite, components/IdadePergunta, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/tela, lib/util, components/Calendario, components/FiltroHoje, components/Form, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/Responder, lib/respostas, app/acoes
 // @usado-por Next.js (rota /painel)
 import LembrarBotao from '@/components/LembrarBotao';
 import PrimeirosPassos from '@/components/PrimeirosPassos';
@@ -11,6 +11,7 @@ import AvisosConvite from '@/components/AvisosConvite';
 import IdadePergunta from '@/components/IdadePergunta';
 import { temJeito } from '@/lib/jeito';
 import Link from 'next/link';
+import FiltroHoje from '@/components/FiltroHoje';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
@@ -30,7 +31,8 @@ import { responderAdiamento, avaliarJustificativa, conferir, conferirTodas, resp
 
 export const dynamic = 'force-dynamic';
 
-export default async function Painel() {
+export default async function Painel({ searchParams }) {
+  const sp = (await searchParams) || {};
   const { supabase, eu, membros, familia } = await exigirMembro();
   // Pai e Mãe respondem a tudo; a supervisora (com a chave Ver o painel) acompanha e, se liberado, confere.
   const a = acesso(eu);
@@ -53,6 +55,12 @@ export default async function Painel() {
   const lista = ocs.map((o) => ({ o, st: statusExibido(o, hoje) }));
   const conta = (arr) => ({ total: arr.filter((x) => x.st !== 'adiada').length, feitas: arr.filter((x) => x.st.startsWith('cumprida')).length });
   const doDia = lista.filter((x) => x.o.data === hoje);
+  // Filtro do cartão "Hoje" (seção 35): pessoa e categoria vêm do endereço. Valor que não existe vira "todos".
+  const hp = pessoas.some((m) => m.id === sp.hp) ? sp.hp : '';
+  const catsHoje = [...new Map(lista.map((x) => x.o.tarefa?.categoria).filter(Boolean).map((c) => [c.id, c])).values()].sort((a, b) => a.nome.localeCompare(b.nome, 'pt-BR'));
+  const hc = catsHoje.some((c) => c.id === sp.hc) ? sp.hc : '';
+  const doDiaF = doDia.filter((x) => (!hc || x.o.tarefa?.categoria?.id === hc));
+  const pessoasF = hp ? pessoas.filter((f) => f.id === hp) : pessoas;
   const kHoje = conta(doDia);
   const semana = lista.filter((x) => x.o.data >= inicioSemana(hoje) && x.o.data <= hoje);
   const kSem = conta(semana);
@@ -224,10 +232,11 @@ export default async function Painel() {
         <div className="grande">
           <div className="card alvo" id="hoje">
             <h2>Hoje</h2>
+            <FiltroHoje pessoas={[...pessoas.filter((f) => f.id !== eu.id).map((f) => ({ id: f.id, rotulo: f.nome })), { id: eu.id, rotulo: 'Eu' }]} categorias={catsHoje.map((c) => ({ id: c.id, nome: c.nome }))} hp={hp} hc={hc} />
             <div className="linha">
-              {pessoas.filter((f) => doDia.some((x) => x.o.membro_id === f.id && x.st !== 'adiada')).map((f) => {
-                const k = conta(doDia.filter((x) => x.o.membro_id === f.id));
-                const falta = doDia.filter((x) => x.o.membro_id === f.id && !x.st.startsWith('cumprida') && x.st !== 'adiada').map((x) => x.o.tarefa?.titulo);
+              {pessoasF.filter((f) => doDiaF.some((x) => x.o.membro_id === f.id && x.st !== 'adiada')).map((f) => {
+                const k = conta(doDiaF.filter((x) => x.o.membro_id === f.id));
+                const falta = doDiaF.filter((x) => x.o.membro_id === f.id && !x.st.startsWith('cumprida') && x.st !== 'adiada').map((x) => x.o.tarefa?.titulo);
                 const t = telas[f.id];
                 const real = t ? totalReal(t) : null, prev = t?.previsto?.min_total;
                 const lembrar = gestor && f.tela_ativo && f.papel === 'filho' && !t && f.id !== eu.id;
@@ -249,7 +258,7 @@ export default async function Painel() {
               })}
             </div>
             {(() => {
-              const sem = pessoas.filter((f) => !doDia.some((x) => x.o.membro_id === f.id && x.st !== 'adiada'));
+              const sem = pessoasF.filter((f) => !doDiaF.some((x) => x.o.membro_id === f.id && x.st !== 'adiada'));
               return sem.length > 0 && <p className="meta" style={{ margin: '12px 0 0' }}>Sem tarefas hoje: {sem.map((f) => f.nome).join(', ')}</p>;
             })()}
           </div>
