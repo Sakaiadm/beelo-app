@@ -1,8 +1,13 @@
 'use client';
+// @arquivo  LampadaFlutuante.js: bolinha da ideia do dia (canto direito) com o cartão que abre dela.
+// @tipo     componente
+// @usa      lib/dicasMotor.js, components/Icone.js
+// @usado-por app/(app)/hoje/page.js, app/(app)/painel/page.js
+// @cuidado  divide o estado "ideia vista" com components/LampadaBtn.js (lâmpada do topo): sempre pelo dicasMotor.
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Icone from './Icone';
-import { dicaDeHoje, fechar, marcarVista, ler } from '@/lib/dicasMotor';
+import { dicaDeHoje, fechar, marcarTodasVistas, ler } from '@/lib/dicasMotor';
 
 // Ideia do dia flutuante (L1 + balão B2, escolhido pelo Thomas em 25/11): bolinha amarela com lâmpada
 // no canto direito, acima do menu de baixo. Ao tocar, a própria lâmpada cresce e vira o cartão; ela fica
@@ -80,7 +85,8 @@ export default function LampadaFlutuante({ membro, cands, hoje }) {
   const abrir = () => {
     if (ocupado.current) return;
     if (aberto) { recolher(); return; }
-    if (!lida) { marcarVista(membro, dica.i, hoje); setLida(true); }
+    // @decisao 25/11 abrir a lâmpada tira o número de TODAS as ideias novas (também da lâmpada do topo).
+    marcarTodasVistas(membro, hoje); setLida(true);
     setAberto(true);
   };
   async function recolher() {

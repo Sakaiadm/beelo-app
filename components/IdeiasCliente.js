@@ -1,8 +1,19 @@
 'use client';
+// @arquivo  IdeiasCliente.js: pedacinhos da tela Ideias que rodam no aparelho (marcar como vista, "Já vistas").
+// @tipo     componente
+// @usa      lib/dicasMotor.js, lib/ideias.js
+// @usado-por app/(app)/ideias/page.js
+// @cuidado  marcar vista é o que faz o número da lâmpada sumir; não tirar sem testar a lâmpada do topo.
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
-import { ler, marcarVista, ligar } from '@/lib/dicasMotor';
+import { ler, marcarVista, marcarTodasVistas, ligar } from '@/lib/dicasMotor';
 import { achar } from '@/lib/ideias';
+
+// Lista de ideias aberta (pela lâmpada do topo): o número some, as ideias novas contam como vistas.
+export function MarcarTodasVistas({ membro, hoje }) {
+  useEffect(() => { marcarTodasVistas(membro, hoje); }, [membro, hoje]);
+  return null;
+}
 
 // Marca a ideia aberta como lida (some do número da lâmpada e entra em "Já vistas").
 export function MarcarVista({ membro, ideia, hoje }) {
