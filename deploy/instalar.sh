@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# @arquivo  instalar.sh: instala ou atualiza o beelo na VPS: .env, chaves de push, Docker, HTTPS (Caddy ou nginx) e redirecionamento do endereço antigo.
+# @tipo     infra
+# @cuidado  roda como root; é seguro repetir. Se o domínio não aponta para a VPS, ele para sem mudar nada.
 # Instala/atualiza o beelo (antigo Rotina Ativa) na VPS. Uso (como root):
 #   bash deploy/instalar.sh beeloapp.com rotina.sakaiadm.tech
 # 1º endereço = o principal (www também entra, se já apontar para a VPS).

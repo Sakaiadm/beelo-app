@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @arquivo  config-backup.sh: configura o backup diário na VPS (a senha do banco é digitada e fica só no arquivo .conexao).
+# @tipo     infra
 # Configura o backup diário do banco (Supabase) na VPS. A senha do banco é digitada aqui e fica só no arquivo /opt/rotina-ativa-backups/.conexao (somente o administrador lê).
 #   bash deploy/config-backup.sh
 set -euo pipefail

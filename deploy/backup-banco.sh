@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+# @arquivo  backup-banco.sh: backup do banco (esquema public) com pg_dump; guarda as 14 cópias mais recentes.
+# @tipo     infra
+# @cuidado  não inclui usuários de login (auth) nem as fotos (Storage). Veja deploy/restaurar-backup.md.
 # Backup do banco (esquema public, onde ficam todos os dados do beelo). Guarda as 14 cópias mais recentes.
 set -euo pipefail
 PASTA=/opt/rotina-ativa-backups

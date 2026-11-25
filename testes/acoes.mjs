@@ -1,3 +1,5 @@
+// @arquivo  acoes.mjs: testa formulários e botões com o Supabase falso.
+// @tipo     teste
 // Testa formulários e botões: confere se cada ação chega ao banco (Supabase falso) com os dados certos.
 import { createRequire } from 'node:module';
 const { chromium } = createRequire(process.env.PW_ROOT + '/')('playwright');

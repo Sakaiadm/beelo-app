@@ -1,3 +1,5 @@
+// @arquivo  offline.mjs: testa o app sem internet, com internet lenta e com erro do servidor.
+// @tipo     teste
 // Testa o app sem internet, com internet lenta e com erros do servidor (Supabase falso + app em 127.0.0.1:3100).
 // Rodar: node testes/mock-supabase.mjs & (app no ar) PW_ROOT=<pasta com playwright> node testes/offline.mjs
 import { createRequire } from 'node:module';

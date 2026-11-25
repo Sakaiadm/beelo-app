@@ -1,3 +1,6 @@
+// @arquivo  sw.js: serviço de fundo do beelo: recebe os avisos (push), abre o app na hora pelo ícone e guarda cópias das telas para quando não há internet.
+// @tipo     offline
+// @cuidado  trocar a versão do cache (TELAS, OFFLINE, MANUAL) sempre que mudar o que é guardado, senão o aparelho continua com a cópia velha. Cópia de tela vale no máximo 7 dias.
 // Serviço de fundo do beelo: recebe os avisos (push) e mostra no celular.
 // Também faz o app abrir na hora pelo ícone: mostra a última versão guardada da tela inicial
 // (Painel ou Hoje) enquanto busca a nova por trás. Assim a tela azul de abertura não fica
