@@ -1,5 +1,6 @@
 import LembrarBotao from '@/components/LembrarBotao';
 import PrimeirosPassos from '@/components/PrimeirosPassos';
+import FavoMel from '@/components/FavoMel';
 import SugestaoDesafio from '@/components/SugestaoDesafio';
 import { sugestoesDesafio } from '@/lib/sugestoesDesafio';
 import AvisosConvite from '@/components/AvisosConvite';
@@ -77,7 +78,10 @@ export default async function Painel() {
     }
   }
   // U79: primeiros passos para família nova, até completar.
+  // Com o Guia da Mel ligado (beta), o Favo de começo substitui estes passos.
+  const guiaLigado = familia.guia_mel === true;
   let passos = null;
+  let favo = null;
   if (gestor) {
     const quemFaz = membros.filter((m) => m.ativo && m.papel !== 'gestor');
     const convidados = quemFaz.filter((m) => m.convidado_em || m.user_id);
@@ -87,7 +91,8 @@ export default async function Painel() {
       { txt: 'Criar a primeira tarefa', href: '/tarefas/nova?volta=/painel', ok: (nTarefas || 0) > 0 },
       { txt: 'Todos entrarem no beelo', href: '/config/pessoas', ok: convidados.length > 0 && convidados.every((m) => m.user_id) },
     ];
-    if (!lista.every((x) => x.ok)) passos = lista;
+    if (guiaLigado) favo = { pessoas: quemFaz.length > 0, tarefas: (nTarefas || 0) > 0 };
+    else if (!lista.every((x) => x.ok)) passos = lista;
   }
   const pend = (adiamentos?.length || 0) + justif.length + (propostas?.length || 0);
 
@@ -104,6 +109,7 @@ export default async function Painel() {
         {gestor && <Link prefetch={false} className="btn" href="/tarefas/nova?volta=/painel"><Icone nome="mais" tam={18} cor="#fff" />Tarefa</Link>}
       </div>
 
+      {favo && <FavoMel membro={eu.id} pessoas={favo.pessoas} tarefas={favo.tarefas} familiaId={familia.id} />}
       {passos && <PrimeirosPassos passos={passos} chave={`beelo_primeiros_${eu.familia_id}`} />}
 
       {/* U29: o motivo de abrir o app logo abaixo do título. Sem nada pendente, uma linha só. */}

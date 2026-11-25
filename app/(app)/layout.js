@@ -18,6 +18,8 @@ import LampadaBtn from '@/components/LampadaBtn';
 import { hojeISO } from '@/lib/util';
 import { redirect } from 'next/navigation';
 import { pendencias } from '@/lib/aceite';
+import GuiaMel from '@/components/GuiaMel';
+import { publicoDe, jeitoGuia } from '@/lib/guia';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
@@ -36,6 +38,15 @@ export default async function AppLayout({ children }) {
        { href: '/config', txt: 'Cadastros', icone: 'config' }]
     : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
        ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
+  // Guia da Mel (beta, SQL 0024): só aparece com a chave do grupo ligada. Desligada, o app é o de sempre.
+  // @banco ra_tarefas (só a contagem, só para o gestor e só com o guia ligado)
+  const guiaPublico = familia.guia_mel === true ? publicoDe(eu, gestor) : null;
+  let guiaTarefas = false;
+  if (guiaPublico === 'gestor') {
+    const { count } = await supabase.from('ra_tarefas').select('id', { count: 'exact', head: true }).is('especial', null);
+    guiaTarefas = (count || 0) > 0;
+  }
+  const guiaPessoas = membros.some((m) => m.ativo && m.papel !== 'gestor');
   return (
     <>
       <Suspense fallback={null}><Progresso /></Suspense>
@@ -60,6 +71,7 @@ export default async function AppLayout({ children }) {
       <Conexao />
       {children}
       <Festa crianca={!gestor && visaoCrianca(eu)} calmo={!gestor && jeitoDe(eu) === 'calmo'} nome={(eu.nome || '').split(' ')[0]} />
+      {guiaPublico && <GuiaMel membro={eu.id} publico={guiaPublico} jeito={jeitoGuia(eu)} familiaId={familia.id} pessoas={guiaPessoas} tarefas={guiaTarefas} />}
       <Menu itens={itens} baixo />
       <ChaveLinha />
     </>
