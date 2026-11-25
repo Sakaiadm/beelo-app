@@ -1,3 +1,7 @@
+// @arquivo  page.js: Agenda em três formatos (Dia, Semana, Mês), com abas por pessoa e lápis para editar.
+// @tipo     tela
+// @usa      lib/sessao, lib/papeis, lib/dados, lib/util, components/Icone, components/Calendario, components/Tarefa
+// @usado-por Next.js (rota /agenda)
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import { ocorrencias, urlsFotos } from '@/lib/dados';

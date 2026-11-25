@@ -1,3 +1,7 @@
+// @arquivo  layout.js: moldura de todas as telas com login: topo, menu de baixo, avisos, lâmpada de dicas e conexão.
+// @tipo     tela
+// @usa      components/ChaveLinha, lib/jeito, lib/sessao, lib/papeis, components/Icone, components/MenuUsuario, components/Menu, components/Avatar, components/Selo, lib/avatar, components/Progresso, components/LembrarInicio, components/Conexao, components/Festa, components/LampadaBtn, lib/util, lib/aceite
+// @cuidado  toda tela passa por aqui: exigirMembro() (lib/sessao.js) decide quem entra e o que o menu mostra.
 import ChaveLinha from '@/components/ChaveLinha';
 import { visaoCrianca, jeitoDe } from '@/lib/jeito';
 import { exigirMembro } from '@/lib/sessao';

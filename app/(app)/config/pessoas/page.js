@@ -1,3 +1,7 @@
+// @arquivo  page.js: lista das pessoas da família, com status do convite.
+// @tipo     tela
+// @usa      lib/sessao, components/Avatar, components/Voltar, components/Icone, lib/avatar, lib/papeis, components/ReenviarConvite
+// @usado-por Next.js (rota /config/pessoas)
 import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
 import Avatar from '@/components/Avatar';

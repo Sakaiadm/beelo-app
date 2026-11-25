@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  SugestaoDesafio.js: sugestão de desafio baseada na categoria mais fraca.
+// @tipo     componente
+// @usa      app/acoes-desafios
+// @usado-por app/(app)/painel/page.js
 import { useState } from 'react';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';

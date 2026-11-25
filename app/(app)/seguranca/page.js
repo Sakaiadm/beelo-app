@@ -1,3 +1,7 @@
+// @arquivo  page.js: Segurança e privacidade: só informação (abre pela Ajuda).
+// @tipo     tela
+// @usa      lib/sessao, components/VoltarHistorico
+// @usado-por Next.js (rota /seguranca)
 import { exigirMembro } from '@/lib/sessao';
 import Voltar from '@/components/VoltarHistorico';
 

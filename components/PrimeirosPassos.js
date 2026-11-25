@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  PrimeirosPassos.js: cartão de primeiros passos no Painel de família nova (some ao terminar).
+// @tipo     componente
+// @usado-por app/(app)/painel/page.js
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 

@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  BancoPremios.js: banco de prêmios para a família escolher e ativar.
+// @tipo     componente
+// @usa      ./Form, ./Icone, app/acoes-desafios
+// @usado-por app/(app)/desafios/premios/page.js
 import { useState } from 'react';
 import Form from './Form';
 import Icone from './Icone';

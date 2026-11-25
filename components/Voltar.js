@@ -1,3 +1,7 @@
+// @arquivo  Voltar.js: seta de voltar para um endereço fixo.
+// @tipo     componente
+// @usa      ./Icone
+// @usado-por app/(app)/config/categorias/[id]/page.js, app/(app)/config/categorias/nova/page.js, app/(app)/config/categorias/page.js, app/(app)/config/familias/[id]/page.js, app/(app)/config/familias/nova/page.js, app/(app)/config/familias/page.js e mais 9
 import Link from 'next/link';
 import Icone from './Icone';
 

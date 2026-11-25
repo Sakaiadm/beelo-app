@@ -1,3 +1,7 @@
+// @arquivo  page.js: editar uma categoria de tarefa.
+// @tipo     tela
+// @usa      banco ra_categorias, lib/sessao, components/Voltar, components/CategoriaForm
+// @usado-por Next.js (rota /config/categorias/[id])
 import { notFound } from 'next/navigation';
 import { exigirGestor } from '@/lib/sessao';
 import Voltar from '@/components/Voltar';

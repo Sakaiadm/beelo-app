@@ -1,3 +1,7 @@
+// @arquivo  route.js: rota que entrega ao usuário uma cópia dos próprios dados (LGPD).
+// @tipo     tela
+// @usa      banco ra_membros, rpc ra_eu, rpc ra_emails_grupo, lib/supabase/server, lib/membros
+// @usado-por Next.js (rota /perfil/dados)
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 import { COLS_MEMBRO, COLS_JEITO, juntarEmails, juntarJeito } from '@/lib/membros';

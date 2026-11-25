@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  ApagarGrupo.js: apagar um grupo/família com confirmação.
+// @tipo     componente
+// @usa      ./Form, app/acoes
+// @usado-por app/(app)/perfil/page.js
 import { useState } from 'react';
 import Form from './Form';
 import { apagarGrupo } from '@/app/acoes';

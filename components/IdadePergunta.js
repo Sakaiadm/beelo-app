@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  IdadePergunta.js: pergunta no Painel a idade aproximada de cada pessoa (guarda só o ano).
+// @tipo     componente
+// @usa      ./Avatar, app/acoes
+// @usado-por app/(app)/painel/page.js
 import { useEffect, useState } from 'react';
 import Avatar from './Avatar';
 import { salvarIdade } from '@/app/acoes';

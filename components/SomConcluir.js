@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  SomConcluir.js: chave de ligar/desligar o "plim" ao concluir (guardada neste aparelho).
+// @tipo     componente
+// @usa      lib/festa
+// @usado-por app/(app)/perfil/page.js
 import { useEffect, useState } from 'react';
 import { somLigado, ligarSom, prepararSom, tocarSom } from '@/lib/festa';
 

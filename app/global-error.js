@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  global-error.js: tela de erro quando o próprio layout falha.
+// @tipo     tela
+// @usa      components/TelaErro
+// @usado-por Next.js (arquivo especial do app)
 import './globals.css';
 import { Plus_Jakarta_Sans } from 'next/font/google';
 import TelaErro from '@/components/TelaErro';

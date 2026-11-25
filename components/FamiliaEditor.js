@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  FamiliaEditor.js: formulário de editar grupo/família.
+// @tipo     componente
+// @usa      ./Form, ./FamiliaAvatar, ./Icone, ./CorFolha, ./AvatarUpload, lib/rede, lib/supabase/client, app/acoes, lib/email
+// @usado-por app/(app)/config/familias/[id]/page.js
 import { useRef, useState } from 'react';
 import Form from './Form';
 import FamiliaAvatar from './FamiliaAvatar';

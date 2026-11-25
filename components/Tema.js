@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  Tema.js: chave de modo claro/escuro.
+// @tipo     componente
+// @usa      ./Icone
+// @cuidado  o app abre sempre no claro.
 import Icone from './Icone';
 
 export default function Tema() {

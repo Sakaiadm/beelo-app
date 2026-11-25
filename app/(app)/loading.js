@@ -1,3 +1,5 @@
+// @arquivo  loading.js: esqueleto mostrado enquanto uma tela carrega.
+// @tipo     tela
 export default function Carregando() {
   return (
     <main className="estreito" aria-busy="true" aria-label="Carregando">

@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  TempoCampo.js: campo de tempo com botões prontos e − / + de 30 minutos.
+// @tipo     componente
+// @usa      lib/util
+// @usado-por components/TelaForms.js
 import { useState } from 'react';
 import { fmtMin, parseMin } from '@/lib/util';
 

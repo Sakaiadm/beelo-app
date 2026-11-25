@@ -1,3 +1,8 @@
+// @arquivo  route.js: rota que recebe o retorno do login (código do Supabase) e cria a sessão.
+// @tipo     tela
+// @usa      lib/supabase/server, lib/origem
+// @usado-por Next.js (rota /auth/callback)
+// @cuidado  só aceita endereços do próprio app (lib/origem.js).
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 import { origem } from '@/lib/origem';

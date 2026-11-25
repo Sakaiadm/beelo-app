@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  ConfirmarBotao.js: botão que pede confirmação antes de executar (excluir, sair).
+// @tipo     componente
+// @usa      ./Form, ./Icone
+// @usado-por app/(app)/config/familias/[id]/page.js, app/(app)/desafios/ajustes/page.js, app/(app)/desafios/page.js, app/(app)/tela/page.js, components/CategoriaForm.js, components/ExcluirTarefa.js e mais 1
 import { useEffect, useRef, useState } from 'react';
 import Form from './Form';
 import Icone from './Icone';

@@ -1,3 +1,8 @@
+// @arquivo  route.js: rota que confirma o link de e-mail (convite, entrar sem senha).
+// @tipo     tela
+// @usa      lib/supabase/server, lib/origem
+// @usado-por Next.js (rota /auth/confirm)
+// @cuidado  só aceita endereços do próprio app (lib/origem.js).
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 import { origem } from '@/lib/origem';

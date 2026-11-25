@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  TelaForms.js: formulários do tempo de tela: previsto, lançar o real e propor mudança.
+// @tipo     componente
+// @usa      ./Form, ./Foto, ./TempoCampo, ./RelogioHora, ./RepetirCampo, app/acoes, lib/util, lib/aparelhos, lib/festa
+// @usado-por app/(app)/tela/page.js, components/Tarefa.js
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import Form from './Form';

@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  TelaGrafico.js: gráfico dos últimos 7 dias do tempo de tela.
+// @tipo     componente
+// @usa      lib/util
+// @usado-por app/(app)/tela/page.js
 import { useState } from 'react';
 import { fmtMin } from '@/lib/util';
 

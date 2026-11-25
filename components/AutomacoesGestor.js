@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  AutomacoesGestor.js: resumo do dia por aviso e conferir sozinho depois de 2 dias (Pai e Mãe, em Meu perfil).
+// @tipo     componente
+// @usa      app/acoes
+// @usado-por app/(app)/perfil/page.js
 import { useState } from 'react';
 import { salvarResumo, salvarConferirAuto } from '@/app/acoes';
 

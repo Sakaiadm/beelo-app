@@ -1,3 +1,7 @@
+// @arquivo  page.js: lista de categorias da família (Pai e Mãe).
+// @tipo     tela
+// @usa      banco ra_categorias, lib/sessao, components/Voltar, lib/util, components/Icone
+// @usado-por Next.js (rota /config/categorias)
 import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
 import Voltar from '@/components/Voltar';

@@ -1,3 +1,7 @@
+// @arquivo  page.js: criar um desafio (do catálogo ou personalizado).
+// @tipo     tela
+// @usa      lib/sessao, lib/util, lib/desafiosDados, lib/desafios, components/NovoDesafio, lib/sugestoesDesafio
+// @usado-por Next.js (rota /desafios/novo)
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { hojeISO } from '@/lib/util';

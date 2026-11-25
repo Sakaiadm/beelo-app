@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  HorarioCampo.js: horário num campo só ("Sem horário" ou início e fim no relógio do app).
+// @tipo     componente
+// @usa      ./Icone, ./RelogioHora
+// @usado-por components/Tarefa.js, components/TarefaForm.js
 import { useState } from 'react';
 import Icone from './Icone';
 import RelogioHora from './RelogioHora';

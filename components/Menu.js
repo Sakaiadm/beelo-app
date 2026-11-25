@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  Menu.js: menu de navegação: barra de baixo (prop baixo) ou lista de links.
+// @tipo     componente
+// @usa      ./Icone
+// @usado-por app/(app)/layout.js
 import Link from 'next/link';
 import { usePathname } from 'next/navigation';
 import Icone from './Icone';

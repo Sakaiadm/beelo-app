@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  Foto.js: foto do dia da tarefa (câmera ou galeria), com data da foto.
+// @tipo     componente
+// @usa      lib/supabase/client, lib/rede, lib/exif, ./Icone
+// @usado-por components/SugerirDesejo.js, components/Tarefa.js, components/TelaForms.js
 import { useRef, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/rede';

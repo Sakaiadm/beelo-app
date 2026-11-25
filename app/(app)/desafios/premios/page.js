@@ -1,3 +1,7 @@
+// @arquivo  page.js: vitrine de prêmios (banco de prêmios, preços e lista de desejos).
+// @tipo     tela
+// @usa      banco ra_premios, lib/sessao, lib/desafiosDados, lib/desafios, components/Voltar, components/Form, components/Icone, app/acoes-desafios, components/PremioLinha, components/BancoPremios
+// @usado-por Next.js (rota /desafios/premios)
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { exigirGestor } from '@/lib/sessao';

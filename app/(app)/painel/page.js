@@ -1,3 +1,7 @@
+// @arquivo  page.js: Painel da família (Pai, Mãe e quem acompanha): atrasos, pedidos, resumo do dia.
+// @tipo     tela
+// @usa      banco ra_adiamentos, banco ra_tela_proposta, banco ra_tarefas, components/LembrarBotao, components/PrimeirosPassos, components/SugestaoDesafio, lib/sugestoesDesafio, components/AvisosConvite, components/IdadePergunta, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/tela, lib/util, components/Calendario, components/Form, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/Responder, lib/respostas, app/acoes
+// @usado-por Next.js (rota /painel)
 import LembrarBotao from '@/components/LembrarBotao';
 import PrimeirosPassos from '@/components/PrimeirosPassos';
 import FavoMel from '@/components/FavoMel';

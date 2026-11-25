@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  NovaFamiliaForm.js: formulário de criar grupo/família.
+// @tipo     componente
+// @usa      ./Form, app/acoes, lib/email
+// @usado-por app/(app)/config/familias/nova/page.js
 import { useState } from 'react';
 import Form from './Form';
 import { adminCriarFamilia } from '@/app/acoes';

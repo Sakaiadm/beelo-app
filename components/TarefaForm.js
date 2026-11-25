@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  TarefaForm.js: formulário de criar/editar tarefa.
+// @tipo     componente
+// @usa      ./Icone, ./HorarioCampo, ./Form, app/acoes, lib/util, lib/sugestoes
+// @usado-por app/(app)/tarefas/[id]/editar/page.js, app/(app)/tarefas/nova/page.js
 import Icone from './Icone';
 import HorarioCampo from './HorarioCampo';
 import { useState } from 'react';

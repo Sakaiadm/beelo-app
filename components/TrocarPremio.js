@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  TrocarPremio.js: trocar estrelinhas/semanas por um prêmio.
+// @tipo     componente
+// @usa      ./Form, app/acoes-desafios
+// @usado-por app/(app)/desafios/cofrinho/page.js
 import { useState } from 'react';
 import Form from './Form';
 import { pedirPremio } from '@/app/acoes-desafios';

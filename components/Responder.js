@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  Responder.js: botões de resposta com "Desfazer" por 5 segundos.
+// @tipo     componente
+// @usa      ./Form
+// @usado-por app/(app)/notificacoes/page.js, app/(app)/painel/page.js, app/(app)/tela/page.js, components/Tarefa.js
 import { useEffect, useRef, useState } from 'react';
 import Form from './Form';
 

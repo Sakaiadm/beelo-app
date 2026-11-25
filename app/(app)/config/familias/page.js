@@ -1,3 +1,7 @@
+// @arquivo  page.js: lista dos grupos da família, com cor; para super admin, a administração de todos.
+// @tipo     tela
+// @usa      rpc ra_admin_familias, rpc ra_admin_cores, components/Icone, lib/sessao, components/Voltar, components/FamiliaAvatar, lib/avatar
+// @usado-por Next.js (rota /config/familias)
 import Icone from '@/components/Icone';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';

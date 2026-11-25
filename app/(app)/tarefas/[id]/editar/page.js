@@ -1,3 +1,7 @@
+// @arquivo  page.js: editar uma tarefa.
+// @tipo     tela
+// @usa      banco ra_tarefas, banco ra_categorias, lib/sessao, lib/util, components/TarefaForm, components/ExcluirTarefa, components/Voltar, lib/volta
+// @usado-por Next.js (rota /tarefas/[id]/editar)
 import { notFound } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { hojeISO } from '@/lib/util';

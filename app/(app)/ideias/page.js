@@ -1,3 +1,7 @@
+// @arquivo  page.js: ideias de conduta para Pai/Mãe e para os filhos (cartões curtos).
+// @tipo     tela
+// @usa      lib/sessao, lib/papeis, lib/util, lib/ideias, components/Icone, components/IdeiasCliente
+// @usado-por Next.js (rota /ideias)
 import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';

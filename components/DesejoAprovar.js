@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  DesejoAprovar.js: Pai/Mãe aprovam (nome e preço) ou respondem "agora não" a um desejo.
+// @tipo     componente
+// @usa      ./Form, ./Icone, app/acoes-desafios, lib/desafios
+// @usado-por app/(app)/desafios/page.js
 import { useState } from 'react';
 import Form from './Form';
 import Icone from './Icone';

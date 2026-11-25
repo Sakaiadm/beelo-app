@@ -1,3 +1,6 @@
+// @arquivo  BotaoMais.js: botão "+" (Tarefa, Pessoa, Grupo…) no padrão do app.
+// @tipo     componente
+// @usa      ./Icone
 import Link from 'next/link';
 import Icone from './Icone';
 

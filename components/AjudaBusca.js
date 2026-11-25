@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  AjudaBusca.js: ajuda com caixa de busca, mais procuradas e blocos por assunto.
+// @tipo     componente
+// @usado-por app/(app)/ajuda/page.js
 import { useState } from 'react';
 
 const norm = (s) => s.normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();

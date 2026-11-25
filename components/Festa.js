@@ -1,4 +1,9 @@
 'use client';
+// @arquivo  Festa.js: comemoração ao concluir tarefa (Plim no adulto, festa na criança).
+// @tipo     componente
+// @usa      lib/festa
+// @usado-por app/(app)/layout.js
+// @cuidado  usa lib/festaAnim.js; respeita "reduzir movimento" do aparelho.
 import { useEffect, useRef, useState } from 'react';
 import { sortearMensagem, tocarSom, proximaAnimacao } from '@/lib/festa';
 

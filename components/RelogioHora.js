@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  RelogioHora.js: relógio de 24 horas para escolher horário.
+// @tipo     componente
+// @usa      ./Icone
+// @usado-por components/HorarioCampo.js, components/TelaForms.js
 import { useState } from 'react';
 import Icone from './Icone';
 

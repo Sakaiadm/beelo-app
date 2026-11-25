@@ -1,3 +1,7 @@
+// @arquivo  page.js: editar um grupo/família: nome, avatar, cor, responsável, apagar.
+// @tipo     tela
+// @usa      rpc ra_admin_familias, rpc ra_admin_membros, rpc ra_admin_cores, components/ConfirmarBotao, components/Form, lib/sessao, components/Voltar, components/Avatar, components/FamiliaEditor, app/acoes, lib/avatar, lib/papeis
+// @usado-por Next.js (rota /config/familias/[id])
 import ConfirmarBotao from '@/components/ConfirmarBotao';
 import Link from 'next/link';
 import Form from '@/components/Form';

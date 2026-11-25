@@ -1,3 +1,7 @@
+// @arquivo  route.js: rota que encerra a sessão e volta para o login.
+// @tipo     tela
+// @usa      lib/supabase/server, lib/origem
+// @usado-por Next.js (rota /auth/sair)
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 import { origem } from '@/lib/origem';

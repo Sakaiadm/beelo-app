@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  PessoaForm.js: formulário de cadastro/edição de pessoa.
+// @tipo     componente
+// @usa      ./Form, ./AvatarUpload, ./Avatar, app/acoes, lib/email, lib/papeis, ./CorFolha, lib/statusConvite, ./ReenviarConvite, ./ConfirmarBotao, lib/jeito, ./JeitoEscolha
+// @usado-por app/(app)/config/pessoas/[id]/page.js, app/(app)/config/pessoas/nova/page.js
 import { useState } from 'react';
 import Link from 'next/link';
 import Form from './Form';

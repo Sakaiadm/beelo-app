@@ -1,3 +1,7 @@
+// @arquivo  Avatar.js: avatar redondo da pessoa: foto, desenho pronto ou inicial.
+// @tipo     componente
+// @usa      lib/avatares
+// @usado-por app/(app)/config/familias/[id]/page.js, app/(app)/config/pessoas/page.js, app/(app)/desafios/mural/page.js, app/(app)/desafios/page.js, app/(app)/layout.js, components/AvatarUpload.js e mais 4
 import { formaPreset } from '@/lib/avatares';
 
 // Avatar: foto enviada (url), avatar de criança ("preset:k01") ou a inicial do nome sobre a cor da pessoa.

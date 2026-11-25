@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  page.js: tela de login: entrar com Google ou com um link enviado ao e-mail (sem senha).
+// @tipo     tela
+// @usa      lib/supabase/client, lib/rede, lib/contato
+// @usado-por Next.js (rota /login)
 import { useEffect, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { MSG, semRede, falhaDeRede } from '@/lib/rede';

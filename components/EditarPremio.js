@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  EditarPremio.js: ajustar nome e preço de um prêmio.
+// @tipo     componente
+// @usa      ./Form, ./Icone, app/acoes-desafios
 import { useState } from 'react';
 import Form from './Form';
 import Icone from './Icone';

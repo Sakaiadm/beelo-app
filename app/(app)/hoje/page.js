@@ -1,3 +1,7 @@
+// @arquivo  page.js: tela Hoje: as tarefas do dia da pessoa, com concluir, foto, adiar e justificar.
+// @tipo     tela
+// @usa      banco ra_tela_real, rpc ra_tela_previsto_dia, components/AvisosConvite, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/util, components/Tarefa, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/DesafioCartao, components/Comemorar
+// @usado-por Next.js (rota /hoje)
 import AvisosConvite from '@/components/AvisosConvite';
 import { visaoCrianca } from '@/lib/jeito';
 import Link from 'next/link';

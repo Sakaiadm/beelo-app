@@ -1,3 +1,7 @@
+// @arquivo  page.js: mural de conquistas: desafios cumpridos, prêmios entregues e medalhas.
+// @tipo     tela
+// @usa      banco ra_desafio_periodos, banco ra_desafios, banco ra_premio_pedidos, lib/sessao, lib/avatar, lib/desafiosDados, lib/util, components/DesafioCartao, components/Avatar, components/Icone, components/Voltar
+// @usado-por Next.js (rota /desafios/mural)
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';

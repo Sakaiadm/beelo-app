@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  AceiteForm.js: formulário de aceite dos termos e da privacidade.
+// @tipo     componente
+// @usa      ./Form, app/acoes
+// @usado-por app/aceite/page.js
 import { useState } from 'react';
 import Form from './Form';
 import { aceitarTermos } from '@/app/acoes';

@@ -1,3 +1,7 @@
+// @arquivo  page.js: ajustes dos Desafios: quem vê o mural e prêmios até 8 anos.
+// @tipo     tela
+// @usa      lib/sessao, lib/desafiosDados, lib/desafios, components/Voltar, components/Form, components/ConfirmarBotao, app/acoes-desafios
+// @usado-por Next.js (rota /desafios/ajustes)
 import { redirect } from 'next/navigation';
 import { exigirGestor } from '@/lib/sessao';
 import { desafiosLigados } from '@/lib/desafiosDados';

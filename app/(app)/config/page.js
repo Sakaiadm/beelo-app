@@ -1,3 +1,7 @@
+// @arquivo  page.js: menu de Cadastros: pessoas, categorias, famílias e grupos.
+// @tipo     tela
+// @usa      banco ra_categorias, rpc ra_admin_familias, lib/sessao, components/Icone
+// @usado-por Next.js (rota /config)
 import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
 import Icone from '@/components/Icone';

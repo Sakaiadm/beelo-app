@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  CorFolha.js: folha para escolher cor da pessoa ou do grupo.
+// @tipo     componente
+// @usa      ./Icone, ./Avatar, lib/cores
+// @usado-por components/FamiliaEditor.js, components/MeusDados.js, components/PessoaForm.js
 import Icone from './Icone';
 import Avatar from './Avatar';
 import { CORES_PESSOA } from '@/lib/cores';

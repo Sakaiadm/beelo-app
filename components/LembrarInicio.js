@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  LembrarInicio.js: guarda no aparelho a tela inicial e quem usa, para abrir direto.
+// @tipo     componente
+// @usado-por app/(app)/layout.js
+// @cuidado  trabalha junto com public/sw.js.
 import { useEffect } from 'react';
 import { useRouter } from 'next/navigation';
 

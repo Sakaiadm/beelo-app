@@ -1,3 +1,7 @@
+// @arquivo  layout.js: layout raiz: fontes, tema claro/escuro, manifesto, registro do service worker.
+// @tipo     tela
+// @usado-por Next.js (arquivo especial do app)
+// @cuidado  o app abre sempre no modo claro.
 import './globals.css';
 import { cookies } from 'next/headers';
 import { Plus_Jakarta_Sans } from 'next/font/google';

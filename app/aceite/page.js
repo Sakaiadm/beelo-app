@@ -1,3 +1,7 @@
+// @arquivo  page.js: passo antes de entrar: aceitar termos e privacidade (e autorização do responsável).
+// @tipo     tela
+// @usa      lib/sessao, lib/aceite, components/AceiteForm
+// @usado-por Next.js (rota /aceite)
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { pendencias, ehMenor } from '@/lib/aceite';

@@ -1,3 +1,7 @@
+// @arquivo  page.js: relatórios por período, pessoa, categoria e situação, com gráfico e impressão.
+// @tipo     tela
+// @usa      banco ra_categorias, banco ra_adiamentos, lib/sessao, lib/jeito, lib/papeis, lib/relatorio, lib/tela, lib/util, components/Imprimir
+// @usado-por Next.js (rota /relatorios)
 import { exigirMembro } from '@/lib/sessao';
 import { visaoCrianca } from '@/lib/jeito';
 import { acesso } from '@/lib/papeis';

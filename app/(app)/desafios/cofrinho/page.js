@@ -1,3 +1,7 @@
+// @arquivo  page.js: cofrinho de estrelinhas ou semanas e troca por prêmios.
+// @tipo     tela
+// @usa      banco ra_cofrinho, lib/sessao, lib/desafiosDados, components/Icone, components/SugerirDesejo, lib/desafios, lib/util, components/DesafioCartao, components/Voltar, components/Form, components/TrocarPremio, app/acoes-desafios
+// @usado-por Next.js (rota /desafios/cofrinho)
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { carregarDesafios, desafiosLigados, vitrineDe, desejosVisiveis } from '@/lib/desafiosDados';

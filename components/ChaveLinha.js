@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  ChaveLinha.js: tocar em qualquer ponto da linha liga/desliga a chave dela.
+// @tipo     componente
+// @usado-por app/(app)/layout.js
 import { useEffect } from 'react';
 
 // Tocar em qualquer ponto da linha liga ou desliga a chave dela (Raio-X U77). Vale para o app todo.

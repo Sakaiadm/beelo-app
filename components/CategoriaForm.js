@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  CategoriaForm.js: formulário de categoria.
+// @tipo     componente
+// @usa      components/Form, components/ConfirmarBotao, app/acoes, lib/util
+// @usado-por app/(app)/config/categorias/[id]/page.js, app/(app)/config/categorias/nova/page.js
 import { useState } from 'react';
 import Form from '@/components/Form';
 import ConfirmarBotao from '@/components/ConfirmarBotao';
