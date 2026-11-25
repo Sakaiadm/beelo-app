@@ -2,7 +2,7 @@
 import { useEffect, useRef, useState } from 'react';
 import Link from 'next/link';
 import Icone from './Icone';
-import { dicaDeHoje, fechar, marcarVista } from '@/lib/dicasMotor';
+import { dicaDeHoje, fechar, marcarVista, ler } from '@/lib/dicasMotor';
 
 // Ideia do dia flutuante (L1 + balão B2, escolhido pelo Thomas em 25/11): bolinha amarela com lâmpada
 // no canto direito, acima do menu de baixo. Ao tocar, a própria lâmpada cresce e vira o cartão; ela fica
@@ -37,7 +37,19 @@ export default function LampadaFlutuante({ membro, cands, hoje }) {
   const [lida, setLida] = useState(false);
   const bola = useRef(null), bal = useRef(null), ocupado = useRef(false);
 
-  useEffect(() => { setDica(dicaDeHoje(membro, cands, hoje)); }, [membro, hoje]); // eslint-disable-line react-hooks/exhaustive-deps
+  // A bolinha fica o dia todo. O motor decide a ideia NOVA do dia (no máximo uma por dia, no ritmo certo);
+  // se hoje não há ideia nova, ou ela já foi lida, a bolinha continua com a mesma ideia (ou a da semana),
+  // sem número. Só some se a pessoa tocar no xizinho hoje ou desligar as dicas em Meu perfil.
+  useEffect(() => {
+    let off = false, escondida = false, nova = null;
+    try { off = !!ler(membro).off; escondida = localStorage.getItem(`ra-lamp-off:${membro}`) === hoje; } catch { /* aparelho sem armazenamento */ }
+    if (off || escondida) { setDica(null); return; }
+    nova = dicaDeHoje(membro, cands, hoje);
+    const e = ler(membro);
+    const d = nova || cands.find((c) => c.k === e.hojeK) || cands.find((c) => c.semana) || cands[cands.length - 1] || null;
+    setLida(!(e.pend || []).some((x) => x.i === d?.i));
+    setDica(d);
+  }, [membro, hoje]); // eslint-disable-line react-hooks/exhaustive-deps
 
   // A bolinha chega com um pulinho.
   useEffect(() => {
@@ -89,6 +101,7 @@ export default function LampadaFlutuante({ membro, cands, hoje }) {
     if (ocupado.current) return;
     ocupado.current = true;
     if (!lida) fechar(membro, hoje);
+    try { localStorage.setItem(`ra-lamp-off:${membro}`, hoje); } catch { /* sem armazenamento: some só agora */ }
     await an(bola.current?.parentElement, [{ transform: 'scale(1)', opacity: 1 }, { transform: 'scale(.3)', opacity: 0 }], { d: 200, e: 'cubic-bezier(.55,0,.75,.2)' });
     setDica(null);
   };
