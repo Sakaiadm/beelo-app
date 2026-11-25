@@ -29,7 +29,7 @@ export default async function Novo({ searchParams }) {
   const sugestao = cat && /^[0-9a-f-]{36}$/i.test(String(sp?.s || '')) ? sp.s : null;
   return (
     <main className="estreito">
-      <NovoDesafio pessoas={leves} inicial={inicial} sugestoes={sugestoes} tema={nomeTema} gestor={gestor} catalogoInicial={cat} sugestao={sugestao} />
+      <NovoDesafio pessoas={leves} inicial={inicial} euId={eu.id} sugestoes={sugestoes} tema={nomeTema} gestor={gestor} catalogoInicial={cat} sugestao={sugestao} />
     </main>
   );
 }

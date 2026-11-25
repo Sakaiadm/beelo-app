@@ -266,7 +266,9 @@ section:first-child > .ajuda-sec { margin-top: 0; }
 /* Lista de pessoas (Agenda): com muitos nomes, rola para o lado em vez de espremer e sobrepor os nomes. */
 .seg.pessoas { overflow-x: auto; scrollbar-width: none; }
 .seg.pessoas::-webkit-scrollbar { display: none; }
-.seg.pessoas > a { flex: 1 0 auto; padding: 10px 12px; }
+.seg.pessoas > a, .seg.pessoas > button { flex: 1 0 auto; padding: 10px 12px; }
+/* Quantidade de desafios no cartão de assunto (Novo desafio). */
+.cartao-l .contagem { color: var(--cinza); font-size: var(--f-apoio); }
 .nv { display: flex; align-items: center; gap: 8px; width: 100%; margin-bottom: 12px; }
 .nv .b { display: inline-flex; align-items: center; min-height: 44px; border: 1.5px solid #1a6fe0; color: #1a6fe0; border-radius: 12px; padding: 0 14px; font-weight: 700; font-size: var(--f-apoio); background: var(--cartao); text-decoration: none; }
 .nv .dt { flex: 1; text-align: right; font-size: var(--f-apoio); font-weight: 600; }

@@ -2,6 +2,7 @@
 // @arquivo  NovoDesafio.js: formulário de criar desafio.
 // @tipo     componente
 // @usa      ./Form, ./Icone, app/acoes-desafios, lib/desafios
+// @decisao  26/11 Thomas: uma pessoa por vez (abas como as da Agenda), sem busca, assuntos em cartões e no máximo 2 "Pensados para…" no topo.
 // @usado-por app/(app)/desafios/novo/page.js
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
@@ -11,31 +12,37 @@ import { criarDesafio } from '@/app/acoes-desafios';
 import { DESAFIOS, GRUPOS, PREMIOS_FAMILIA, opcoesMeta, textoMeta, diasPorMeta } from '@/lib/desafios';
 
 const DIAS = ['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.'];
+// Texto e ícone de cada assunto do banco (cartões da primeira tela). @decisao 26/11 Thomas: a pessoa não sabe a palavra para buscar.
+const ASSUNTO = {
+  c: ['Constância', 'Dias em dia e tarefas feitas', 'hoje'],
+  k: ['Uma categoria', 'Casa, cuidado, trabalho…', 'cCasa'],
+  f: ['Movimento', 'Mexer o corpo', 'cEsporte'],
+  e: ['Estudo', 'Lição, revisão, mochila', 'cEstudo'],
+  l: ['Leitura', 'Ler um pouco todo dia', 'livro'],
+  m: ['Combinados', 'Manhã, noite, casa e escola', 'check'],
+  a: ['Autonomia', 'Fazer sem precisar de lembrete', 'lapis'],
+  t: ['Tela', 'Usar a tela com equilíbrio', 'tela'],
+  j: ['Família', 'Desafios para todos juntos', 'familia'],
+  p: ['Adultos', 'Desafios pessoais', 'pessoa'],
+};
 const serve = (c, perfis) => perfis.every((p) => (p === 'familia' ? c.para === 'f' : c.para.includes(p)));
 
 // Novo desafio: 1) para quem e qual (sugestões primeiro), 2) meta já sugerida, salvar. Três toques no caminho mais curto.
-export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor, voltar = '/desafios', catalogoInicial = null, sugestao = null }) {
-  const [quem, setQuem] = useState(inicial?.length ? inicial : pessoas[0] ? [pessoas[0].id] : ['familia']);
-  const [busca, setBusca] = useState('');
+export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, tema, gestor, voltar = '/desafios', catalogoInicial = null, sugestao = null }) {
+  // Uma pessoa por vez. Abre com quem veio do link; senão, com quem está criando (Pai/Mãe); senão, a primeira da lista.
+  const [quem, setQuem] = useState(inicial?.length ? inicial[0] : pessoas.some((p) => p.id === euId) ? euId : pessoas[0] ? pessoas[0].id : 'familia');
+  const [grupo, setGrupo] = useState(null); // assunto aberto no banco (null = lista de assuntos)
   const [esc, setEsc] = useState(() => (catalogoInicial ? DESAFIOS.find((c) => c.id === catalogoInicial) || null : null)); // vindo da sugestão da criança
   const [meta, setMeta] = useState(() => (catalogoInicial ? DESAFIOS.find((c) => c.id === catalogoInicial)?.meta ?? null : null));
   const [coringa, setCoringa] = useState(true);
   const [premio, setPremio] = useState(PREMIOS_FAMILIA[0]);
-  const familia = quem[0] === 'familia';
-  const sel = familia ? [] : pessoas.filter((p) => quem.includes(p.id));
+  const familia = quem === 'familia';
+  const sel = familia ? [] : pessoas.filter((p) => p.id === quem);
   const perfis = familia ? ['familia'] : [...new Set(sel.map((p) => p.perfil))];
   const lista = useMemo(() => DESAFIOS.filter((c) => serve(c, perfis) && (!c.tela || familia || sel.every((p) => p.tela_ativo))), [quem]); // eslint-disable-line react-hooks/exhaustive-deps
-  const sem = (t) => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
-  const achados = busca.trim() ? lista.filter((c) => sem(`${c.t} ${c.d || ''}`).includes(sem(busca.trim()))) : null;
-  const sugs = (sugestoes[familia ? 'familia' : quem[0]] || []).map((s) => ({ ...s, c: DESAFIOS.find((c) => c.id === s.id) })).filter((s) => s.c && serve(s.c, perfis));
+  const sugs = (sugestoes[familia ? 'familia' : quem] || []).map((s) => ({ ...s, c: DESAFIOS.find((c) => c.id === s.id) })).filter((s) => s.c && serve(s.c, perfis)).slice(0, 2); // no máximo 2, para os assuntos aparecerem logo abaixo
 
-  function alternar(id) {
-    if (!gestor) return;
-    if (id === 'familia') { setQuem(['familia']); return; }
-    const sem = quem.filter((x) => x !== 'familia');
-    const novo = sem.includes(id) ? sem.filter((x) => x !== id) : [...sem, id];
-    setQuem(novo.length ? novo : [id]);
-  }
+  function escolherQuem(id) { if (gestor) { setQuem(id); setGrupo(null); } }
   function escolher(c) { setEsc(c); setMeta(c.meta); setCoringa(true); window.scrollTo?.(0, 0); }
 
   if (esc) {
@@ -52,7 +59,7 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
         <Form acao={criarDesafio} aoConcluir={() => window.location.assign('/desafios?aviso=criado')}>
           <input type="hidden" name="catalogo" value={esc.id} />
           {sugestao && <input type="hidden" name="sugestao" value={sugestao} />}
-          {quem.map((q) => <input key={q} type="hidden" name="quem" value={q} />)}
+          <input type="hidden" name="quem" value={quem} />
           <input type="hidden" name="meta" value={meta ?? esc.meta} />
           <input type="hidden" name="coringa" value={coringa ? '1' : '0'} />
           {familia && <input type="hidden" name="premio" value={premio} />}
@@ -71,7 +78,6 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
             </>}
             <p className="sub" style={{ fontSize: 'var(--f-apoio)', marginTop: 10 }}>
               {familia ? `Cumpriu a meta: ${premio} para todos.` : sel.map((p) => p.perfil === 'c' ? `${p.nome}: +10 estrelinhas no cofrinho.` : p.perfil === 'a' ? `${p.nome}: vale uma semana conquistada.` : `${p.nome}: acompanha o percentual.`).join(' ')}
-              {sel.length > 1 && ' Cada um tem o próprio progresso e o próprio prêmio, sem comparar.'}
             </p>
             {tarefaTxt && <p className="sub" style={{ fontSize: 'var(--f-apoio)', marginTop: 6 }}>{tarefaTxt}</p>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>
@@ -99,17 +105,16 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
       <div className="folha-cab"><Link prefetch={false} href={voltar} className="folha-volta" aria-label="Voltar"><Icone nome="esq" tam={24} /></Link><h2>Novo desafio</h2></div>
       {gestor && (
         <div>
-          <label style={{ marginTop: 0 }}>Para quem <span style={{ fontWeight: 500 }}>(pode escolher mais de uma pessoa)</span></label>
-          <div className="chips">
-            {pessoas.map((p) => <button type="button" key={p.id} className={quem.includes(p.id) ? 'on' : ''} aria-pressed={quem.includes(p.id)} onClick={() => alternar(p.id)}>{p.nome}</button>)}
-            <button type="button" className={familia ? 'on' : ''} aria-pressed={familia} onClick={() => alternar('familia')}>Família toda</button>
+          <label style={{ marginTop: 0 }}>Para quem</label>
+          <div className="seg pessoas" aria-label="Para quem">
+            {pessoas.map((p) => <button type="button" key={p.id} className={quem === p.id ? 'on' : ''} aria-pressed={quem === p.id} onClick={() => escolherQuem(p.id)}>{p.nome}</button>)}
+            <button type="button" className={familia ? 'on' : ''} aria-pressed={familia} onClick={() => escolherQuem('familia')}>Família toda</button>
           </div>
-          {sel.length > 1 && <p className="sub" style={{ fontSize: 'var(--f-apoio)' }}>Cada um terá o próprio desafio, com progresso e prêmio individuais.</p>}
         </div>
       )}
       {sugs.length > 0 && (
         <div>
-          <div className="grupo-titulo" style={{ marginTop: 4 }}>Pensados para {familia ? 'a família' : sel.length === 1 ? sel[0].nome : 'eles'}</div>
+          <div className="grupo-titulo" style={{ marginTop: 4 }}>Pensados para {familia ? 'a família' : sel[0]?.nome}</div>
           {sugs.map((s) => (
             <button type="button" key={s.id + s.tag} className="cartao-l" onClick={() => escolher(s.c)}>
               <span className={`des-ic${s.c.para === 'f' ? ' mel' : ''}`}><Icone nome={s.c.icone || 'hoje'} tam={22} /></span>
@@ -119,26 +124,31 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
           ))}
         </div>
       )}
-      <div>
-        <div className="grupo-titulo" style={{ marginTop: 4 }}>Banco de desafios</div>
-        <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar um desafio" aria-label="Buscar um desafio" style={{ marginBottom: 12 }} />
-        {achados ? (<>
-          {achados.map(linha)}
-          {achados.length === 0 && <div className="card vazio">Nenhum desafio com esse nome para quem foi escolhido.</div>}
-        </>) : (<>
+      {grupo ? (
+        <div>
+          <div className="folha-cab" style={{ marginTop: 8 }}><button type="button" className="folha-volta" aria-label="Voltar aos assuntos" onClick={() => { setGrupo(null); window.scrollTo?.(0, 0); }}><Icone nome="esq" tam={24} /></button><h2>{ASSUNTO[grupo]?.[0] || grupo}</h2></div>
+          <p className="sub" style={{ marginTop: 0 }}>Para {familia ? 'a família toda' : sel[0]?.nome} · toque em um desafio para escolher a meta</p>
+          {lista.filter((c) => c.g === grupo).map(linha)}
+        </div>
+      ) : (
+        <div>
+          <div className="grupo-titulo" style={{ marginTop: 4 }}>Escolha pelo assunto</div>
           {GRUPOS.map(([g, t]) => {
-            const l = lista.filter((c) => c.g === g);
-            if (!l.length) return null;
+            const n = lista.filter((c) => c.g === g).length;
+            if (!n) return null;
+            const [nome, frase, icone] = ASSUNTO[g] || [t, '', 'hoje'];
             return (
-              <details key={g} className="card banco-grupo">
-                <summary><b>{t}</b><span>{l.length}</span></summary>
-                {l.map(linha)}
-              </details>
+              <button type="button" key={g} className="cartao-l" onClick={() => { setGrupo(g); window.scrollTo?.(0, 0); }}>
+                <span className={`des-ic${g === 'j' ? ' mel' : ''}`}><Icone nome={icone} tam={22} /></span>
+                <span className="corpo"><b className="q">{nome}</b><small className="por">{frase}</small></span>
+                <span className="contagem">{n}</span>
+                <span className="seta" aria-hidden="true">›</span>
+              </button>
             );
           })}
           {lista.length === 0 && <div className="card vazio">Nenhum desafio deste tipo para quem foi escolhido.</div>}
-        </>)}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
