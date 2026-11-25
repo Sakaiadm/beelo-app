@@ -95,6 +95,8 @@ export default async function Hoje({ searchParams }) {
         </div>
         {/* Hoje só com o dia de hoje (U10): os outros dias ficam na Agenda. */}
         {dia !== hoje && <Link prefetch={false} className="btn sec peq" href={`/hoje${veTodos ? `?m=${alvo.id}` : ''}`}>Voltar para hoje</Link>}
+        {/* Mesmo botão "+ Tarefa" azul do Painel e da Agenda (pedido do Thomas, 25/11): sai o botão tracejado do fim da lista. */}
+        <Link prefetch={false} className="btn" href={novaHref}><Icone nome="mais" tam={18} cor="#fff" />Tarefa</Link>
       </div>
 
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto={gestor ? 'Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar.' : 'Receba um aviso quando tiver novidade nas suas tarefas.'} />
@@ -145,7 +147,6 @@ export default async function Hoje({ searchParams }) {
             </>}
           </>}
           {doDia.length === 0 && <div className="card vazio">Nenhuma tarefa neste dia.</div>}
-          <Link prefetch={false} className="btn sec bloco" style={{ marginTop: 14, borderStyle: 'dashed' }} href={novaHref}><Icone nome="mais" tam={18} />{gestor ? 'Tarefa' : 'Adicionar minha tarefa'}</Link>
         </section>
 
         {temLado && (
