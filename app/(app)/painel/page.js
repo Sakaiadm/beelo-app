@@ -9,7 +9,7 @@ import { hojeISO, addDias, inicioMes, fimMes, inicioSemana, dataTitulo, dataCurt
 import Calendario from '@/components/Calendario';
 import Form from '@/components/Form';
 import Icone from '@/components/Icone';
-import DicaFaixa from '@/components/DicaFaixa';
+import LampadaFlutuante from '@/components/LampadaFlutuante';
 import { fatos, candidatosPais } from '@/lib/dicas';
 import { carregarDesafios, desafiosLigados } from '@/lib/desafiosDados';
 import Responder from '@/components/Responder';
@@ -207,7 +207,8 @@ export default async function Painel() {
       </div>
       {/* U37: no celular, o calendário do mês fica na Agenda. */}
       <Link prefetch={false} href={`/agenda?v=mes&d=${hoje}`} className="card linha-ir so-cel3"><Icone nome="agenda" tam={20} /><span>Ver o mês na Agenda</span><Icone nome="dir" tam={20} /></Link>
-      {filhos.length > 0 && <DicaFaixa membro={eu.id} hoje={hoje} cands={dicas} />}
+      {/* Ideia do dia: bolinha amarela flutuante no canto direito (L1 + balão B2). */}
+      {filhos.length > 0 && <LampadaFlutuante membro={eu.id} hoje={hoje} cands={dicas} />}
     </main>
   );
 }

@@ -980,3 +980,24 @@ a.tarefa-ir > svg { color: var(--cinza); flex: none; }
 .conheca > summary { min-height: 44px; display: flex; align-items: center; justify-content: center; color: var(--azul); font-weight: 700; cursor: pointer; list-style: none; }
 .conheca > summary::-webkit-details-marker { display: none; }
 .conheca p { font-size: var(--f-apoio); line-height: 1.5; }
+/* Ideia do dia flutuante (L1 + balões B1 e B2): bolinha amarela no canto direito, acima do menu de baixo;
+   o cartão compacto (B1) nasce de dentro da lâmpada (B2) e fica logo acima dela. */
+.lamp-espaco { height: 72px; }
+.lamp-fixa { position: fixed; right: 16px; bottom: calc(84px + env(safe-area-inset-bottom)); z-index: 30; width: 58px; height: 58px; }
+.lamp-bola { width: 58px; height: 58px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: var(--mel); display: grid; place-items: center; box-shadow: 0 6px 16px rgba(176,120,0,.4), 0 0 0 3px var(--fundo); -webkit-tap-highlight-color: transparent; }
+.lamp-bola:focus-visible { outline: 3px solid var(--azul); outline-offset: 4px; }
+.lamp-num { position: absolute; top: -3px; right: -3px; width: 20px; height: 20px; border-radius: 50%; background: #1a6fe0; color: #fff; font-size: 11.5px; font-weight: 800; display: grid; place-items: center; box-shadow: 0 0 0 2px var(--fundo); pointer-events: none; }
+.lamp-x { position: absolute; top: -6px; left: -6px; width: 22px; height: 22px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: var(--cartao); color: var(--cinza); display: grid; place-items: center; box-shadow: 0 0 0 1px var(--borda), 0 2px 6px rgba(19,32,58,.18); }
+.lamp-x::before { content: ''; position: absolute; inset: -11px; border-radius: 50%; }
+.lamp-x:focus-visible, .lamp-fechar:focus-visible, .lamp-ac .btn:focus-visible { outline: 3px solid color-mix(in srgb, var(--azul) 45%, transparent); outline-offset: 2px; }
+.lamp-balao { position: fixed; right: 12px; bottom: calc(154px + env(safe-area-inset-bottom)); z-index: 31; width: min(270px, calc(100vw - 24px)); background: var(--cartao); color: var(--texto); border: 1px solid var(--borda); border-radius: 18px; padding: 14px 14px 12px; display: grid; gap: 6px; box-shadow: 0 1px 2px rgba(19,32,58,.06), 0 14px 34px rgba(19,32,58,.18); }
+.lamp-ponta { position: absolute; right: 26px; bottom: -8px; width: 16px; height: 16px; background: var(--cartao); border-right: 1px solid var(--borda); border-bottom: 1px solid var(--borda); transform: rotate(45deg); border-bottom-right-radius: 4px; }
+.lamp-eb { display: flex; align-items: center; gap: 7px; font-size: var(--f-etq); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--mel-txt); }
+.lamp-eb i { width: 24px; height: 24px; border-radius: 50%; background: var(--mel-fundo); display: grid; place-items: center; }
+.lamp-t { display: block; font-size: var(--f-texto); font-weight: 800; line-height: 1.3; letter-spacing: -.01em; padding-right: 34px; }
+.lamp-balao p { margin: 0; font-size: var(--f-apoio); color: var(--cinza); line-height: 1.45; }
+.lamp-ac { margin-top: 4px; }
+.lamp-ac .btn.peq { white-space: nowrap; }
+.lamp-fechar { position: absolute; top: 6px; right: 6px; width: 36px; height: 36px; border-radius: 50%; border: 0; padding: 0; cursor: pointer; background: var(--trilho); color: var(--cinza); display: grid; place-items: center; }
+@media (min-width: 761px) { .lamp-fixa { right: 24px; bottom: 24px; } .lamp-balao { right: 20px; bottom: 94px; } .lamp-espaco { height: 40px; } }
+@media print { .lamp-fixa, .lamp-balao, .lamp-espaco { display: none; } }
