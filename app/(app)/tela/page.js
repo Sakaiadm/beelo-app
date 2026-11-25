@@ -9,6 +9,7 @@ import Form from '@/components/Form';
 import Responder from '@/components/Responder';
 import { PEDIDO } from '@/lib/respostas';
 import ConfirmarBotao from '@/components/ConfirmarBotao';
+import TelaAjustes from '@/components/TelaAjustes';
 import { encerrarPrevisto, responderTela, ligarTela } from '@/app/acoes';
 
 export const dynamic = 'force-dynamic';
@@ -113,7 +114,7 @@ export default async function Tela({ searchParams }) {
         <div className="cab"><div><h1 className="titulo">Tempo de tela</h1><p className="sub">{dataLonga(dia).replace(/^./, (c) => c.toUpperCase())}</p></div></div>
         {faltou.length > 0 && <div className="aviso info">Faltou lançar {dataCurta(faltou[0])}. <Link prefetch={false} href={`/tela?d=${faltou[0]}`}>Lançar agora</Link></div>}
         <div className="card">
-          <RealForm key={dia} eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={dia} previsto={p?.[0]} atual={atual} crianca={crianca} />
+          <RealForm key={dia} eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={dia} previsto={p?.[0]} atual={atual} crianca={crianca} jaSabe={hist.length >= 3} />
         </div>
         {adulto ? (<>
           <div className="card" id="previsto"><h2>{editar ? 'Editar meu previsto' : 'Meu previsto'}</h2>
@@ -145,27 +146,28 @@ export default async function Tela({ searchParams }) {
   const alvo = ligados.find((f) => f.id === sp.m) || ligados[0];
   const souEu = alvo?.id === eu.id;
   const quem = (
-    // "Quem lança tempo de tela": liga e desliga por pessoa e para si (S3, S5). Aberto quando ninguém tem.
-    <details className="card mais-op" open={!ligados.length || undefined}>
-      <summary>Quem lança tempo de tela{ligados.length ? ` · ${ligados.length} de ${ativos.length}` : ''}</summary>
+    // "Pessoas com tempo de tela": ativa e desativa por pessoa e para si (S3, S5, U83). Aberto quando ninguém tem.
+    <div className="card">
+      <h2>Pessoas com tempo de tela{ligados.length ? ` · ${ligados.length} de ${ativos.length}` : ''}</h2>
+      <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '4px 0 6px' }}>Ative para quem vai anotar o tempo de tela todo dia.</p>
       {ativos.map((m) => (
         <div className="lin-chave" key={m.id}><span>{m.id === eu.id ? `${m.nome} (você)` : m.nome}</span>
           {m.tela_ativo ? (
             <ConfirmarBotao acao={ligarTela} campos={{ membro: m.id, ligar: '0' }} rotulo="" classe="chave on" icone="bloquear"
               gatilho={{ role: 'switch', 'aria-checked': true, 'aria-label': `Tempo de tela de ${m.nome}` }}
-              titulo="Desligar o tempo de tela?" nome={m.nome} pergunta="A tarefa “Lançar tempo de tela” para de aparecer. O que já foi lançado continua nos relatórios." sim="Sim, desligar" nao="Cancelar" />
+              titulo="Desativar o tempo de tela?" nome={m.nome} pergunta="A tarefa “Lançar tempo de tela” para de aparecer. O que já foi lançado continua nos relatórios." sim="Sim, desativar" nao="Cancelar" />
           ) : (
             <Form acao={ligarTela} simples><input type="hidden" name="membro" value={m.id} /><input type="hidden" name="ligar" value="1" />
               <button className="chave" role="switch" aria-checked={false} aria-label={`Tempo de tela de ${m.nome}`} /></Form>
           )}
         </div>
       ))}
-    </details>
+    </div>
   );
   if (!alvo) {
     return (
       <main className="estreito">
-        <div className="cab"><div><h1 className="titulo">Tempo de tela</h1><p className="sub">Ligue para quem vai lançar o tempo de tela.</p></div></div>
+        <div className="cab"><div><h1 className="titulo">Tempo de tela</h1><p className="sub">Ative para quem vai anotar o tempo de tela todo dia.</p></div></div>
         {quem}
       </main>
     );
@@ -190,8 +192,14 @@ export default async function Tela({ searchParams }) {
   const base = `/tela?m=${alvo.id}`;
   return (
     <main>
-      <div className="cab centro"><div><h1 className="titulo">Tempo de tela</h1></div>
-        <div className="abas">{ligados.map((f) => <Link prefetch={false} key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'ativo' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}</div></div>
+      <TelaAjustes titulo="Tempo de tela">
+        {quem}
+        {tarefaTela && <div className="card"><h2>Lançamento</h2>
+          <LancamentoForm key={alvo.id} membro={alvo.id} hora={tarefaTela.hora_inicio?.slice(0, 5)} adiar={tarefaTela.permite_adiar} justificativa={tarefaTela.exige_justificativa} outro={!souEu} /></div>}
+      </TelaAjustes>
+      <div className="seg pessoas" aria-label="Pessoa">
+        {ligados.map((f) => <Link prefetch={false} key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'on' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
+      </div>
       <div className="duas">
         <div className="lado">
           {(propostas || []).length > 0 && <div className="card"><h2>Pedidos para responder</h2>
@@ -203,18 +211,23 @@ export default async function Tela({ searchParams }) {
               </div>))}
           </div>}
           {souEu && <div className="card"><h2>Meu tempo de ontem</h2><RealForm eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={ontem} previsto={meuPrev?.[0]} atual={meuAtual} /></div>}
-          <div className="card" id="previsto"><h2>{editar ? 'Editar previsto' : souEu ? 'Meu previsto' : `Previsto de ${alvo.nome}`}</h2>
-            <PrevistoForm key={`${alvo.id}-${editar?.id || 'novo'}`} membro={alvo.id} hoje={hoje} inicial={inicial} substitui={editar?.id}
-              outros={outros} cancelarHref={base} />
-          </div>
-          {tarefaTela && <div className="card"><h2>Lançamento</h2>
-            <LancamentoForm key={alvo.id} membro={alvo.id} hora={tarefaTela.hora_inicio?.slice(0, 5)} adiar={tarefaTela.permite_adiar} justificativa={tarefaTela.exige_justificativa} outro={!souEu} /></div>}
+          {(() => {
+            const form = <PrevistoForm key={`${alvo.id}-${editar?.id || 'novo'}`} membro={alvo.id} hoje={hoje} inicial={inicial} substitui={editar?.id} outros={outros} cancelarHref={base} />;
+            const r0 = regras.find((r) => !soUmDia(r)) || regras[0];
+            // Já definido: uma linha só, e o formulário abre ao tocar em Mudar (U82).
+            if (r0 && !editar) return (
+              <details className="card prev-fechado" id="previsto">
+                <summary><span>{souEu ? 'Previsto' : `Previsto de ${alvo.nome}`}: {textoPrevisto(r0, fmtMin)}, {diasTxt(r0).toLowerCase()}</span><b>Mudar</b></summary>
+                {form}
+              </details>
+            );
+            return <div className="card" id="previsto"><h2>{editar ? 'Editar previsto' : souEu ? 'Meu previsto' : `Previsto de ${alvo.nome}`}</h2>{form}</div>;
+          })()}
         </div>
         <div className="grande">
           <Previstos regras={regras} base={base} editando={editar?.id} />
           <TelaGrafico dias={semana} />
           <DiaADia linhas={[...hist].reverse()} />
-          {quem}
         </div>
       </div>
     </main>

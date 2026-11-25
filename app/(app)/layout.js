@@ -17,6 +17,7 @@ import LampadaBtn from '@/components/LampadaBtn';
 import { hojeISO } from '@/lib/util';
 import { redirect } from 'next/navigation';
 import { pendencias } from '@/lib/aceite';
+import { desafiosLigados } from '@/lib/desafiosDados';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
@@ -26,9 +27,13 @@ export default async function AppLayout({ children }) {
   const telaLigada = gestor || !!eu.tela_ativo;
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const a = acesso(eu);
+  // Com os desafios ativos, os responsáveis ganham "Desafios" no menu e o Cadastros vai para o menu do nome (U89).
+  const comDesafios = gestor && desafiosLigados(familia);
   const itens = gestor
     ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
-       { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' }, ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/config', txt: 'Cadastros', icone: 'config' }]
+       ...(comDesafios ? [{ href: '/desafios', txt: 'Desafios', icone: 'bandeira' }] : []),
+       ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' },
+       ...(comDesafios ? [] : [{ href: '/config', txt: 'Cadastros', icone: 'config' }])]
     : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
        ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
   return (
@@ -46,7 +51,7 @@ export default async function AppLayout({ children }) {
           <Link className="icone-btn sino" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
             <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
           </Link>
-          <MenuUsuario nome={eu.nome} familia={familia.nome}>
+          <MenuUsuario nome={eu.nome} familia={familia.nome} cadastros={comDesafios}>
             <Avatar nome={eu.nome} cor={eu.cor} url={urls[eu.avatar]} avatar={eu.avatar} tam={28} />
           </MenuUsuario>
         </div>

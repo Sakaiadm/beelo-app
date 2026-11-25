@@ -47,6 +47,8 @@ export async function pedirAdiamento(_, fd) {
   if (!d) return { erro: 'Escolha a nova data' };
   return rpc('ra_pedir_adiamento', { p_oc: uuid(fd.get('oc')), p_data: d, p_hora: hora(fd.get('hora')), p_motivo: txt(fd, 'motivo') });
 }
+// U54: adiar 1 dia sem pedir (uma vez por semana, nas tarefas em que os pais ativaram).
+export async function adiarLivre(_, fd) { return rpc('ra_adiar_livre', { p_oc: uuid(fd.get('oc')) }); }
 export async function definirHorario(_, fd) {
   return rpc('ra_definir_horario', { p_oc: uuid(fd.get('oc')), p_inicio: hora(fd.get('inicio')), p_fim: hora(fd.get('fim')) });
 }
@@ -55,6 +57,14 @@ export async function definirHorario(_, fd) {
 export async function responderAdiamento(_, fd) {
   return rpc('ra_responder_adiamento', { p_id: uuid(fd.get('id')), p_aprovar: fd.get('aprovar') === '1', p_resposta: txt(fd, 'resposta') });
 }
+// U35: lembrete no celular da pessoa, a partir de uma tarefa atrasada no Painel.
+export async function lembrarTarefa(_, fd) {
+  const r = await rpc('ra_lembrar_tarefa', { p_oc: uuid(fd.get('oc')) });
+  return r?.ok ? { ok: true, msg: 'Lembrete enviado.' } : r;
+}
+// U52 e U53: resumo do dia (hora ou vazio) e conferir sozinho, em Meu perfil.
+export async function salvarResumo(_, fd) { const h = String(fd.get('hora') || ''); return rpc('ra_meu_resumo', { p_hora: /^\d{2}:\d{2}$/.test(h) ? h : '' }); }
+export async function salvarConferirAuto(_, fd) { return rpc('ra_conferir_auto', { p_ligar: fd.get('ligar') === '1' }); }
 export async function avaliarJustificativa(_, fd) { return rpc('ra_avaliar_justificativa', { p_oc: uuid(fd.get('oc')), p_aceitar: fd.get('aceitar') === '1' }); }
 export async function conferir(_, fd) {
   const v = fd.get('valor'); if (!['conferido', 'refazer'].includes(v)) return { erro: 'Valor inválido' };
@@ -68,7 +78,7 @@ export async function conferirTodas(_, fd) {
 }
 
 // Enquanto o banco ainda não recebeu a 0009 (prioritária e modo criança), salva sem esses campos em vez de dar erro.
-const NOVAS = ['prioritaria', 'lembrete_min', 'modo_crianca'];
+const NOVAS = ['prioritaria', 'lembrete_min', 'modo_crianca', 'adiar_livre'];
 const semColuna = (e) => !!e && NOVAS.some((c) => String(e.message || '').includes(c));
 const semNovas = (reg) => Object.fromEntries(Object.entries(reg).filter(([k]) => !NOVAS.includes(k)));
 
@@ -100,8 +110,10 @@ export async function salvarTarefa(_, fd) {
     exige_justificativa: eu.papel === 'gestor' ? fd.get('exige_justificativa') === '1' : false,
     prioritaria: fd.get('prioritaria') === '1',
   };
+  // U54: adiar 1 dia sem pedir, uma vez por semana (só com "Pode adiar" ligado).
+  reg.adiar_livre = eu.papel === 'gestor' && reg.permite_adiar && fd.get('adiar_livre') === '1';
   reg.lembrete_min = reg.prioritaria && reg.hora_inicio && [15, 30, 60].includes(Number(fd.get('lembrete_min'))) ? Number(fd.get('lembrete_min')) : null;
-  if (fd.get('id') && eu.papel === 'gestor' && reg.responsavel_id === eu.id) { reg.permite_adiar = false; reg.exige_justificativa = false; }
+  if (fd.get('id') && eu.papel === 'gestor' && reg.responsavel_id === eu.id) { reg.permite_adiar = false; reg.adiar_livre = false; reg.exige_justificativa = false; }
   if (!reg.titulo) return { erro: 'Dê um nome para a tarefa' };
   if (!reg.responsavel_id) return { erro: 'Escolha para quem é a tarefa' };
   if (recorrencia === 'dias_semana' && dias.length === 0) return { erro: 'Escolha pelo menos um dia da semana' };
@@ -125,7 +137,7 @@ export async function salvarTarefa(_, fd) {
     // "Para quem" com várias pessoas (U21): uma tarefa igual para cada pessoa marcada.
     const quem = eu.papel === 'gestor' ? [...new Set(fd.getAll('responsavel').map(uuid).filter(Boolean))] : [eu.id];
     const regs = (quem.length ? quem : [reg.responsavel_id]).map((r) => ({ ...reg, responsavel_id: r, familia_id: eu.familia_id, criada_por: eu.id }));
-    regs.forEach((r) => { if (eu.papel === 'gestor' && r.responsavel_id === eu.id) { r.permite_adiar = false; r.exige_justificativa = false; } });
+    regs.forEach((r) => { if (eu.papel === 'gestor' && r.responsavel_id === eu.id) { r.permite_adiar = false; r.adiar_livre = false; r.exige_justificativa = false; } });
     ({ error } = await supabase.from('ra_tarefas').insert(regs));
     if (semColuna(error)) ({ error } = await supabase.from('ra_tarefas').insert(regs.map(semNovas)));
   }

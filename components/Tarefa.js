@@ -5,7 +5,7 @@ import HorarioCampo from './HorarioCampo';
 import Icone from './Icone';
 import Form from './Form';
 import Foto from './Foto';
-import { concluir, desfazer, justificar, pedirAdiamento, definirHorario, conferir } from '@/app/acoes';
+import { concluir, desfazer, justificar, pedirAdiamento, adiarLivre, definirHorario, conferir } from '@/app/acoes';
 import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana, addDias } from '@/lib/util';
 import Motivos from './Motivos';
 import Responder from './Responder';
@@ -111,6 +111,9 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
           {((dono && !gestor && !crianca && ((st === 'pendente' || st === 'atrasada') && oc.tarefa?.permite_adiar || !feita && !oc.horario_travado)) || (dono && !gestor && feita && !oc.conferido) || editarHref) && (
             <div className="acoes">
               {dono && !gestor && !crianca && (st === 'pendente' || st === 'atrasada') && oc.tarefa?.permite_adiar ? <button type="button" className="btn sec peq" onClick={() => alternar('adiar')}>Adiar</button> : null}
+              {dono && !gestor && !crianca && st === 'pendente' && oc.tarefa?.permite_adiar && oc.tarefa?.adiar_livre && oc.data >= hoje && (
+                <Form acao={adiarLivre} discreto><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Adiar 1 dia</button></Form>
+              )}
               {dono && !gestor && !crianca && !feita && !oc.horario_travado && <button type="button" className="btn sec peq" onClick={() => alternar('horario')}>Horário</button>}
               {dono && !gestor && feita && !oc.conferido && (
                 <Form acao={desfazer} fila="desfazer" rotulo={`Desfazer “${t}”`} discreto><input type="hidden" name="oc" value={oc.id} /><button className="btn sec peq">Desfazer</button></Form>

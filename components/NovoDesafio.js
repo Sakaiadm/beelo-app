@@ -12,7 +12,7 @@ const serve = (c, perfis) => perfis.every((p) => (p === 'familia' ? c.para === '
 // Novo desafio: 1) para quem e qual (sugestões primeiro), 2) meta já sugerida, salvar. Três toques no caminho mais curto.
 export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor, voltar = '/desafios' }) {
   const [quem, setQuem] = useState(inicial?.length ? inicial : pessoas[0] ? [pessoas[0].id] : ['familia']);
-  const [grupo, setGrupo] = useState('');
+  const [busca, setBusca] = useState('');
   const [esc, setEsc] = useState(null);
   const [meta, setMeta] = useState(null);
   const [coringa, setCoringa] = useState(true);
@@ -21,7 +21,8 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
   const sel = familia ? [] : pessoas.filter((p) => quem.includes(p.id));
   const perfis = familia ? ['familia'] : [...new Set(sel.map((p) => p.perfil))];
   const lista = useMemo(() => DESAFIOS.filter((c) => serve(c, perfis) && (!c.tela || familia || sel.every((p) => p.tela_ativo))), [quem]); // eslint-disable-line react-hooks/exhaustive-deps
-  const doGrupo = grupo ? lista.filter((c) => c.g === grupo) : lista;
+  const sem = (t) => String(t).normalize('NFD').replace(/[̀-ͯ]/g, '').toLowerCase();
+  const achados = busca.trim() ? lista.filter((c) => sem(`${c.t} ${c.d || ''}`).includes(sem(busca.trim()))) : null;
   const sugs = (sugestoes[familia ? 'familia' : quem[0]] || []).map((s) => ({ ...s, c: DESAFIOS.find((c) => c.id === s.id) })).filter((s) => s.c && serve(s.c, perfis));
 
   function alternar(id) {
@@ -80,6 +81,14 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
     );
   }
 
+  const linha = (c) => (
+    <button type="button" key={c.id} className="cartao-l" onClick={() => escolher(c)}>
+      <span className={`des-ic${c.para === 'f' ? ' mel' : ''}`}><Icone nome={c.icone || 'hoje'} tam={22} /></span>
+      <span className="corpo"><b className="q">{c.t}</b><small className="por">{textoMeta(c)[0].toUpperCase() + textoMeta(c).slice(1)}</small></span>
+      <span className="seta" aria-hidden="true">›</span>
+    </button>
+  );
+
   return (
     <div className="folha-in" style={{ padding: 0 }}>
       <div className="folha-cab"><Link prefetch={false} href={voltar} className="folha-volta" aria-label="Voltar"><Icone nome="esq" tam={24} /></Link><h2>Novo desafio</h2></div>
@@ -106,19 +115,24 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
         </div>
       )}
       <div>
-        <div className="grupo-titulo" style={{ marginTop: 4 }}>Banco de desafios{tema ? '' : ''}</div>
-        <div className="chips uma-linha">
-          <button type="button" className={!grupo ? 'on' : ''} onClick={() => setGrupo('')}>Todos</button>
-          {GRUPOS.filter(([g]) => lista.some((c) => c.g === g)).map(([g, t]) => <button type="button" key={g} className={grupo === g ? 'on' : ''} onClick={() => setGrupo(g)}>{t}</button>)}
-        </div>
-        {doGrupo.map((c) => (
-          <button type="button" key={c.id} className="cartao-l" onClick={() => escolher(c)}>
-            <span className={`des-ic${c.para === 'f' ? ' mel' : ''}`}><Icone nome={c.icone || 'hoje'} tam={22} /></span>
-            <span className="corpo"><b className="q">{c.t}</b><small className="por">{textoMeta(c)[0].toUpperCase() + textoMeta(c).slice(1)}</small></span>
-            <span className="seta" aria-hidden="true">›</span>
-          </button>
-        ))}
-        {doGrupo.length === 0 && <div className="card vazio">Nenhum desafio deste tipo para quem foi escolhido.</div>}
+        <div className="grupo-titulo" style={{ marginTop: 4 }}>Banco de desafios</div>
+        <input type="search" value={busca} onChange={(e) => setBusca(e.target.value)} placeholder="Buscar um desafio" aria-label="Buscar um desafio" style={{ marginBottom: 12 }} />
+        {achados ? (<>
+          {achados.map(linha)}
+          {achados.length === 0 && <div className="card vazio">Nenhum desafio com esse nome para quem foi escolhido.</div>}
+        </>) : (<>
+          {GRUPOS.map(([g, t]) => {
+            const l = lista.filter((c) => c.g === g);
+            if (!l.length) return null;
+            return (
+              <details key={g} className="card banco-grupo">
+                <summary><b>{t}</b><span>{l.length}</span></summary>
+                {l.map(linha)}
+              </details>
+            );
+          })}
+          {lista.length === 0 && <div className="card vazio">Nenhum desafio deste tipo para quem foi escolhido.</div>}
+        </>)}
       </div>
     </div>
   );

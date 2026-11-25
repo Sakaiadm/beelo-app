@@ -5,7 +5,7 @@ import Icone from './Icone';
 
 // Botão com o nome da pessoa no topo. Abre: Meu perfil, Ajuda, Modo escuro e Sair (Raio-X U67).
 // Sair pergunta antes (U68).
-export default function MenuUsuario({ nome, familia, children }) {
+export default function MenuUsuario({ nome, familia, cadastros, children }) {
   const [aberto, setAberto] = useState(false);
   const [escuro, setEscuro] = useState(false);
   const [sair, setSair] = useState(false);
@@ -38,6 +38,7 @@ export default function MenuUsuario({ nome, familia, children }) {
       {aberto && (
         <div className="usuario-menu" role="menu">
           <div className="usuario-cab"><b>{nome}</b>{familia ? <small>{familia}</small> : null}</div>
+          {cadastros && <Link role="menuitem" href="/config" prefetch={false} onClick={() => setAberto(false)}>Cadastros</Link>}
           <Link role="menuitem" href="/perfil" prefetch={false} onClick={() => setAberto(false)}>Meu perfil</Link>
           <Link role="menuitem" href="/ajuda" prefetch={false} onClick={() => setAberto(false)}>Ajuda</Link>
           <button role="menuitem" type="button" onClick={alternar}>Modo escuro<span className={`chave ${escuro ? 'on' : ''}`} aria-hidden="true" /></button>

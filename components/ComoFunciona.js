@@ -23,7 +23,10 @@ const TEXTOS = {
 export default function ComoFunciona({ perfil = 'gestor', membro }) {
   const chave = `ra_desafio_balao_${membro}`;
   const [aberto, setAberto] = useState(false);
-  useEffect(() => { try { setAberto(localStorage.getItem(chave) !== '0'); } catch { setAberto(true); } }, [chave]);
+  // Aberta só na primeira visita; depois vira a linha "Como funciona?" (Raio-X U85).
+  useEffect(() => {
+    try { const visto = localStorage.getItem(chave); setAberto(visto == null); if (visto == null) localStorage.setItem(chave, '0'); } catch { setAberto(true); }
+  }, [chave]);
   const fechar = () => { setAberto(false); try { localStorage.setItem(chave, '0'); } catch {} };
   if (!aberto) return <button type="button" className="link-btn" style={{ marginBottom: 10 }} onClick={() => setAberto(true)}>Como funciona?</button>;
   return (

@@ -48,7 +48,7 @@ export default async function Cofrinho({ searchParams }) {
 
       {v.meta && (
         <div className="card des-card">
-          <small className="peq-cinza" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em' }}>{v.sugerida ? 'Próximo prêmio (sugestão do app)' : v.meta.membro_id ? `Juntando para (${proprio ? 'meu desejo' : 'desejo'})` : 'Juntando para'}</small>
+          <small className="peq-cinza" style={{ fontWeight: 700, textTransform: 'uppercase', letterSpacing: '.06em' }}>{v.sugerida ? 'Próximo prêmio (sugestão do app)' : v.meta.membro_id ? `${proprio ? 'Estou juntando' : `${m.nome} está juntando`} para (${proprio ? 'meu desejo' : 'desejo'})` : `${proprio ? 'Estou juntando' : `${m.nome} está juntando`} para`}</small>
           <div className="vit" style={{ paddingBottom: 0 }}><span className="corpo"><b>{v.meta.nome}</b><small>{semanas ? <Hexagono tam={14} /> : <Estrela tam={14} />} {Math.min(v.tem, v.meta.custo)} de {v.meta.custo}{v.tem < v.meta.custo ? ` · faltam ${v.meta.custo - v.tem}` : ''}</small><div className="barra"><div style={{ width: `${Math.min(100, (v.tem / v.meta.custo) * 100)}%` }} /></div></span></div>
         </div>
       )}
@@ -79,8 +79,8 @@ export default async function Cofrinho({ searchParams }) {
             {v.tem >= p.custo
               ? <TrocarPremio premio={p} membro={proprio ? null : m.id} tem={v.tem} moeda={v.moeda} maior={maior(p)} />
               : p.id !== v.meta?.id || v.sugerida
-                ? <Form acao={metaCofrinho}><input type="hidden" name="premio" value={p.id} />{!proprio && <input type="hidden" name="membro" value={m.id} />}<button className="btn sec peq" aria-label={`Juntar para ${p.nome}`}>Juntar</button></Form>
-                : null}
+                ? (proprio ? <Form acao={metaCofrinho}><input type="hidden" name="premio" value={p.id} /><button className="btn sec peq" aria-label={`Quero juntar para ${p.nome}`}>Quero este</button></Form> : null)
+                : <span className="tg vd">{proprio ? 'Estou juntando' : 'Juntando'}</span>}
           </div>
         ))}
       </div>

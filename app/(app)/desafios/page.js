@@ -104,17 +104,23 @@ export default async function Desafios({ searchParams }) {
     const abertos = pedidos.filter((p) => p.status === 'pedido');
     const nomePor = Object.fromEntries(pessoas.map((p) => [p.id, p]));
     // Desejos esperando a resposta dos pais (lista de desejos).
+    const semDesafio = pessoas.filter((m) => deQuem(m.id).length === 0);
     const esperando = dados.desejos.filter((x) => x.desejo === 'esperando' && nomePor[x.membro_id]);
     const fotos = esperando.some((x) => x.foto) ? await linksAssinados(supabase, 'rotina-fotos', esperando.map((x) => x.foto), 3600) : {};
     return (
       <main className="estreito">
         <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} />
         <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Novo desafio</Link>} />
+        <div className="des-atalhos" aria-label="Mais telas dos desafios">
+          <Link prefetch={false} className="btn sec peq" href="/desafios/mural"><Icone nome="check" tam={18} />Mural</Link>
+          <Link prefetch={false} className="btn sec peq" href="/desafios/premios"><Icone nome="etiqueta" tam={18} />Vitrine</Link>
+          <Link prefetch={false} className="btn sec peq" href="/desafios/ajustes"><Icone nome="ajustes" tam={18} />Ajustes</Link>
+        </div>
         {aviso}
         <ComoFunciona perfil="gestor" membro={eu.id} />
 
         {esperando.length > 0 && (
-          <div className="card des-card">
+          <div className="card des-card" id="desejos">
             <h2 style={{ marginBottom: 10 }}>{esperando.length === 1 ? 'Desejo para aprovar' : 'Desejos para aprovar'}</h2>
             {esperando.map((x, i) => {
               const m = nomePor[x.membro_id];
@@ -131,7 +137,7 @@ export default async function Desafios({ searchParams }) {
         )}
 
         {abertos.length > 0 && (
-          <div className="card des-card">
+          <div className="card des-card" id="premios">
             <h2 style={{ marginBottom: 10 }}>{abertos.length === 1 ? 'Prêmio para entregar' : 'Prêmios para entregar'}</h2>
             {abertos.map((pe, i) => {
               const m = nomePor[pe.membro_id];
@@ -152,7 +158,14 @@ export default async function Desafios({ searchParams }) {
 
         {cartaoFamilia}
 
-        {pessoas.map((m) => {
+        {semDesafio.length > 0 && (
+          <div className="card des-card sem-desafio">
+            <p><b>{semDesafio.map((m) => m.nome).join(', ').replace(/, ([^,]*)$/, ' e $1')}</b> {semDesafio.length === 1 ? 'ainda está sem desafio' : 'ainda estão sem desafio'}. Escolher para:</p>
+            <div className="acoes">{semDesafio.map((m) => <Link key={m.id} prefetch={false} className="btn sec peq" href={`/desafios/novo?m=${m.id}`}>{m.nome}</Link>)}</div>
+          </div>
+        )}
+
+        {pessoas.filter((m) => deQuem(m.id).length > 0).map((m) => {
           const ds = deQuem(m.id);
           return (
             <section key={m.id}>
@@ -171,16 +184,12 @@ export default async function Desafios({ searchParams }) {
                 </DesafioCartao>
               ))}
               {ds.length < MAX_POR_PESSOA && (
-                <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 6 }} href={`/desafios/novo?m=${m.id}`}><Icone nome="mais" tam={18} />{ds.length ? 'Mais um desafio' : `Escolher desafio para ${m.nome}`}</Link>
+                <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 6 }} href={`/desafios/novo?m=${m.id}`}><Icone nome="mais" tam={18} />Mais um desafio</Link>
               )}
             </section>
           );
         })}
 
-        <div className="grupo-titulo" style={{ marginTop: 24 }}>Mais</div>
-        <Item href="/desafios/mural" icone="check" titulo="Mural de conquistas" sub="Desafios cumpridos, prêmios e medalhas" mel />
-        <Item href="/desafios/premios" icone="etiqueta" titulo="Vitrine de prêmios" sub={`${premios.length} prêmios ativos`} />
-        <Item href="/desafios/ajustes" icone="ajustes" titulo="Ajustes dos desafios" sub="Quem vê o mural, prêmios até 8 anos, ligar e desligar" />
       </main>
     );
   }
@@ -190,7 +199,7 @@ export default async function Desafios({ searchParams }) {
   const meus = deQuem(eu.id);
   const v = vitrineDe(eu, premios, saldo);
   return (
-    <main className="estreito">
+    <main className={`estreito${pf === 'c' ? ' des-crianca' : ''}`}>
       <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} />
       <Titulo texto="Meus desafios" />
       {aviso}
