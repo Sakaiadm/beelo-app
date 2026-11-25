@@ -30,7 +30,7 @@ export default async function Pessoas({ searchParams }) {
       {sp?.aviso?.startsWith('reconvite:') && <div className="aviso ok" role="status">{sp.aviso.slice(10)} já está no grupo. Convite enviado.</div>}
       {sp?.aviso?.startsWith('acesso:') && <div className="aviso ok" role="status">{sp.aviso.slice(7)} já está no grupo. E-mail de acesso enviado.</div>}
       {sp?.aviso?.startsWith('semconvite:') && <div className="aviso erro" role="alert">Pessoa adicionada, mas {sp.aviso.slice(11).replace(/^./, (c) => c.toLowerCase())}</div>}
-      <Link prefetch={false} href="/config/pessoas/nova" className="btn bloco" style={{ marginBottom: 14 }}><Icone nome="mais" tam={18} cor="#fff" />Nova pessoa</Link>
+      <Link prefetch={false} href="/config/pessoas/nova" className="btn" style={{ marginBottom: 14 }}><Icone nome="mais" tam={18} cor="#fff" />Pessoa</Link>
       {membros.map((m) => {
         // U56: quem ainda não entrou aparece com "Convite enviado" e o botão Reenviar.
         const espera = !m.user_id && m.email && m.ativo && m.id !== eu.id;

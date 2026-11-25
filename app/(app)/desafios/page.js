@@ -110,7 +110,7 @@ export default async function Desafios({ searchParams }) {
     return (
       <main className="estreito">
         <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
-        <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Novo desafio</Link>} />
+        <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Desafio</Link>} />
         <div className="des-atalhos" aria-label="Mais telas dos desafios">
           <Link prefetch={false} className="btn sec peq" href="/desafios/mural"><Icone nome="check" tam={18} />Mural</Link>
           <Link prefetch={false} className="btn sec peq" href="/desafios/premios"><Icone nome="etiqueta" tam={18} />Vitrine</Link>

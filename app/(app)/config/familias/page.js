@@ -23,7 +23,7 @@ export default async function Familias() {
     <main className="estreito">
       <Voltar href="/config" titulo="Grupos" sub={`${lista.length} grupos · ${ativas} ${ativas === 1 ? 'ativo' : 'ativos'} · ${lista.reduce((a, f) => a + f.n_ativos, 0)} pessoas usando`} />
       {error && <div className="aviso erro" role="alert">{error.message}</div>}
-      <Link prefetch={false} href="/config/familias/nova" className="btn bloco" style={{ marginBottom: 14 }}><Icone nome="mais" tam={18} cor="#fff" />Novo grupo</Link>
+      <Link prefetch={false} href="/config/familias/nova" className="btn" style={{ marginBottom: 14 }}><Icone nome="mais" tam={18} cor="#fff" />Grupo</Link>
       {lista.map((f) => {
         const pct = f.oc_30d ? Math.round((100 * f.cumpridas_30d) / f.oc_30d) : null;
         const av = (tam) => <FamiliaAvatar url={urls[f.avatar]} nome={f.nome} tam={tam} cor={corDe[f.id] || undefined} />;

@@ -17,7 +17,7 @@ export default async function Categorias({ searchParams }) {
     <main className="estreito">
       <Voltar href="/config" titulo="Categorias" sub={`${lista.length} ${lista.length === 1 ? 'categoria' : 'categorias'}`} />
       {AVISOS[sp?.aviso] && <div className="aviso ok" role="status">{AVISOS[sp.aviso]}</div>}
-      <Link prefetch={false} href="/config/categorias/nova" className="btn bloco" style={{ marginBottom: 14 }}><Icone nome="mais" tam={18} cor="#fff" />Nova categoria</Link>
+      <Link prefetch={false} href="/config/categorias/nova" className="btn" style={{ marginBottom: 14 }}><Icone nome="mais" tam={18} cor="#fff" />Categoria</Link>
       {lista.length > 0 && (
         <div className="cat-lista">
           {lista.map((c) => (
