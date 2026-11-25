@@ -1,4 +1,8 @@
 'use server';
+// @arquivo  acoes.js: todas as ações que GRAVAM (tarefas, pessoas, tempo de tela, família, avisos, perfil). Cada uma valida o formulário e chama uma função rpc do banco.
+// @tipo     acao
+// @usa      banco ra_* (ver docs/02-banco.md), as funções rpc ra_*, lib/sessao, lib/util, lib/papeis, lib/convite, lib/membros, lib/rede
+// @cuidado  depois de qualquer alteração chame revalidar() (limpa o cache de lib/sessao.js e refaz as telas); o helper rpc() abaixo já faz isso. Erros passam por traduzirErro() (lib/rede.js).
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
 import { supabaseServer } from '@/lib/supabase/server';
@@ -34,6 +38,8 @@ async function rpc(nome, args) {
   revalidar();
   return { ok: true };
 }
+
+// ═══ SEÇÃO: Tarefas do dia: concluir, desfazer, justificar, adiar, conferir ═══
 
 // ===== Filho =====
 export async function concluir(_, fd) {
@@ -91,6 +97,8 @@ const voltarAgenda = (fd) => {
   if (VOLTAS.test(v)) return v;
   return /^\d{4}-\d{2}-\d{2}$/.test(v) ? `/agenda?d=${v}` : '/agenda';
 };
+
+// ═══ SEÇÃO: Cadastro de tarefas: salvar e excluir ═══════════════════════
 
 export async function salvarTarefa(_, fd) {
   const supabase = await supabaseServer();
@@ -158,6 +166,8 @@ export async function excluirTarefa(_, fd) {
   revalidar();
   redirect(voltarAgenda(fd));
 }
+
+// ═══ SEÇÃO: Pessoas e convites: salvar, tempo de tela da pessoa, convite, ativar, excluir ═══
 
 export async function salvarPessoa(_, fd) {
   const supabase = await supabaseServer();
@@ -375,6 +385,8 @@ export async function excluirPessoa(fd) {
   redirect('/config/pessoas');
 }
 
+// ═══ SEÇÃO: Termos e privacidade (LGPD) ═════════════════════════════════
+
 // Aceite dos Termos de uso e da Privacidade (e, para Pai e Mãe, a autorização das crianças do grupo).
 export async function aceitarTermos(_, fd) {
   const supabase = await supabaseServer();
@@ -398,6 +410,8 @@ export async function aceitarTermos(_, fd) {
   revalidar();
   redirect('/');
 }
+
+// ═══ SEÇÃO: Grupos/famílias: apagar, editar, trocar responsável ═════════
 
 // Apagar o grupo inteiro (Pai ou Mãe). Primeiro as fotos e avatares, depois os dados.
 export async function apagarGrupo(_, fd) {
@@ -440,6 +454,8 @@ export async function trocarResponsavel(_, fd) {
   return rpc('ra_definir_responsavel', { p_familia: familia, p_membro: null, p_nome: txt(fd, 'nome', 60), p_email: v.email });
 }
 
+// ═══ SEÇÃO: Categorias de tarefa ════════════════════════════════════════
+
 export async function salvarCategoria(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
@@ -463,6 +479,8 @@ function lerMinutos(fd, formato, prefixo = '') {
   if (Number.isNaN(c) || Number.isNaN(p)) return { erro: 'Tempo inválido. Use por exemplo 2h30, 2:30 ou 90min' };
   return { min_celular: c, min_computador: p, min_total: null };
 }
+
+// ═══ SEÇÃO: Tempo de tela: previsto, lançar o real, pedidos ═════════════
 
 export async function salvarPrevisto(_, fd) {
   const supabase = await supabaseServer();
@@ -594,6 +612,8 @@ export async function proporTela(_, fd) {
 }
 export async function responderTela(_, fd) { return rpc('ra_responder_tela', { p_id: uuid(fd.get('id')), p_aprovar: fd.get('aprovar') === '1' }); }
 
+// ═══ SEÇÃO: Avisos dentro do app ════════════════════════════════════════
+
 export async function marcarLidas() {
   const supabase = await supabaseServer();
   await supabase.from('ra_notificacoes').update({ lida: true }).eq('lida', false);
@@ -623,6 +643,8 @@ export async function excluirCategoria(fd) {
   revalidar();
   redirect('/config/categorias?aviso=excluida');
 }
+
+// ═══ SEÇÃO: Meu perfil: dados, jeito de ver, idade, avisos no celular ═══
 
 // ===== Perfil =====
 export async function salvarPerfil(_, fd) {
@@ -685,6 +707,8 @@ export async function salvarAparelho(sub, aparelho) {
 }
 export async function removerAparelho(endpoint) { return rpc('ra_push_cancelar', { p_endpoint: String(endpoint || '') }); }
 export async function enviarTeste() { return rpc('ra_push_teste', {}); }
+
+// ═══ SEÇÃO: Criar grupo e administração do beelo (super admin) ══════════
 
 // ===== Famílias =====
 export async function criarFamilia(_, fd) {
