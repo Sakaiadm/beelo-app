@@ -43,6 +43,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
   const [hora, setHora] = useState({ i: hhmm(t?.hora_inicio) || '', f: hhmm(t?.hora_fim) || '', n: 0 });
   const comHora = !!hora.i;
   const [adiar, setAdiar] = useState(t ? !!t.permite_adiar : false);
+  const [livre, setLivre] = useState(t ? !!t.adiar_livre : false);
   const [justif, setJustif] = useState(!!t?.exige_justificativa);
   const [foto, setFoto] = useState(!!t?.exige_foto);
   const [prio, setPrio] = useState(!!t?.prioritaria);
@@ -180,7 +181,8 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
         </div>
         <div className="chaves-form">
           <label className="check"><input type="checkbox" name="exige_foto" value="1" checked={foto} onChange={(e) => setFoto(e.target.checked)} /><span>Exige foto para concluir{foto && <small>A foto precisa ser de hoje.</small>}</span></label>
-          {gestor && <label className="check"><input type="checkbox" name="permite_adiar" value="1" checked={adiar} onChange={(e) => setAdiar(e.target.checked)} /><span>Pode adiar{adiar && <small>A pessoa pede e você aprova.</small>}</span></label>}
+          {gestor && <label className="check"><input type="checkbox" name="permite_adiar" value="1" checked={adiar} onChange={(e) => setAdiar(e.target.checked)} /><span>Pode adiar{adiar && <small>{livre ? 'A pessoa pode adiar 1 dia sozinha, uma vez por semana.' : 'A pessoa pede e você aprova.'}</small>}</span></label>}
+          {gestor && adiar && <label className="check"><input type="checkbox" name="adiar_livre" value="1" checked={livre} onChange={(e) => setLivre(e.target.checked)} /><span>Pode adiar 1 dia sem pedir<small>Uma vez por semana. Você só recebe o aviso.</small></span></label>}
           {gestor && <label className="check"><input type="checkbox" name="exige_justificativa" value="1" checked={justif} onChange={(e) => setJustif(e.target.checked)} /><span>Exige justificativa se atrasar{justif && <small>Sem ela, a tarefa atrasada não conclui.</small>}</span></label>}
           <label className="check"><input type="checkbox" name="prioritaria" value="1" checked={prio} onChange={(e) => setPrio(e.target.checked)} /><span>Prioritária <Icone nome="bandeira" tam={16} cor="var(--prio)" />{prio && <small>Vem primeiro na lista.</small>}</span></label>
           {prio && comHora && (

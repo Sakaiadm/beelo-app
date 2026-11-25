@@ -1038,3 +1038,23 @@ button.vit-linha { display: flex; align-items: center; gap: 12px; width: 100%; b
 .des-crianca .des-dias i { width: 44px; height: 44px; }
 .des-crianca .des-msg { font-size: var(--f-cartao); font-weight: 800; }
 .des-crianca .des-top b { font-size: var(--f-cartao); }
+
+/* Lote 6: automações (Raio-X U35, U52, U53, U54, U78, U79, U98) */
+.atr-lin { display: block; padding: 0; }
+.atr-lin > a.tarefa-ir { display: flex; align-items: center; gap: 10px; text-decoration: none; color: var(--texto); padding: 12px 14px; }
+.atr-lin > a.tarefa-ir > span { flex: 1; min-width: 0; }
+.atr-lin > a.tarefa-ir .tt, .atr-lin > a.tarefa-ir .meta { display: block; }
+.atr-lin .lembrar { display: flex; align-items: center; gap: 10px; padding: 0 14px 12px; }
+.atr-lin .lembrar small { color: var(--cinza); font-size: var(--f-etq); }
+.av-auto { margin-top: 6px; }
+.av-auto .lin-chave select { min-height: 44px; }
+.primeiros { padding: 16px 18px; }
+.primeiros h2 { margin: 0 0 4px; }
+.primeiros ol { list-style: none; margin: 10px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.primeiros li a, .primeiros li > span { display: flex; align-items: center; gap: 12px; min-height: 48px; padding: 6px 12px; border: 1px solid var(--borda); border-radius: 12px; color: var(--texto); text-decoration: none; background: var(--cartao); }
+.primeiros li.feito > span, .primeiros li.feito a { color: var(--cinza); text-decoration: line-through; }
+.primeiros li .num { width: 28px; height: 28px; border-radius: 50%; background: var(--azul); color: #fff; display: grid; place-items: center; font-weight: 700; font-size: var(--f-apoio); flex: none; }
+.primeiros li.feito .num { background: var(--ok); }
+.primeiros .dispensar { margin-top: 10px; }
+.sug-desafio p { margin: 0 0 4px; }
+.sug-desafio .acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }

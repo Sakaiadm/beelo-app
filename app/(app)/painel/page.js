@@ -1,3 +1,7 @@
+import LembrarBotao from '@/components/LembrarBotao';
+import PrimeirosPassos from '@/components/PrimeirosPassos';
+import SugestaoDesafio from '@/components/SugestaoDesafio';
+import { sugestoesDesafio } from '@/lib/sugestoesDesafio';
 import AvisosConvite from '@/components/AvisosConvite';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -11,7 +15,8 @@ import Form from '@/components/Form';
 import Icone from '@/components/Icone';
 import LampadaFlutuante from '@/components/LampadaFlutuante';
 import { fatos, candidatosPais } from '@/lib/dicas';
-import { carregarDesafios, desafiosLigados } from '@/lib/desafiosDados';
+import { carregarDesafios, desafiosLigados, pessoasDesafio } from '@/lib/desafiosDados';
+import { desafioDe, textoMeta } from '@/lib/desafios';
 import Responder from '@/components/Responder';
 import { PEDIDO, CONFERIR } from '@/lib/respostas';
 import { responderAdiamento, avaliarJustificativa, conferir, conferirTodas, responderTela, lembrarTela } from '@/app/acoes';
@@ -59,6 +64,29 @@ export default async function Painel() {
   const des = gestor && desafiosLigados(familia) ? await carregarDesafios(supabase, { eu, membros }) : null;
   const paraEntregar = des ? des.pedidos.filter((p) => p.status === 'pedido').length : 0;
   const paraAprovar = des ? des.desejos.filter((x) => x.desejo === 'esperando').length : 0;
+  // U98: quem está sem desafio recebe uma sugestão pronta (Aceitar ou Trocar).
+  const semDesafio = des ? pessoasDesafio(membros).filter((p) => !des.desafios.some((d) => d.membro_id === p.id)).slice(0, 2) : [];
+  const sugs = [];
+  if (semDesafio.length) {
+    const { sugestoes } = await sugestoesDesafio(supabase, semDesafio, hoje);
+    for (const p of semDesafio) {
+      const s = (sugestoes[p.id] || []).map((x) => ({ ...x, c: desafioDe(x.id) })).find((x) => x.c && (!x.c.tela || p.tela_ativo));
+      if (s) sugs.push({ p, s });
+    }
+  }
+  // U79: primeiros passos para família nova, até completar.
+  let passos = null;
+  if (gestor) {
+    const quemFaz = membros.filter((m) => m.ativo && m.papel !== 'gestor');
+    const convidados = quemFaz.filter((m) => m.convidado_em || m.user_id);
+    const { count: nTarefas } = await supabase.from('ra_tarefas').select('id', { count: 'exact', head: true }).is('especial', null);
+    const lista = [
+      { txt: 'Adicionar as pessoas que fazem as tarefas', href: '/config/pessoas/nova', ok: quemFaz.length > 0 },
+      { txt: 'Criar a primeira tarefa', href: '/tarefas/nova?volta=/painel', ok: (nTarefas || 0) > 0 },
+      { txt: 'Todos entrarem no beelo', href: '/config/pessoas', ok: convidados.length > 0 && convidados.every((m) => m.user_id) },
+    ];
+    if (!lista.every((x) => x.ok)) passos = lista;
+  }
   const pend = (adiamentos?.length || 0) + justif.length + (propostas?.length || 0);
 
   const nPedidos = (adiamentos?.length || 0) + (propostas?.length || 0) + justif.length;
@@ -73,6 +101,8 @@ export default async function Painel() {
         <div><h1 className="titulo">{familia.nome}</h1><p className="sub">{dataTitulo(hoje)}</p></div>
         {gestor && <Link prefetch={false} className="btn" href="/tarefas/nova?volta=/painel"><Icone nome="mais" tam={18} cor="#fff" />Nova tarefa</Link>}
       </div>
+
+      {passos && <PrimeirosPassos passos={passos} chave={`beelo_primeiros_${eu.familia_id}`} />}
 
       {/* U29: o motivo de abrir o app logo abaixo do título. Sem nada pendente, uma linha só. */}
       {nada ? (
@@ -130,11 +160,14 @@ export default async function Painel() {
           {(() => {
             // U35: tocar abre o dia da pessoa já na tarefa. Só as 3 primeiras à vista; o resto abre num toque.
             const item = ({ o }) => (
-              <Link prefetch={false} key={o.id} href={`/hoje?m=${o.membro_id}&d=${o.data}#t-${o.id}`} className="tarefa atrasada tarefa-ir">
-                <span><span className="tt">{nome[o.membro_id]} · {o.tarefa?.titulo} está atrasada</span>
-                  <span className="meta">{dataCurta(o.data)}{o.hora_inicio ? ' ' + o.hora_inicio.slice(0, 5) : ''} · {o.justificativa ? 'justificativa enviada' : 'sem justificativa ainda'}</span></span>
-                <Icone nome="dir" tam={20} />
-              </Link>
+              <div key={o.id} className="tarefa atrasada atr-lin">
+                <Link prefetch={false} href={`/hoje?m=${o.membro_id}&d=${o.data}#t-${o.id}`} className="tarefa-ir">
+                  <span><span className="tt">{nome[o.membro_id]} · {o.tarefa?.titulo} está atrasada</span>
+                    <span className="meta">{dataCurta(o.data)}{o.hora_inicio ? ' ' + o.hora_inicio.slice(0, 5) : ''} · {o.justificativa ? 'justificativa enviada' : 'sem justificativa ainda'}</span></span>
+                  <Icone nome="dir" tam={20} />
+                </Link>
+                {gestor && o.membro_id !== eu.id && <LembrarBotao oc={o.id} nome={nome[o.membro_id]} />}
+              </div>
             );
             return <>{atrasadas.slice(0, 3).map(item)}
               {atrasadas.length > 3 && <details className="mais-atr"><summary>Ver mais {atrasadas.length - 3 === 1 ? '1 atrasada' : `${atrasadas.length - 3} atrasadas`}</summary>{atrasadas.slice(3).map(item)}</details>}</>;
@@ -161,6 +194,8 @@ export default async function Painel() {
           <span className="selo-beta">beta</span>
         </Link>
       )}
+
+      {sugs.map(({ p, s: sg }) => <SugestaoDesafio key={p.id} pessoa={{ id: p.id, nome: p.nome }} desafio={{ id: sg.c.id, t: sg.c.t, meta: sg.c.meta }} tag={sg.tag} meta={textoMeta(sg.c)[0].toUpperCase() + textoMeta(sg.c).slice(1)} />)}
 
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto="Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar." />
 

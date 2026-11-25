@@ -1,6 +1,7 @@
 import { exigirMembro } from '@/lib/sessao';
 import VoltarHistorico from '@/components/VoltarHistorico';
 import AvisosGestor from '@/components/AvisosGestor';
+import AutomacoesGestor from '@/components/AutomacoesGestor';
 import { urlsAvatares } from '@/lib/avatar';
 import AvisosCelular from '@/components/AvisosCelular';
 import DicasInterruptor from '@/components/DicasInterruptor';
@@ -35,6 +36,7 @@ export default async function Perfil() {
       <div className="card"><h2>Avisos</h2>
         <AvisosCelular chavePublica={process.env.VAPID_PUBLIC_KEY || ''} teste={superAdmin} />
         {gestor && <div className="av-gestor"><AvisosGestor inicial={n} /></div>}
+        {gestor && <div className="av-gestor"><AutomacoesGestor resumo={n.resumo_hora || ''} conferirAuto={!!familia.conferir_auto} /></div>}
       </div>
       {!crianca && <div className="card"><h2>Privacidade e seus dados</h2>
         <p style={{ margin: '0 0 10px', fontSize: 'var(--f-apoio)', lineHeight: 1.5 }}>
