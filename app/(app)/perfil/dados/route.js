@@ -1,6 +1,6 @@
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
-import { COLS_MEMBRO, juntarEmails } from '@/lib/membros';
+import { COLS_MEMBRO, COLS_JEITO, juntarEmails, juntarJeito } from '@/lib/membros';
 
 // "Baixar meus dados" (LGPD art. 18): um arquivo com tudo o que esta pessoa pode ver no beelo.
 // Pai e Mãe recebem os dados do grupo; as outras pessoas, os próprios. Quem decide é o banco (RLS).
@@ -11,15 +11,16 @@ export async function GET() {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
   if (!eu?.id) return NextResponse.json({ erro: 'Entre no beelo para baixar os seus dados.' }, { status: 401 });
-  const [{ data: membros }, { data: emails }] = await Promise.all([
+  const [{ data: membros }, { data: emails }, { data: jeitos }] = await Promise.all([
     supabase.from('ra_membros').select(COLS_MEMBRO).eq('familia_id', eu.familia_id),
     supabase.rpc('ra_emails_grupo'),
+    supabase.from('ra_membros').select(COLS_JEITO).eq('familia_id', eu.familia_id),
   ]);
   const saida = {
     sobre: 'Cópia dos dados do beelo. Fotos não vão no arquivo: elas aparecem pelo caminho (foto_path) e podem ser pedidas pelo e-mail contato@beeloapp.com.',
     gerado_em: new Date().toISOString(),
     quem_pediu: { id: eu.id, nome: eu.nome, email: eu.email },
-    pessoas: juntarEmails(membros, emails).map((m) => (m.id === eu.id ? { ...m, email: eu.email } : m)),
+    pessoas: juntarJeito(juntarEmails(membros, emails), jeitos).map((m) => (m.id === eu.id ? { ...m, email: eu.email } : m)),
   };
   for (const t of TABELAS) {
     const { data, error } = await supabase.from(t).select('*').limit(20000);

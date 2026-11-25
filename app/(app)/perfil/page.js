@@ -9,6 +9,8 @@ import SomConcluir from '@/components/SomConcluir';
 import MeusDados from '@/components/MeusDados';
 import { nomeFuncao } from '@/lib/papeis';
 import ApagarGrupo from '@/components/ApagarGrupo';
+import JeitoEscolha from '@/components/JeitoEscolha';
+import { temJeito, jeitoDe, visaoCrianca } from '@/lib/jeito';
 
 export const dynamic = 'force-dynamic';
 
@@ -16,6 +18,9 @@ export default async function Perfil() {
   const { supabase, eu, gestor, familia, superAdmin } = await exigirMembro();
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const crianca = !gestor && !!eu.modo_crianca;
+  // Jeito de ver o beelo: só aparece depois do SQL 0022 (com ele, a coluna jeito_livre vem preenchida).
+  const comJeito = !gestor && temJeito(eu) && eu.jeito_livre !== undefined;
+  const visao = !gestor && visaoCrianca(eu);
   const n = { concluida: 'todas', justificativa: true, adiamento: true, tela: true, tarefa_filho: true, ...(eu.notif || {}) };
   return (
     <main className="estreito perfil">
@@ -24,10 +29,15 @@ export default async function Perfil() {
       <div className="card">
         <MeusDados eu={eu} papel={`${nomeFuncao(eu)} · ${familia.nome}`} url={urls[eu.avatar]} crianca={crianca} comCor={!gestor} />
       </div>
+      {comJeito && (
+        <div className="card"><h2>Como eu quero ver o beelo</h2>
+          <JeitoEscolha inicial={jeitoDe(eu)} livre={eu.jeito_livre !== false} />
+        </div>
+      )}
       <div className="card"><h2>Som</h2>
         <SomConcluir />
       </div>
-      {!crianca && (
+      {!visao && (
         <div className="card"><h2>Ideias</h2>
           <DicasInterruptor membro={eu.id} />
         </div>
@@ -38,7 +48,7 @@ export default async function Perfil() {
         {gestor && <div className="av-gestor"><AvisosGestor inicial={n} /></div>}
         {gestor && <div className="av-gestor"><AutomacoesGestor resumo={n.resumo_hora || ''} conferirAuto={!!familia.conferir_auto} /></div>}
       </div>
-      {!crianca && <div className="card"><h2>Privacidade e seus dados</h2>
+      {!visao && <div className="card"><h2>Privacidade e seus dados</h2>
         <p style={{ margin: '0 0 10px', fontSize: 'var(--f-apoio)', lineHeight: 1.5 }}>
           <a href="/termos">Termos de uso</a> · <a href="/privacidade">Privacidade</a> · <a href="/consentimento">Termo de consentimento</a>
         </p>

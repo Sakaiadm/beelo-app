@@ -441,6 +441,8 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 .festa-anim i { position: absolute; display: block; opacity: 0; background: var(--c); }
 .festa-anim .origem { position: absolute; width: 0; height: 0; }
 .festa-anim.estrelas i { left: -9px; top: -9px; width: 18px; height: 18px; clip-path: polygon(50% 0,61% 35%,98% 35%,68% 57%,79% 91%,50% 70%,21% 91%,32% 57%,2% 35%,39% 35%); animation: festa-estrela 1s cubic-bezier(.2,.7,.3,1) forwards; }
+/* Jeito Calmo: estrelinhas menores e mais rápidas. */
+.festa-anim.estrelas.calmo i { width: 12px; height: 12px; left: -6px; top: -6px; animation-duration: .7s; }
 @keyframes festa-estrela { 0% { opacity: 1; transform: translate(0,0) scale(.4); } 70% { opacity: 1; } 100% { opacity: 0; transform: translate(var(--x), var(--y)) scale(1.2) rotate(180deg); } }
 
 /* Balão de confirmação (excluir / desativar) */
@@ -1058,3 +1060,21 @@ button.vit-linha { display: flex; align-items: center; gap: 12px; width: 100%; b
 .primeiros .dispensar { margin-top: 10px; }
 .sug-desafio p { margin: 0 0 4px; }
 .sug-desafio .acoes { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 10px; }
+
+/* Jeito de ver o beelo (Meu perfil, modo criança): Divertido, Calmo, Como os adultos. */
+.jeitos { display: grid; gap: 10px; }
+.jeito { display: flex; gap: 12px; align-items: center; background: var(--lista-fundo); border: 1px solid var(--lista-borda); border-radius: 14px; padding: 12px 14px; color: var(--texto); cursor: pointer; text-align: left; font: inherit; width: 100%; }
+.jeito .ic { width: 42px; height: 42px; border-radius: 12px; background: var(--azul-claro); color: var(--azul); display: flex; align-items: center; justify-content: center; flex: none; }
+.jeito .ic.mel { background: var(--mel-fundo); }
+.jeito .corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.jeito .corpo b { font-size: var(--f-texto); }
+.jeito .corpo small { color: var(--cinza); font-size: var(--f-apoio); line-height: 1.35; }
+.jeito .marca-r { width: 24px; height: 24px; border-radius: 50%; border: 2px solid var(--campo); flex: none; display: flex; align-items: center; justify-content: center; }
+.jeito.on { border-color: var(--azul); box-shadow: inset 0 0 0 1px var(--azul); background: color-mix(in srgb, var(--azul) 6%, var(--cartao)); }
+.jeito.on .marca-r { border-color: var(--azul); background: var(--azul); }
+.jeito.on .marca-r::after { content: ''; width: 8px; height: 8px; border-radius: 50%; background: #fff; }
+.jeito.travado { cursor: default; }
+.jeito.travado:not(.on) { opacity: .55; }
+.jeito:focus-visible { outline: 3px solid var(--azul); outline-offset: 2px; }
+.trava-msg { display: flex; gap: 10px; align-items: center; margin-top: 12px; color: var(--cinza); font-size: var(--f-apoio); }
+.trava-msg svg { flex: none; }

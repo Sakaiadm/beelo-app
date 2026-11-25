@@ -6,16 +6,18 @@ const CORES = ['#f5b82e', '#1a6fe0', '#ff6b6b', '#51cf66', '#cc5de8', '#ff922b']
 const parado = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
 
 // Estrelinhas que saem da bolinha (posições sorteadas a cada comemoração).
-function pecas() {
-  return Array.from({ length: 16 }, (_, i) => {
-    const a = (i / 16) * Math.PI * 2 + Math.random() * 0.3, d = 80 + Math.random() * 90;
+// No jeito Calmo, poucas estrelinhas e mais perto da bolinha.
+function pecas(calmo) {
+  const n = calmo ? 6 : 16;
+  return Array.from({ length: n }, (_, i) => {
+    const a = (i / n) * Math.PI * 2 + Math.random() * 0.3, d = calmo ? 40 + Math.random() * 30 : 80 + Math.random() * 90;
     return { '--x': `${Math.cos(a) * d}px`, '--y': `${Math.sin(a) * d * 0.9}px`, '--c': CORES[i % 6] };
   });
 }
 
 // Ao concluir: "plim" para todos; no modo criança, estrelinhas com o som Escadinha
-// e a mensagem alegre sorteada.
-export default function Festa({ crianca, nome }) {
+// e a mensagem alegre sorteada. Jeito Calmo: festa curtinha, poucas estrelinhas e som suave.
+export default function Festa({ crianca, calmo = false, nome }) {
   const [msg, setMsg] = useState(null);
   const [anim, setAnim] = useState(null);
   const tempo = useRef(null), tempoAnim = useRef(null);
@@ -24,19 +26,19 @@ export default function Festa({ crianca, nome }) {
       const { ultima, x, y } = e.detail || {};
       if (!crianca) { tocarSom('plim'); return; }
       const a = proximaAnimacao();
-      tocarSom(a.som);
+      tocarSom(calmo ? 'suave' : a.som);
       if (!parado()) {
-        setAnim({ tipo: a.tipo, x: x ?? window.innerWidth / 2, y: y ?? window.innerHeight / 2, pecas: pecas(), id: Date.now() });
+        setAnim({ tipo: `${a.tipo}${calmo ? ' calmo' : ''}`, x: x ?? window.innerWidth / 2, y: y ?? window.innerHeight / 2, pecas: pecas(calmo), id: Date.now() });
         clearTimeout(tempoAnim.current);
-        tempoAnim.current = setTimeout(() => setAnim(null), 1300);
+        tempoAnim.current = setTimeout(() => setAnim(null), calmo ? 800 : 1300);
       }
       setMsg({ titulo: ultima ? MENSAGEM_FINAL : sortearMensagem(nome), sub: ultima ? 'Todas as tarefas de hoje feitas.' : 'Mais uma estrela no seu dia.', id: Date.now() });
       clearTimeout(tempo.current);
-      tempo.current = setTimeout(() => setMsg(null), 3400);
+      tempo.current = setTimeout(() => setMsg(null), calmo ? 1800 : 3400);
     };
     window.addEventListener('ra-festa', ouvir);
     return () => { window.removeEventListener('ra-festa', ouvir); clearTimeout(tempo.current); clearTimeout(tempoAnim.current); };
-  }, [crianca, nome]);
+  }, [crianca, calmo, nome]);
   return (
     <>
       {anim && (

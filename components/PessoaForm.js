@@ -11,6 +11,7 @@ import CorFolha, { CorBotao } from './CorFolha';
 import { statusConvite } from '@/lib/statusConvite';
 import ReenviarConvite from './ReenviarConvite';
 import ConfirmarBotao from './ConfirmarBotao';
+import { JEITOS, jeitoDe } from '@/lib/jeito';
 
 export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId, existentes = [] }) {
   const [nome, setNome] = useState(m?.nome || '');
@@ -19,6 +20,12 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const [cor, setCor] = useState(m?.cor || corInicial || '#1a6fe0');
   const [ativo, setAtivo] = useState(m ? m.ativo : true);
   const [crianca, setCrianca] = useState(!!m?.modo_crianca);
+  // Jeito de ver o beelo (SQL 0022). Só é gravado quando Pai ou Mãe mexem na lista; assim, quem ainda
+  // não tem jeito escolhido começa pelo da idade, quando ela for informada no Painel.
+  const comJeito = !m || m.jeito_livre !== undefined;
+  const [jeito, setJeito] = useState(m ? jeitoDe({ ...m, modo_crianca: true }) : 'divertido');
+  const [jeitoMexido, setJeitoMexido] = useState(false);
+  const [livre, setLivre] = useState(m?.jeito_livre !== false);
   const [chaves, setChaves] = useState(chavesIniciais(m?.funcao || (m ? (m.papel === 'gestor' ? 'pai' : 'filho') : ''), m?.permissoes));
   const [folha, setFolha] = useState(false);
   const [autorizo, setAutorizo] = useState(false);
@@ -52,6 +59,8 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         <input type="hidden" name="cor" value={cor} />
         {ativo && <input type="hidden" name="ativo" value="1" />}
         {crianca2 && <input type="hidden" name="modo_crianca" value="1" />}
+        {crianca2 && comJeito && livre && <input type="hidden" name="jeito_livre" value="1" />}
+        {crianca2 && comJeito && jeitoMexido && <input type="hidden" name="jeito" value={jeito} />}
         {Object.entries(chaves).map(([k, on]) => on && <input key={k} type="hidden" name={`perm_${k}`} value="1" />)}
         {/* U57: a tela em três blocos com título: Dados, O que pode fazer e Acesso. */}
         <h2 className="bloco-tit" style={{ marginTop: 0 }}>Dados</h2>
@@ -81,6 +90,16 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
             <div className="caixa-papel"><b>{rotuloFuncao(f.id, null)}:</b> {f.desc}</div>
             {temModoCrianca(f.id) && (
               <div className="lin-chave" style={{ borderTop: 0, marginTop: 4 }}><span>Modo criança<small>Estrelinhas e festa a cada tarefa feita. Bom para até uns 10 anos.</small></span><button type="button" role="switch" aria-checked={crianca} aria-label="Modo criança" className={`chave ${crianca ? 'on' : ''}`} onClick={() => setCrianca(!crianca)} /></div>
+            )}
+            {temModoCrianca(f.id) && crianca && comJeito && (
+              <>
+                <label htmlFor="p-jeito">Jeito de ver o beelo</label>
+                <select id="p-jeito" value={jeito} onChange={(e) => { setJeito(e.target.value); setJeitoMexido(true); }}>
+                  {JEITOS.map((j) => <option key={j.id} value={j.id}>{j.nome}</option>)}
+                </select>
+                <p className="peq-cinza" style={{ margin: '6px 0 0' }}>{JEITOS.find((j) => j.id === jeito)?.desc}</p>
+                <div className="lin-chave" style={{ marginTop: 10 }}><span>Pode trocar {m?.sexo === 'f' ? 'sozinha' : m?.sexo === 'm' ? 'sozinho' : 'sozinho(a)'}<small>{nome.trim().split(' ')[0] || 'A pessoa'} escolhe o jeito em Meu perfil.</small></span><button type="button" role="switch" aria-checked={livre} aria-label="Pode trocar sozinho" className={`chave ${livre ? 'on' : ''}`} onClick={() => setLivre(!livre)} /></div>
+              </>
             )}
             {f.chaves.length > 0 && (
               <>

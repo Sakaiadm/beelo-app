@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { visaoCrianca } from '@/lib/jeito';
 import { exigirMembro } from '@/lib/sessao';
 import VoltarHistorico from '@/components/VoltarHistorico';
 import Icone from '@/components/Icone';
@@ -49,7 +50,7 @@ const WHATS = 'https://wa.me/55' + CONTATO.whatsapp.replace(/\D/g, '') + '?text=
 
 export default async function Ajuda() {
   const { gestor, superAdmin, eu } = await exigirMembro();
-  const manual = gestor || eu.funcao === 'supervisor' ? '/manual' : eu.modo_crianca ? '/manual/crianca' : '/manual/pessoa';
+  const manual = gestor || eu.funcao === 'supervisor' ? '/manual' : visaoCrianca(eu) ? '/manual/crianca' : '/manual/pessoa';
   const grupos = [
     ...(superAdmin ? [{ titulo: 'Administrador geral', itens: ADMIN }] : []),
     ...(gestor ? [{ titulo: 'Para responsáveis', itens: PAIS }] : []),

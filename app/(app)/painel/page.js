@@ -3,6 +3,8 @@ import PrimeirosPassos from '@/components/PrimeirosPassos';
 import SugestaoDesafio from '@/components/SugestaoDesafio';
 import { sugestoesDesafio } from '@/lib/sugestoesDesafio';
 import AvisosConvite from '@/components/AvisosConvite';
+import IdadePergunta from '@/components/IdadePergunta';
+import { temJeito } from '@/lib/jeito';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
@@ -197,6 +199,8 @@ export default async function Painel() {
 
       {sugs.map(({ p, s: sg }) => <SugestaoDesafio key={p.id} pessoa={{ id: p.id, nome: p.nome }} desafio={{ id: sg.c.id, t: sg.c.t, meta: sg.c.meta }} tag={sg.tag} meta={textoMeta(sg.c)[0].toUpperCase() + textoMeta(sg.c).slice(1)} />)}
 
+      {eu.papel === 'gestor' && <IdadePergunta pessoas={membros.filter((m) => m.ativo && temJeito(m) && m.jeito_livre !== undefined && !m.idade_ano && m.criado_em && Date.now() - new Date(m.criado_em).getTime() > 7 * 86400000)
+        .map((m) => ({ id: m.id, nome: m.nome, cor: m.cor, avatar: m.avatar, sexo: m.sexo }))} />}
       <AvisosConvite chavePublica={process.env.VAPID_PUBLIC_KEY || ''} texto="Saiba na hora quando alguém concluir uma tarefa, justificar ou pedir para adiar." />
 
       <div className="duas">

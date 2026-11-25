@@ -1,4 +1,5 @@
 import { exigirMembro } from '@/lib/sessao';
+import { visaoCrianca } from '@/lib/jeito';
 import { acesso } from '@/lib/papeis';
 import { lerFiltros, dadosRelatorio } from '@/lib/relatorio';
 import { telaResumo, totalReal } from '@/lib/tela';
@@ -235,7 +236,7 @@ function Estrelas({ n, tam = 18 }) {
 
 // U49 e U50: a evolução de quem faz as tarefas. Sem filtros nem tabelas: frases com número e um gráfico.
 function Evolucao({ eu, f, lista, validas, feitas, noPrazo, linhas, porSemana, evolucao, maxSem, periodo }) {
-  const crianca = !!eu.modo_crianca;
+  const crianca = visaoCrianca(eu);
   const seq = linhas[0]?.seq || 0;
   // Melhor dia da semana: o que teve mais tarefas feitas no período.
   const porDS = DIAS.map((d, i) => ({ d, n: feitas.filter((x) => new Date(x.o.data + 'T12:00:00Z').getUTCDay() === i).length }));
