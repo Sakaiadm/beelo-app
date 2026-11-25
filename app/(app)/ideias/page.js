@@ -1,5 +1,6 @@
 import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
+import { acesso } from '@/lib/papeis';
 import { hojeISO } from '@/lib/util';
 import { TEMAS, FILHOS, achar, ideiaDaSemana } from '@/lib/ideias';
 import Icone from '@/components/Icone';
@@ -41,7 +42,7 @@ export default async function Ideias({ searchParams }) {
   const sp = await searchParams;
   const { eu, gestor } = await exigirMembro();
   const hoje = hojeISO();
-  const podePais = gestor || eu.funcao === 'supervisor';
+  const podePais = gestor || acesso(eu).painel;
   const paraPais = podePais && sp.p !== 'filhos';
   const q = (extra) => `/ideias?${new URLSearchParams({ ...(podePais && !paraPais ? { p: 'filhos' } : {}), ...extra })}`;
 
