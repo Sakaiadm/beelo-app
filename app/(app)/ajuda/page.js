@@ -73,7 +73,7 @@ const PAIS = [
   ['Modo criança e jeito de ver', 'No cadastro da pessoa, ative o Modo criança (bom até uns 10 anos): estrelinhas, festa e cofrinho de estrelinhas. Quem está no modo criança escolhe em Meu perfil o jeito de ver: Divertido, Calmo ou Como os adultos. O jeito muda só a aparência; o cofrinho segue o modo criança que você escolheu.', 'crianca'],
   ['Desafios (beta)', 'Em Desafios, toque em + Desafio, escolha para quem (uma ou mais pessoas, ou a Família toda) e um desafio sugerido. O app propõe meta e prêmio. Cada pessoa pode ter até 2 desafios. Renova toda segunda, com dia coringa. Criança junta estrelinhas, adolescente junta semanas conquistadas e adultos acompanham o percentual. Se aparecer Ligar os desafios, quem ativa é o administrador geral. O botão Como funciona explica tudo na própria tela.', 'desafios'],
   ['Vitrine de prêmios e cofrinho', 'Em Desafios › Vitrine, escolha a aba Criança (estrelinhas) ou Adolescente (semanas), tire ou acrescente prêmios do banco ou crie o seu. Para ver o cofrinho de alguém, toque nas estrelinhas ao lado do nome dela. Quando ela troca por um prêmio, ele aparece em Prêmio para entregar: toque em Marcar como entregue.', 'premios'],
-  ['Desejos dos filhos', 'Quando alguém sugere um desejo, ele aparece em Desejos para aprovar, na tela Desafios. Toque em Aprovar (dá para ajustar nome e preço) ou em Agora não, com uma mensagem carinhosa.', 'premios'],
+  ['Desejos das pessoas', 'Quando alguém sugere um desejo, ele aparece em Desejos para aprovar, na tela Desafios. Toque em Aprovar (dá para ajustar nome e preço) ou em Agora não, com uma mensagem carinhosa.', 'premios'],
   ['Mural, ajustes e privacidade', 'Em Desafios › Mural estão os desafios cumpridos, os prêmios entregues e as medalhas. Em Ajustes, escolha: A família toda vê ou Só os pais e a própria pessoa (isso também esconde dos irmãos os desafios e pedidos). Os desejos e pedidos em aberto são só da própria pessoa e dos responsáveis. Só os responsáveis montam a vitrine; só o administrador geral ativa ou desativa os desafios.', 'mural'],
   ['Guia da Mel (beta)', 'A Mel mostra dicas curtas, uma por vez (no máximo uma nova por dia). Para os responsáveis, começa pela entrada: primeira pessoa, grupo e primeira tarefa. Ela só aparece se o administrador geral ativar a caixinha Guia da Mel em Cadastros. Em Ajuda › Guia da Mel você recomeça o guia.', 'mel'],
   ['Manuais de cada perfil', 'Cada perfil tem o seu manual: este para Pai e Mãe, um para adolescentes e um para crianças, com linguagem simples. Abra os outros em Manual do adolescente e Manual da criança, aqui no alto, para ver o que cada um vê.', 'ajuda'],
@@ -81,17 +81,17 @@ const PAIS = [
   ['Conferir o que as pessoas fizeram', 'Tarefas concluídas aparecem com Conferido e Refazer. Conferido confirma. Refazer devolve a tarefa à pessoa. Depois de tocar, dá para desfazer por 5 segundos.', 'responder'],
   ['Pedidos de adiamento e justificativas', 'Aparecem no Painel e no sino. Toque em Aprovar ou Agora não, ali mesmo no aviso ou no Painel. Depois de tocar, dá para desfazer por 5 segundos. Você escolhe em Meu perfil quais avisos quer receber.', 'responder'],
   ['Tempo de tela', 'Na aba Tela, em “Quem lança tempo de tela”, ative para cada pessoa (e para você). Depois defina o previsto: tempo do celular e do computador e os dias. A pessoa lança o tempo de ontem na tarefa de Hoje e você acompanha a diferença.', 'tela'],
-  ['Ideias (a lâmpada)', 'A lâmpada no topo abre ideias de conduta: como começar o combinado, o que fazer quando o filho resiste ou esquece, adolescentes e o que evitar. A aba Filhos mostra o que eles leem. De vez em quando, no Painel, aparece uma faixa com a ideia certa para o momento, no máximo uma por dia. Em Meu perfil você desliga essas dicas.', 'ideias'],
+  ['Ideias (a lâmpada)', 'A lâmpada no topo abre ideias de conduta: como começar o combinado, o que fazer quando a pessoa resiste ou esquece, adolescentes e o que evitar. A aba Filhos mostra o que eles leem. De vez em quando, no Painel, aparece uma faixa com a ideia certa para o momento, no máximo uma por dia. Em Meu perfil você desliga essas dicas.', 'ideias'],
   ['Relatórios', 'Toque no período (Semana, Mês ou Outro) e na pessoa: muda na hora. Categoria e situação ficam em Mais filtros. Toque em cada parte para abrir. O botão Exportar PDF, no fim da tela, gera o relatório para guardar ou imprimir.', 'relatorios'],
   ['Categorias', 'Em Cadastros, Categorias, você cria, renomeia ou apaga categorias e muda a cor delas.', 'grupo'],
   ['Avisos neste aparelho', 'Em Meu perfil, no cartão Avisos, toque em Ativar avisos neste aparelho. Faça isso em cada aparelho que quiser. Em Escolher quais avisos, escolha o que avisar. Vale na hora.', 'seu-jeito'],
 ];
 
 const ADMIN = [
-  ['O que são os Grupos', 'Só o administrador geral vê Cadastros › Grupos. Lá ficam todas as famílias que usam o sistema.'],
-  ['Criar uma família para outra pessoa', 'Em Cadastros › Grupos, toque em + Grupo. Informe o nome do grupo, o nome do responsável e o e-mail Google dele. Quando ele entrar com esse e-mail, a família já estará pronta.'],
-  ['Desativar ou ativar uma família', 'Em Cadastros › Grupos, cada grupo tem o botão para desativar ou ativar. Desativar não apaga nada: os dados continuam guardados, só o acesso é bloqueado. Ativar devolve o acesso.'],
-  ['Quando alguém novo entra sozinho', 'Quem entra com um e-mail que não está cadastrado cai em uma tela que permite criar a própria família. Ela aparece depois em Cadastros › Grupos.'],
+  ['O que são os Grupos', 'Só o administrador geral vê Cadastros › Grupos. Lá ficam todos os grupos que usam o sistema.'],
+  ['Criar um grupo para outra pessoa', 'Em Cadastros › Grupos, toque em + Grupo. Informe o nome do grupo, o nome do responsável e o e-mail Google dele. Quando ele entrar com esse e-mail, o grupo já estará pronto.'],
+  ['Desativar ou ativar um grupo', 'Em Cadastros › Grupos, cada grupo tem o botão para desativar ou ativar. Desativar não apaga nada: os dados continuam guardados, só o acesso é bloqueado. Ativar devolve o acesso.'],
+  ['Quando alguém novo entra sozinho', 'Quem entra com um e-mail que não está cadastrado cai em uma tela que permite criar o próprio grupo. Ela aparece depois em Cadastros › Grupos.'],
 ];
 
 // As 5 mais procuradas de cada público (Raio-X U69).
