@@ -4,9 +4,9 @@ import Link from 'next/link';
 import Icone from './Icone';
 import { dicaDeHoje, fechar, marcarVista } from '@/lib/dicasMotor';
 
-// Ideia do dia flutuante (L1 + balões B1 e B2): bolinha amarela com lâmpada no canto direito,
-// acima do menu de baixo. Ao tocar, o cartão compacto (B1, com pontinha) se abre saindo de dentro
-// da lâmpada (B2) e volta para ela ao fechar. O X do cartão (ou tocar na lâmpada de novo) fecha;
+// Ideia do dia flutuante (L1 + balão B2, escolhido pelo Thomas em 25/11): bolinha amarela com lâmpada
+// no canto direito, acima do menu de baixo. Ao tocar, a própria lâmpada cresce e vira o cartão; ela fica
+// no canto de baixo do cartão. Tocar nela de novo ou no X fecha (o cartão volta a ser a lâmpada);
 // o xizinho da bolinha esconde a ideia de hoje.
 // Usa o mesmo motor das dicas (lib/dicasMotor.js): tudo fica no aparelho, sem banco.
 
@@ -28,8 +28,8 @@ function an(el, frames, o = {}) {
   if (calmo()) { d = Math.min(d, 160); e = 'ease-out'; delay = 0; }
   return el.animate(frames, { duration: d, easing: e, delay, fill: 'both' }).finished.catch(() => {});
 }
-// Centro da lâmpada, que fica logo abaixo do cartão: o cartão nasce de dentro dela.
-const CENTRO = 'calc(100% - 33px) calc(100% + 41px)';
+// Centro da lâmpada, no canto de baixo do cartão: o cartão nasce dela e volta para ela.
+const CENTRO = 'calc(100% - 29px) calc(100% - 29px)';
 
 export default function LampadaFlutuante({ membro, cands, hoje }) {
   const [dica, setDica] = useState(null);
@@ -55,7 +55,7 @@ export default function LampadaFlutuante({ membro, cands, hoje }) {
     else {
       an(b, [{ clipPath: `circle(29px at ${CENTRO})` }, { clipPath: `circle(${raio + 60}px at ${CENTRO})` }], { m: molas().suave });
       [...b.querySelectorAll('.lamp-anima')].forEach((x, i) => an(x, [{ opacity: 0, transform: 'translateY(8px)' }, { opacity: 1, transform: 'none' }], { d: 320, delay: 110 + i * 40 }));
-      an(bola.current?.querySelector('svg'), [{ transform: 'rotate(0)' }, { transform: 'rotate(-14deg)' }, { transform: 'rotate(8deg)' }, { transform: 'rotate(0)' }], { d: 600, delay: 60, e: 'ease-in-out' });
+      an(b.querySelector('.lamp-in svg'), [{ transform: 'rotate(0)' }, { transform: 'rotate(-14deg)' }, { transform: 'rotate(8deg)' }, { transform: 'rotate(0)' }], { d: 600, delay: 120, e: 'ease-in-out' });
     }
     b.querySelector('.lamp-fechar')?.focus({ preventScroll: true });
     const esc = (ev) => { if (ev.key === 'Escape') recolher(); };
@@ -98,16 +98,16 @@ export default function LampadaFlutuante({ membro, cands, hoje }) {
       <div className="lamp-espaco" aria-hidden="true" />
       {aberto && (
         <div className="lamp-balao" ref={bal} role="dialog" aria-label="Ideia do dia">
-          <span className="lamp-ponta" aria-hidden="true" />
           <div className="lamp-eb lamp-anima"><i><Icone nome="ideia" tam={14} larg={2.2} /></i>Ideia do dia</div>
           <b className="lamp-t lamp-anima">{dica.t}</b>
           {dica.x && <p className="lamp-anima">{dica.x}</p>}
-          <div className="lamp-ac lamp-anima"><Link prefetch={false} className="btn peq" href={`/ideias?i=${dica.i}`}>Ver ideia</Link></div>
+          <div className="lamp-rodape"><div className="lamp-ac lamp-anima"><Link prefetch={false} className="btn peq" href={`/ideias?i=${dica.i}`}>Ver ideia</Link></div>
+            <button type="button" className="lamp-in" onClick={recolher} aria-label="Fechar a ideia do dia"><Icone nome="ideia" tam={26} cor="#13203a" larg={2.2} /></button></div>
           <button type="button" className="lamp-fechar lamp-anima" onClick={recolher} aria-label="Fechar"><Icone nome="x" tam={16} larg={2.4} /></button>
         </div>
       )}
       <div className="lamp-fixa">
-        <button type="button" ref={bola} className="lamp-bola" onClick={abrir} aria-expanded={aberto} aria-label={aberto ? 'Fechar a ideia do dia' : lida ? 'Abrir a ideia do dia' : 'Abrir a ideia do dia, 1 nova'}>
+        <button type="button" ref={bola} className="lamp-bola" style={aberto ? { visibility: 'hidden' } : undefined} onClick={abrir} aria-expanded={aberto} aria-label={aberto ? 'Fechar a ideia do dia' : lida ? 'Abrir a ideia do dia' : 'Abrir a ideia do dia, 1 nova'}>
           <Icone nome="ideia" tam={30} cor="#13203a" larg={2.2} />
           {!lida && <span className="lamp-num" aria-hidden="true">1</span>}
         </button>

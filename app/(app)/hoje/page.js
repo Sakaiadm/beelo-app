@@ -46,6 +46,10 @@ export default async function Hoje({ searchParams }) {
   const comHora = doDia.filter((x) => x.o.hora_inicio).sort(prio);
   const restantes = doDia.filter((x) => !x.st.startsWith('cumprida') && !['adiada', 'adiamento_pedido'].includes(x.st)).length;
   const estrelas = visaoCrianca(alvo) && total ? Math.round((feitas / total) * 5) : null;
+  // Para a comemoração do fim do dia: dias seguidos com tudo feito (contando hoje) e os dias completos da semana.
+  const diaOk = (d) => { const l = comSt.filter((x) => x.o.data === d && x.st !== 'adiada'); return l.length > 0 && l.every((x) => x.st.startsWith('cumprida')); };
+  let seqAntes = 0; while (seqAntes < 7 && diaOk(addDias(hoje, -(seqAntes + 1)))) seqAntes++;
+  const festaDia = { seq: seqAntes + 1, hj: (diaSemana(hoje) + 6) % 7, semana: [0, 1, 2, 3, 4, 5, 6].map((i) => { const d = addDias(seg, i); return d < hoje && diaOk(d); }) };
   // Tarefa "Lançar tempo de tela" da própria pessoa: o lançamento abre ali mesmo, sem trocar de tela (Raio-X S19).
   const telaOcs = [...pendentesAntes, ...doDia].filter((x) => x.o.membro_id === eu.id && x.o.tarefa?.especial === 'tela' && !x.st.startsWith('cumprida') && x.o.data <= hoje);
   const telaDados = Object.fromEntries(await Promise.all(telaOcs.map(async (x) => {
@@ -68,7 +72,7 @@ export default async function Hoje({ searchParams }) {
   const crianca = !gestor && alvo.id === eu.id && visaoCrianca(eu);
   // Editar direto no Hoje (U11): os pais editam tudo; cada pessoa edita a tarefa que ela mesma criou para si.
   const editar = (o) => o.tarefa?.especial === 'tela' ? (gestor ? `/tela?m=${o.membro_id}` : null) : gestor || (o.tarefa?.criada_por === eu.id && o.membro_id === eu.id) ? `/tarefas/${o.tarefa_id}/editar?${new URLSearchParams({ d: o.data, volta: `/hoje${veTodos ? `?m=${alvo.id}` : ''}` })}` : null;
-  const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, tela: telaDados[x.o.id], crianca, editarHref: editar(x.o) });
+  const props = (x) => ({ oc: x.o, st: x.st, dono: x.o.membro_id === eu.id, quemMarca: alvo.nome, gestor, confere: a.conferir, familia: eu.familia_id, fotoUrl: fotos[x.o.foto_path], hoje, ultima: dia === hoje && x.o.data === dia && restantes === 1, dia: festaDia, tela: telaDados[x.o.id], crianca, editarHref: editar(x.o) });
   const novaHref = `/tarefas/nova?${new URLSearchParams({ ...(dia !== hoje ? { d: dia } : {}), ...(gestor ? { m: alvo.id } : {}), volta: `/hoje${veTodos ? `?m=${alvo.id}` : ''}` })}`;
   const temLado = desAlvo.length > 0 || cofre || (des && !gestor && alvo.id === eu.id && pfAlvo !== 'c' && !desAlvo.some((d) => d.membro_id));
 
@@ -103,7 +107,7 @@ export default async function Hoje({ searchParams }) {
         )}
       </div>
 
-      {des && alvo.id === eu.id && <Comemorar itens={paraComemorar(des.periodos, eu, des.desafios)} nome={eu.nome.split(' ')[0]} />}
+      {des && alvo.id === eu.id && <Comemorar itens={paraComemorar(des.periodos, eu, des.desafios)} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />}
       {desAprovado && <div className="aviso ok" role="status">Os pais aprovaram seu desejo: {desAprovado.nome}!</div>}
 
       <div className="hoje-grade">
