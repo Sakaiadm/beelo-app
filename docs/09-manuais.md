@@ -25,4 +25,4 @@ Pai e Mãe também veem atalhos para os outros dois manuais, para saber o que ca
 ## Cobertura (25/11/2026)
 
 Cobertos: entrada e instalação, pessoas, papel e parentesco, grupos, tarefas, Painel, agenda, relatórios, tempo de tela, modo criança e jeito de ver, Desafios, Cofrinho, Vitrine, desejos e prêmios, Mural e privacidade, "Como funciona", guia da Mel (beta), lâmpada de ideias, offline, Ajuda.
-**Ainda não documentados como prontos**: novo layout de Desafios em abas (Opção A) e o aviso de chegada "Cheguei". Quando entrarem, atualize `conteudo.py` e a lista `PAIS`/`ADOLESCENTE`/`CRIANCA` no mesmo PR.
+**Ainda não documentados como prontos**: novo layout de Desafios em abas (Opção A, aplicado em 25/11: a Ajuda do app já cita "Desafios › Vitrine/Mural"; falta atualizar os manuais em PDF) e o aviso de chegada "Cheguei". Quando entrarem, atualize `conteudo.py` e a lista `PAIS`/`ADOLESCENTE`/`CRIANCA` no mesmo PR.

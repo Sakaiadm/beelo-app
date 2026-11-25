@@ -21,10 +21,10 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | `/config/pessoas/nova` | `app/(app)/config/pessoas/nova/page.js` | cadastrar uma pessoa nova na família (com convite por e-mail). | — |
 | `/config/pessoas` | `app/(app)/config/pessoas/page.js` | lista das pessoas da família, com status do convite. | — |
 | `/desafios/ajustes` | `app/(app)/desafios/ajustes/page.js` | ajustes dos Desafios: quem vê o mural e prêmios até 8 anos. | — |
-| `/desafios/cofrinho` | `app/(app)/desafios/cofrinho/page.js` | cofrinho de estrelinhas ou semanas e troca por prêmios. | ra_cofrinho |
+| `/desafios/cofrinho` | `app/(app)/desafios/cofrinho/page.js` | cofrinho de estrelinhas ou semanas e troca por prêmios (aba Cofrinho do filho). | ra_cofrinho |
 | `/desafios/mural` | `app/(app)/desafios/mural/page.js` | mural de conquistas: desafios cumpridos, prêmios entregues e medalhas. | ra_desafio_periodos, ra_desafios, ra_premio_pedidos |
 | `/desafios/novo` | `app/(app)/desafios/novo/page.js` | criar um desafio (do catálogo ou personalizado). | — |
-| `/desafios` | `app/(app)/desafios/page.js` | tela Desafios (gestor vê tudo e liga/desliga o beta; os outros veem "Meus desafios"). | — |
+| `/desafios` | `app/(app)/desafios/page.js` | tela Desafios em abas (opção A, 25/11): Pai/Mãe veem Desafios \| Mural \| Vitrine com "+ Desafio" ao lado do título e sem setinha; Ajustes e "Como funciona" ficam discretos no pé; sem desafio mostra 3 sugestões de um toque. O filho vê Meus desafios \| Mural \| Cofrinho (com setinha) e a criança pode sugerir um desafio aos pais. | ra_desafio_sugestoes |
 | `/desafios/premios` | `app/(app)/desafios/premios/page.js` | vitrine de prêmios (banco de prêmios, preços e lista de desejos). | ra_premios |
 | `/hoje` | `app/(app)/hoje/page.js` | tela Hoje: as tarefas do dia da pessoa, com concluir, foto, adiar e justificar. | ra_tela_real, ra_tela_previsto_dia |
 | `/ideias` | `app/(app)/ideias/page.js` | ideias de conduta para Pai/Mãe e para os filhos (cartões curtos). | — |

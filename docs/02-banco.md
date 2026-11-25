@@ -28,6 +28,7 @@ Toda tabela tem **RLS** (segurança por linha): cada pessoa só enxerga e mexe n
 | `ra_desafio_periodos` | Cada semana/mês de um desafio: progresso, status (andamento, cumprido, não cumprido) | `lib/desafiosDados.js` |
 | `ra_premios` | Prêmios da família (nome, custo em estrelas ou semanas, faixa de idade) | `app/(app)/desafios/premios` |
 | `ra_premio_pedidos` | Prêmio pedido → entregue / cancelado. Também a lista de desejos | `DesejoAprovar.js`, `SugerirDesejo.js` |
+| `ra_desafio_sugestoes` | Sugestões de desafio feitas pela criança, esperando Pai/Mãe (esperando, criado, agora_nao). SQL 0027 | `components/SugerirDesafio.js`, `app/(app)/desafios/page.js` |
 | `ra_cofrinho` | Livro-caixa de estrelinhas e semanas (+ entradas, − trocas; nunca vencem) | `app/(app)/desafios/cofrinho` |
 | `ra_aceites` | Registro de aceite de termos, privacidade e autorização do responsável (LGPD) | `lib/aceite.js`, `aceitarTermos` |
 
@@ -40,7 +41,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 - **Tarefas do dia:** `ra_gerar_ocorrencias`, `ra_concluir` / `ra_concluir2`, `ra_desfazer`, `ra_justificar`, `ra_avaliar_justificativa`, `ra_conferir`, `ra_conferir_auto`, `ra_definir_horario`, `ra_pedir_adiamento`, `ra_adiar_livre`, `ra_responder_adiamento`
 - **Tempo de tela:** `ra_tela_previsto_dia`, `ra_propor_tela`, `ra_responder_tela`, `ra_tela_ajustar_tarefa`
 - **Avisos:** `ra_notificar`, `ra_notificar_gestores`, `ra_gerar_lembretes`, `ra_lembrar_tarefa`, `ra_lembrar_tela`, `ra_meu_resumo`, `ra_minhas_notif`, `ra_push_inscrever`, `ra_push_cancelar`, `ra_push_teste`, `ra_push_pendentes`, `ra_push_concluir`, `ra_push_segredo_ok`, `ra_push_definir_segredo` (as quatro últimas, o despachante da VPS)
-- **Desafios e prêmios:** `ra_desafios_atualizar`, `ra_desafio_calc`, `ra_desafio_base`, `ra_desafio_encerrar`, `ra_desafio_premiar`, `ra_desafio_visto`, `ra_periodo_inicio`, `ra_periodo_fim`, `ra_premio_pedir`, `ra_premio_entregar`, `ra_cofrinho_meta`, `ra_desejo_sugerir`, `ra_desejo_responder`, `ra_mural_todos`
+- **Desafios e prêmios:** `ra_desafios_atualizar`, `ra_desafio_calc`, `ra_desafio_base`, `ra_desafio_encerrar`, `ra_desafio_premiar`, `ra_desafio_visto`, `ra_periodo_inicio`, `ra_periodo_fim`, `ra_premio_pedir`, `ra_premio_entregar`, `ra_cofrinho_meta`, `ra_desejo_sugerir`, `ra_desejo_responder`, `ra_desafio_sugerir`, `ra_desafio_sugestao_fechar`, `ra_mural_todos`
 - **Administração do beelo:** `ra_admin_familias`, `ra_admin_membros`, `ra_admin_criar_familia`, `ra_admin_ativar_familia`, `ra_admin_cores`
 - **Gatilhos (automáticos, o app não chama):** `ra_tg_tarefa_nova`, `ra_tg_tela_real`, `ra_tg_tela_conclui`, `ra_tg_desafio_proprio`, `ra_seed_categorias`, `ra_log`
 
@@ -71,6 +72,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0021 A e B | Automações: resumo do dia, conferir sozinho, convite parado, prêmio esperando. **Há duas 0021: rode A, depois B** |
 | 0022 | Jeito de ver o beelo e ano aproximado de nascimento |
 | 0023 | Separa papel de parentesco (Pai, Mãe, Adulto que ajuda, Filho(a)) |
+| 0027 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |
 
 ⚠️ Ordem importa: algumas migrações dizem no cabeçalho "rode ANTES do app novo" (0021 A, 0022) ou "SÓ DEPOIS" (0020). Leia a primeira linha de cada arquivo antes de rodar.
 

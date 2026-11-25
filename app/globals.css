@@ -1215,3 +1215,10 @@ button.vit-linha { display: flex; align-items: center; gap: 12px; width: 100%; b
 .previa-o { width: 11px; height: 11px; border-radius: 50%; border: 2px solid var(--campo); flex: none; }
 .previa-o.ok { border-color: var(--ok); background: var(--ok-fundo); }
 .previa-mel { position: absolute; right: 4px; bottom: 2px; line-height: 0; }
+
+/* ═══ SEÇÃO: Desafios, opção A (25/11) ═══ */
+/* @decisao Thomas 25/11: linha-botão com o mesmo visual do cartão em lista (.cartao-l) e rodapé discreto. */
+button.cartao-btn { width: 100%; text-align: left; font: inherit; cursor: pointer; }
+button.cartao-btn:disabled { opacity: .6; cursor: default; }
+.des-rodape { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 6px 0 0; }
+.des-rodape .discreto { color: var(--cinza); }

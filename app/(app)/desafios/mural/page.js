@@ -11,7 +11,8 @@ import { dataCurta } from '@/lib/util';
 import { Estrela, Hexagono } from '@/components/DesafioCartao';
 import Avatar from '@/components/Avatar';
 import Icone from '@/components/Icone';
-import Voltar from '@/components/Voltar';
+import DesafiosTopo from '@/components/DesafiosTopo';
+import { perfil } from '@/lib/desafios';
 
 export const dynamic = 'force-dynamic';
 
@@ -38,7 +39,9 @@ export default async function Mural({ searchParams }) {
 
   return (
     <main className="estreito">
-      <Voltar href="/desafios" titulo="Mural de conquistas" sub={familia.mural_visivel === 'pais' ? 'Visível só para os pais e para cada pessoa.' : 'A família toda vê e comemora junto.'} />
+      {/* @decisao 25/11 Thomas (opção A): Mural é uma aba da tela Desafios (mesmas abas no alto). */}
+      <DesafiosTopo gestor={gestor} perfil={perfil(eu)} ativo={1} />
+      <p className="sub" style={{ margin: '-4px 0 12px' }}>{familia.mural_visivel === 'pais' ? 'Visível só para os pais e para cada pessoa.' : 'A família toda vê e comemora junto.'}</p>
       {visiveis.length > 1 && (
         <div className="seg pessoas">
           <Link prefetch={false} href="/desafios/mural" className={!sel ? 'on' : ''}>Todos</Link>
