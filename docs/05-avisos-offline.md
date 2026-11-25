@@ -18,7 +18,7 @@ lib/despachante.js  ── a cada 60 s ──►  rpc ra_push_pendentes  (pede o
 - Teste: `node testes/push.mjs`.
 
 ## E-mail de convite
-`lib/convite.js` (nodemailer) envia o convite com o botão que abre o app. Precisa de `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_DE` no `.env` (configure com `bash deploy/config-email.sh`; a senha nunca vai para o GitHub). Sem SMTP, o app avisa que o e-mail não foi enviado e Pai/Mãe podem mandar o link por outro meio. `lib/email.js` confere o endereço digitado e sugere correção de erro comum.
+`lib/convite.js` (nodemailer) envia o convite com o botão que abre o app. Precisa de `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_DE` no `.env` (configure com `bash deploy/config-email.sh`; a senha nunca vai para o GitHub). Sem SMTP, o convite mostra "O e-mail de envio ainda não foi configurado no servidor." (`app/acoes.js`, `reenviarConvite`). `lib/email.js` confere o endereço digitado e sugere correção de erro comum.
 
 ## Manter o banco acordado
 `lib/aquecer.js`: a cada 10 minutos faz 5 consultas leves, sem login (nenhum dado de ninguém), porque depois de ~50 minutos parado o banco demorava 5 a 10 s na primeira abertura.
