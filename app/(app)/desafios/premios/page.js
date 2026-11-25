@@ -7,7 +7,7 @@ import { redirect } from 'next/navigation';
 import { exigirGestor } from '@/lib/sessao';
 import { desafiosLigados } from '@/lib/desafiosDados';
 import { PREMIOS } from '@/lib/desafios';
-import Voltar from '@/components/Voltar';
+import DesafiosTopo from '@/components/DesafiosTopo';
 import Form from '@/components/Form';
 import Icone from '@/components/Icone';
 import { adicionarPremio } from '@/app/acoes-desafios';
@@ -34,7 +34,9 @@ export default async function Premios({ searchParams }) {
   const un = aba === 'teen' ? 'semanas' : 'estrelinhas';
   return (
     <main className="estreito">
-      <Voltar href="/desafios" titulo="Vitrine de prêmios" sub="Combine com cada um o que vale a pena juntar." />
+      {/* @decisao 25/11 Thomas (opção A): Vitrine é uma aba da tela Desafios. */}
+      <DesafiosTopo gestor ativo={2} />
+      <p className="sub" style={{ margin: '-4px 0 12px' }}>Combine com cada um o que vale a pena juntar.</p>
       <div className="seg">
         <Link prefetch={false} href="/desafios/premios" className={aba === 'crianca' ? 'on' : ''}>Criança (estrelinhas)</Link>
         <Link prefetch={false} href="/desafios/premios?a=teen" className={aba === 'teen' ? 'on' : ''}>Adolescente (semanas)</Link>

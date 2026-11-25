@@ -1,8 +1,9 @@
-// @arquivo   desafios/page.js: tela Desafios (gestor vê tudo e liga/desliga o beta; os outros veem "Meus desafios").
+// @arquivo   desafios/page.js: tela Desafios (opção A, 25/11): Pai/Mãe veem abas Desafios | Mural | Vitrine; os outros veem "Meus desafios" com abas.
 // @tipo      tela
-// @usa       lib/desafiosDados.js, lib/desafios.js, app/acoes-desafios.js; tabelas ra_desafio*, ra_premios, ra_cofrinho*
+// @usa       lib/desafiosDados.js, lib/desafios.js, lib/sugestoesDesafio.js, components/DesafiosTopo, DesafiosVazio, SugerirDesafio, app/acoes-desafios.js; tabelas ra_desafio*, ra_premios, ra_cofrinho*
 // @usado-por menu de baixo (Desafios), cartões do Hoje e do Painel
-// @cuidado   Pílulas Mural/Vitrine/Ajustes só no ramo do gestor. Desligado: gestor vê o cartão "Ligar os desafios"; os outros vão para /hoje.
+// @cuidado   Abas e "Ajustes" só no ramo do gestor (Ajustes fica discreto no pé). Sem setinha de voltar para Pai/Mãe; o filho mantém a setinha.
+//            Desligado: gestor vê o cartão "Ligar os desafios"; os outros vão para /hoje. Sugestão da criança: tabela ra_desafio_sugestoes (SQL 0028).
 
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
@@ -10,8 +11,9 @@ import { exigirMembro } from '@/lib/sessao';
 import { urlsAvatares } from '@/lib/avatar';
 import { ocorrencias } from '@/lib/dados';
 import { statusExibido, addDias } from '@/lib/util';
-import { carregarDesafios, desafiosLigados, paraComemorar, pessoasDesafio, vitrineDe } from '@/lib/desafiosDados';
-import { perfil, ideiaComemorar, textoMeta, MAX_POR_PESSOA, precoSugerido } from '@/lib/desafios';
+import { carregarDesafios, desafiosLigados, paraComemorar, pessoasDesafio } from '@/lib/desafiosDados';
+import { perfil, ideiaComemorar, textoMeta, MAX_POR_PESSOA, precoSugerido, desafioDe } from '@/lib/desafios';
+import { sugestoesDesafio } from '@/lib/sugestoesDesafio';
 import { linksAssinados } from '@/lib/links';
 import DesejoAprovar from '@/components/DesejoAprovar';
 import { DesafioCartao, Estrela, Hexagono } from '@/components/DesafioCartao';
@@ -19,31 +21,26 @@ import Avatar from '@/components/Avatar';
 import Icone from '@/components/Icone';
 import Form from '@/components/Form';
 import ConfirmarBotao from '@/components/ConfirmarBotao';
-import ComoFunciona from '@/components/ComoFunciona';
+import ComoFunciona, { ComoFuncionaBotao } from '@/components/ComoFunciona';
+import DesafiosTopo from '@/components/DesafiosTopo';
+import DesafiosVazio from '@/components/DesafiosVazio';
+import SugerirDesafio from '@/components/SugerirDesafio';
 import Comemorar from '@/components/Comemorar';
-import { ligarDesafios, entregarPremio, encerrarDesafio, subirMeta } from '@/app/acoes-desafios';
+import { ligarDesafios, entregarPremio, encerrarDesafio, subirMeta, fecharSugestaoDesafio } from '@/app/acoes-desafios';
 
 export const dynamic = 'force-dynamic';
 
 const AVISOS = { criado: 'Desafio criado. Ele renova sozinho toda semana.', encerrado: 'Desafio encerrado.' };
 
-function Titulo({ texto, acao, volta = '/painel' }) {
-  return (
-    <div className="cab">
-      <div className="vt" style={{ alignItems: 'flex-start' }}><Link prefetch={false} className="volta" href={volta} aria-label="Voltar"><Icone nome="esq" tam={26} /></Link><div><h1 className="titulo titulo-beta">{texto} <span className="selo-beta">beta</span></h1><p className="sub">A semana vai de segunda a domingo.</p></div></div>
-      {acao}
-    </div>
-  );
+// Só aparece com os desafios desligados. Desafios é painel principal: sem setinha de voltar.
+function Titulo({ texto }) {
+  return <div className="cab"><div><h1 className="titulo titulo-beta">{texto} <span className="selo-beta">beta</span></h1></div></div>;
 }
 
-function Item({ href, icone, titulo, sub, mel }) {
-  return (
-    <Link prefetch={false} href={href} className="cartao-l">
-      <span className={`des-ic${mel ? ' mel' : ''}`}><Icone nome={icone} tam={22} /></span>
-      <span className="corpo"><b>{titulo}</b><small className="peq-cinza">{sub}</small></span>
-      <span className="seta" aria-hidden="true">›</span>
-    </Link>
-  );
+// Sugestões que as crianças fizeram (SQL 0028). Sem a tabela ainda, a lista vem vazia e o resto da tela funciona.
+async function sugestoesAbertas(supabase) {
+  const { data, error } = await supabase.from('ra_desafio_sugestoes').select('id, membro_id, catalogo, titulo, criado_em').eq('status', 'esperando').order('criado_em'); // @banco ra_desafio_sugestoes
+  return error ? [] : data || [];
 }
 
 // Estrelinhas (criança) ou semanas conquistadas (adolescente) de uma pessoa.
@@ -113,19 +110,45 @@ export default async function Desafios({ searchParams }) {
     const nomePor = Object.fromEntries(pessoas.map((p) => [p.id, p]));
     // Desejos esperando a resposta dos pais (lista de desejos).
     const semDesafio = pessoas.filter((m) => deQuem(m.id).length === 0);
+    const sugsCrianca = (await sugestoesAbertas(supabase)).filter((x) => nomePor[x.membro_id]);
+    // Nada de desafio em ninguém: 2 ou 3 sugestões prontas, um toque cria.
+    const nenhum = desafios.length === 0 && semDesafio.length > 0;
+    const sugsPessoas = nenhum ? (await sugestoesDesafio(supabase, pessoas, hoje)).sugestoes : {};
+    const itensVazio = nenhum ? semDesafio.map((m) => {
+      const c = (sugsPessoas[m.id] || []).map((x) => desafioDe(x.id)).find(Boolean);
+      return c && { pessoa: { id: m.id, nome: m.nome }, desafio: { id: c.id, t: c.t, meta: c.meta }, sub: textoMeta(c, c.meta), avatar: <Avatar nome={m.nome} cor={m.cor} url={urls[m.avatar]} avatar={m.avatar} tam={42} /> };
+    }).filter(Boolean).slice(0, 3) : [];
     const esperando = dados.desejos.filter((x) => x.desejo === 'esperando' && nomePor[x.membro_id]);
     const fotos = esperando.some((x) => x.foto) ? await linksAssinados(supabase, 'rotina-fotos', esperando.map((x) => x.foto), 3600) : {};
     return (
       <main className="estreito">
         <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
-        <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Desafio</Link>} />
-        <ComoFunciona perfil="gestor" membro={eu.id}>
-          <Link prefetch={false} className="btn sec peq" href="/desafios/mural"><Icone nome="check" tam={18} />Mural</Link>
-          <Link prefetch={false} className="btn sec peq" href="/desafios/premios"><Icone nome="etiqueta" tam={18} />Vitrine</Link>
-          {/* @regra Ajustes só para quem é gestor (Pai/Mãe): este bloco só existe no ramo do gestor. */}
-          <Link prefetch={false} className="btn sec peq" href="/desafios/ajustes"><Icone nome="ajustes" tam={18} />Ajustes</Link>
-        </ComoFunciona>
+        {/* @decisao 25/11 Thomas (opção A): "+ Desafio" ao lado do título, abas Desafios | Mural | Vitrine, sem setinha. */}
+        <DesafiosTopo gestor ativo={0} />
+        <ComoFunciona perfil="gestor" membro={eu.id} semLinha />
         {aviso}
+
+        {sugsCrianca.length > 0 && (
+          <div className="card des-card" id="sugestoes">
+            <h2 style={{ marginBottom: 10 }}>{sugsCrianca.length === 1 ? 'Sugestão de desafio' : 'Sugestões de desafio'}</h2>
+            {sugsCrianca.map((x, i) => {
+              const m = nomePor[x.membro_id];
+              return (
+                <div key={x.id} style={{ borderTop: i ? '1px solid var(--borda)' : 0, paddingTop: i ? 12 : 0, marginTop: i ? 12 : 0 }}>
+                  <div className="des-top">
+                    <Avatar nome={m.nome} cor={m.cor} url={urls[m.avatar]} avatar={m.avatar} tam={42} />
+                    <span><b>{m.nome} sugeriu: {x.titulo}</b><small>Você confere a meta e salva.</small></span>
+                  </div>
+                  <div className="des-acoes">
+                    {/* @regra Pai/Mãe abrem o desafio já escolhido, conferem a meta e salvam; a sugestão fecha sozinha. */}
+                    <Link prefetch={false} className="btn peq" href={`/desafios/novo?m=${x.membro_id}&c=${x.catalogo}&s=${x.id}`}>Criar este desafio</Link>
+                    <Form acao={fecharSugestaoDesafio}><input type="hidden" name="id" value={x.id} /><button className="link-btn">Agora não</button></Form>
+                  </div>
+                </div>
+              );
+            })}
+          </div>
+        )}
 
         {esperando.length > 0 && (
           <div className="card des-card" id="desejos">
@@ -166,12 +189,7 @@ export default async function Desafios({ searchParams }) {
 
         {cartaoFamilia}
 
-        {semDesafio.length > 0 && (
-          <div className="card des-card sem-desafio">
-            <p><b>{semDesafio.map((m) => m.nome).join(', ').replace(/, ([^,]*)$/, ' e $1')}</b> {semDesafio.length === 1 ? 'ainda está sem desafio' : 'ainda estão sem desafio'}. Escolher para:</p>
-            <div className="acoes">{semDesafio.map((m) => <Link key={m.id} prefetch={false} className="btn sec peq" href={`/desafios/novo?m=${m.id}`}>{m.nome}</Link>)}</div>
-          </div>
-        )}
+        {nenhum && <DesafiosVazio itens={itensVazio} />}
 
         {pessoas.filter((m) => deQuem(m.id).length > 0).map((m) => {
           const ds = deQuem(m.id);
@@ -198,6 +216,24 @@ export default async function Desafios({ searchParams }) {
           );
         })}
 
+        {!nenhum && semDesafio.length > 0 && (
+          <section className="sem-desafio">
+            <h2 className="ajuda-sec" style={{ margin: '6px 0 10px' }}>Sem desafio ainda</h2>
+            {semDesafio.map((m) => (
+              <Link key={m.id} prefetch={false} href={`/desafios/novo?m=${m.id}`} className="cartao-l">
+                <Avatar nome={m.nome} cor={m.cor} url={urls[m.avatar]} avatar={m.avatar} tam={42} />
+                <span className="corpo"><b>{m.nome}</b><small className="peq-cinza">Escolher um desafio</small></span>
+                <span className="seta" aria-hidden="true">›</span>
+              </Link>
+            ))}
+          </section>
+        )}
+
+        {/* @regra Ajustes só para quem é gestor (Pai/Mãe) e fica discreto, no pé. A chave de desligar os desafios é só do administrador geral (dentro de Ajustes). */}
+        <div className="des-rodape">
+          <ComoFuncionaBotao />
+          <Link prefetch={false} className="link-btn discreto" href="/desafios/ajustes"><Icone nome="ajustes" tam={18} />&nbsp;Ajustes</Link>
+        </div>
       </main>
     );
   }
@@ -205,13 +241,17 @@ export default async function Desafios({ searchParams }) {
   // ===== Criança, adolescente e adultos =====
   const pf = perfil(eu);
   const meus = deQuem(eu.id);
-  const v = vitrineDe(eu, premios, saldo);
+  // Criança sem desafio: pode sugerir um aos pais (SQL 0028). Quem cria continua sendo Pai ou Mãe.
+  const sugsMinhas = pf === 'c' ? (await sugestoesAbertas(supabase)).filter((x) => x.membro_id === eu.id) : [];
+  const idsSug = pf === 'c' && meus.length === 0 ? (await sugestoesDesafio(supabase, [{ id: eu.id, perfil: 'c' }], dados.hoje)).sugestoes[eu.id] || [] : [];
+  const paraSugerir = idsSug.map((x) => desafioDe(x.id)).filter((c) => c && c.para.includes('c')).slice(0, 3).map(({ id, t, d }) => ({ id, t, d }));
   return (
     <main className={`estreito${pf === 'c' ? ' des-crianca' : ''}`}>
       <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
-      <Titulo texto="Meus desafios" volta="/hoje" />
+      {/* @decisao 25/11 Thomas (opção A): abas Meus desafios | Mural | Cofrinho. O filho mantém a setinha (o menu de baixo dele não tem Desafios). */}
+      <DesafiosTopo gestor={false} perfil={pf} ativo={0} />
       {aviso}
-      <ComoFunciona perfil={pf} membro={eu.id} />
+      <ComoFunciona perfil={pf} membro={eu.id} semLinha />
       {meus.map((d) => (
         <DesafioCartao key={d.id} d={d} p={d.atual}>
           {pf !== 'c' && d.criado_por === eu.id && <div className="des-acoes"><ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} pergunta="O que você já conquistou continua guardado." sim="Sim, encerrar" icone="bloquear" /></div>}
@@ -219,21 +259,9 @@ export default async function Desafios({ searchParams }) {
       ))}
       {meus.length === 0 && <div className="card vazio">{pf === 'c' ? 'Ainda não tem desafio. Combine um com seus pais!' : 'Você ainda não tem desafio.'}</div>}
       {pf !== 'c' && meus.length === 0 && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 16 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio</Link>}
+      {pf === 'c' && meus.length === 0 && paraSugerir.length > 0 && <SugerirDesafio itens={paraSugerir} esperando={sugsMinhas.map((x) => x.titulo)} />}
       {cartaoFamilia}
-      {pf === 'c' && (
-        <Link prefetch={false} href="/desafios/cofrinho" className="card des-card">
-          <div className="des-top"><span className="des-ic mel"><Estrela tam={22} /></span><span><b>Meu cofrinho</b><small>{v.tem} estrelinhas guardadas</small></span><span className="seta" style={{ color: 'var(--cinza)', fontSize: 20 }} aria-hidden="true">›</span></div>
-          {v.meta && <div className="vit" style={{ borderTop: '1px solid var(--borda)', marginTop: 12, paddingBottom: 0 }}><span className="corpo"><b>{v.meta.nome}</b><small><Estrela tam={14} /> {Math.min(v.tem, v.meta.custo)} de {v.meta.custo}{v.tem < v.meta.custo ? ` · faltam ${v.meta.custo - v.tem}` : ' · já dá para trocar!'}</small><div className="barra"><div style={{ width: `${Math.min(100, (v.tem / v.meta.custo) * 100)}%` }} /></div></span></div>}
-        </Link>
-      )}
-      {pf === 'a' && (
-        <Link prefetch={false} href="/desafios/cofrinho" className="card des-card">
-          <div className="des-top"><span className="des-ic mel"><Icone nome="check" tam={22} /></span><span><b>Semanas conquistadas</b><small>Não vencem. Você decide quando usar.</small></span><span className="seta" style={{ color: 'var(--cinza)', fontSize: 20 }} aria-hidden="true">›</span></div>
-          <div className="hexes">{Array.from({ length: Math.max(6, Math.min(v.tem + 1, 12)) }, (_, i) => <Hexagono key={i} tam={30} on={i < v.tem} />)}</div>
-          {v.tem > 12 && <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: 0 }}>{v.tem} semanas guardadas.</p>}
-        </Link>
-      )}
-      <Item href="/desafios/mural" icone="check" titulo="Mural de conquistas" sub="Desafios cumpridos e medalhas" mel />
+      <div className="des-rodape"><ComoFuncionaBotao /></div>
     </main>
   );
 }

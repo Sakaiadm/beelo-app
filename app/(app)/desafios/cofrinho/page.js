@@ -11,6 +11,7 @@ import { perfil } from '@/lib/desafios';
 import { addDias, dataCurta } from '@/lib/util';
 import { Estrela, Hexagono } from '@/components/DesafioCartao';
 import Voltar from '@/components/Voltar';
+import DesafiosTopo from '@/components/DesafiosTopo';
 import Form from '@/components/Form';
 import TrocarPremio from '@/components/TrocarPremio';
 import { metaCofrinho } from '@/app/acoes-desafios';
@@ -39,7 +40,10 @@ export default async function Cofrinho({ searchParams }) {
 
   return (
     <main className="estreito">
-      <Voltar href="/desafios" titulo={titulo} sub={semanas ? 'Não vencem. Use quando quiser.' : 'Suas estrelinhas ficam guardadas. Não somem.'} />
+      {/* @decisao 25/11 Thomas (opção A): para o filho o Cofrinho é uma aba (Meus desafios | Mural | Cofrinho). Pai/Mãe vendo o cofrinho de alguém voltam com a setinha. */}
+      {proprio && !gestor
+        ? <><DesafiosTopo gestor={false} perfil={perfil(m)} ativo={2} /><p className="sub" style={{ margin: '-4px 0 12px' }}>{semanas ? 'Não vencem. Use quando quiser.' : 'Suas estrelinhas ficam guardadas. Não somem.'}</p></>
+        : <Voltar href="/desafios" titulo={titulo} sub={semanas ? 'Não vencem. Use quando quiser.' : 'Suas estrelinhas ficam guardadas. Não somem.'} />}
       <div className="kpi destaque" style={{ marginBottom: 14 }}>
         <small>Guardadas</small>
         <div className="cofre-n">{semanas ? <Hexagono tam={34} /> : <Estrela tam={34} />}<strong>{v.tem}</strong></div>
