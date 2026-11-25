@@ -3,6 +3,7 @@
 // @tipo     componente
 // @usa      ./Icone, ./HorarioCampo, ./Form, app/acoes, lib/util, lib/sugestoes
 // @usado-por app/(app)/tarefas/[id]/editar/page.js, app/(app)/tarefas/nova/page.js
+// @decisao  "O que é": Tarefa ou Chegada (um toque de aviso aos pais, migração 0027). Só aparece para Pai e Mãe.
 import Icone from './Icone';
 import HorarioCampo from './HorarioCampo';
 import { useState } from 'react';
@@ -51,6 +52,10 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
   const [justif, setJustif] = useState(!!t?.exige_justificativa);
   const [foto, setFoto] = useState(!!t?.exige_foto);
   const [prio, setPrio] = useState(!!t?.prioritaria);
+  // Chegada (migração 0027): tarefa de um toque ("Cheguei"/"Tudo certo"). Só Pai e Mãe criam.
+  const [chegada, setChegada] = useState(t?.especial === 'chegada');
+  const [lembrarPessoa, setLembrarPessoa] = useState(t ? t.chegada_lembrar !== false : true);
+  const [avisarPais, setAvisarPais] = useState(!!t?.chegada_avisar_pais);
   const [fCat, setFCat] = useState('Casa');
   const [fIdade, setFIdade] = useState('');
   const [inicio, setInicio] = useState(t?.data_inicio || hoje);
@@ -80,16 +85,28 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       {t?.id && <input type="hidden" name="id" value={t.id} />}
       {voltar && <input type="hidden" name="voltar" value={voltar} />}
       <input type="hidden" name="tipo" value={uma ? 'pontual' : 'recorrente'} />
+      <input type="hidden" name="chegada" value={chegada ? '1' : '0'} />
+      <input type="hidden" name="era_chegada" value={t?.especial === 'chegada' ? '1' : '0'} />
+      {gestor && (
+        <>
+          <label style={{ marginTop: 0 }}>O que é</label>
+          <div className="seg" role="radiogroup" aria-label="O que é">
+            <button type="button" role="radio" aria-checked={!chegada} className={!chegada ? 'on' : ''} onClick={() => setChegada(false)}>Tarefa</button>
+            <button type="button" role="radio" aria-checked={chegada} className={chegada ? 'on' : ''} onClick={() => setChegada(true)}>Chegada</button>
+          </div>
+          {chegada && <p className="peq-cinza" style={{ margin: '-4px 0 6px' }}>Um toque em &quot;Cheguei&quot; avisa você. Sem rastrear o celular.</p>}
+        </>
+      )}
       <input type="hidden" name="recorrencia" value={opcao === 'semana' || opcao === 'pers' ? 'dias_semana' : opcao === 'uma' ? '' : opcao} />
       {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
       <input type="hidden" name="data_fim" value={uma ? '' : fim} />
-      {t?.id ? <label htmlFor="titulo" style={{ marginTop: 0 }}>Tarefa</label> : (
+      {t?.id || chegada ? <label htmlFor="titulo" style={{ marginTop: gestor ? undefined : 0 }}>Tarefa</label> : (
         <div className="rot-sug">
-          <label htmlFor="titulo" style={{ marginTop: 0 }}>Tarefa</label>
+          <label htmlFor="titulo" style={{ marginTop: gestor ? undefined : 0 }}>Tarefa</label>
           <button type="button" className="btn peq sugestao-btn" onClick={() => setFolha('sug')}><Icone nome="lampada" tam={18} cor="#fff" />Sugestões</button>
         </div>
       )}
-      <input id="titulo" name="titulo" required maxLength={100} value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder="Ex.: Arrumar o quarto" />
+      <input id="titulo" name="titulo" required maxLength={100} value={titulo} onChange={(e) => setTitulo(e.target.value)} placeholder={chegada ? 'Ex.: Chegar na escola' : 'Ex.: Arrumar o quarto'} />
       {gestor && <>
         <label htmlFor="responsavel">Para quem</label>
         <select id="responsavel" name="responsavel" defaultValue={t?.responsavel_id || paraId || (filhos.find((f) => f.id !== euId) || filhos[0])?.id} required>
@@ -98,8 +115,14 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       </>}
       <label htmlFor="repetir">Repetir</label>
       <button id="repetir" type="button" className="campo-botao" onClick={() => setFolha('repetir')}><span>{resumo}</span><span aria-hidden="true">›</span></button>
-      <label htmlFor="horario">Horário</label>
+      <label htmlFor="horario">{chegada ? 'Horário esperado (opcional)' : 'Horário'}</label>
       <HorarioCampo key={hora.n} inicio={hora.i} fim={hora.f} aoMudar={(i, f) => setHora((h) => ({ ...h, i, f }))} />
+      {chegada && (
+        <div className="chaves-form" style={{ marginTop: 14 }}>
+          <label className="check"><input type="checkbox" name="chegada_lembrar" value="1" checked={lembrarPessoa} onChange={(e) => setLembrarPessoa(e.target.checked)} /><span>Lembrar a pessoa se não tocar<small style={{ display: 'block', color: 'var(--cinza)', fontWeight: 400 }}>15 minutos depois do horário. Só ela recebe.</small></span></label>
+          <label className="check" style={{ marginTop: 12 }}><input type="checkbox" name="chegada_avisar_pais" value="1" checked={avisarPais} onChange={(e) => setAvisarPais(e.target.checked)} /><span>Avisar você se ainda não chegou<small style={{ display: 'block', color: 'var(--cinza)', fontWeight: 400 }}>30 minutos depois do horário, bem leve.</small></span></label>
+        </div>
+      )}
       {folha === 'sug' && (
         <div className="folha" role="dialog" aria-modal="true" aria-label="Sugestões">
           <div className="folha-in">
@@ -183,7 +206,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
               )}</div>
           )}
         </div>
-        <div className="chaves-form">
+        {!chegada && <div className="chaves-form">
           <label className="check"><input type="checkbox" name="exige_foto" value="1" checked={foto} onChange={(e) => setFoto(e.target.checked)} /><span>Exige foto para concluir{foto && <small>A foto precisa ser de hoje.</small>}</span></label>
           {gestor && <label className="check"><input type="checkbox" name="permite_adiar" value="1" checked={adiar} onChange={(e) => setAdiar(e.target.checked)} /><span>Pode adiar{adiar && <small>{livre ? 'A pessoa pode adiar 1 dia sozinha, uma vez por semana.' : 'A pessoa pede e você aprova.'}</small>}</span></label>}
           {gestor && adiar && <label className="check"><input type="checkbox" name="adiar_livre" value="1" checked={livre} onChange={(e) => setLivre(e.target.checked)} /><span>Pode adiar 1 dia sem pedir<small>Uma vez por semana. Você só recebe o aviso.</small></span></label>}
@@ -195,7 +218,7 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
               <LembreteExtra inicial={t?.lembrete_min} />
             </div>
           )}
-        </div>
+        </div>}
         <label htmlFor="descricao">Detalhes (opcional)</label>
         <textarea id="descricao" name="descricao" maxLength={1000} defaultValue={t?.descricao || ''} />
       </details>
