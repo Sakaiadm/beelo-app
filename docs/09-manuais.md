@@ -14,6 +14,13 @@ O livro do topo (`app/(app)/layout.js`) abre `/ajuda` (`app/(app)/ajuda/page.js`
 responsável ou quem tem Painel → `/manual`; criança (Divertido/Calmo, `visaoCrianca`) → `/manual/crianca`; os demais → `/manual/pessoa`.
 Pai e Mãe também veem atalhos para os outros dois manuais, para saber o que cada um vê. A Ajuda tem busca, "as mais procuradas" e blocos por assunto.
 
+## Busca (25/11/2026)
+
+- **Ajuda** (responsável e adolescente): caixa "O que você quer saber?". A pessoa digita a dúvida e recebe até 5 respostas prontas (2 a 3 linhas) com o botão "Ver no manual", que abre o capítulo certo e já destaca o que foi digitado. A busca ignora acento, perdoa erro de digitação e entende sinônimos escondidos (adiar/remarcar/depois, prêmio/presente, senha, convite…). Regras em `lib/ajudaBusca.js` (lista `SINONIMOS`); teste: `node testes/ajuda-busca.mjs`.
+- **Criança**: sem caixa de busca. Só "Perguntas mais procuradas", em botões grandes e frases curtas.
+- **Dentro de cada manual**: botão pequeno "Buscar" no canto direito do topo. Abre a barra, destaca todas as ocorrências, vai à primeira e tem setas para o próximo e o anterior (Enter e Shift+Enter também). Vale para o modo claro e o escuro. O script faz parte do gerador (`BUSCA_JS` em `gerar.py`); a versão em PDF não tem o botão.
+- Cada pergunta da Ajuda aponta o capítulo do manual (3º item da lista). Capítulo novo ou renomeado? Ajuste o id em `conteudo.py` e o 3º item das perguntas.
+
 ## Onde editar
 
 - **Perguntas da Ajuda**: listas `PAIS`, `ADOLESCENTE`, `CRIANCA` e `ADMIN` em `app/(app)/ajuda/page.js`.
