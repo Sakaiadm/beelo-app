@@ -1,3 +1,4 @@
+import { visaoCrianca } from '@/lib/jeito';
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
@@ -109,7 +110,7 @@ export default async function Desafios({ searchParams }) {
     const fotos = esperando.some((x) => x.foto) ? await linksAssinados(supabase, 'rotina-fotos', esperando.map((x) => x.foto), 3600) : {};
     return (
       <main className="estreito">
-        <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} />
+        <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && visaoCrianca(eu)} />
         <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Novo desafio</Link>} />
         <div className="des-atalhos" aria-label="Mais telas dos desafios">
           <Link prefetch={false} className="btn sec peq" href="/desafios/mural"><Icone nome="check" tam={18} />Mural</Link>
@@ -200,7 +201,7 @@ export default async function Desafios({ searchParams }) {
   const v = vitrineDe(eu, premios, saldo);
   return (
     <main className={`estreito${pf === 'c' ? ' des-crianca' : ''}`}>
-      <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} />
+      <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && visaoCrianca(eu)} />
       <Titulo texto="Meus desafios" />
       {aviso}
       <ComoFunciona perfil={pf} membro={eu.id} />

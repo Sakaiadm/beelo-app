@@ -1,57 +1,44 @@
 'use client';
 import { useEffect, useRef, useState } from 'react';
-import { sortearMensagem, MENSAGEM_FINAL, tocarSom, proximaAnimacao } from '@/lib/festa';
+import { sortearMensagem, tocarSom, proximaAnimacao } from '@/lib/festa';
 
-const CORES = ['#f5b82e', '#1a6fe0', '#ff6b6b', '#51cf66', '#cc5de8', '#ff922b'];
-const parado = () => typeof window !== 'undefined' && window.matchMedia?.('(prefers-reduced-motion: reduce)').matches;
-
-// Estrelinhas que saem da bolinha (posições sorteadas a cada comemoração).
-// No jeito Calmo, poucas estrelinhas e mais perto da bolinha.
-function pecas(calmo) {
-  const n = calmo ? 6 : 16;
-  return Array.from({ length: n }, (_, i) => {
-    const a = (i / n) * Math.PI * 2 + Math.random() * 0.3, d = calmo ? 40 + Math.random() * 30 : 80 + Math.random() * 90;
-    return { '--x': `${Math.cos(a) * d}px`, '--y': `${Math.sin(a) * d * 0.9}px`, '--c': CORES[i % 6] };
-  });
-}
-
-// Ao concluir: "plim" para todos; no modo criança, estrelinhas com o som Escadinha
-// e a mensagem alegre sorteada. Jeito Calmo: festa curtinha, poucas estrelinhas e som suave.
+// Ao concluir uma tarefa (aprovado pelo Thomas em 25/11):
+// - adulto: "Plim" e o check de sempre; no fim do dia, o quadro azul brilha, o símbolo do beelo se desenha
+//   ("Tudo feito hoje. Bom descanso.", som Cristal) e, com 2 ou mais dias seguidos, a linha da sequência anda até hoje.
+// - criança: "Escadinha", a abelha Mel leva a estrela até o quadro do dia e a mensagem alegre;
+//   no fim do dia, o pote de mel enche (Caixinha de música) e depois os favos da semana (Varinha de brilho).
+// - jeito Calmo (criança que escolheu em Meu perfil): sem a abelha, som "Ding" baixinho, mensagem curtinha;
+//   no fim do dia, a comemoração tranquila dos adultos.
+// As animações ficam em lib/festaAnim.js e só são carregadas na primeira comemoração.
 export default function Festa({ crianca, calmo = false, nome }) {
   const [msg, setMsg] = useState(null);
-  const [anim, setAnim] = useState(null);
-  const tempo = useRef(null), tempoAnim = useRef(null);
+  const tempo = useRef(null);
   useEffect(() => {
-    const ouvir = (e) => {
-      const { ultima, x, y } = e.detail || {};
-      if (!crianca) { tocarSom('plim'); return; }
-      const a = proximaAnimacao();
-      tocarSom(calmo ? 'suave' : a.som);
-      if (!parado()) {
-        setAnim({ tipo: `${a.tipo}${calmo ? ' calmo' : ''}`, x: x ?? window.innerWidth / 2, y: y ?? window.innerHeight / 2, pecas: pecas(calmo), id: Date.now() });
-        clearTimeout(tempoAnim.current);
-        tempoAnim.current = setTimeout(() => setAnim(null), calmo ? 800 : 1300);
+    const ouvir = async (e) => {
+      const { ultima, x, y, dia } = e.detail || {};
+      tocarSom(crianca && calmo ? 'ding' : crianca ? proximaAnimacao().som : 'plim');
+      const A = await import('@/lib/festaAnim');
+      if (!crianca) { if (ultima) A.diaCompletoAdulto(dia); return; }
+      if (calmo) {
+        if (ultima) { A.diaCompletoAdulto(dia); return; }
+        setMsg({ titulo: sortearMensagem(nome), sub: 'Mais uma estrela no seu dia.', id: Date.now() });
+        clearTimeout(tempo.current);
+        tempo.current = setTimeout(() => setMsg(null), 1800);
+        return;
       }
-      setMsg({ titulo: ultima ? MENSAGEM_FINAL : sortearMensagem(nome), sub: ultima ? 'Todas as tarefas de hoje feitas.' : 'Mais uma estrela no seu dia.', id: Date.now() });
+      if (ultima) { A.diaCompletoCrianca(dia); return; }
+      A.marcarCrianca({ x, y });
+      setMsg({ titulo: sortearMensagem(nome), sub: 'Mais uma estrela no seu dia.', id: Date.now() });
       clearTimeout(tempo.current);
-      tempo.current = setTimeout(() => setMsg(null), calmo ? 1800 : 3400);
+      tempo.current = setTimeout(() => setMsg(null), 3400);
     };
     window.addEventListener('ra-festa', ouvir);
-    return () => { window.removeEventListener('ra-festa', ouvir); clearTimeout(tempo.current); clearTimeout(tempoAnim.current); };
+    return () => { window.removeEventListener('ra-festa', ouvir); clearTimeout(tempo.current); };
   }, [crianca, calmo, nome]);
-  return (
-    <>
-      {anim && (
-        <div className={`festa-anim ${anim.tipo}`} key={anim.id} aria-hidden="true">
-          <div className="origem" style={{ left: anim.x, top: anim.y }}>{anim.pecas.map((s, i) => <i key={i} style={s} />)}</div>
-        </div>
-      )}
-      {msg && (
-        <div className="festa-msg" role="status" key={msg.id} onClick={() => setMsg(null)}>
-          <svg width="40" height="40" viewBox="0 0 24 24" fill="#f5b82e" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>
-          <div><b>{msg.titulo}</b><small>{msg.sub}</small></div>
-        </div>
-      )}
-    </>
+  return msg && (
+    <div className="festa-msg" role="status" key={msg.id} onClick={() => setMsg(null)}>
+      <svg width="40" height="40" viewBox="0 0 24 24" fill="#f5b82e" aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>
+      <div><b>{msg.titulo}</b><small>{msg.sub}</small></div>
+    </div>
   );
 }
