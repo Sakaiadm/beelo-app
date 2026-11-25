@@ -4,10 +4,12 @@
 // @cuidado  o app abre sempre no modo claro.
 import './globals.css';
 import { cookies } from 'next/headers';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 
-// A letra do app vem junto com o app (baixada na hora de montar), sem esperar o site do Google ao abrir.
-const fonte = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '500', '600', '700', '800'], display: 'swap', variable: '--fonte' });
+// A letra do app vem DENTRO do repositório (app/fonts), sem baixar nada do Google na build.
+// @decisao 25/11 a build da VPS falhava quando a rede não alcançava o Google; arquivo local resolve de vez.
+// Mesma letra (Plus Jakarta Sans, variável 200-800, cobre os pesos 400/500/600/700/800), mesma variável --fonte.
+const fonte = localFont({ src: './fonts/PlusJakartaSans-latin-variavel.woff2', weight: '200 800', display: 'swap', variable: '--fonte' });
 
 // Tela de abertura do app instalado no iPhone (seção 71): fundo branco (ou escuro no modo escuro),
 // logo beelo e a frase "Pequenas tarefas, grandes pessoas.". O iPhone exige uma imagem por tamanho de tela.

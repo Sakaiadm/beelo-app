@@ -35,6 +35,8 @@ npm run dev      # abre em http://localhost:3000
 npm run build    # confere se compila (rode antes de qualquer PR)
 ```
 
+A letra (Plus Jakarta Sans) fica em `app/fonts/` (licença OFL junto) e é carregada com `next/font/local`: a build **não** baixa nada do Google. Não volte para `next/font/google`.
+
 Variáveis opcionais (só os nomes; valores ficam no `.env` da VPS, que nunca vai para o GitHub):
 `APP_URL`, `SMTP_HOST`, `SMTP_PORT`, `SMTP_USER`, `SMTP_PASS`, `SMTP_DE` (e-mail), `VAPID_PUBLIC_KEY`, `VAPID_PRIVATE_KEY`, `VAPID_ASSUNTO`, `PUSH_SEGREDO` (avisos no celular), `CADASTRO_ABERTO`.
 
