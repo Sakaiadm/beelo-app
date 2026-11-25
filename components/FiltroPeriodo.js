@@ -1,4 +1,6 @@
 'use client';
+// @arquivo  FiltroPeriodo.js: filtro de período dos relatórios (com datas De e Até quando livre).
+// @tipo     componente
 import { useState } from 'react';
 
 // Período e, só quando é "Escolher datas", os campos De e Até.

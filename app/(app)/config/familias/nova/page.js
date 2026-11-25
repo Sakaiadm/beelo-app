@@ -1,3 +1,7 @@
+// @arquivo  page.js: criar um novo grupo/família.
+// @tipo     tela
+// @usa      lib/sessao, components/Voltar, components/NovaFamiliaForm
+// @usado-por Next.js (rota /config/familias/nova)
 import { redirect } from 'next/navigation';
 import { exigirGestor } from '@/lib/sessao';
 import Voltar from '@/components/Voltar';

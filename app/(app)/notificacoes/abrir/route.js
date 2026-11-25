@@ -1,3 +1,7 @@
+// @arquivo  route.js: rota que marca um aviso como lido e abre o link dele.
+// @tipo     tela
+// @usa      banco ra_notificacoes, lib/supabase/server, lib/origem, lib/sessao
+// @usado-por Next.js (rota /notificacoes/abrir)
 import { NextResponse } from 'next/server';
 import { supabaseServer } from '@/lib/supabase/server';
 import { origem } from '@/lib/origem';

@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  VoltarHistorico.js: seta de voltar que usa o histórico do navegador.
+// @tipo     componente
+// @usa      ./Icone
+// @usado-por app/(app)/ajuda/page.js, app/(app)/notificacoes/page.js, app/(app)/perfil/page.js, app/(app)/seguranca/page.js
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Icone from './Icone';

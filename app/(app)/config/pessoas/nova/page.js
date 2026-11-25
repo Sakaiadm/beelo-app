@@ -1,3 +1,7 @@
+// @arquivo  page.js: cadastrar uma pessoa nova na família (com convite por e-mail).
+// @tipo     tela
+// @usa      lib/sessao, components/Voltar, components/PessoaForm, lib/cores
+// @usado-por Next.js (rota /config/pessoas/nova)
 import { exigirGestor } from '@/lib/sessao';
 import Voltar from '@/components/Voltar';
 import PessoaForm from '@/components/PessoaForm';

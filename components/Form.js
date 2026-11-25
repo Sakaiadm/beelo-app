@@ -1,4 +1,9 @@
 'use client';
+// @arquivo  Form.js: formulário padrão: envia sem limpar campos e guarda ações na fila quando está sem internet.
+// @tipo     componente
+// @usa      lib/rede, lib/fila
+// @usado-por app/(app)/config/familias/[id]/page.js, app/(app)/desafios/ajustes/page.js, app/(app)/desafios/cofrinho/page.js, app/(app)/desafios/page.js, app/(app)/desafios/premios/page.js, app/(app)/notificacoes/page.js e mais 22
+// @cuidado  usado por quase todo formulário; mexer aqui afeta o app inteiro.
 import { useEffect, useRef, useState } from 'react';
 import { unstable_rethrow } from 'next/navigation';
 import { MSG, falhaDeRede, semRede, mensagemDeErro, comLimite, avisarFalhaDeRede } from '@/lib/rede';

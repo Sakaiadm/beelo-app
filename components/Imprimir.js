@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  Imprimir.js: abre as partes fechadas antes de imprimir o relatório.
+// @tipo     componente
+// @usado-por app/(app)/relatorios/page.js
 import { useEffect } from 'react';
 
 // Abre as partes fechadas antes de imprimir: o PDF sai com o relatório inteiro (Raio-X U45).

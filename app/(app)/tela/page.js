@@ -1,3 +1,7 @@
+// @arquivo  page.js: Tempo de tela: previsto, lançar o que aconteceu, pedidos e gráfico dos 7 dias.
+// @tipo     tela
+// @usa      banco ra_tela_previsto, banco ra_tela_real, banco ra_tela_proposta, banco ra_ocorrencias, banco ra_tarefas, rpc ra_tela_previsto_dia, lib/jeito, lib/sessao, lib/tela, lib/util, components/TelaForms, components/TelaGrafico, components/Form, components/Responder, lib/respostas, components/ConfirmarBotao, components/TelaAjustes, app/acoes
+// @usado-por Next.js (rota /tela)
 import Link from 'next/link';
 import { visaoCrianca } from '@/lib/jeito';
 import { redirect } from 'next/navigation';

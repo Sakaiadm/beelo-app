@@ -1,3 +1,7 @@
+// @arquivo  page.js: editar uma pessoa: papel, parentesco, permissões, avisos, convite, tempo de tela.
+// @tipo     tela
+// @usa      lib/sessao, components/Voltar, components/PessoaForm, lib/avatar
+// @usado-por Next.js (rota /config/pessoas/[id])
 import { notFound } from 'next/navigation';
 import { exigirGestor } from '@/lib/sessao';
 import Voltar from '@/components/Voltar';

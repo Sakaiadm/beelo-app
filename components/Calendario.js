@@ -1,3 +1,7 @@
+// @arquivo  Calendario.js: calendário do mês na Agenda.
+// @tipo     componente
+// @usa      lib/util
+// @usado-por app/(app)/agenda/page.js, app/(app)/painel/page.js
 import Link from 'next/link';
 import { addDias, diaSemana, inicioMes, fimMes, mesAno, DIAS_CURTO } from '@/lib/util';
 

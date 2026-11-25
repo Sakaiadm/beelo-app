@@ -1,3 +1,7 @@
+// @arquivo  page.js: lista de avisos (sino) e pedidos para responder.
+// @tipo     tela
+// @usa      banco ra_notificacoes, banco ra_adiamentos, banco ra_ocorrencias, banco ra_tela_proposta, lib/sessao, lib/papeis, lib/util, components/Form, components/VoltarHistorico, components/Responder, lib/respostas, app/acoes
+// @usado-por Next.js (rota /notificacoes)
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
 import { hojeISO, addDias } from '@/lib/util';

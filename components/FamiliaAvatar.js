@@ -1,3 +1,6 @@
+// @arquivo  FamiliaAvatar.js: avatar do grupo: foto ou iniciais no azul do app.
+// @tipo     componente
+// @usado-por app/(app)/config/familias/page.js, components/FamiliaEditor.js
 // Avatar do grupo: foto redonda (se tiver) ou as iniciais no azul do app, no mesmo padrão das pessoas.
 // Iniciais: primeira letra das duas primeiras palavras (ex.: Família Silva = FS); nome de uma palavra só = uma letra.
 export function iniciaisGrupo(nome = '') {

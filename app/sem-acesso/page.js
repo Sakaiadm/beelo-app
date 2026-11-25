@@ -1,3 +1,7 @@
+// @arquivo  page.js: tela para quem entrou mas ainda não tem cadastro numa família.
+// @tipo     tela
+// @usa      lib/sessao, components/Form, app/acoes, lib/contato
+// @usado-por Next.js (rota /sem-acesso)
 import { sessao } from '@/lib/sessao';
 import { redirect } from 'next/navigation';
 import { cookies } from 'next/headers';

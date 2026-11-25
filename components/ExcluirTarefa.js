@@ -1,3 +1,7 @@
+// @arquivo  ExcluirTarefa.js: botão de excluir tarefa (com confirmação).
+// @tipo     componente
+// @usa      ./ConfirmarBotao, app/acoes
+// @usado-por app/(app)/tarefas/[id]/editar/page.js
 import ConfirmarBotao from './ConfirmarBotao';
 import { excluirTarefa } from '@/app/acoes';
 

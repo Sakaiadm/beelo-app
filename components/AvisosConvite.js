@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  AvisosConvite.js: cartão que convida a ligar os avisos no celular (no máximo 3 vezes).
+// @tipo     componente
+// @usa      components/Icone, components/AvisosCelular
+// @usado-por app/(app)/hoje/page.js, app/(app)/painel/page.js
 import { useEffect, useState } from 'react';
 import Link from 'next/link';
 import Icone from '@/components/Icone';

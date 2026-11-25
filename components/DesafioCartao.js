@@ -1,3 +1,7 @@
+// @arquivo  DesafioCartao.js: cartão de um desafio com barra de progresso.
+// @tipo     componente
+// @usa      ./Icone, lib/desafios
+// @usado-por app/(app)/desafios/cofrinho/page.js, app/(app)/desafios/mural/page.js, app/(app)/desafios/page.js, app/(app)/hoje/page.js, components/PremioLinha.js
 import Link from 'next/link';
 import Icone from './Icone';
 import { textoMeta } from '@/lib/desafios';

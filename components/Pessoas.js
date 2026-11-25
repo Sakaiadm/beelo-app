@@ -1,3 +1,5 @@
+// @arquivo  Pessoas.js: seletor de pessoa (abas) usado nas telas.
+// @tipo     componente
 import Link from 'next/link';
 
 // Um só seletor de pessoa no app (Raio-X U19 e V5): pílulas com o nome e a cor da pessoa, sempre na mesma ordem.

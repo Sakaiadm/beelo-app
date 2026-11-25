@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  TelaAjustes.js: título da tela com a engrenagem que abre os ajustes do tempo de tela.
+// @tipo     componente
+// @usa      ./Icone
+// @usado-por app/(app)/tela/page.js
 import { useState } from 'react';
 import Icone from './Icone';
 

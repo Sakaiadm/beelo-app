@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  PremioLinha.js: linha de um prêmio na vitrine.
+// @tipo     componente
+// @usa      ./Form, ./DesafioCartao, app/acoes-desafios
+// @usado-por app/(app)/desafios/premios/page.js
 import { useState } from 'react';
 import Form from './Form';
 import { Estrela, Hexagono } from './DesafioCartao';

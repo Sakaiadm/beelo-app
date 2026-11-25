@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  AvisosCelular.js: ligar/desligar avisos no celular (push) neste aparelho.
+// @tipo     componente
+// @usa      app/acoes, lib/rede
+// @usado-por app/(app)/perfil/page.js, components/AvisosConvite.js
 import { useEffect, useState } from 'react';
 import { salvarAparelho, removerAparelho, enviarTeste } from '@/app/acoes';
 import { falhaDeRede, mensagemDeErro, semRede, MSG } from '@/lib/rede';

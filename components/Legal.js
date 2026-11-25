@@ -1,3 +1,7 @@
+// @arquivo  Legal.js: moldura das páginas legais (termos, privacidade, consentimento).
+// @tipo     componente
+// @usa      lib/contato, components/Preencher
+// @usado-por app/consentimento/page.js, app/privacidade/page.js, app/termos/page.js
 import { CONTATO, ATUALIZADO_EM, VERSAO_TERMOS } from '@/lib/contato';
 import Preencher from '@/components/Preencher';
 

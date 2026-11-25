@@ -1,3 +1,7 @@
+// @arquivo  page.js: criar tarefa (com sugestões prontas).
+// @tipo     tela
+// @usa      banco ra_categorias, lib/sessao, lib/util, components/TarefaForm, components/Voltar, lib/volta
+// @usado-por Next.js (rota /tarefas/nova)
 import { exigirMembro } from '@/lib/sessao';
 import { hojeISO } from '@/lib/util';
 import TarefaForm from '@/components/TarefaForm';

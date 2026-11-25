@@ -1,3 +1,6 @@
+// @arquivo  page.js: rota antiga /tarefas; leva para a Agenda em Dia.
+// @tipo     tela
+// @usado-por Next.js (rota /tarefas)
 import { redirect } from 'next/navigation';
 
 // A lista "Tarefas" foi substituída pela Agenda em Dia (com o lápis para editar).

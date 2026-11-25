@@ -1,4 +1,6 @@
 'use client';
+// @arquivo  AbasPessoa.js: um cartão com uma aba por pessoa (abas segmentadas Todos/Eu/Alice…).
+// @tipo     componente
 import { useState } from 'react';
 
 // Um cartão só, com uma aba por pessoa (Raio-X S18). itens: [{ id, rotulo }]; paineis: um por item, na mesma ordem.

@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  AvisosGestor.js: escolha dos avisos que Pai e Mãe querem receber.
+// @tipo     componente
+// @usa      app/acoes
+// @usado-por app/(app)/perfil/page.js
 import { useState } from 'react';
 import { salvarAvisos } from '@/app/acoes';
 

@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  JeitoEscolha.js: escolha do jeito de ver o beelo (Divertido, Calmo, Como os adultos).
+// @tipo     componente
+// @usa      ./Icone, lib/jeito, app/acoes
+// @usado-por app/(app)/perfil/page.js, components/PessoaForm.js
 import { useState } from 'react';
 import Icone from './Icone';
 import { JEITOS } from '@/lib/jeito';

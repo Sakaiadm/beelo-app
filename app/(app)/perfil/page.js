@@ -1,3 +1,7 @@
+// @arquivo  page.js: Meu perfil: foto, cor, jeito de ver, avisos no celular, tempo de tela próprio.
+// @tipo     tela
+// @usa      lib/sessao, components/VoltarHistorico, components/AvisosGestor, components/AutomacoesGestor, lib/avatar, components/AvisosCelular, components/DicasInterruptor, components/SomConcluir, components/MeusDados, lib/papeis, components/ApagarGrupo, components/JeitoEscolha, lib/jeito
+// @usado-por Next.js (rota /perfil)
 import { exigirMembro } from '@/lib/sessao';
 import VoltarHistorico from '@/components/VoltarHistorico';
 import AvisosGestor from '@/components/AvisosGestor';

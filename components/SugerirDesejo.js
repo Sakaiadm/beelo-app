@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  SugerirDesejo.js: a criança sugere um desejo.
+// @tipo     componente
+// @usa      ./Form, ./Foto, ./Icone, app/acoes-desafios, lib/desafios
+// @usado-por app/(app)/desafios/cofrinho/page.js
 import { useState } from 'react';
 import Form from './Form';
 import Foto from './Foto';

@@ -1,3 +1,7 @@
+// @arquivo  page.js: Ajuda com busca, mais procuradas e blocos por assunto.
+// @tipo     tela
+// @usa      lib/jeito, lib/sessao, lib/papeis, components/VoltarHistorico, components/Icone, components/AjudaBusca, lib/contato
+// @usado-por Next.js (rota /ajuda)
 import Link from 'next/link';
 import { visaoCrianca } from '@/lib/jeito';
 import { exigirMembro } from '@/lib/sessao';

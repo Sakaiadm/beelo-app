@@ -1,3 +1,6 @@
+// @arquivo  Icone.js: todos os ícones do app (SVG), pelo nome.
+// @tipo     componente
+// @usado-por app/(app)/agenda/page.js, app/(app)/ajuda/page.js, app/(app)/config/categorias/page.js, app/(app)/config/familias/page.js, app/(app)/config/page.js, app/(app)/config/pessoas/page.js e mais 38
 const P = {
   check: <path d="M20 6 9 17l-5-5" />,
   sino: <><path d="M6 8a6 6 0 1 1 12 0c0 7 3 9 3 9H3s3-2 3-9" /><path d="M10.3 21a1.94 1.94 0 0 0 3.4 0" /></>,

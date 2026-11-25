@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  Selo.js: número de avisos não lidos no ícone do app instalado.
+// @tipo     componente
+// @usado-por app/(app)/layout.js
 import { useEffect } from 'react';
 
 // Número de avisos não lidos no ícone do app (só aparece quando o app está instalado na tela inicial).

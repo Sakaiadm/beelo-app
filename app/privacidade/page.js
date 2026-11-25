@@ -1,3 +1,8 @@
+// @arquivo  page.js: página pública da política de privacidade.
+// @tipo     tela
+// @usa      components/Legal
+// @usado-por Next.js (rota /privacidade)
+// @cuidado  texto jurídico: precisa de revisão de advogado antes de cobrar.
 import { L, PaginaLegal } from '@/components/Legal';
 
 export const metadata = { title: 'Privacidade · beelo' };

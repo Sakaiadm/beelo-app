@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  HoraFim.js: campo "Fim (opcional)" com X para apagar.
+// @tipo     componente
+// @usa      ./Icone
 import { useState } from 'react';
 import Icone from './Icone';
 

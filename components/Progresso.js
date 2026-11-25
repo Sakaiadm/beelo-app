@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  Progresso.js: faixa azul no alto da tela ao tocar num link, até a próxima chegar.
+// @tipo     componente
+// @usado-por app/(app)/layout.js
 import { useEffect, useState } from 'react';
 import { usePathname, useSearchParams } from 'next/navigation';
 

@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  DicasInterruptor.js: chave de ligar/desligar as dicas na hora certa (Meu perfil).
+// @tipo     componente
+// @usa      lib/dicasMotor
+// @usado-por app/(app)/perfil/page.js
 import { useEffect, useState } from 'react';
 import { ler, ligar } from '@/lib/dicasMotor';
 

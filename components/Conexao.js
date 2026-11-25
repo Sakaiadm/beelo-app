@@ -1,4 +1,9 @@
 'use client';
+// @arquivo  Conexao.js: faixa "Sem internet" e envio da fila quando a conexão volta.
+// @tipo     componente
+// @usa      lib/fila
+// @usado-por app/(app)/layout.js
+// @cuidado  trabalha junto com lib/fila.js e public/sw.js.
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import { useFila, enviarFila } from '@/lib/fila';

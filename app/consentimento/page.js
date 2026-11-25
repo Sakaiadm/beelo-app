@@ -1,3 +1,7 @@
+// @arquivo  page.js: página pública com o texto de consentimento (LGPD).
+// @tipo     tela
+// @usa      components/Legal
+// @usado-por Next.js (rota /consentimento)
 import { L, PaginaLegal } from '@/components/Legal';
 
 export const metadata = { title: 'Termo de consentimento · beelo' };

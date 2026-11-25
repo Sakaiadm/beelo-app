@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  AvatarUpload.js: escolher e enviar foto ou avatar de perfil.
+// @tipo     componente
+// @usa      lib/rede, lib/supabase/client, ./Avatar, ./Icone, lib/avatares
+// @usado-por components/FamiliaEditor.js, components/MeusDados.js, components/PessoaForm.js
 import { useEffect, useRef, useState } from 'react';
 import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/rede';
 import { supabaseBrowser } from '@/lib/supabase/client';

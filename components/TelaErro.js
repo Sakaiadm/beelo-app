@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  TelaErro.js: tela de erro amigável com tentar de novo.
+// @tipo     componente
+// @usado-por app/error.js, app/global-error.js, app/not-found.js
 import { startTransition, useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 

@@ -1,3 +1,8 @@
+// @arquivo  page.js: página pública dos termos de uso.
+// @tipo     tela
+// @usa      components/Legal
+// @usado-por Next.js (rota /termos)
+// @cuidado  texto jurídico: precisa de revisão de advogado antes de cobrar.
 import { L, PaginaLegal } from '@/components/Legal';
 
 export const metadata = { title: 'Termos de uso · beelo' };

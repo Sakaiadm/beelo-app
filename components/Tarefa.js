@@ -1,4 +1,9 @@
 'use client';
+// @arquivo  Tarefa.js: cartão de uma tarefa do dia: concluir, foto, adiar, justificar, conferir.
+// @tipo     componente
+// @usa      ./HorarioCampo, ./Icone, ./Form, ./Foto, app/acoes, lib/util, ./Motivos, ./Responder, lib/respostas, lib/fila, lib/festa, ./TelaForms
+// @usado-por app/(app)/agenda/page.js, app/(app)/hoje/page.js
+// @cuidado  é a peça mais usada do app; mexer aqui afeta Hoje, Agenda e Painel.
 import { useRef, useState } from 'react';
 import Link from 'next/link';
 import HorarioCampo from './HorarioCampo';

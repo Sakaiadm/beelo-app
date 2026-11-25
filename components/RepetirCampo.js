@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  RepetirCampo.js: campo "Repetir": Uma vez, Diariamente, Seg. a Sex., Personalizar.
+// @tipo     componente
+// @usa      ./Icone
+// @usado-por components/TelaForms.js
 import { useState } from 'react';
 import Icone from './Icone';
 

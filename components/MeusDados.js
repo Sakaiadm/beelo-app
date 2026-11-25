@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  MeusDados.js: Meu perfil: foto, avatar e cor valem na hora, sem botão Salvar.
+// @tipo     componente
+// @usa      ./AvatarUpload, ./Avatar, ./CorFolha, app/acoes
+// @usado-por app/(app)/perfil/page.js
 import { useState } from 'react';
 import AvatarUpload from './AvatarUpload';
 import Avatar from './Avatar';

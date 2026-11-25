@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  NovoDesafio.js: formulário de criar desafio.
+// @tipo     componente
+// @usa      ./Form, ./Icone, app/acoes-desafios, lib/desafios
+// @usado-por app/(app)/desafios/novo/page.js
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Form from './Form';

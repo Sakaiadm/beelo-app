@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  MenuUsuario.js: botão com o nome no topo: perfil, ajuda, modo escuro, sair.
+// @tipo     componente
+// @usa      ./Icone
+// @usado-por app/(app)/layout.js
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import Icone from './Icone';

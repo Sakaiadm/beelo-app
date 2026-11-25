@@ -1,3 +1,7 @@
+// @arquivo  page.js: rota antiga de detalhes; redireciona para Editar ou Agenda.
+// @tipo     tela
+// @usa      banco ra_tarefas, lib/sessao
+// @usado-por Next.js (rota /tarefas/[id])
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 

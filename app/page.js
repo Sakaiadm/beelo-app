@@ -1,3 +1,7 @@
+// @arquivo  page.js: raiz "/": decide se vai para Painel, Hoje ou Sem acesso.
+// @tipo     tela
+// @usa      lib/sessao, lib/papeis
+// @usado-por Next.js (arquivo especial do app)
 import { redirect } from 'next/navigation';
 import { sessao } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';

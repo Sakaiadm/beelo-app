@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  LembrarBotao.js: botão "Lembrar" numa tarefa atrasada (manda aviso no celular).
+// @tipo     componente
+// @usa      app/acoes
+// @usado-por app/(app)/painel/page.js
 import { useState } from 'react';
 import { lembrarTarefa } from '@/app/acoes';
 

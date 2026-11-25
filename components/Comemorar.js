@@ -1,4 +1,8 @@
 'use client';
+// @arquivo  Comemorar.js: comemoração de desafio cumprido, uma vez por desafio.
+// @tipo     componente
+// @usa      app/acoes-desafios, ./Icone
+// @usado-por app/(app)/desafios/page.js, app/(app)/hoje/page.js
 import { useEffect, useRef, useState } from 'react';
 import { desafioVisto } from '@/app/acoes-desafios';
 import Icone from './Icone';

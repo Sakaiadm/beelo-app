@@ -1,4 +1,7 @@
 'use client';
+// @arquivo  Motivos.js: motivos prontos para adiar e justificar.
+// @tipo     componente
+// @usado-por components/Tarefa.js
 import { useState } from 'react';
 
 // Motivos prontos para adiar e justificar (Raio-X U5 e U6). "Outro" abre o campo para escrever.
