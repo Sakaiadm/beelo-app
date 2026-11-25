@@ -39,6 +39,7 @@ tudo que **grava** passa por uma ação em `app/acoes*.js`, que chama uma funç�
 | 🟪 E-mail de convite | `lib/convite.js`, `lib/email.js`, `deploy/config-email.sh` |
 | 🟪 Offline | `public/sw.js`, `public/offline.html`, `lib/fila.js`, `components/Conexao.js`, `lib/rede.js` |
 | 🟨 Termos e LGPD | `lib/aceite.js`, `lib/contato.js`, `app/termos`, `privacidade`, `consentimento`, `aceite`, migrações 0019, 0020 |
+| 🟦 Manuais e Ajuda por perfil | `app/(app)/ajuda/page.js`, `public/manual*.html`, `public/manual-pdf/`, `docs/09-manuais.md` |
 | ⬜ Aparência e marca | `app/globals.css`, `components/Icone.js`, `public/marca`, `public/manifest.json` |
 | ⬜ Publicação | `Dockerfile`, `docker-compose.yml`, `deploy/instalar.sh`, `backup-banco.sh`, `config-backup.sh` |
 | ⬜ Testes | `testes/`, `supabase/testes/` |
