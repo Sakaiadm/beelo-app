@@ -11,7 +11,8 @@ import CorFolha, { CorBotao } from './CorFolha';
 import { statusConvite } from '@/lib/statusConvite';
 import ReenviarConvite from './ReenviarConvite';
 import ConfirmarBotao from './ConfirmarBotao';
-import { JEITOS, jeitoDe } from '@/lib/jeito';
+import { jeitoDe } from '@/lib/jeito';
+import JeitoEscolha from './JeitoEscolha';
 
 export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId, existentes = [] }) {
   const [nome, setNome] = useState(m?.nome || '');
@@ -62,8 +63,6 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         {crianca2 && comJeito && livre && <input type="hidden" name="jeito_livre" value="1" />}
         {crianca2 && comJeito && jeitoMexido && <input type="hidden" name="jeito" value={jeito} />}
         {Object.entries(chaves).map(([k, on]) => on && <input key={k} type="hidden" name={`perm_${k}`} value="1" />)}
-        {/* U57: a tela em três blocos com título: Dados, O que pode fazer e Acesso. */}
-        <h2 className="bloco-tit" style={{ marginTop: 0 }}>Dados</h2>
         {m ? (
           <AvatarUpload familia={familia} pasta={m.id} atualUrl={url} atualAvatar={m.avatar} rotulo={nome || m.nome} cor={cor} crianca={crianca2} lado={campoNome} />
         ) : (
@@ -79,8 +78,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         </div>
         {email && !v.ok && <p className="erro-campo" role="alert">{v.msg}</p>}
         {v.ok && v.sugestao && <p className="sug-campo">Você quis dizer <button type="button" onClick={() => setEmail(v.sugestao)}>{v.sugestao}</button>? Toque para corrigir.</p>}
-        <h2 className="bloco-tit">O que pode fazer</h2>
-        <label htmlFor="p-papel" style={{ marginTop: 0 }}>Papel</label>
+        <label htmlFor="p-papel">Papel</label>
         <select id="p-papel" value={funcao} onChange={(e) => mudaFuncao(e.target.value)} required={!ja}>
           <option value="" disabled>Selecione</option>
           {FUNCOES.map((x) => <option key={x.id} value={x.id}>{x.ga ? `${x.nome}(a)` : x.nome}</option>)}
@@ -93,11 +91,8 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
             )}
             {temModoCrianca(f.id) && crianca && comJeito && (
               <>
-                <label htmlFor="p-jeito">Jeito de ver o beelo</label>
-                <select id="p-jeito" value={jeito} onChange={(e) => { setJeito(e.target.value); setJeitoMexido(true); }}>
-                  {JEITOS.map((j) => <option key={j.id} value={j.id}>{j.nome}</option>)}
-                </select>
-                <p className="peq-cinza" style={{ margin: '6px 0 0' }}>{JEITOS.find((j) => j.id === jeito)?.desc}</p>
+                <p className="peq-cinza" style={{ margin: '12px 0 8px' }}>Jeito de ver o beelo</p>
+                <JeitoEscolha inicial={jeito} livre onMudar={(id) => { setJeito(id); setJeitoMexido(true); }} />
                 <div className="lin-chave" style={{ marginTop: 10 }}><span>Pode trocar {m?.sexo === 'f' ? 'sozinha' : m?.sexo === 'm' ? 'sozinho' : 'sozinho(a)'}<small>{nome.trim().split(' ')[0] || 'A pessoa'} escolhe o jeito em Meu perfil.</small></span><button type="button" role="switch" aria-checked={livre} aria-label="Pode trocar sozinho" className={`chave ${livre ? 'on' : ''}`} onClick={() => setLivre(!livre)} /></div>
               </>
             )}
@@ -119,8 +114,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
             <span>Sou pai, mãe ou responsável legal de {nome.trim().split(' ')[0] || 'esta pessoa'} (ou tenho a autorização de quem é) e autorizo o uso dos dados no beelo, como explica o <a href="/consentimento" target="_blank" rel="noopener">Termo de consentimento</a>.</span>
           </label>
         )}
-        {m && <h2 className="bloco-tit">Acesso</h2>}
-        {m && <div className="lin-chave" style={{ borderTop: 0 }}><span>Acesso ativo{eu && <small>Você não pode desativar a si mesmo</small>}</span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>}
+        {m && <div className="lin-chave" style={{ marginTop: 14 }}><span>Acesso ativo{eu && <small>Você não pode desativar a si mesmo</small>}</span><button type="button" role="switch" aria-checked={ativo} aria-label="Acesso ativo" disabled={eu} className={`chave ${ativo ? 'on' : ''}`} onClick={() => setAtivo(!ativo)} /></div>}
         {m && <p className="peq-cinza">{m.user_id ? 'Já entrou no app' : m.email ? 'Convite pendente' : 'Sem e-mail: não consegue entrar'}</p>}
         {convidar && <input type="hidden" name="enviar" value="1" />}
         {ja && <input type="hidden" name="existente" value={ja.id} />}

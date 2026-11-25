@@ -21,10 +21,10 @@ export const dynamic = 'force-dynamic';
 
 const AVISOS = { criado: 'Desafio criado. Ele renova sozinho toda semana.', encerrado: 'Desafio encerrado.' };
 
-function Titulo({ texto, acao }) {
+function Titulo({ texto, acao, volta = '/painel' }) {
   return (
     <div className="cab">
-      <div><h1 className="titulo titulo-beta">{texto} <span className="selo-beta">beta</span></h1><p className="sub">A semana vai de segunda a domingo.</p></div>
+      <div className="vt" style={{ alignItems: 'flex-start' }}><Link prefetch={false} className="volta" href={volta} aria-label="Voltar"><Icone nome="esq" tam={26} /></Link><div><h1 className="titulo titulo-beta"><span className="des-ic mel" ><Icone nome="trofeu" tam={26} /></span>{texto} <span className="selo-beta">beta</span></h1><p className="sub">A semana vai de segunda a domingo.</p></div></div>
       {acao}
     </div>
   );
@@ -201,7 +201,7 @@ export default async function Desafios({ searchParams }) {
   return (
     <main className={`estreito${pf === 'c' ? ' des-crianca' : ''}`}>
       <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
-      <Titulo texto="Meus desafios" />
+      <Titulo texto="Meus desafios" volta="/hoje" />
       {aviso}
       <ComoFunciona perfil={pf} membro={eu.id} />
       {meus.map((d) => (

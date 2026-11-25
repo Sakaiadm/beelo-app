@@ -28,13 +28,14 @@ export default async function AppLayout({ children }) {
   const telaLigada = gestor || !!eu.tela_ativo;
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const a = acesso(eu);
-  // Com os desafios ativos, os responsáveis ganham "Desafios" no menu e o Cadastros vai para o menu do nome (U89).
+  // Responsáveis: Painel, Agenda, Relatórios, Desafios (se ativos), Tela e Cadastros (sempre à direita).
   const comDesafios = gestor && desafiosLigados(familia);
   const itens = gestor
     ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
-       ...(comDesafios ? [{ href: '/desafios', txt: 'Desafios', icone: 'bandeira' }] : []),
-       ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' },
-       ...(comDesafios ? [] : [{ href: '/config', txt: 'Cadastros', icone: 'config' }])]
+       { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' },
+       ...(comDesafios ? [{ href: '/desafios', txt: 'Desafios', icone: 'trofeu' }] : []),
+       ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []),
+       { href: '/config', txt: 'Cadastros', icone: 'config' }]
     : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
        ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
   return (
@@ -52,7 +53,7 @@ export default async function AppLayout({ children }) {
           <Link className="icone-btn sino" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
             <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
           </Link>
-          <MenuUsuario nome={eu.nome} familia={familia.nome} cadastros={comDesafios}>
+          <MenuUsuario nome={eu.nome} familia={familia.nome}>
             <Avatar nome={eu.nome} cor={eu.cor} url={urls[eu.avatar]} avatar={eu.avatar} tam={28} />
           </MenuUsuario>
         </div>
