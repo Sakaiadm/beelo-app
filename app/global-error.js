@@ -4,10 +4,13 @@
 // @usa      components/TelaErro
 // @usado-por Next.js (arquivo especial do app)
 import './globals.css';
-import { Plus_Jakarta_Sans } from 'next/font/google';
+import localFont from 'next/font/local';
 import TelaErro from '@/components/TelaErro';
 
-const fonte = Plus_Jakarta_Sans({ subsets: ['latin'], weight: ['400', '600', '700', '800'], display: 'swap', variable: '--fonte' });
+// A letra do app vem DENTRO do repositório (app/fonts), sem baixar nada do Google na build.
+// @decisao 25/11 a build da VPS falhava quando a rede não alcançava o Google; arquivo local resolve de vez.
+// Mesma letra (Plus Jakarta Sans, variável 200-800, cobre os pesos 400/500/600/700/800), mesma variável --fonte.
+const fonte = localFont({ src: './fonts/PlusJakartaSans-latin-variavel.woff2', weight: '200 800', display: 'swap', variable: '--fonte' });
 
 // Último recurso: se até a moldura do app falhar, ainda mostra uma tela em português.
 export default function ErroGeral({ error, reset }) {
