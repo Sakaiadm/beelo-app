@@ -14,11 +14,11 @@ const DIAS = ['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.'];
 const serve = (c, perfis) => perfis.every((p) => (p === 'familia' ? c.para === 'f' : c.para.includes(p)));
 
 // Novo desafio: 1) para quem e qual (sugestões primeiro), 2) meta já sugerida, salvar. Três toques no caminho mais curto.
-export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor, voltar = '/desafios' }) {
+export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor, voltar = '/desafios', catalogoInicial = null, sugestao = null }) {
   const [quem, setQuem] = useState(inicial?.length ? inicial : pessoas[0] ? [pessoas[0].id] : ['familia']);
   const [busca, setBusca] = useState('');
-  const [esc, setEsc] = useState(null);
-  const [meta, setMeta] = useState(null);
+  const [esc, setEsc] = useState(() => (catalogoInicial ? DESAFIOS.find((c) => c.id === catalogoInicial) || null : null)); // vindo da sugestão da criança
+  const [meta, setMeta] = useState(() => (catalogoInicial ? DESAFIOS.find((c) => c.id === catalogoInicial)?.meta ?? null : null));
   const [coringa, setCoringa] = useState(true);
   const [premio, setPremio] = useState(PREMIOS_FAMILIA[0]);
   const familia = quem[0] === 'familia';
@@ -51,6 +51,7 @@ export default function NovoDesafio({ pessoas, inicial, sugestoes, tema, gestor,
         <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setEsc(null)}><Icone nome="esq" tam={24} /></button><h2>{esc.t}</h2></div>
         <Form acao={criarDesafio} aoConcluir={() => window.location.assign('/desafios?aviso=criado')}>
           <input type="hidden" name="catalogo" value={esc.id} />
+          {sugestao && <input type="hidden" name="sugestao" value={sugestao} />}
           {quem.map((q) => <input key={q} type="hidden" name="quem" value={q} />)}
           <input type="hidden" name="meta" value={meta ?? esc.meta} />
           <input type="hidden" name="coringa" value={coringa ? '1' : '0'} />

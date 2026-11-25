@@ -158,6 +158,9 @@ export async function criarDesafio(_, fd) {
   }
   await supabase.rpc('ra_gerar_ocorrencias', { p_de: addDias(hoje, -7), p_ate: addDias(hoje, 40) });
   await supabase.rpc('ra_desafios_atualizar');
+  // @decisao 25/11 Thomas: vindo de uma sugestão da criança, fecha a sugestão como "criado".
+  const sug = uuid(fd.get('sugestao'));
+  if (sug && gestor) await supabase.rpc('ra_desafio_sugestao_fechar', { p_id: sug, p_status: 'criado' });
   revalidar();
   return { ok: true }; // a própria tela abre /desafios?aviso=criado (recarga completa: o redirect aqui às vezes não abria a tela nova)
 }
@@ -294,4 +297,25 @@ export async function editarPremio(_, fd) {
   if (error) return erroDe(error);
   revalidar();
   return { ok: true, msg: 'Prêmio atualizado.' };
+}
+
+// ═══ SEÇÃO: Criança sugere desafio (SQL 0028) ═══
+// @rpc ra_desafio_sugerir, ra_desafio_sugestao_fechar
+export async function sugerirDesafio(_, fd) {
+  const supabase = await supabaseServer();
+  const eu = await quemSou(supabase);
+  if (!eu || perfil(eu) !== 'c') return { erro: 'Quem sugere é a criança.' };
+  const c = desafioDe(fd.get('catalogo'));
+  if (!c || !c.para.includes('c')) return { erro: 'Escolha um desafio da lista.' };
+  const { error } = await supabase.rpc('ra_desafio_sugerir', { p_catalogo: c.id, p_titulo: c.t });
+  if (error) return /ra_desafio_sugerir|ra_desafio_sugestoes/.test(String(error.message)) && /function|schema cache|relation/.test(String(error.message)) ? { erro: 'Para sugerir desafios, rode antes o SQL 0028 no Supabase.' } : erroDe(error);
+  revalidar();
+  return { ok: true, msg: 'Enviado! Os pais vão responder.' };
+}
+export async function fecharSugestaoDesafio(_, fd) {
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc('ra_desafio_sugestao_fechar', { p_id: uuid(fd.get('id')), p_status: 'agora_nao' });
+  if (error) return erroDe(error);
+  revalidar();
+  return { ok: true };
 }

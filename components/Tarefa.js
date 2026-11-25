@@ -1,6 +1,7 @@
 'use client';
 // @arquivo  Tarefa.js: cartão de uma tarefa do dia: concluir, foto, adiar, justificar, conferir.
 // @tipo     componente
+// @decisao  Tarefa de chegada (especial = 'chegada', migração 0027): em vez da bolinha, um botão grande "Cheguei" (criança) ou "Tudo certo" (adolescente e adultos).
 // @usa      ./HorarioCampo, ./Icone, ./Form, ./Foto, app/acoes, lib/util, ./Motivos, ./Responder, lib/respostas, lib/fila, lib/festa, ./TelaForms
 // @usado-por app/(app)/agenda/page.js, app/(app)/hoje/page.js
 // @cuidado  é a peça mais usada do app; mexer aqui afeta Hoje, Agenda e Painel.
@@ -10,7 +11,7 @@ import HorarioCampo from './HorarioCampo';
 import Icone from './Icone';
 import Form from './Form';
 import Foto from './Foto';
-import { concluir, desfazer, justificar, pedirAdiamento, adiarLivre, definirHorario, conferir } from '@/app/acoes';
+import { concluir, cheguei, desfazer, justificar, pedirAdiamento, adiarLivre, definirHorario, conferir } from '@/app/acoes';
 import { CORES_CAT, STATUS_TXT, hhmm, DIAS, diaSemana, addDias } from '@/lib/util';
 import Motivos from './Motivos';
 import Responder from './Responder';
@@ -48,14 +49,19 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
   const feita = st === 'cumprida' || st === 'cumprida_atraso';
   const atrasada = st === 'atrasada' || st === 'nao_cumprida';
   const [ic, cor] = ICONE_STATUS[st] || ICONE_STATUS.pendente;
+  const futura = oc.data > hoje;
+  const chegada = oc.tarefa?.especial === 'chegada';
+  const rotuloChegada = crianca ? 'Cheguei' : 'Tudo certo';
+  const chegouAs = chegada && feita && oc.concluida_em ? new Date(oc.concluida_em).toLocaleTimeString('pt-BR', { timeZone: 'America/Sao_Paulo', hour: '2-digit', minute: '2-digit' }).replace(':', 'h') : '';
   const temHora = !!oc.hora_inicio;
   const horario = temHora ? `${hhmm(oc.hora_inicio)}${oc.hora_fim ? '–' + hhmm(oc.hora_fim) : ''}` : 'Sem horário';
+  const mostraCheguei = chegada && dono && !feita && !futura && (st === 'pendente');
   const podeConcluir = dono && !feita && st !== 'adiamento_pedido' && st !== 'adiada';
-  const futura = oc.data > hoje;
   const outraPessoa = (gestor || confere) && !dono;
   const alternar = (a) => setAba(aba === a ? null : a);
   const paraConferir = (gestor || confere) && !dono && feita && oc.conferido !== 'conferido';
   const selo = guardados.length ? ['Aguardando internet', 'aviso']
+    : chegada && feita ? [`Chegou às ${chegouAs}`, 'ok']
     : atrasada ? [STATUS_TXT[st], 'erro']
     : feita && oc.conferido === 'conferido' ? ['Conferido', 'conf']
     : paraConferir ? ['Para conferir', 'ok']
@@ -65,7 +71,9 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
   return (
     <div ref={ref} id={`t-${oc.id}`} className={`tarefa ${feita ? 'feita' : ''} ${atrasada ? 'atrasada' : ''} ${festa ? 'festa' : ''}`}>
       <div className="topo-t" onClick={(e) => { if (!e.target.closest('button, a, form, input, textarea, label')) setAberto(!aberto); }}>
-        {futura && podeConcluir ? (
+        {mostraCheguei ? (
+          <span className={`circulo${crianca ? ' grande' : ''}`}><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} rotulo="Ainda não chegou" /></span>
+        ) : futura && podeConcluir ? (
           <button type="button" className={`circulo${crianca ? ' grande' : ''}`} onClick={() => setAviso(`Esta tarefa é de ${DIAS[diaSemana(oc.data)]}, ${oc.data.slice(8, 10)}/${oc.data.slice(5, 7)}. Só dá para marcar como feita no próprio dia.`)} aria-label={`Marcar ${oc.tarefa?.titulo}`} title="Tarefa de outro dia"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
         ) : podeConcluir && oc.tarefa?.especial === 'tela' && tela ? (
           <button type="button" className={`circulo${crianca ? ' grande' : ''}`} onClick={() => alternar('tela')} aria-expanded={aba === 'tela'} aria-label="Lançar tempo de tela" title="Lançar tempo de tela"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
@@ -78,16 +86,17 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
         ) : podeConcluir ? (
           <button className={`circulo${crianca ? ' grande' : ''}`} onClick={() => alternar('concluir')} aria-label={`Concluir ${oc.tarefa?.titulo} com foto`} title="Esta tarefa pede foto"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
         ) : outraPessoa && !feita && (st === 'pendente' || st === 'atrasada') ? (
-          <button type="button" className={`circulo${crianca ? ' grande' : ''}`} onClick={() => setAviso(`Quem marca é ${quemMarca || 'a própria pessoa'}. Você confere depois que a tarefa for marcada.`)} aria-label={`Quem marca ${oc.tarefa?.titulo}`} title="Só a própria pessoa marca"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
+          <button type="button" className={`circulo${crianca ? ' grande' : ''}`} onClick={() => setAviso(chegada ? `A chegada é avisada pela própria pessoa, com um toque.` : `Quem marca é ${quemMarca || 'a própria pessoa'}. Você confere depois que a tarefa for marcada.`)} aria-label={`Quem marca ${oc.tarefa?.titulo}`} title="Só a própria pessoa marca"><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} /></button>
         ) : (
           <span className={`circulo${crianca ? ' grande' : ''}`}><Icone nome={ic} cor={cor} tam={crianca ? 40 : 26} rotulo={STATUS_TXT[st]} /></span>
         )}
         <div style={{ flex: 1, minWidth: 0 }}>
           <div className="tt">{oc.tarefa?.prioritaria && <span className="prio-ic" title="Prioritária"><Icone nome="bandeira" tam={15} cor="var(--prio)" rotulo="Prioritária" /></span>}{oc.tarefa?.titulo}</div>
           {(oc.tarefa?.especial === 'tela' || nomeMembro) && <div className="meta">{[oc.tarefa?.especial === 'tela' ? 'tempo de ontem' : '', nomeMembro || ''].filter(Boolean).join(' · ')}</div>}
-          {(selo || cat || temHora) && (
+          {(selo || cat || temHora || chegada) && (
             <div className="selos">
-              {temHora && <span className="tg cz">{horario}</span>}
+              {chegada && <span className="selo-st conf">Chegada</span>}
+              {temHora && <span className="tg cz">{chegada ? `Esperado ${horario}` : horario}</span>}
               {selo && <span className={`selo-st ${selo[1]}`}>{selo[0]}</span>}
               {cat && <span className="pilula" style={{ background: fundo, color: letra }}>{cat.nome}</span>}
             </div>
@@ -98,6 +107,13 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
         <button type="button" className={`abre ${aberto ? 'on' : ''}`} onClick={() => setAberto(!aberto)} aria-expanded={aberto}
           aria-label={`${aberto ? 'Fechar' : 'Ver'} detalhes de ${oc.tarefa?.titulo}`} title={aberto ? 'Fechar detalhes' : 'Ver detalhes'}><Icone nome="baixo" tam={22} /></button>
       </div>
+
+      {mostraCheguei && (
+        <Form acao={cheguei} discreto rotulo={`${rotuloChegada}: “${t}”`} aoConcluir={festejar} msgSemInternet="Sem internet. O aviso de chegada precisa de internet. Tente de novo quando a conexão voltar.">
+          <input type="hidden" name="oc" value={oc.id} />
+          <button className="btn bloco" style={{ marginTop: 10 }} onPointerDown={prepararSom} onKeyDown={prepararSom}><Icone nome="check" tam={20} cor="#fff" />{rotuloChegada}</button>
+        </Form>
+      )}
 
       {aberto && (
         <div className="det">

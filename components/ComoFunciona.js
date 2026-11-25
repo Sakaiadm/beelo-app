@@ -1,5 +1,5 @@
 'use client';
-// @arquivo   ComoFunciona.js: botão "Como funciona" (pílula) e balãozinho que explica os desafios.
+// @arquivo   ComoFunciona.js: balãozinho que explica os desafios; o botão "Como funciona" fica no pé da tela (ComoFuncionaBotao).
 // @tipo      componente
 // @usa       components/Icone.js; localStorage (chave ra_desafio_balao_<membro>)
 // @usado-por app/(app)/desafios/page.js
@@ -26,13 +26,19 @@ const TEXTOS = {
   j: ['Escolha um hábito e acompanhe o seu percentual da semana.', 'O desafio renova sozinho toda segunda.', 'Um dia difícil vira dia coringa e não conta.'],
 };
 
-export default function ComoFunciona({ perfil = 'gestor', membro, children }) {
+export default function ComoFunciona({ perfil = 'gestor', membro, children, semLinha }) {
   const chave = `ra_desafio_balao_${membro}`;
   const [aberto, setAberto] = useState(false);
   // Aberta só na primeira visita; depois vira a linha "Como funciona?" (Raio-X U85).
   useEffect(() => {
     try { const visto = localStorage.getItem(chave); setAberto(visto == null); if (visto == null) localStorage.setItem(chave, '0'); } catch { setAberto(true); }
   }, [chave]);
+  // @decisao 25/11 Thomas (opção A): o botão "Como funciona" fica no pé da tela (ver ComoFuncionaBotao); aqui só abre o balãozinho.
+  useEffect(() => {
+    const abrir = () => { setAberto((v) => !v); window.scrollTo?.(0, 0); };
+    window.addEventListener('beelo-como-funciona', abrir);
+    return () => window.removeEventListener('beelo-como-funciona', abrir);
+  }, []);
   const fechar = () => { setAberto(false); try { localStorage.setItem(chave, '0'); } catch {} };
   // @decisao Thomas 25/11: "Como funciona" é um botão com ícone de livro, igual às outras pílulas (opção A).
   const botao = (
@@ -41,9 +47,9 @@ export default function ComoFunciona({ perfil = 'gestor', membro, children }) {
     </button>
   );
   const linha = <div className="des-atalhos" aria-label="Mais telas dos desafios">{children}{botao}</div>;
-  if (!aberto) return linha;
+  if (!aberto) return semLinha ? null : linha;
   return (<>
-    {linha}
+    {!semLinha && linha}
     <div className="aviso info dica como-funciona" role="status">
       <span className="dica-ic"><Icone nome="ideia" tam={20} /></span>
       <span className="dica-tx"><b>Como funcionam os desafios</b>
@@ -52,4 +58,13 @@ export default function ComoFunciona({ perfil = 'gestor', membro, children }) {
       <button type="button" className="dica-x" aria-label="Fechar a explicação" onClick={fechar}><Icone nome="x" tam={18} /></button>
     </div>
   </>);
+}
+
+// Botão discreto do pé da tela: abre (ou fecha) o balãozinho do ComoFunciona lá em cima.
+export function ComoFuncionaBotao() {
+  return (
+    <button type="button" className="link-btn" onClick={() => window.dispatchEvent(new Event('beelo-como-funciona'))}>
+      <Icone nome="livro" tam={18} />&nbsp;Como funciona
+    </button>
+  );
 }
