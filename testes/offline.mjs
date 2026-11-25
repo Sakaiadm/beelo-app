@@ -244,7 +244,7 @@ await caso('Entrar sem internet: explica em vez de "Google não ativado"', async
   await p.goto(BASE + '/login', { waitUntil: 'networkidle' });
   await ctx.setOffline(true);
   await p.locator('#email').fill('a@b.com');
-  await p.getByRole('button', { name: /Enviar link/ }).click();
+  await p.getByRole('button', { name: /Receber link/ }).click();
   await p.getByText('Sem internet. Para entrar, conecte-se').waitFor({ timeout: 4000 });
 });
 

@@ -34,9 +34,9 @@ export default async function SemAcesso() {
         </div>
       ) : (
         <div className="card">
-          <h1 className="titulo">Acesso não liberado</h1>
-          <p className="sub">O e-mail <strong>{meu}</strong> ainda não participa de nenhum grupo. Se você foi convidado(a), entre com o mesmo e-mail que recebeu o convite, ou peça ao responsável para cadastrar este e-mail em Cadastros.</p>
-          <form action="/auth/sair" method="post" style={{ marginTop: 16 }}><button className="btn sec">Entrar com outra conta</button></form>
+          <h1 className="titulo">Este e-mail ainda não foi convidado</h1>
+          <p className="sub">O e-mail <strong>{meu}</strong> ainda não faz parte de nenhum grupo. Peça a quem organiza o grupo para cadastrar este e-mail em Cadastros, ou, se você recebeu um convite, entre com o e-mail que recebeu.</p>
+          <form action="/auth/sair" method="post" style={{ marginTop: 16 }}><button className="btn sec">Entrar com outro e-mail</button></form>
         </div>
       )}
       {aberto ? (
