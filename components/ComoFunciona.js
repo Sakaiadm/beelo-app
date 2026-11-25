@@ -1,4 +1,10 @@
 'use client';
+// @arquivo   ComoFunciona.js: botão "Como funciona" (pílula) e balãozinho que explica os desafios.
+// @tipo      componente
+// @usa       components/Icone.js; localStorage (chave ra_desafio_balao_<membro>)
+// @usado-por app/(app)/desafios/page.js
+// @cuidado   O botão tem o mesmo estilo e tamanho das pílulas Mural/Vitrine/Ajustes (classes "btn sec peq").
+//            As pílulas dos gestores chegam como "children" para ficarem na mesma linha do botão.
 import { useEffect, useState } from 'react';
 import Icone from './Icone';
 
@@ -20,7 +26,7 @@ const TEXTOS = {
   j: ['Escolha um hábito e acompanhe o seu percentual da semana.', 'O desafio renova sozinho toda segunda.', 'Um dia difícil vira dia coringa e não conta.'],
 };
 
-export default function ComoFunciona({ perfil = 'gestor', membro }) {
+export default function ComoFunciona({ perfil = 'gestor', membro, children }) {
   const chave = `ra_desafio_balao_${membro}`;
   const [aberto, setAberto] = useState(false);
   // Aberta só na primeira visita; depois vira a linha "Como funciona?" (Raio-X U85).
@@ -28,8 +34,16 @@ export default function ComoFunciona({ perfil = 'gestor', membro }) {
     try { const visto = localStorage.getItem(chave); setAberto(visto == null); if (visto == null) localStorage.setItem(chave, '0'); } catch { setAberto(true); }
   }, [chave]);
   const fechar = () => { setAberto(false); try { localStorage.setItem(chave, '0'); } catch {} };
-  if (!aberto) return <button type="button" className="link-btn" style={{ marginBottom: 10 }} onClick={() => setAberto(true)}>Como funciona?</button>;
-  return (
+  // @decisao Thomas 25/11: "Como funciona" é um botão com ícone de livro, igual às outras pílulas (opção A).
+  const botao = (
+    <button type="button" className="btn sec peq" aria-expanded={aberto} onClick={() => (aberto ? fechar() : setAberto(true))}>
+      <Icone nome="livro" tam={18} />Como funciona
+    </button>
+  );
+  const linha = <div className="des-atalhos" aria-label="Mais telas dos desafios">{children}{botao}</div>;
+  if (!aberto) return linha;
+  return (<>
+    {linha}
     <div className="aviso info dica como-funciona" role="status">
       <span className="dica-ic"><Icone nome="ideia" tam={20} /></span>
       <span className="dica-tx"><b>Como funcionam os desafios</b>
@@ -37,5 +51,5 @@ export default function ComoFunciona({ perfil = 'gestor', membro }) {
       </span>
       <button type="button" className="dica-x" aria-label="Fechar a explicação" onClick={fechar}><Icone nome="x" tam={18} /></button>
     </div>
-  );
+  </>);
 }

@@ -1,3 +1,9 @@
+// @arquivo   desafios/page.js: tela Desafios (gestor vê tudo e liga/desliga o beta; os outros veem "Meus desafios").
+// @tipo      tela
+// @usa       lib/desafiosDados.js, lib/desafios.js, app/acoes-desafios.js; tabelas ra_desafio*, ra_premios, ra_cofrinho*
+// @usado-por menu de baixo (Desafios), cartões do Hoje e do Painel
+// @cuidado   Pílulas Mural/Vitrine/Ajustes só no ramo do gestor. Desligado: gestor vê o cartão "Ligar os desafios"; os outros vão para /hoje.
+
 import Link from 'next/link';
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
@@ -111,13 +117,13 @@ export default async function Desafios({ searchParams }) {
       <main className="estreito">
         <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
         <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Desafio</Link>} />
-        <div className="des-atalhos" aria-label="Mais telas dos desafios">
+        <ComoFunciona perfil="gestor" membro={eu.id}>
           <Link prefetch={false} className="btn sec peq" href="/desafios/mural"><Icone nome="check" tam={18} />Mural</Link>
           <Link prefetch={false} className="btn sec peq" href="/desafios/premios"><Icone nome="etiqueta" tam={18} />Vitrine</Link>
+          {/* @regra Ajustes só para quem é gestor (Pai/Mãe): este bloco só existe no ramo do gestor. */}
           <Link prefetch={false} className="btn sec peq" href="/desafios/ajustes"><Icone nome="ajustes" tam={18} />Ajustes</Link>
-        </div>
+        </ComoFunciona>
         {aviso}
-        <ComoFunciona perfil="gestor" membro={eu.id} />
 
         {esperando.length > 0 && (
           <div className="card des-card" id="desejos">
