@@ -38,7 +38,7 @@ const PAIS = [
 
 const ADMIN = [
   ['O que são os Grupos', 'Só o administrador geral vê Cadastros › Grupos. Lá ficam todas as famílias que usam o sistema.'],
-  ['Criar uma família para outra pessoa', 'Em Cadastros › Grupos, toque em Novo grupo. Informe o nome do grupo, o nome do responsável e o e-mail Google dele. Quando ele entrar com esse e-mail, a família já estará pronta.'],
+  ['Criar uma família para outra pessoa', 'Em Cadastros › Grupos, toque em + Grupo. Informe o nome do grupo, o nome do responsável e o e-mail Google dele. Quando ele entrar com esse e-mail, a família já estará pronta.'],
   ['Desativar ou ativar uma família', 'Em Cadastros › Grupos, cada grupo tem o botão para desativar ou ativar. Desativar não apaga nada: os dados continuam guardados, só o acesso é bloqueado. Ativar devolve o acesso.'],
   ['Quando alguém novo entra sozinho', 'Quem entra com um e-mail que não está cadastrado cai em uma tela que permite criar a própria família. Ela aparece depois em Cadastros › Grupos.'],
 ];

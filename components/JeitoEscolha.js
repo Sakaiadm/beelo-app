@@ -13,11 +13,12 @@ const ICONE = {
 
 // Meu perfil (modo criança): "Como eu quero ver o beelo". Vale na hora, sem botão Salvar.
 // Com a chave "Pode trocar sozinho(a)" desligada no cadastro, mostra o jeito escolhido pelos responsáveis.
-export default function JeitoEscolha({ inicial, livre }) {
+export default function JeitoEscolha({ inicial, livre, onMudar }) {
   const [sel, setSel] = useState(inicial);
   const [msg, setMsg] = useState(null);
   const escolher = (id) => {
     if (!livre || id === sel) return;
+    if (onMudar) { setSel(id); onMudar(id); return; }
     const antes = sel;
     setSel(id); setMsg({ ok: true, txt: 'Salvando…' });
     const fd = new FormData(); fd.set('jeito', id);

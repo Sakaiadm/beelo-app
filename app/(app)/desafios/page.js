@@ -21,10 +21,10 @@ export const dynamic = 'force-dynamic';
 
 const AVISOS = { criado: 'Desafio criado. Ele renova sozinho toda semana.', encerrado: 'Desafio encerrado.' };
 
-function Titulo({ texto, acao }) {
+function Titulo({ texto, acao, volta = '/painel' }) {
   return (
     <div className="cab">
-      <div><h1 className="titulo titulo-beta">{texto} <span className="selo-beta">beta</span></h1><p className="sub">A semana vai de segunda a domingo.</p></div>
+      <div className="vt" style={{ alignItems: 'flex-start' }}><Link prefetch={false} className="volta" href={volta} aria-label="Voltar"><Icone nome="esq" tam={26} /></Link><div><h1 className="titulo titulo-beta">{texto} <span className="selo-beta">beta</span></h1><p className="sub">A semana vai de segunda a domingo.</p></div></div>
       {acao}
     </div>
   );
@@ -110,7 +110,7 @@ export default async function Desafios({ searchParams }) {
     return (
       <main className="estreito">
         <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
-        <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Novo desafio</Link>} />
+        <Titulo texto="Desafios" acao={<Link prefetch={false} className="btn" href="/desafios/novo"><Icone nome="mais" tam={18} cor="#fff" />Desafio</Link>} />
         <div className="des-atalhos" aria-label="Mais telas dos desafios">
           <Link prefetch={false} className="btn sec peq" href="/desafios/mural"><Icone nome="check" tam={18} />Mural</Link>
           <Link prefetch={false} className="btn sec peq" href="/desafios/premios"><Icone nome="etiqueta" tam={18} />Vitrine</Link>
@@ -201,7 +201,7 @@ export default async function Desafios({ searchParams }) {
   return (
     <main className={`estreito${pf === 'c' ? ' des-crianca' : ''}`}>
       <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
-      <Titulo texto="Meus desafios" />
+      <Titulo texto="Meus desafios" volta="/hoje" />
       {aviso}
       <ComoFunciona perfil={pf} membro={eu.id} />
       {meus.map((d) => (

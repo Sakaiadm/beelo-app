@@ -5,10 +5,11 @@ const dia = (n) => { const d = new Date(hoje + 'T12:00:00Z'); d.setUTCDate(d.get
 const FAM = '11111111-1111-1111-1111-111111111111';
 const id = (n) => `00000000-0000-0000-0000-${String(n).padStart(12, '0')}`;
 const G = id(1), M = id(2), E = id(3), A = id(4);
+const TV = '2026-11-24';
 const membros = [
-  { id: G, familia_id: FAM, nome: 'Thomas', papel: 'gestor', cor: '#0f4fae', email: 'pai@t.com', ativo: true, tela_ativo: true, user_id: id(91) },
+  { id: G, familia_id: FAM, nome: 'Thomas', papel: 'gestor', cor: '#0f4fae', email: 'pai@t.com', ativo: true, tela_ativo: true, user_id: id(91), termos_versao: TV },
   { id: M, familia_id: FAM, nome: 'Mãe', papel: 'gestor', cor: '#7a3fb0', email: null, ativo: true, tela_ativo: true, user_id: null },
-  { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', modo_crianca: process.env.MOCK_CRIANCA === '1', cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92) },
+  { id: E, familia_id: FAM, nome: 'Eduardo', papel: 'filho', jeito_livre: true, modo_crianca: process.env.MOCK_CRIANCA === '1', cor: '#1a6fe0', email: 'edu@t.com', ativo: true, tela_ativo: true, user_id: id(92) },
   { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: 'alice@t.com', ativo: true, tela_ativo: false, user_id: null },
 ];
 const cats = [{ id: id(20), familia_id: FAM, nome: 'Estudo', cor: 'indigo', ordem: 1 }, { id: id(21), familia_id: FAM, nome: 'Casa', cor: 'laranja', ordem: 2 }];
