@@ -5,10 +5,8 @@
 // @usado-por app/(app)/desafios/page.js (gestor)
 // @cuidado   Mesma ideia do cartão do Painel (SugestaoDesafio): criar usa a meta sugerida e o dia coringa ligado.
 import { useState } from 'react';
-import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { criarDesafio } from '@/app/acoes-desafios';
-import Icone from './Icone';
 
 // itens: [{ pessoa: {id, nome}, avatar: <Avatar/>, desafio: {id, t, meta}, sub }]
 export default function DesafiosVazio({ itens }) {
@@ -38,7 +36,7 @@ export default function DesafiosVazio({ itens }) {
           <span className="seta" aria-hidden="true">{env === i.pessoa.id ? '…' : '›'}</span>
         </button>
       ))}
-      <Link prefetch={false} className="btn sec peq" href="/desafios/novo" style={{ marginBottom: 14 }}><Icone nome="mais" tam={18} />Escolher outro desafio</Link>
+      {/* @decisao 25/11 Thomas: sem botão "Escolher outro desafio" aqui; o "+ Desafio" do topo leva ao mesmo lugar. */}
     </>
   );
 }
