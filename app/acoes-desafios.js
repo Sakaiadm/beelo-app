@@ -1,4 +1,7 @@
 'use server';
+// @arquivo  acoes-desafios.js: ações de Desafios, prêmios, cofrinho e desejos (beta, migração 0016/0017).
+// @tipo     acao
+// @usa      banco ra_familias, banco ra_premios, banco ra_membros, banco ra_desafios, banco ra_categorias, banco ra_tarefas, banco ra_ocorrencias, rpc ra_eu, rpc ra_gerar_ocorrencias, rpc ra_desafios_atualizar, rpc ra_desafio_encerrar, rpc ra_premio_pedir, rpc ra_premio_entregar, rpc ra_cofrinho_meta, rpc ra_desafio_visto, lib/supabase/server, lib/sessao, lib/rede, lib/util, lib/membros, lib/desafios
 // Ações dos Desafios e prêmios (versão beta, SQL 0016).
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';

@@ -1,3 +1,7 @@
+// @arquivo  middleware.js: porta de entrada: exige login, renova a sessão e abre direto na tela de sempre.
+// @tipo     infra
+// @usa      lib/origem
+// @cuidado  rotas públicas ficam na lista PUBLICAS; esqueceu de listar uma, ela pede login. Só lê a sessão guardada (sem ir ao Supabase a cada toque); quem protege os dados é o banco (RLS).
 import { origem } from '@/lib/origem';
 import { NextResponse } from 'next/server';
 import { createServerClient } from '@supabase/ssr';
