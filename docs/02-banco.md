@@ -30,6 +30,8 @@ Toda tabela tem **RLS** (segurança por linha): cada pessoa só enxerga e mexe n
 | `ra_premio_pedidos` | Prêmio pedido → entregue / cancelado. Também a lista de desejos | `DesejoAprovar.js`, `SugerirDesejo.js` |
 | `ra_desafio_dispensas` | Quem teve a sugestão de desafio fechada no X do Painel e quando ela pode voltar (14 dias). SQL 0030 | `components/SugestaoDesafio.js`, `app/(app)/painel/page.js` |
 | `ra_desafio_sugestoes` | Sugestões de desafio feitas pela criança, esperando Pai/Mãe (esperando, criado, agora_nao). SQL 0028 | `components/SugerirDesafio.js`, `app/(app)/desafios/page.js` |
+| `ra_desafio_sugestoes` | Desafios que a criança sugeriu, aguardando Pai/Mãe (aprovar cria o desafio) | `app/acoes-desafios.js`, `components/SugestaoDesafio.js` |
+| `ra_desafio_dispensas` | Sugestões de desafio fechadas no Painel e a data em que podem voltar (14 dias) | `app/acoes-desafios.js` |
 | `ra_cofrinho` | Livro-caixa de estrelinhas e semanas (+ entradas, − trocas; nunca vencem) | `app/(app)/desafios/cofrinho` |
 | `ra_aceites` | Registro de aceite de termos, privacidade e autorização do responsável (LGPD) | `lib/aceite.js`, `aceitarTermos` |
 
@@ -47,6 +49,8 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 - **Gatilhos (automáticos, o app não chama):** `ra_tg_tarefa_nova`, `ra_tg_tela_real`, `ra_tg_tela_conclui`, `ra_tg_desafio_proprio`, `ra_seed_categorias`, `ra_log`
 
 ## Linha do tempo das migrações
+
+(Atualizado em 26/11/2026, até a 0030. Migrações novas já trazem no cabeçalho `-- @migracao` e `-- @altera`/`-- @banco`.)
 
 | Nº | O que trouxe |
 |---|---|
@@ -73,6 +77,13 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0021 A e B | Automações: resumo do dia, conferir sozinho, convite parado, prêmio esperando. **Há duas 0021: rode A, depois B** |
 | 0022 | Jeito de ver o beelo e ano aproximado de nascimento |
 | 0023 | Separa papel de parentesco (Pai, Mãe, Adulto que ajuda, Filho(a)) |
+| 0024 | Guia da Mel (beta): uma chave por grupo, só o administrador geral liga e desliga (`ra_familias.guia_mel`) |
+| 0025 | A chave de ligar/desligar os desafios (beta) passa a ser só do administrador geral |
+| 0026 | Desejos e pedidos de prêmio só da própria pessoa e dos responsáveis (regras RLS de `ra_premios` e `ra_premio_pedidos`) |
+| 0027 | Aviso de chegada ("Cheguei" / "Tudo certo"): colunas novas em `ra_tarefas` e `ra_ocorrencias`, lembretes |
+| 0028 | A criança sugere um desafio; Pai e Mãe aprovam ou dizem "agora não" (tabela `ra_desafio_sugestoes`) |
+| 0029 | Trocar a foto de uma tarefa já concluída e apagar fotos que sobram (`ra_ocorrencias.foto_trocada_em`, política do Storage) |
+| 0030 | Pai e Mãe fecham (X) a sugestão de desafio do Painel; volta em 14 dias (tabela `ra_desafio_dispensas`) |
 | 0028 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |
 | 0030 | X no cartão de sugestão de desafio do Painel: some por 14 dias para aquela pessoa (tabela ra_desafio_dispensas). Sem ela, o app funciona e o cartão só não fecha |
 
