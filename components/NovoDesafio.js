@@ -40,7 +40,10 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
   const sel = familia ? [] : pessoas.filter((p) => p.id === quem);
   const perfis = familia ? ['familia'] : [...new Set(sel.map((p) => p.perfil))];
   const lista = useMemo(() => DESAFIOS.filter((c) => serve(c, perfis) && (!c.tela || familia || sel.every((p) => p.tela_ativo))), [quem]); // eslint-disable-line react-hooks/exhaustive-deps
-  const sugs = (sugestoes[familia ? 'familia' : quem] || []).map((s) => ({ ...s, c: DESAFIOS.find((c) => c.id === s.id) })).filter((s) => s.c && serve(s.c, perfis)).slice(0, 2); // no máximo 2, para os assuntos aparecerem logo abaixo
+  const sugs = (sugestoes[familia ? 'familia' : quem] || []).map((s) => ({ ...s, c: DESAFIOS.find((c) => c.id === s.id) })).filter((s) => s.c && serve(s.c, perfis));
+  // @decisao 26/11 Thomas: o tema do mês vira uma faixa estreita; os demais ficam em um cartão leve. No máximo 2 no total, para os assuntos aparecerem logo abaixo.
+  const temaSug = sugs.find((s) => /^Tema de/.test(s.tag));
+  const normais = sugs.filter((s) => s !== temaSug).slice(0, temaSug ? 1 : 2);
 
   function escolherQuem(id) { if (gestor) { setQuem(id); setGrupo(null); } }
   function escolher(c) { setEsc(c); setMeta(c.meta); setCoringa(true); window.scrollTo?.(0, 0); }
@@ -105,24 +108,33 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
       <div className="folha-cab"><Link prefetch={false} href={voltar} className="folha-volta" aria-label="Voltar"><Icone nome="esq" tam={24} /></Link><h2>Novo desafio</h2></div>
       {gestor && (
         <div>
-          <label style={{ marginTop: 0 }}>Para quem</label>
           <div className="seg pessoas" aria-label="Para quem">
             {pessoas.map((p) => <button type="button" key={p.id} className={quem === p.id ? 'on' : ''} aria-pressed={quem === p.id} onClick={() => escolherQuem(p.id)}>{p.nome}</button>)}
             <button type="button" className={familia ? 'on' : ''} aria-pressed={familia} onClick={() => escolherQuem('familia')}>Família toda</button>
           </div>
         </div>
       )}
-      {sugs.length > 0 && (
-        <div>
-          <div className="grupo-titulo" style={{ marginTop: 4 }}>Pensados para {familia ? 'a família' : sel[0]?.nome}</div>
-          {sugs.map((s) => (
-            <button type="button" key={s.id + s.tag} className="cartao-l" onClick={() => escolher(s.c)}>
-              <span className={`des-ic${s.c.para === 'f' ? ' mel' : ''}`}><Icone nome={s.c.icone || 'hoje'} tam={22} /></span>
-              <span className="corpo"><span className="sug-tag">{s.tag}</span><b className="q">{s.c.t}</b><small className="por">{s.por || `${s.c.d} Meta: ${textoMeta(s.c)}.`}</small></span>
+      {normais.length > 0 && (
+        <div className="ideia-cartao ideia-leve pens-cartao">
+          <div className="ideia-leve-cab"><span className="tm-ic ideia-leve-ic"><Icone nome="trofeu" tam={20} cor="#13203a" /></span><span><small>{normais.length > 1 ? 'Pensados' : 'Pensado'} para {familia ? 'a família' : sel[0]?.nome}</small></span></div>
+          {normais.map((s) => (
+            <button type="button" key={s.id + s.tag} className="pens-item" onClick={() => escolher(s.c)}>
+              <span className="corpo"><small className="pens-tag">{s.tag}</small><b>{s.c.t}</b><small className="pens-txt">{s.por || s.c.d}</small><small className="pens-txt">Meta: {textoMeta(s.c)}.</small></span>
               <span className="seta" aria-hidden="true">›</span>
             </button>
           ))}
         </div>
+      )}
+      {temaSug && (
+        <button type="button" className="tema-faixa" onClick={() => escolher(temaSug.c)}>
+          <span className="tema-ic"><Icone nome="ideia" tam={22} /></span>
+          <span className="tema-txt"><b>{temaSug.tag.split(':')[0]}:</b> {temaSug.c.t}</span>
+          <span className="seta" aria-hidden="true">›</span>
+        </button>
+      )}
+      {/* @regra a contagem é real: todos os desafios que servem para a pessoa escolhida. Não é botão. */}
+      {!grupo && lista.length > 0 && (
+        <div className="ideias-mais" role="note"><span className="tg ideias-mais-n">+{lista.length}</span><b>{lista.length === 1 ? 'desafio para escolher logo abaixo' : 'desafios para escolher logo abaixo'}</b></div>
       )}
       {grupo ? (
         <div>
