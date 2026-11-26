@@ -50,7 +50,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 
 ## Linha do tempo das migrações
 
-(Atualizado em 26/11/2026, até a 0030. Migrações novas já trazem no cabeçalho `-- @migracao` e `-- @altera`/`-- @banco`.)
+(Atualizado em 26/11/2026, até a 0031. Migrações novas já trazem no cabeçalho `-- @migracao` e `-- @altera`/`-- @banco`.)
 
 | Nº | O que trouxe |
 |---|---|
@@ -83,6 +83,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0027 | Aviso de chegada ("Cheguei" / "Tudo certo"): colunas novas em `ra_tarefas` e `ra_ocorrencias`, lembretes |
 | 0028 | A criança sugere um desafio; Pai e Mãe aprovam ou dizem "agora não" (tabela `ra_desafio_sugestoes`) |
 | 0029 | Trocar a foto de uma tarefa já concluída e apagar fotos que sobram (`ra_ocorrencias.foto_trocada_em`, política do Storage) |
+| 0031 | Desafios em ciclos de 4 semanas (colunas `ciclo_*`, `descansando_em`), limite de 2 por pessoa e 1 da família no banco (gatilho `ra_desafios_limite`), `ra_desafio_renovar`, 1 troca por semana em `ra_desafio_encerrar` |
 | 0030 | Pai e Mãe fecham (X) a sugestão de desafio do Painel; volta em 14 dias (tabela `ra_desafio_dispensas`) |
 | 0028 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |
 | 0030 | X no cartão de sugestão de desafio do Painel: some por 14 dias para aquela pessoa (tabela ra_desafio_dispensas). Sem ela, o app funciona e o cartão só não fecha |
@@ -90,7 +91,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 ⚠️ Ordem importa: algumas migrações dizem no cabeçalho "rode ANTES do app novo" (0021 A, 0022) ou "SÓ DEPOIS" (0020). Leia a primeira linha de cada arquivo antes de rodar.
 
 ## Como testar o banco
-`bash testes/banco-local.sh` sobe um PostgreSQL local descartável (não toca no Supabase real) e roda as trilhas de `supabase/testes/` (`trilha_banco.sql`, `trilha_desafios.sql`, `trilha_desejos.sql`).
+`bash testes/banco-local.sh` sobe um PostgreSQL local descartável (não toca no Supabase real) e roda as trilhas de `supabase/testes/` (`trilha_banco.sql`, `trilha_desafios.sql`, `trilha_desafios_ciclo.sql` (14 testes), `trilha_desejos.sql`).
 
 ## Aviso de chegada (migração 0027)
 

@@ -4,7 +4,8 @@
 // @usado-por app/(app)/desafios/cofrinho/page.js, app/(app)/desafios/mural/page.js, app/(app)/desafios/page.js, app/(app)/hoje/page.js, components/PremioLinha.js
 import Link from 'next/link';
 import Icone from './Icone';
-import { textoMeta } from '@/lib/desafios';
+import { textoMeta, cicloDe, balanco } from '@/lib/desafios';
+import { hojeISO } from '@/lib/util';
 
 const STAR = 'M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z';
 export function Estrela({ tam = 18, cor = 'var(--mel)' }) {
@@ -68,13 +69,23 @@ export function DesafioCartao({ d, p, nome, href, children }) {
   const icone = d.icone || 'hoje';
   const familia = !d.membro_id;
   const barra = ['pct', 'pct_cada'].includes(d.tipo) || d.periodo === 'mes' || ['variedade', 'proprias', 'melhor'].includes(d.tipo);
+  // @regra 26/11 Thomas: todo desafio tem fim combinado ("Semana 2 de 4"); no fim ele descansa, não renova sozinho.
+  const ciclo = cicloDe(d, hojeISO());
   const corpo = (
     <>
       <div className="des-top">
         <span className={`des-ic${familia ? ' mel' : ''}`}><Icone nome={icone} tam={22} /></span>
         <span><b>{familia ? 'Desafio da família' : 'Desafio'}: {d.titulo}</b><small>{nome ? `${nome} · ` : ''}{textoMeta(d, d.meta)} · {rotuloPeriodo(d)}</small></span>
       </div>
-      {barra ? (
+      {ciclo && !ciclo.terminou && (
+        <div className="des-ciclo" aria-label={`Semana ${ciclo.semana} de ${ciclo.total} do ciclo`}>
+          <span>Semana {ciclo.semana} de {ciclo.total}{ciclo.ultima ? ' · última semana do ciclo' : ''}</span>
+          <div className="barra"><div style={{ width: `${(ciclo.semana / ciclo.total) * 100}%` }} /></div>
+        </div>
+      )}
+      {ciclo?.terminou ? (
+        <div className="des-msg des-fim"><b>Ciclo completo! {balanco(d, ciclo)}.</b> {ciclo.feitas > 0 ? 'Que tal continuar?' : 'Sem pressa: recomeçar com calma ou trocar por outro desafio?'}</div>
+      ) : barra ? (
         <>
           <div className="des-num"><strong>{['pct', 'pct_cada'].includes(d.tipo) ? `${p?.progresso ?? 0}%` : `${p?.progresso ?? 0} de ${p?.meta ?? d.meta}`}</strong><span>{['pct', 'pct_cada'].includes(d.tipo) ? `meta ${p?.meta ?? d.meta}%` : d.periodo === 'mes' ? 'neste mês' : 'nesta semana'}</span></div>
           <div className="barra"><div style={{ width: `${Math.min(100, p?.meta ? (p.progresso / p.meta) * 100 : 0)}%`, background: p?.status === 'cumprido' ? 'var(--ok)' : undefined }} /></div>

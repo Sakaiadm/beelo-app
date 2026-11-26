@@ -24,7 +24,7 @@ import Icone from '@/components/Icone';
 import LampadaFlutuante from '@/components/LampadaFlutuante';
 import { fatos, candidatosPais } from '@/lib/dicas';
 import { carregarDesafios, desafiosLigados, pessoasDesafio } from '@/lib/desafiosDados';
-import { desafioDe, textoMeta } from '@/lib/desafios';
+import { desafioDe, textoMeta, cicloDe } from '@/lib/desafios';
 import Responder from '@/components/Responder';
 import { PEDIDO, CONFERIR } from '@/lib/respostas';
 import { responderAdiamento, avaliarJustificativa, conferir, conferirTodas, responderTela, lembrarTela } from '@/app/acoes';
@@ -120,6 +120,10 @@ export default async function Painel({ searchParams }) {
   const resp = (t) => (gestor ? null : <div className="meta" style={{ marginTop: 6 }}>Os responsáveis respondem.</div>);
   const pctSem = kSem.total ? Math.round((kSem.feitas / kSem.total) * 100) : 0;
   const cumpridos = des ? des.desafios.filter((d) => d.atual?.status === 'cumprido').length : 0;
+  // @regra 26/11 Thomas: aviso amigável quando falta 1 semana para o ciclo terminar e quando ele terminou (os pais decidem).
+  const cicloFim = des ? des.desafios.filter((d) => d.descansando_em).length : 0;
+  const cicloPerto = des ? des.desafios.filter((d) => cicloDe(d, des.hoje)?.ultima) : [];
+  const donoDe = (d) => (d.membro_id ? (membros.find((x) => x.id === d.membro_id)?.nome || 'Alguém') : 'Família');
 
   return (
     <main>
@@ -225,6 +229,8 @@ export default async function Painel({ searchParams }) {
           <span className="des-txt"><b>Desafios da semana</b><small>{des.desafios.length ? `${cumpridos} de ${des.desafios.length} cumpridos` : 'Nenhum desafio ainda. Toque para escolher.'}</small></span>
           {paraEntregar > 0 && <span className="tg mel">{paraEntregar === 1 ? '1 prêmio para entregar' : `${paraEntregar} prêmios para entregar`}</span>}
           {paraAprovar > 0 && <span className="tg mel">{paraAprovar === 1 ? '1 desejo para aprovar' : `${paraAprovar} desejos para aprovar`}</span>}
+          {cicloFim > 0 && <span className="tg mel">{cicloFim === 1 ? '1 ciclo terminou: renovar ou trocar' : `${cicloFim} ciclos terminaram: renovar ou trocar`}</span>}
+          {cicloFim === 0 && cicloPerto.length > 0 && <span className="tg mel">{cicloPerto.length === 1 ? `Falta 1 semana para o ciclo de ${donoDe(cicloPerto[0])} terminar` : `Falta 1 semana para ${cicloPerto.length} ciclos terminarem`}</span>}
           <span className="selo-beta">beta</span>
         </Link>
       )}

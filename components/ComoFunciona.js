@@ -11,19 +11,21 @@ import Icone from './Icone';
 // Balãozinho que explica a dinâmica dos desafios na própria tela (além do manual).
 // Fecha no X e não volta; "Como funciona?" abre de novo.
 const TEXTOS = {
-  gestor: ['Escolha um desafio para cada pessoa (até 2) ou um da família toda. O app já sugere a meta e o prêmio.',
-    'O desafio renova sozinho toda segunda. Um dia difícil na semana vira dia coringa e não conta.',
+  gestor: ['Escolha um desafio para cada pessoa (o ideal é 1; no máximo 2) ou um da família toda. O app já sugere a meta e o prêmio.',
+    'Desafios duram 4 semanas e recomeçam a cada segunda. Um dia difícil na semana vira dia coringa e não conta.',
+    'No fim das 4 semanas vem um balanço: você escolhe Renovar, Subir um nível ou Trocar. Sem resposta, o desafio descansa e não renova sozinho.',
     'A criança ganha estrelinhas que não somem; o adolescente junta semanas conquistadas. Os adultos acompanham o percentual.',
     'Quando alguém troca por um prêmio, ele aparece aqui para você marcar "entregue".'],
   c: ['Faça as tarefas do seu desafio e veja as bolinhas ficarem verdes.',
-    'Cumpriu a meta da semana? Ganha estrelinhas no seu cofrinho.',
+    'Cada desafio dura 4 semanas. Cumpriu a meta da semana? Ganha estrelinhas no seu cofrinho.',
     'As estrelinhas não somem. Troque agora ou junte para um prêmio maior.',
     'Um dia difícil vira dia coringa e não estraga a semana.'],
-  a: ['Você pode escolher o seu próprio desafio no banco de sugestões.',
+  a: ['Você pode escolher o seu próprio desafio no banco de sugestões. Menos é mais: comece com 1.',
+    'Ele dura 4 semanas. No fim, você escolhe renovar, subir um nível ou trocar.',
     'Cada semana em que você cumpre a meta vira uma semana conquistada.',
     'As semanas não vencem. Use quando quiser em combinados de autonomia.',
     'Um dia difícil vira dia coringa e não estraga a semana.'],
-  j: ['Escolha um hábito e acompanhe o seu percentual da semana.', 'O desafio renova sozinho toda segunda.', 'Um dia difícil vira dia coringa e não conta.'],
+  j: ['Escolha um hábito e acompanhe o seu percentual da semana.', 'O desafio dura 4 semanas e recomeça a cada segunda. No fim, você renova ou troca.', 'Um dia difícil vira dia coringa e não conta.'],
 };
 
 export default function ComoFunciona({ perfil = 'gestor', membro, children, semLinha }) {

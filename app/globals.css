@@ -635,6 +635,11 @@ a.des-card { display: block; text-decoration: none; color: inherit; }
 .des-dias i.hoje { border: 2px solid var(--azul); color: var(--azul); }
 .des-dias i.livre { border-style: dashed; opacity: .5; }
 .des-msg { font-size: var(--f-apoio); font-weight: 600; }
+.des-ciclo { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 2px; font-size: var(--f-apoio); color: var(--cinza); font-weight: 600; }
+.des-ciclo .barra { height: 6px; }
+.des-limite { margin: 0 0 8px; font-size: var(--f-apoio); color: var(--cinza); }
+.des-renovar { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
+.des-renovar select { width: auto; height: 38px; font-size: var(--f-apoio); }
 .des-msg em { font-style: normal; color: var(--cinza); font-weight: 500; }
 .des-num { display: flex; align-items: baseline; justify-content: space-between; margin: 14px 0 8px; }
 .des-num strong { font-size: var(--f-num); font-weight: 800; }
