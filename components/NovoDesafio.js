@@ -9,7 +9,7 @@ import Link from 'next/link';
 import Form from './Form';
 import Icone from './Icone';
 import { criarDesafio } from '@/app/acoes-desafios';
-import { DESAFIOS, GRUPOS, PREMIOS_FAMILIA, opcoesMeta, textoMeta, diasPorMeta } from '@/lib/desafios';
+import { DESAFIOS, GRUPOS, PREMIOS_FAMILIA, opcoesMeta, textoMeta, diasPorMeta, MAX_POR_PESSOA } from '@/lib/desafios';
 
 const DIAS = ['dom.', 'seg.', 'ter.', 'qua.', 'qui.', 'sex.', 'sáb.'];
 // Texto e ícone de cada assunto do banco (cartões da primeira tela). @decisao 26/11 Thomas: a pessoa não sabe a palavra para buscar.
@@ -28,7 +28,7 @@ const ASSUNTO = {
 const serve = (c, perfis) => perfis.every((p) => (p === 'familia' ? c.para === 'f' : c.para.includes(p)));
 
 // Novo desafio: 1) para quem e qual (sugestões primeiro), 2) meta já sugerida, salvar. Três toques no caminho mais curto.
-export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, tema, gestor, voltar = '/desafios', catalogoInicial = null, sugestao = null }) {
+export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, tema, gestor, voltar = '/desafios', catalogoInicial = null, sugestao = null, ativos = {} }) {
   // Uma pessoa por vez. Abre com quem veio do link; senão, com quem está criando (Pai/Mãe); senão, a primeira da lista.
   const [quem, setQuem] = useState(inicial?.length ? inicial[0] : pessoas.some((p) => p.id === euId) ? euId : pessoas[0] ? pessoas[0].id : 'familia');
   const [grupo, setGrupo] = useState(null); // assunto aberto no banco (null = lista de assuntos)
@@ -114,6 +114,18 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
           </div>
         </div>
       )}
+      {/* @decisao 26/11 Thomas: limite visível ("1 de 2") e a regra em uma linha. O banco também confere (SQL 0031). */}
+      {(() => {
+        const nome = familia ? 'A família' : sel[0]?.nome;
+        const n = ativos[familia ? 'familia' : quem] || 0;
+        const max = familia ? 1 : MAX_POR_PESSOA;
+        return (
+          <p className="des-limite" style={{ margin: '10px 2px 0' }}>
+            <b>{nome}: {n} de {max} {max === 1 ? 'desafio' : 'desafios'}.</b>{' '}
+            {n >= max ? 'Termine ou troque o atual para começar outro.' : 'Desafios duram 4 semanas. Menos é mais.'}
+          </p>
+        );
+      })()}
       {normais.length > 0 && (
         <div className="ideia-cartao ideia-leve pens-cartao">
           <div className="ideia-leve-cab"><span className="tm-ic ideia-leve-ic"><Icone nome="trofeu" tam={20} cor="#13203a" /></span><span><small>{normais.length > 1 ? 'Pensados' : 'Pensado'} para {familia ? 'a família' : sel[0]?.nome}</small></span></div>
