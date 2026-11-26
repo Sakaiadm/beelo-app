@@ -645,6 +645,8 @@ a.des-card { display: block; text-decoration: none; color: inherit; }
 .des-dias i.cor { background: var(--mel-fundo); border-color: var(--mel); color: var(--mel-txt); font-size: var(--f-apoio); font-weight: 800; }
 .des-dias i.hoje { border: 2px solid var(--azul); color: var(--azul); }
 .des-dias i.livre { border-style: dashed; opacity: .5; }
+/* @cuidado: a classe "falta" do dia também pega a regra solta .falta (margem de aviso); aqui zeramos para alinhar as 7 bolinhas. */
+.des-dias i.falta { margin: 0; font-size: inherit; font-weight: inherit; color: inherit; }
 .des-msg { font-size: var(--f-apoio); font-weight: 600; }
 .des-ciclo { display: flex; flex-direction: column; gap: 6px; margin: 10px 0 2px; font-size: var(--f-apoio); color: var(--cinza); font-weight: 600; }
 .des-ciclo .barra { height: 6px; }
