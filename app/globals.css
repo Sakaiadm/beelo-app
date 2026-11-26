@@ -470,10 +470,6 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 .ideias-volta { display: inline-flex; align-items: center; gap: 6px; color: var(--cinza); font-weight: 700; text-decoration: none; margin-bottom: 14px; }
 .ideia-link { display: block; color: inherit; text-decoration: none; }
 .ideia-cartao { background: var(--cartao); border: 1px solid var(--borda); border-radius: 20px; overflow: hidden; margin-bottom: 16px; }
-.ideia-ban { background: linear-gradient(135deg, #1a6fe0, #5b9bff); color: #fff; display: flex; align-items: center; justify-content: space-between; gap: 6px; padding: 14px 10px 10px 18px; min-height: 112px; }
-.ideia-ban small { font-size: var(--f-etq); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; opacity: .92; }
-.ideia-ban b { display: block; font-size: var(--f-tela); line-height: 1.15; margin-top: 4px; font-weight: 800; }
-.ideia-ilu { flex: none; }
 .ideia-corpo { padding: 14px 18px 22px; font-size: var(--f-texto); line-height: 1.5; }
 .ideia-corpo p { margin: 0; color: var(--cinza); }
 .ideia-fala { position: relative; background: color-mix(in srgb, var(--azul) 14%, var(--cartao)); color: var(--texto); border-radius: 16px; padding: 10px 14px; font-size: var(--f-texto); line-height: 1.45; font-weight: 600; margin-top: 12px; }
