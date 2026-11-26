@@ -1,3 +1,5 @@
+// @arquivo  mock-supabase.mjs: Supabase falso para testar as telas sem tocar no banco real.
+// @tipo     teste
 // Supabase falso para testar as telas sem tocar no banco real.
 import http from 'node:http';
 const hoje = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);

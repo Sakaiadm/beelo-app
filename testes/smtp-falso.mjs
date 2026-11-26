@@ -1,3 +1,5 @@
+// @arquivo  smtp-falso.mjs: servidor de e-mail falso que guarda os e-mails em /tmp/emails-teste.json.
+// @tipo     teste
 // Servidor de e-mail falso (só para teste): guarda cada e-mail recebido em /tmp/emails-teste.json
 import net from 'node:net';
 import fs from 'node:fs';

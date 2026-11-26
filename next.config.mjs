@@ -1,3 +1,6 @@
+// @arquivo  next.config.mjs: configuração do Next.js: cabeçalhos de segurança (CSP, etc.) e saída "standalone" para o Docker.
+// @tipo     infra
+// @cuidado  a CSP só deixa carregar código, imagens e conexões do próprio app e do Supabase; um serviço novo (analytics, fonte, vídeo) precisa ser liberado aqui.
 /** @type {import('next').NextConfig} */
 // Content-Security-Policy (varredura, item M6): o navegador só carrega código, imagens e conexões
 // do próprio app, do Supabase e das fontes do Google. Uma segunda barreira contra scripts estranhos.

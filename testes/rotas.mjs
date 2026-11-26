@@ -1,3 +1,5 @@
+// @arquivo  rotas.mjs: percorre todas as telas como pai, filho e pessoa não convidada.
+// @tipo     teste
 // Percorre todas as telas como pai, filho e pessoa não convidada, usando o Supabase falso.
 import { createRequire } from 'node:module'; const { chromium } = createRequire(process.env.PW_ROOT + '/')('playwright');
 const BASE = 'http://127.0.0.1:3100';

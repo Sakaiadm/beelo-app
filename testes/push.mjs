@@ -1,3 +1,5 @@
+// @arquivo  push.mjs: testa a fila e o envio de avisos no celular (criptografia real) e o service worker.
+// @tipo     teste
 // Testa o envio de avisos no celular: (A) fila e envio com criptografia real; (B) serviço de fundo no navegador.
 import http from 'node:http'; import crypto from 'node:crypto'; import { createRequire } from 'node:module';
 import webpush from 'web-push';

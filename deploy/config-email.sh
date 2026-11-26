@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @arquivo  config-email.sh: guarda o e-mail de envio dos convites (SMTP) no .env da VPS.
+# @tipo     infra
 # Guarda o e-mail de envio dos convites na VPS. A senha é digitada aqui e fica só no arquivo .env da VPS.
 #   bash deploy/config-email.sh
 set -euo pipefail

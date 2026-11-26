@@ -1,4 +1,6 @@
 #!/usr/bin/env bash
+# @arquivo  banco-local.sh: roda as trilhas do banco num PostgreSQL local descartável (não toca no Supabase real).
+# @tipo     teste
 # Roda a trilha do banco num Postgres local descartável (não toca no Supabase real).
 # Uso: bash testes/banco-local.sh   (precisa de PostgreSQL 16 instalado)
 set -e
