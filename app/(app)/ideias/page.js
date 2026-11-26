@@ -2,6 +2,7 @@
 // @tipo     tela
 // @usa      lib/sessao, lib/papeis, lib/util, lib/ideias, components/Icone, components/IdeiasCliente
 // @usado-por Next.js (rota /ideias)
+// @decisao  26/11 (2): a tela de cada ideia usa o mesmo cartão leve; a tarja azul grande saiu de todas.
 // @decisao  26/11: tela Ideias com título e abas na mesma linha, cartão da semana leve e aberto, e aviso "+N ideias" (sem botão).
 import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
@@ -13,44 +14,15 @@ import { MarcarVista, MarcarTodasVistas, JaVistas } from '@/components/IdeiasCli
 
 export const dynamic = 'force-dynamic';
 
-// Lâmpada acesa desenhada (cartão "Ilustrado azul", seção 66 opção 1).
-function Ilustracao({ tam = 96 }) {
-  return (
-    <svg className="ideia-ilu" width={tam} height={tam} viewBox="0 0 96 96" aria-hidden="true">
-      <circle cx="48" cy="44" r="34" fill="#fff" opacity=".18" /><circle cx="48" cy="44" r="24" fill="#fff" opacity=".22" />
-      <path d="M48 18a20 20 0 0 0-11.5 36.4c1.7 1.3 2.8 3.2 2.8 5.4V62h17.4v-2.2c0-2.2 1.1-4.1 2.8-5.4A20 20 0 0 0 48 18Z" fill="#ffd166" />
-      <path d="M42 40c0-3.5 2.6-6.4 6-6.9" stroke="#fff" strokeWidth="3" strokeLinecap="round" fill="none" opacity=".9" />
-      <rect x="39" y="64" width="18" height="5" rx="2.5" fill="#e8eef7" /><rect x="41" y="71" width="14" height="5" rx="2.5" fill="#e8eef7" />
-      <g stroke="#ffd166" strokeWidth="3" strokeLinecap="round"><path d="M48 6v5M20 18l3.5 3.5M76 18l-3.5 3.5M10 44h5M81 44h5" /></g>
-      <path d="M80 66l1.6 3.4L85 71l-3.4 1.6L80 76l-1.6-3.4L75 71l3.4-1.6Z" fill="#fff" />
-      <path d="M16 62l1.2 2.5L20 66l-2.8 1.2L16 70l-1.2-2.8L12 66l2.8-1.5Z" fill="#fff" opacity=".85" />
-    </svg>
-  );
-}
-
-function Cartao({ ideia, rotulo }) {
-  return (
-    <div className="ideia-cartao">
-      <div className="ideia-ban">
-        <div><small>{rotulo}</small><b>{ideia.t}</b></div>
-        <Ilustracao />
-      </div>
-      <div className="ideia-corpo">
-        <p>{ideia.d}</p>
-        {ideia.f && <div className="ideia-fala"><small><Icone nome="fala" tam={14} larg={2.4} />Experimente dizer</small>“{ideia.f}”</div>}
-      </div>
-    </div>
-  );
-}
-
-// ═══ SEÇÃO: cartão da Ideia da semana (leve e já aberto) ═══
+// ═══ SEÇÃO: cartão de ideia (leve e já aberto) ═══
+// @regra o mesmo cartão serve para a Ideia da semana e para a tela de cada ideia (rótulo muda).
 // @decisao 26/11 (Thomas): sem banner azul nem recolher; lâmpada pequena, texto e "Experimente dizer" sempre à mostra.
-function CartaoSemana({ ideia }) {
+function CartaoSemana({ ideia, rotulo = 'Ideia da semana' }) {
   return (
     <div className="ideia-cartao ideia-leve">
       <div className="ideia-leve-cab">
         <span className="tm-ic ideia-leve-ic"><Icone nome="lampada" tam={20} cor="#13203a" /></span>
-        <span><small>Ideia da semana</small><b>{ideia.t}</b></span>
+        <span><small>{rotulo}</small><b>{ideia.t}</b></span>
       </div>
       <div className="ideia-corpo">
         <p>{ideia.d}</p>
@@ -80,7 +52,7 @@ export default async function Ideias({ searchParams }) {
     return (
       <main className="estreito ideias">
         <Link prefetch={false} className="ideias-volta" href={deFilho ? link({}) : link({ t: ideia.tema.id })}><Icone nome="esq" tam={18} />{deFilho ? 'Ideias' : ideia.tema.nome}</Link>
-        <Cartao ideia={ideia} rotulo={`${ideia.tema.nome} · 1 min`} />
+        <CartaoSemana ideia={ideia} rotulo={`${ideia.tema.nome} · 1 min`} />
         <div className="acoes" style={{ justifyContent: 'space-between' }}>
           {ant ? <Link prefetch={false} className="btn sec peq" href={link({ i: ant.id })}><Icone nome="esq" tam={16} />Anterior</Link> : <span />}
           {prox && <Link prefetch={false} className="btn peq" href={link({ i: prox.id })}>Próxima ideia<Icone nome="dir" tam={16} cor="#fff" /></Link>}
