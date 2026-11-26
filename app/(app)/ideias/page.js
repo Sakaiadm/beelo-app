@@ -2,6 +2,7 @@
 // @tipo     tela
 // @usa      lib/sessao, lib/papeis, lib/util, lib/ideias, components/Icone, components/IdeiasCliente
 // @usado-por Next.js (rota /ideias)
+// @decisao  26/11: tela Ideias com título e abas na mesma linha, cartão da semana leve e aberto, e aviso "+N ideias" (sem botão).
 import Link from 'next/link';
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
@@ -33,6 +34,23 @@ function Cartao({ ideia, rotulo }) {
       <div className="ideia-ban">
         <div><small>{rotulo}</small><b>{ideia.t}</b></div>
         <Ilustracao />
+      </div>
+      <div className="ideia-corpo">
+        <p>{ideia.d}</p>
+        {ideia.f && <div className="ideia-fala"><small><Icone nome="fala" tam={14} larg={2.4} />Experimente dizer</small>“{ideia.f}”</div>}
+      </div>
+    </div>
+  );
+}
+
+// ═══ SEÇÃO: cartão da Ideia da semana (leve e já aberto) ═══
+// @decisao 26/11 (Thomas): sem banner azul nem recolher; lâmpada pequena, texto e "Experimente dizer" sempre à mostra.
+function CartaoSemana({ ideia }) {
+  return (
+    <div className="ideia-cartao ideia-leve">
+      <div className="ideia-leve-cab">
+        <span className="tm-ic ideia-leve-ic"><Icone nome="lampada" tam={20} cor="#13203a" /></span>
+        <span><small>Ideia da semana</small><b>{ideia.t}</b></span>
       </div>
       <div className="ideia-corpo">
         <p>{ideia.d}</p>
@@ -87,16 +105,25 @@ export default async function Ideias({ searchParams }) {
   }
 
   const semana = ideiaDaSemana(paraPais, hoje);
+  const maisAbaixo = TEMAS.reduce((n, t) => n + t.ideias.length, 0) - TEMAS[0].ideias.length;
   return (
     <main className="estreito ideias">
-      <div className="cab"><div><h1 className="titulo">Ideias</h1><p className="sub">{podePais ? 'Pequenas atitudes para a rotina virar parceria' : 'Dicas para você crescer com a sua rotina'}</p></div></div>
-      {podePais && (
-        <div className="abas" style={{ marginBottom: 16 }}>
-          <Link prefetch={false} href="/ideias" className={paraPais ? 'ativo' : ''}>Responsáveis</Link>
-          <Link prefetch={false} href="/ideias?p=filhos" className={!paraPais ? 'ativo' : ''}>Filhos</Link>
+      {podePais ? (
+        <div className="cab centro ideias-cab">
+          <h1 className="titulo">Ideias</h1>
+          <div className="abas">
+            <Link prefetch={false} href="/ideias" className={paraPais ? 'ativo' : ''}>Responsáveis</Link>
+            <Link prefetch={false} href="/ideias?p=filhos" className={!paraPais ? 'ativo' : ''}>Pessoas</Link>
+          </div>
         </div>
+      ) : (
+        <div className="cab"><div><h1 className="titulo">Ideias</h1><p className="sub">Dicas para você crescer com a sua rotina</p></div></div>
       )}
-      <Link prefetch={false} href={q({ i: semana.id })} className="ideia-link"><Cartao ideia={semana} rotulo="Ideia da semana" /></Link>
+      <Link prefetch={false} href={q({ i: semana.id })} className="ideia-link"><CartaoSemana ideia={semana} /></Link>
+      {/* @regra a contagem é real: todas as ideias dos temas menos as do primeiro tema, que já aparece na tela. Não é botão. */}
+      {paraPais && maisAbaixo > 0 && (
+        <div className="ideias-mais" role="note"><span className="tg ideias-mais-n">+{maisAbaixo}</span><b>ideias para ler logo abaixo</b></div>
+      )}
       {paraPais ? <>
         {TEMAS.map((t) => (
           <section key={t.id} className="ideias-grupo">
@@ -107,7 +134,7 @@ export default async function Ideias({ searchParams }) {
           </section>
         ))}
       </> : <>
-        <div className="grupo-titulo">{podePais ? 'O que os filhos leem' : 'Todas as ideias'}</div>
+        <div className="grupo-titulo">{podePais ? 'O que as pessoas leem' : 'Todas as ideias'}</div>
         <div className="cat-lista" style={{ marginBottom: 16 }}>
           {FILHOS.ideias.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={q({ i: i.id })}><span className="cat-bolinha" /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
         </div>

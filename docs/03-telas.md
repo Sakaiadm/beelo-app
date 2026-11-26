@@ -27,7 +27,7 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | `/desafios` | `app/(app)/desafios/page.js` | tela Desafios em abas (opção A, 25/11): Pai/Mãe veem Desafios \| Mural \| Vitrine com "+ Desafio" ao lado do título e sem setinha; Ajustes e "Como funciona" ficam discretos no pé; sem desafio mostra 3 sugestões de um toque. O filho vê Meus desafios \| Mural \| Cofrinho (com setinha) e a criança pode sugerir um desafio aos pais. | ra_desafio_sugestoes |
 | `/desafios/premios` | `app/(app)/desafios/premios/page.js` | vitrine de prêmios (banco de prêmios, preços e lista de desejos). | ra_premios |
 | `/hoje` | `app/(app)/hoje/page.js` | tela Hoje: as tarefas do dia da pessoa, com concluir, foto, adiar e justificar. | ra_tela_real, ra_tela_previsto_dia |
-| `/ideias` | `app/(app)/ideias/page.js` | ideias de conduta para Pai/Mãe e para os filhos (cartões curtos). | — |
+| `/ideias` | `app/(app)/ideias/page.js` | ideias de conduta: abas Responsáveis e Pessoas (o parâmetro interno segue `p=filhos`); cartão da Ideia da semana leve e aberto; aviso "+N ideias" com a contagem real (sem botão). | — |
 | `/notificacoes/abrir` | `app/(app)/notificacoes/abrir/route.js` | rota que marca um aviso como lido e abre o link dele. | ra_notificacoes |
 | `/notificacoes` | `app/(app)/notificacoes/page.js` | lista de avisos (sino) e pedidos para responder. | ra_adiamentos, ra_notificacoes, ra_ocorrencias, ra_tela_proposta |
 | `/painel` | `app/(app)/painel/page.js` | Painel da família (Pai, Mãe e quem acompanha): atrasos, pedidos, resumo do dia. | ra_adiamentos, ra_tarefas, ra_tela_proposta |

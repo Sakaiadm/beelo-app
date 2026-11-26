@@ -477,6 +477,15 @@ body:has(.progresso.on) main { opacity: .6; transition: opacity .15s .25s; }
 .ideia-fala { position: relative; background: color-mix(in srgb, var(--azul) 14%, var(--cartao)); color: var(--texto); border-radius: 16px; padding: 10px 14px; font-size: var(--f-texto); line-height: 1.45; font-weight: 600; margin-top: 12px; }
 .ideia-fala small { display: flex; align-items: center; gap: 6px; font-size: var(--f-etq); font-weight: 800; letter-spacing: .06em; text-transform: uppercase; color: var(--azul); margin-bottom: 3px; }
 .ideia-fala::after { content: ""; position: absolute; left: 22px; bottom: -8px; border: 8px solid transparent; border-top-color: color-mix(in srgb, var(--azul) 14%, var(--cartao)); border-bottom: 0; }
+.ideia-leve { margin-bottom: 10px; }
+.ideia-leve-cab { display: flex; align-items: center; gap: 12px; padding: 12px 16px 0; }
+.ideia-leve-cab small { display: block; font-size: var(--f-etq); font-weight: 800; letter-spacing: .08em; text-transform: uppercase; color: var(--azul); }
+.ideia-leve-ic { background: #f5b82e; width: 34px; height: 34px; }
+.ideia-leve .ideia-corpo { padding: 8px 16px 16px; }
+.ideia-leve .ideia-fala { margin-top: 10px; }
+.ideias-cab { margin-bottom: 12px; }
+.ideias-mais { display: flex; align-items: center; gap: 10px; margin: 2px 2px 6px; }
+.tg.ideias-mais-n { background: #f5b82e; color: #13203a; font-weight: 800; font-size: var(--f-apoio); padding: 5px 12px; }
 .ideias-off { text-align: center; font-size: var(--f-apoio); }
 .ideias-off button { background: none; border: 0; color: var(--cinza); font: inherit; text-decoration: underline; cursor: pointer; padding: 6px; }
 .ideias-missao { text-align: center; font-size: var(--f-apoio); margin-top: 10px; }
