@@ -33,12 +33,13 @@ export default async function AppLayout({ children }) {
   const telaLigada = gestor || !!eu.tela_ativo;
   const urls = await urlsAvatares(supabase, [eu.avatar]);
   const a = acesso(eu);
-  // Responsáveis: Painel, Agenda, Relatórios, Desafios (se ativos), Tela e Cadastros (sempre à direita).
+  // Responsáveis: Painel, Agenda, Desafios, Tela, Relatórios (penúltimo) e Cadastros (sempre o último, à direita).
+  // @decisao ordem pedida pelo Thomas em 26/11; os menus de quem não é responsável não mudam.
   const itens = gestor
     ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
-       { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' },
        { href: '/desafios', txt: 'Desafios', icone: 'trofeu' },
        ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []),
+       { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' },
        { href: '/config', txt: 'Cadastros', icone: 'config' }]
     : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
        ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
