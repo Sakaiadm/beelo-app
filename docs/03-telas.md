@@ -30,7 +30,7 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | `/ideias` | `app/(app)/ideias/page.js` | ideias de conduta: abas Responsáveis e Acompanhados (o parâmetro interno segue `p=filhos`); cartão da Ideia da semana leve e aberto; aviso "+N ideias" com a contagem real (sem botão). | — |
 | `/notificacoes/abrir` | `app/(app)/notificacoes/abrir/route.js` | rota que marca um aviso como lido e abre o link dele. | ra_notificacoes |
 | `/notificacoes` | `app/(app)/notificacoes/page.js` | lista de avisos (sino) e pedidos para responder. | ra_adiamentos, ra_notificacoes, ra_ocorrencias, ra_tela_proposta |
-| `/painel` | `app/(app)/painel/page.js` | Painel da família (Pai, Mãe e quem acompanha): atrasos, pedidos, resumo do dia. | ra_adiamentos, ra_tarefas, ra_tela_proposta |
+| `/painel` | `app/(app)/painel/page.js` | Painel da família (Pai, Mãe e quem acompanha): atrasos, pedidos, resumo do dia. O cartão "Precisa da sua atenção" mostra 2 itens e o resto atrás do botão vermelhinho "Ver mais precisa de atenção (N)" / "Ver menos" (`components/MaisAtencao.js`). | ra_adiamentos, ra_tarefas, ra_tela_proposta |
 | `/perfil/dados` | `app/(app)/perfil/dados/route.js` | rota que entrega ao usuário uma cópia dos próprios dados (LGPD). | ra_membros, ra_emails_grupo, ra_eu |
 | `/perfil` | `app/(app)/perfil/page.js` | Meu perfil: foto, cor, jeito de ver, avisos no celular, tempo de tela próprio. | — |
 | `/relatorios` | `app/(app)/relatorios/page.js` | relatórios por período, pessoa, categoria e situação, com gráfico e impressão. | ra_adiamentos, ra_categorias |

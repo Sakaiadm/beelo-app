@@ -1,8 +1,9 @@
 // @arquivo  page.js: Painel da família (Pai, Mãe e quem acompanha): atrasos, pedidos, resumo do dia.
 // @tipo     tela
-// @usa      banco ra_adiamentos, banco ra_tela_proposta, banco ra_tarefas, components/LembrarBotao, components/PrimeirosPassos, components/SugestaoDesafio, banco ra_desafio_dispensas, lib/sugestoesDesafio, components/AvisosConvite, components/IdadePergunta, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/tela, lib/util, components/Calendario, components/FiltroHoje, components/Form, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/Responder, lib/respostas, app/acoes
+// @usa      banco ra_adiamentos, banco ra_tela_proposta, banco ra_tarefas, components/LembrarBotao, components/MaisAtencao, components/PrimeirosPassos, components/SugestaoDesafio, banco ra_desafio_dispensas, lib/sugestoesDesafio, components/AvisosConvite, components/IdadePergunta, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/tela, lib/util, components/Calendario, components/FiltroHoje, components/Form, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/Responder, lib/respostas, app/acoes
 // @usado-por Next.js (rota /painel)
 import LembrarBotao from '@/components/LembrarBotao';
+import MaisAtencao from '@/components/MaisAtencao';
 import PrimeirosPassos from '@/components/PrimeirosPassos';
 import FavoMel from '@/components/FavoMel';
 import SugestaoDesafio from '@/components/SugestaoDesafio';
@@ -142,6 +143,9 @@ export default async function Painel({ searchParams }) {
         <div className="card atencao">
           <h2>Precisa da sua atenção</h2>
           {nPedidos > 0 && <div id="pedidos" className="alvo-ancora" />}
+          {atrasadas.length > 0 && <div id="atrasadas" className="alvo-ancora" />}
+          {/* @decisao 26/11: só os 2 primeiros itens à vista; o resto abre no botão "Ver mais precisa de atenção (N)". */}
+          <MaisAtencao visiveis={2}>
           {(adiamentos || []).map((a) => (
             <div key={a.id} id={`a-${a.id}`} className="tarefa pedido alvo">
               <div className="tt">{nome[a.membro_id]} pediu adiamento: {a.oc?.tarefa?.titulo}</div>
@@ -187,9 +191,8 @@ export default async function Painel({ searchParams }) {
               </div>
             </details>
           ))}
-          {atrasadas.length > 0 && <div id="atrasadas" className="alvo-ancora" />}
           {(() => {
-            // U35: tocar abre o dia da pessoa já na tarefa. Só as 3 primeiras à vista; o resto abre num toque.
+            // U35: tocar abre o dia da pessoa já na tarefa. O limite de itens à vista é do MaisAtencao (vale para tudo, atrasadas incluídas).
             // Mesma tarefa atrasada em mais de um dia (ex.: diária com justificativa esperando): uma linha só, com um só Lembrar.
             const grupos = [];
             atrasadas.forEach(({ o }) => {
@@ -207,9 +210,9 @@ export default async function Painel({ searchParams }) {
                 {gestor && o.membro_id !== eu.id && <LembrarBotao oc={o.id} nome={nome[o.membro_id]} lembradoEm={lembrado || null} />}
               </div>
             );
-            return <>{grupos.slice(0, 3).map(item)}
-              {grupos.length > 3 && <details className="mais-atr"><summary>Ver mais {grupos.length - 3 === 1 ? '1 atrasada' : `${grupos.length - 3} atrasadas`}</summary>{grupos.slice(3).map(item)}</details>}</>;
+            return grupos.map(item);
           })()}
+          </MaisAtencao>
         </div>
       )}
 
