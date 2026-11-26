@@ -120,7 +120,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
       {aberto && (
         <div className="det">
           <div className="l"><span>Dia</span><span>{DIAS[diaSemana(oc.data)].replace(/^./, (c) => c.toUpperCase())}, {oc.data.slice(8, 10)}/{oc.data.slice(5, 7)}</span></div>
-          <div className="l"><span>Horário</span><span>{horario}{oc.horario_travado ? ' · definido pelos pais' : ''}</span></div>
+          <div className="l"><span>Horário</span><span>{horario}{oc.horario_travado ? ' · definido pelos responsáveis' : ''}</span></div>
           <div className="l"><span>Situação</span><span>{STATUS_TXT[st]}{oc.conferido === 'conferido' ? ' · conferido' : oc.conferido === 'refazer' ? ' · pedido para refazer' : ''}</span></div>
           {oc.tarefa?.exige_foto && !feita && <div className="l"><span>Foto</span><span>Precisa de foto para concluir</span></div>}
           {oc.tarefa?.criada_por === oc.membro_id && <div className="l"><span>Origem</span><span>Criada pela própria pessoa</span></div>}
@@ -186,7 +186,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
       )}
       {aba === 'justificar' && (
         <div className="painel-acao">
-          <Form acao={justificar} fila="justificar" rotulo={`Justificativa de “${t}”`} okTxt="Justificativa enviada aos pais.">
+          <Form acao={justificar} fila="justificar" rotulo={`Justificativa de “${t}”`} okTxt="Justificativa enviada a quem cuida de você.">
             <input type="hidden" name="oc" value={oc.id} />
             <Motivos id={`j-${oc.id}`} name="texto" rotulo="Por que atrasou?" botao="Enviar justificativa" />
           </Form>
@@ -194,7 +194,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
       )}
       {aba === 'adiar' && (
         <div className="painel-acao">
-          <Form acao={pedirAdiamento} fila="pedirAdiamento" rotulo={`Pedido para adiar “${t}”`} okTxt="Pedido enviado. Os pais vão responder.">
+          <Form acao={pedirAdiamento} fila="pedirAdiamento" rotulo={`Pedido para adiar “${t}”`} okTxt="Pedido enviado. Quem cuida de você vai responder.">
             <input type="hidden" name="oc" value={oc.id} />
             <label>Para quando?</label>
             <div className="chips" role="radiogroup" aria-label="Para quando?">

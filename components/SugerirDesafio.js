@@ -18,10 +18,10 @@ export default function SugerirDesafio({ itens, esperando = [] }) {
       <button type="button" className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 12 }} aria-expanded={aberto} onClick={() => setAberto((v) => !v)}>
         <Icone nome="mais" tam={18} />Sugerir um desafio
       </button>
-      {esperando.length > 0 && <div className="aviso info">Esperando os pais: {esperando.join(', ')}.</div>}
+      {esperando.length > 0 && <div className="aviso info">Esperando os responsáveis: {esperando.join(', ')}.</div>}
       {aberto && (
         <div className="card" style={{ padding: '12px 18px' }}>
-          <small className="peq-cinza" style={{ fontWeight: 700 }}>Qual você quer tentar? Os pais respondem.</small>
+          <small className="peq-cinza" style={{ fontWeight: 700 }}>Qual você quer tentar? Quem cuida de você responde.</small>
           {itens.map((c) => (
             <Form key={c.id} acao={sugerirDesafio} aoConcluir={() => setAberto(false)}>
               <input type="hidden" name="catalogo" value={c.id} />

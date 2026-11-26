@@ -53,7 +53,7 @@ export default function AvisosGestor({ inicial }) {
       ))}
       </details>
       {msg && <p className="salvo-msg" role="status">{msg}</p>}
-      <p className="rodape-av">Cada pai ou mãe escolhe os próprios avisos. Os avisos aparecem no sino do app.</p>
+      <p className="rodape-av">Cada responsável escolhe os próprios avisos. Os avisos aparecem no sino do app.</p>
     </div>
   );
 }

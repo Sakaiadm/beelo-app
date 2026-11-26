@@ -126,7 +126,7 @@ export default async function Hoje({ searchParams }) {
       </div>
 
       {des && alvo.id === eu.id && <Comemorar itens={paraComemorar(des.periodos, eu, des.desafios)} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />}
-      {desAprovado && <div className="aviso ok" role="status">Os pais aprovaram seu desejo: {desAprovado.nome}!</div>}
+      {desAprovado && <div className="aviso ok" role="status">Quem cuida de você aprovou seu desejo: {desAprovado.nome}!</div>}
 
       <div className="hoje-grade">
         <section className="hoje-tarefas">
