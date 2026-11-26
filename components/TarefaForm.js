@@ -10,7 +10,7 @@ import { useState } from 'react';
 import Form from './Form';
 import { salvarTarefa } from '@/app/acoes';
 import { hhmm } from '@/lib/util';
-import { SUGESTOES, IDADES, ICONE_CAT, resumoSugestao } from '@/lib/sugestoes';
+import { SUGESTOES, IDADES, ICONE_CAT, CHEGADAS, resumoSugestao } from '@/lib/sugestoes';
 
 
 const SEG_SEX = [1, 2, 3, 4, 5];
@@ -100,7 +100,13 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
       <input type="hidden" name="recorrencia" value={opcao === 'semana' || opcao === 'pers' ? 'dias_semana' : opcao === 'uma' ? '' : opcao} />
       {diasEnviados.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
       <input type="hidden" name="data_fim" value={uma ? '' : fim} />
-      {t?.id || chegada ? <label htmlFor="titulo" style={{ marginTop: gestor ? undefined : 0 }}>Tarefa</label> : (
+      {t?.id ? <label htmlFor="titulo" style={{ marginTop: gestor ? undefined : 0 }}>Tarefa</label> : chegada ? (
+        // @regra Chegada: botão Sugestões abre a lista de destinos (lib/sugestoes.js CHEGADAS); um toque preenche o título.
+        <div className="rot-sug">
+          <label htmlFor="titulo" style={{ marginTop: gestor ? undefined : 0 }}>Tarefa</label>
+          <button type="button" className="btn peq sugestao-btn" onClick={() => setFolha('cheg')}><Icone nome="lampada" tam={18} cor="#fff" />Sugestões</button>
+        </div>
+      ) : (
         <div className="rot-sug">
           <label htmlFor="titulo" style={{ marginTop: gestor ? undefined : 0 }}>Tarefa</label>
           <button type="button" className="btn peq sugestao-btn" onClick={() => setFolha('sug')}><Icone nome="lampada" tam={18} cor="#fff" />Sugestões</button>
@@ -121,6 +127,18 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
         <div className="chaves-form" style={{ marginTop: 14 }}>
           <label className="check"><input type="checkbox" name="chegada_lembrar" value="1" checked={lembrarPessoa} onChange={(e) => setLembrarPessoa(e.target.checked)} /><span>Lembrar a pessoa se não tocar<small style={{ display: 'block', color: 'var(--cinza)', fontWeight: 400 }}>15 minutos depois do horário. Só ela recebe.</small></span></label>
           <label className="check" style={{ marginTop: 12 }}><input type="checkbox" name="chegada_avisar_pais" value="1" checked={avisarPais} onChange={(e) => setAvisarPais(e.target.checked)} /><span>Avisar você se ainda não chegou<small style={{ display: 'block', color: 'var(--cinza)', fontWeight: 400 }}>30 minutos depois do horário, bem leve.</small></span></label>
+        </div>
+      )}
+      {folha === 'cheg' && (
+        <div className="folha" role="dialog" aria-modal="true" aria-label="Sugestões de chegada">
+          <div className="folha-in">
+            <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => setFolha(null)}><Icone nome="esq" tam={26} /></button><h2>Sugestões de chegada</h2></div>
+            <div className="folha-lista">
+              {CHEGADAS.map((n) => (
+                <button key={n} type="button" onClick={() => { setTitulo(n); setFolha(null); }}><span>{n}</span><span aria-hidden="true">›</span></button>
+              ))}
+            </div>
+          </div>
         </div>
       )}
       {folha === 'sug' && (
