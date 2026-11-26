@@ -30,3 +30,12 @@ Padrões do arquivo: `rpc(nome, args)` (chama, traduz erro, revalida); `uuid()`,
 
 ## Os arquivos de `lib/`
 Cada um tem cabeçalho `@arquivo` explicando o que faz e quem usa. Por tipo: **regra** (papeis, util, dados, desafios, jeito, relatorio, sugestoes…), **aviso** (despachante, convite, aquecer), **offline** (fila), **infra** (supabase/client, supabase/server).
+
+## Desafios: ciclos e limite (26/11, SQL 0031)
+@decisao 26/11 Thomas (opção 1). Regras:
+- **Ciclo de 4 semanas** por padrão (2 ou 8 também valem, escolhidos ao Renovar). A semana ainda recomeça toda segunda; o que acaba é o desafio.
+- **Limite:** ideal 1 desafio por pessoa, máximo 2; a família tem 1. Conferido no app (`MAX_POR_PESSOA`) **e no banco** (gatilho `ra_desafios_limite`). Desafio que descansa não conta.
+- **Fim:** o banco para de gerar períodos no fim do ciclo (`ra_desafios_atualizar`), guarda o balanço (`ciclo_feitas`), marca `descansando_em` e avisa Pai e Mãe uma vez. Pai/Mãe escolhem Renovar, Subir um nível (meta um passo acima, só se foi bem) ou Trocar. **Nunca renova sozinho.**
+- **Troca:** encerrar no meio do ciclo vale 1 vez por semana por pessoa (desfazer um desafio criado há menos de 1 dia não conta; terminar o ciclo também não).
+- Desafios que já existiam ganham um ciclo novo de 4 semanas a partir da semana em que o SQL 0031 rodar.
+- Tom: positivo, sem culpa ("Sem pressa", "Menos é mais"). Textos na Ajuda, nos manuais e no balãozinho "Como funciona".

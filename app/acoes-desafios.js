@@ -1,7 +1,7 @@
 'use server';
 // @arquivo  acoes-desafios.js: ações de Desafios, prêmios, cofrinho e desejos (beta, migração 0016/0017).
 // @tipo     acao
-// @usa      banco ra_familias, banco ra_premios, banco ra_membros, banco ra_desafios, banco ra_categorias, banco ra_tarefas, banco ra_ocorrencias, rpc ra_eu, rpc ra_gerar_ocorrencias, rpc ra_desafios_atualizar, rpc ra_desafio_encerrar, rpc ra_premio_pedir, rpc ra_premio_entregar, rpc ra_cofrinho_meta, rpc ra_desafio_visto, lib/supabase/server, lib/sessao, lib/rede, lib/util, lib/membros, lib/desafios
+// @usa      banco ra_familias, banco ra_premios, banco ra_membros, banco ra_desafios, banco ra_categorias, banco ra_tarefas, banco ra_ocorrencias, rpc ra_eu, rpc ra_gerar_ocorrencias, rpc ra_desafios_atualizar, rpc ra_desafio_encerrar, rpc ra_desafio_renovar, rpc ra_premio_pedir, rpc ra_premio_entregar, rpc ra_cofrinho_meta, rpc ra_desafio_visto, lib/supabase/server, lib/sessao, lib/rede, lib/util, lib/membros, lib/desafios
 // Ações dos Desafios e prêmios (versão beta, SQL 0016).
 import { revalidatePath } from 'next/cache';
 import { redirect } from 'next/navigation';
@@ -10,7 +10,7 @@ import { esquecerSessoes } from '@/lib/sessao';
 import { traduzirErro } from '@/lib/rede';
 import { hojeISO, addDias, agoraHHMM } from '@/lib/util';
 import { COLS_MEMBRO } from '@/lib/membros';
-import { desafioDe, perfil, recompensaDe, diasPorMeta, opcoesMeta, PREMIOS, PREMIOS_FAMILIA, MAX_POR_PESSOA } from '@/lib/desafios';
+import { desafioDe, perfil, recompensaDe, diasPorMeta, opcoesMeta, PREMIOS, PREMIOS_FAMILIA, MAX_POR_PESSOA, CICLOS } from '@/lib/desafios';
 
 function revalidar() { esquecerSessoes(); revalidatePath('/', 'layout'); }
 const uuid = (v) => (/^[0-9a-f-]{36}$/i.test(String(v || '')) ? String(v) : null);
@@ -93,11 +93,12 @@ export async function criarDesafio(_, fd) {
   const metas = opcoesMeta(c).map(([v]) => v);
   const meta = metas.includes(Number(fd.get('meta'))) ? Number(fd.get('meta')) : c.meta;
 
-  const { data: ativos, error: e0 } = await supabase.from('ra_desafios').select('membro_id').eq('ativo', true);
+  const { data: ativos, error: e0 } = await supabase.from('ra_desafios').select('*').eq('ativo', true);
   if (e0) return erroDe(e0);
   for (const m of alvos) {
-    const n = (ativos || []).filter((x) => (x.membro_id || null) === (m?.id || null)).length;
-    if (n >= (m ? MAX_POR_PESSOA : 1)) return { erro: m ? `${m.nome} já tem ${MAX_POR_PESSOA} desafios. Encerre um para começar outro.` : 'A família já tem um desafio. Encerre o atual para começar outro.' };
+    // @regra o desafio que descansa (ciclo terminado) não conta no limite.
+    const n = (ativos || []).filter((x) => !x.descansando_em && (x.membro_id || null) === (m?.id || null)).length;
+    if (n >= (m ? MAX_POR_PESSOA : 1)) return { erro: m ? `${m.nome} já tem ${MAX_POR_PESSOA} desafios. Menos é mais: termine ou troque um para começar outro.` : 'A família já tem um desafio. Termine ou troque o atual para começar outro.' };
     if (c.tela && !m?.tela_ativo) return { erro: `Ligue o tempo de tela${m ? ` de ${m.nome}` : ''} para usar este desafio.` };
   }
 
@@ -200,6 +201,27 @@ export async function encerrarDesafio(fd) {
   const r = await rpc('ra_desafio_encerrar', { p_id: uuid(fd.get('id')) });
   if (r.erro) return r;
   redirect('/desafios?aviso=encerrado');
+}
+
+// ═══ SEÇÃO: Fim do ciclo (SQL 0031) ═══════════════════════════════════
+// @rpc ra_desafio_renovar: começa um ciclo novo (mesma meta, ou uma meta um passo acima em "Subir um nível").
+// @decisao 26/11 Thomas: no fim do ciclo o desafio descansa e NÃO renova sozinho; os pais escolhem Renovar, Subir um nível ou Trocar.
+export async function renovarDesafio(_, fd) {
+  const semanas = Number(fd.get('semanas'));
+  const meta = fd.get('meta') ? Number(fd.get('meta')) : null;
+  const r = await rpc('ra_desafio_renovar', { p_id: uuid(fd.get('id')), p_semanas: CICLOS.includes(semanas) ? semanas : null, p_meta: meta > 0 && meta <= 100 ? meta : null });
+  if (r.erro) return r;
+  const supabase = await supabaseServer();
+  await supabase.rpc('ra_desafios_atualizar'); // começa a contar a semana atual já na renovação
+  revalidar();
+  return { ok: true, msg: meta ? 'Nível novo! O ciclo começa nesta semana.' : 'Ciclo novo! Começa nesta semana.' };
+}
+// Trocar: encerra este e já abre a escolha de outro desafio para a mesma pessoa.
+export async function trocarDesafio(fd) {
+  const r = await rpc('ra_desafio_encerrar', { p_id: uuid(fd.get('id')) });
+  if (r.erro) return r;
+  const m = uuid(fd.get('membro'));
+  redirect(m ? `/desafios/novo?m=${m}` : '/desafios/novo');
 }
 
 // Próximo nível em 1 toque (depois de 3 semanas seguidas cumpridas).

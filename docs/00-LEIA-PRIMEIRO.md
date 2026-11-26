@@ -50,7 +50,7 @@ Pasta `testes/`: usam um Supabase falso (`mock-supabase.mjs`) para percorrer tel
 - Criança no Supabase falso: `MOCK_CRIANCA=1` e `MOCK_JEITO=divertido|calmo`.
 - `testes/ajuda-busca.mjs`: confere a busca da Ajuda (sinônimos, acento, erro de digitação). Rodar com `node testes/ajuda-busca.mjs`.
 - `testes/acoes.mjs` está desatualizado em vários pontos (telas mudaram desde as PRs 62 a 64); prefira `acoes-novas.mjs`.
-- As trilhas do banco (`trilha_banco`, `trilha_desafios`, `trilha_desejos`) passam: 112, 25 e 22 testes (rodar a primeira com `bash testes/banco-local.sh`; as outras com `psql -d ra -f supabase/testes/<nome>.sql` depois dela).
+- As trilhas do banco (`trilha_banco`, `trilha_desafios`, `trilha_desafios_ciclo`, `trilha_desejos`) passam: 112, 25, 14 e 22 testes (rodar a primeira com `bash testes/banco-local.sh`; as outras com `psql -d ra -f supabase/testes/<nome>.sql` depois dela).
 
 ## Regras que não mudam
 

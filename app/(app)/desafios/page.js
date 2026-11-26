@@ -12,7 +12,7 @@ import { urlsAvatares } from '@/lib/avatar';
 import { ocorrencias } from '@/lib/dados';
 import { statusExibido, addDias } from '@/lib/util';
 import { carregarDesafios, desafiosLigados, paraComemorar, pessoasDesafio } from '@/lib/desafiosDados';
-import { perfil, ideiaComemorar, textoMeta, MAX_POR_PESSOA, precoSugerido, desafioDe } from '@/lib/desafios';
+import { perfil, ideiaComemorar, textoMeta, MAX_POR_PESSOA, precoSugerido, desafioDe, cicloDe, contaNoLimite } from '@/lib/desafios';
 import { sugestoesDesafio } from '@/lib/sugestoesDesafio';
 import { linksAssinados } from '@/lib/links';
 import DesejoAprovar from '@/components/DesejoAprovar';
@@ -26,11 +26,12 @@ import DesafiosTopo from '@/components/DesafiosTopo';
 import DesafiosVazio from '@/components/DesafiosVazio';
 import SugerirDesafio from '@/components/SugerirDesafio';
 import Comemorar from '@/components/Comemorar';
+import FimCicloAcoes from '@/components/FimCicloAcoes';
 import { ligarDesafios, entregarPremio, encerrarDesafio, subirMeta, fecharSugestaoDesafio } from '@/app/acoes-desafios';
 
 export const dynamic = 'force-dynamic';
 
-const AVISOS = { criado: 'Desafio criado. Ele renova sozinho toda semana.', encerrado: 'Desafio encerrado.' };
+const AVISOS = { criado: 'Desafio criado. Ele dura 4 semanas e recomeça a cada segunda. Menos é mais!', encerrado: 'Desafio encerrado.' };
 
 // Só aparece com os desafios desligados. Desafios é painel principal: sem setinha de voltar.
 function Titulo({ texto }) {
@@ -100,7 +101,9 @@ export default async function Desafios({ searchParams }) {
           {contrib.map(({ p, n, f }) => <div className="l" key={p.id}><span>{p.nome}</span><div className="barra"><div style={{ width: `${(f / n) * 100}%` }} /></div><span>{Math.round((f / n) * 100)}%</span></div>)}
         </div>
       )}
-      {gestor && <div className="des-acoes"><ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} detalhe="Desafio da família" pergunta="O que já foi conquistado continua no mural." sim="Sim, encerrar" icone="bloquear" /></div>}
+      {gestor && (d.descansando_em
+        ? <FimCicloAcoes d={d} c={cicloDe(d, hoje)} />
+        : <div className="des-acoes"><ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} detalhe="Desafio da família" pergunta="O que já foi conquistado continua no mural. Trocar de desafio no meio do ciclo vale 1 vez por semana." sim="Sim, encerrar" icone="bloquear" /></div>)}
     </DesafioCartao>
   ));
 
@@ -193,25 +196,33 @@ export default async function Desafios({ searchParams }) {
 
         {pessoas.filter((m) => deQuem(m.id).length > 0).map((m) => {
           const ds = deQuem(m.id);
+          // @regra 26/11 Thomas: ideal 1 por pessoa, no máximo 2 (o desafio que descansa não conta). O banco também confere.
+          const nAtivos = ds.filter(contaNoLimite).length;
           return (
             <section key={m.id}>
               <div className="des-pessoa">
                 <Avatar nome={m.nome} cor={m.cor} url={urls[m.avatar]} avatar={m.avatar} tam={34} />
                 <b>{m.nome}{m.id === eu.id ? ' (você)' : ''}</b>
+                <small className="peq-cinza">{nAtivos} de {MAX_POR_PESSOA} desafios</small>
                 {m.perfil !== 'j' && <Link prefetch={false} href={`/desafios/cofrinho?m=${m.id}`} style={{ textDecoration: 'none' }}><Saldo m={m} saldo={saldo[m.id]} /></Link>}
               </div>
               {ds.map((d) => (
                 <DesafioCartao key={d.id} d={d} p={d.atual}>
+                  {d.descansando_em ? <FimCicloAcoes d={d} c={cicloDe(d, hoje)} /> : <>
                   <div className="des-acoes">
                     {d.prox && <Form acao={subirMeta}><input type="hidden" name="id" value={d.id} /><input type="hidden" name="meta" value={d.prox} /><button className="btn peq">Subir a meta para {textoMeta(d, d.prox)}</button></Form>}
-                    <ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} detalhe={m.nome} pergunta="O que já foi conquistado continua no mural e no cofrinho." sim="Sim, encerrar" icone="bloquear" />
+                    <ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} detalhe={m.nome} pergunta="O que já foi conquistado continua no mural e no cofrinho. Trocar de desafio no meio do ciclo vale 1 vez por semana." sim="Sim, encerrar" icone="bloquear" />
                   </div>
                   {d.prox && <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '8px 0 0' }}>3 semanas seguidas cumpridas. Hora de um passo a mais?</p>}
+                  </>}
                 </DesafioCartao>
               ))}
-              {ds.length < MAX_POR_PESSOA && (
-                <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 6 }} href={`/desafios/novo?m=${m.id}`}><Icone nome="mais" tam={18} />Mais um desafio</Link>
-              )}
+              {nAtivos < MAX_POR_PESSOA ? (
+                <>
+                  <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 6 }} href={`/desafios/novo?m=${m.id}`}><Icone nome="mais" tam={18} />Mais um desafio</Link>
+                  <p className="des-limite">O ideal é 1 por vez. O segundo é um extra.</p>
+                </>
+              ) : <p className="des-limite">{m.nome} já tem {MAX_POR_PESSOA} desafios. Menos é mais: termine ou troque um para começar outro.</p>}
             </section>
           );
         })}
@@ -254,7 +265,9 @@ export default async function Desafios({ searchParams }) {
       <ComoFunciona perfil={pf} membro={eu.id} semLinha />
       {meus.map((d) => (
         <DesafioCartao key={d.id} d={d} p={d.atual}>
-          {pf !== 'c' && d.criado_por === eu.id && <div className="des-acoes"><ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} pergunta="O que você já conquistou continua guardado." sim="Sim, encerrar" icone="bloquear" /></div>}
+          {d.descansando_em
+            ? (pf !== 'c' && d.criado_por === eu.id ? <FimCicloAcoes d={d} c={cicloDe(d, dados.hoje)} /> : <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '8px 0 0' }}>Os responsáveis escolhem o próximo desafio com você.</p>)
+            : pf !== 'c' && d.criado_por === eu.id && <div className="des-acoes"><ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} pergunta="O que você já conquistou continua guardado. Trocar de desafio no meio do ciclo vale 1 vez por semana." sim="Sim, encerrar" icone="bloquear" /></div>}
         </DesafioCartao>
       ))}
       {meus.length === 0 && <div className="card vazio">{pf === 'c' ? 'Ainda não tem desafio. Combine um com seus pais!' : 'Você ainda não tem desafio.'}</div>}
