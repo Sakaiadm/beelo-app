@@ -319,3 +319,14 @@ export async function fecharSugestaoDesafio(_, fd) {
   revalidar();
   return { ok: true };
 }
+
+// ═══ SEÇÃO: X do cartão de sugestão no Painel (SQL 0030) ═══
+// @rpc ra_desafio_sugestao_dispensar
+// @decisao Fecha só a sugestão daquela pessoa; ela volta em 14 dias (o banco guarda a data).
+export async function dispensarSugestaoDesafio(membroId) {
+  const supabase = await supabaseServer();
+  const { error } = await supabase.rpc('ra_desafio_sugestao_dispensar', { p_membro: uuid(membroId) });
+  if (error) return /ra_desafio_sugestao_dispensar|ra_desafio_dispensas/.test(String(error.message)) && /function|schema cache|relation/.test(String(error.message)) ? { erro: 'Para fechar a sugestão, rode antes o SQL 0030 no Supabase.' } : erroDe(error);
+  revalidar();
+  return { ok: true };
+}
