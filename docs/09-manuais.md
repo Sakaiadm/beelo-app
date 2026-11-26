@@ -35,4 +35,8 @@ Cobertos: entrada e instalação, pessoas, papel e parentesco, grupos, tarefas, 
 **Ainda não documentados como prontos**: novo layout de Desafios em abas (Opção A, aplicado em 25/11: a Ajuda do app já cita "Desafios › Vitrine/Mural"; falta atualizar os manuais em PDF) e o aviso de chegada "Cheguei". Quando entrarem, atualize `conteudo.py` e a lista `PAIS`/`ADOLESCENTE`/`CRIANCA` no mesmo PR.
 
 ## Palavras neutras (responsáveis, pessoas e grupos)
-Na Ajuda (parte dos responsáveis e do administrador), na Privacidade e na descrição do app, o texto usa "responsáveis", "pessoas" e "grupo" onde a frase é geral. Ficam como estão: o lema da marca, os nomes dos papéis (Pai, Mãe, Filho(a)), os textos falados com a criança ("seus pais") e os nomes de botões e abas da tela, para a Ajuda continuar igual ao que a pessoa vê.
+Na Ajuda (parte dos responsáveis e do administrador), na Privacidade e na descrição do app, o texto usa "responsáveis", "pessoas" e "grupo" onde a frase é geral. Ficam como estão: o lema da marca, os nomes dos papéis (Pai, Mãe, Acompanhado(a)), o texto legal (Termos, Privacidade, Aceite e Consentimento) e os nomes de botões e abas da tela, para a Ajuda continuar igual ao que a pessoa vê.
+
+## Responsáveis e acompanhados (26/11/2026)
+
+Os textos gerais não dizem mais "pais" e "filhos": usam "responsáveis" e "acompanhados" (o papel que era "Filho(a)" aparece como "Acompanhado(a)"; Pai e Mãe seguem como funções, e Avô, Tio, Neto etc. são parentesco). Para a criança, a frase é "quem cuida de você". Ficam como estão: lema da marca, texto legal e nomes internos do banco (`gestor`, `filho`, `origem 'pais'`). Os PDFs em `public/manual-pdf/` ainda têm o texto antigo e precisam ser refeitos a partir dos HTML.

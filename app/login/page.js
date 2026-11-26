@@ -135,7 +135,7 @@ export default function Login() {
           {/* U70: uma porta para quem ainda não usa o beelo. */}
           <details className="conheca">
             <summary>Ainda não usa o beelo? Conheça</summary>
-            <p>O beelo é o app da rotina da família: os pais combinam as tarefas, os filhos marcam o que fizeram e todo mundo acompanha a evolução, com carinho e sem cobrança.</p>
+            <p>O beelo é o app da rotina da família: os responsáveis combinam as tarefas, os acompanhados marcam o que fizeram e todo mundo acompanha a evolução, com carinho e sem cobrança.</p>
             <p>Estamos na versão beta, com algumas famílias convidadas. Quer usar com a sua? Fale com a gente:</p>
             <a className="btn whats bloco" href={WHATS} target="_blank" rel="noopener noreferrer">WhatsApp {CONTATO.whatsapp}</a>
             <p style={{ textAlign: 'center' }}><a href={`mailto:${CONTATO.email}`}>{CONTATO.email}</a></p>

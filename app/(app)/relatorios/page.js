@@ -125,7 +125,7 @@ export default async function Relatorios({ searchParams }) {
             <div><label htmlFor="cat">Categoria</label><select id="cat" name="cat" defaultValue={f.cat}><option value="">Todas</option>{(categorias || []).map((c) => <option key={c.id} value={c.id}>{c.nome}</option>)}</select></div>
             <div><label htmlFor="st">Situação</label><select id="st" name="st" defaultValue={f.st}><option value="">Todas</option>
               {['cumprida', 'cumprida_atraso', 'atrasada', 'nao_cumprida', 'justificada', 'adiada', 'pendente'].map((k) => <option key={k} value={k}>{STATUS_TXT[k]}</option>)}</select></div>
-            <div><label htmlFor="origem">Quem criou</label><select id="origem" name="origem" defaultValue={f.origem}><option value="">Todos</option><option value="pais">Pais</option><option value="filho">A pessoa</option></select></div>
+            <div><label htmlFor="origem">Quem criou</label><select id="origem" name="origem" defaultValue={f.origem}><option value="">Todos</option><option value="pais">Responsáveis</option><option value="filho">A pessoa</option></select></div>
             <div><label htmlFor="hor">Horário</label><select id="hor" name="hor" defaultValue={f.hor}><option value="">Com e sem</option><option value="com">Com horário</option><option value="sem">Sem horário</option></select></div>
             <div className="mf-bt"><button className="btn" style={{ width: '100%' }}>Aplicar</button>{maisFiltros && <Link prefetch={false} className="link-btn" href={url({ cat: '', st: '', origem: '', hor: '' })}>Limpar</Link>}</div>
           </form>
