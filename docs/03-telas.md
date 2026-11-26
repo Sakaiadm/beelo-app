@@ -7,7 +7,7 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | Rota | Arquivo | O que faz | Banco que usa |
 |---|---|---|---|
 | `/admin` | `app/(app)/admin/page.js` | rota antiga /admin; só leva para Cadastros > Famílias e grupos. | — |
-| `/agenda` | `app/(app)/agenda/page.js` | Agenda em três formatos (Dia, Semana, Mês), com abas por pessoa e lápis para editar. | — |
+| `/agenda` | `app/(app)/agenda/page.js` | Agenda em três formatos (Dia, Semana, Mês), com abas por pessoa e lápis para editar. Na Semana, o dia escolhido fica no meio da rolagem com contorno bem leve (`components/RolagemSemana.js`); o botão "Hoje" só fica azul cheio quando hoje é o dia do meio. | — |
 | `/ajuda` | `app/(app)/ajuda/page.js` | Ajuda com busca, mais procuradas e blocos por assunto. | — |
 | `/config/ajustes` | `app/(app)/config/ajustes/page.js` | rota antiga; leva para Segurança e privacidade (/seguranca). | — |
 | `/config/categorias/[id]` | `app/(app)/config/categorias/[id]/page.js` | editar uma categoria de tarefa. | ra_categorias |

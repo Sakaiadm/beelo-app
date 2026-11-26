@@ -1,6 +1,6 @@
 // @arquivo  page.js: Agenda em três formatos (Dia, Semana, Mês), com abas por pessoa e lápis para editar.
 // @tipo     tela
-// @usa      lib/sessao, lib/papeis, lib/dados, lib/util, components/Icone, components/Calendario, components/Tarefa
+// @usa      lib/sessao, lib/papeis, lib/dados, lib/util, components/Icone, components/Calendario, components/Tarefa, components/RolagemSemana
 // @usado-por Next.js (rota /agenda)
 import { exigirMembro } from '@/lib/sessao';
 import { acesso } from '@/lib/papeis';
@@ -10,6 +10,7 @@ import { hojeISO, addDias, inicioMes, fimMes, dataLonga, periodoSemana, diaSeman
 import Icone from '@/components/Icone';
 import Calendario from '@/components/Calendario';
 import Tarefa from '@/components/Tarefa';
+import RolagemSemana from '@/components/RolagemSemana';
 
 export const dynamic = 'force-dynamic';
 
@@ -45,8 +46,9 @@ export default async function Agenda({ searchParams }) {
     x.total++; if (st.startsWith('cumprida') || st === 'justificada') x.feitas++;
   });
   const fotos = v === 'dia' ? await urlsFotos(supabase, lista.map((x) => x.o.foto_path)) : {};
-  // "Hoje" fica azul cheio quando o período na tela é o de hoje; em outra data, só o contorno (toque volta para hoje).
-  const emHoje = v === 'mes' ? d.slice(0, 7) === hoje.slice(0, 7) : v === 'semana' ? hoje >= de && hoje <= ate : d === hoje;
+  // "Hoje" fica azul cheio quando o que está na tela é hoje; em outra data, só o contorno (toque volta para hoje).
+  // @decisao 26/11: na Semana, só fica cheio quando HOJE é o dia do meio (antes ficava cheio a semana inteira).
+  const emHoje = v === 'mes' ? d.slice(0, 7) === hoje.slice(0, 7) : d === hoje;
   const passo = v === 'dia' ? 1 : v === 'semana' ? 7 : 31;
 
   const cartao = (x) => (
@@ -90,12 +92,12 @@ export default async function Agenda({ searchParams }) {
       )}
 
       {v === 'semana' && (
-        <div className="rolavel"><div className="semana">
+        <RolagemSemana chave={`${d}|${filtroM}`}>
           {Array.from({ length: 7 }).map((_, i) => {
             const dia = addDias(de, i);
             const itens = lista.filter((x) => x.o.data === dia && x.st !== 'adiada').sort(ordem);
             return (
-              <Link prefetch={false} className="dia" key={dia} href={`/agenda?v=dia&d=${dia}${filtroM && veTodos ? `&m=${filtroM}` : ''}`} style={{ display: 'block', color: 'var(--texto)', textDecoration: 'none', ...(dia === hoje ? { outline: '2px solid var(--azul)' } : {}) }}>
+              <Link prefetch={false} className={`dia${dia === d ? ' sel' : ''}`} data-sel={dia === d ? '1' : '0'} key={dia} href={`/agenda?v=dia&d=${dia}${filtroM && veTodos ? `&m=${filtroM}` : ''}`} style={{ display: 'block', color: 'var(--texto)', textDecoration: 'none' }}>
                 <h3>{DIAS[diaSemana(dia)].slice(0, 3)} {dia.slice(8)}</h3>
                 {itens.length === 0 && <div style={{ fontSize: 'var(--f-etq)', color: 'var(--cinza)' }}>Livre</div>}
                 {itens.map(({ o, st }) => (
@@ -106,7 +108,7 @@ export default async function Agenda({ searchParams }) {
               </Link>
             );
           })}
-        </div></div>
+        </RolagemSemana>
       )}
 
       {v === 'dia' && (
