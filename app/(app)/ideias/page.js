@@ -113,7 +113,7 @@ export default async function Ideias({ searchParams }) {
           <h1 className="titulo">Ideias</h1>
           <div className="abas">
             <Link prefetch={false} href="/ideias" className={paraPais ? 'ativo' : ''}>Responsáveis</Link>
-            <Link prefetch={false} href="/ideias?p=filhos" className={!paraPais ? 'ativo' : ''}>Pessoas</Link>
+            <Link prefetch={false} href="/ideias?p=filhos" className={!paraPais ? 'ativo' : ''}>Acompanhados</Link>
           </div>
         </div>
       ) : (
@@ -134,7 +134,7 @@ export default async function Ideias({ searchParams }) {
           </section>
         ))}
       </> : <>
-        <div className="grupo-titulo">{podePais ? 'O que as pessoas leem' : 'Todas as ideias'}</div>
+        <div className="grupo-titulo">{podePais ? 'O que os acompanhados leem' : 'Todas as ideias'}</div>
         <div className="cat-lista" style={{ marginBottom: 16 }}>
           {FILHOS.ideias.map((i) => <Link prefetch={false} key={i.id} className="cat-linha" href={q({ i: i.id })}><span className="cat-bolinha" /><span className="cat-nome">{i.t}</span><span className="cat-lapis">›</span></Link>)}
         </div>
