@@ -25,7 +25,7 @@ Mudou algo visível? Combine com o Thomas (prévia primeiro). Mantenha layout, c
 | Escrever um **teste** | `testes/` (Supabase falso) e `supabase/testes/` (banco) | teste só o que mudou |
 
 ## Receita: nova função do começo ao fim (exemplo "marcar favorito")
-1. **Banco**: `supabase/migrations/0024_favorito.sql` com `alter table ... add column if not exists favorito boolean ...` e `create or replace function public.ra_favoritar(...)` (`security definer`, conferindo a família).
+1. **Banco**: `supabase/migrations/00NN_favorito.sql` (NN = próximo número livre; em 26/11/2026 o próximo é 0031) com `alter table ... add column if not exists favorito boolean ...` e `create or replace function public.ra_favoritar(...)` (`security definer`, conferindo a família).
 2. **Ação**: em `app/acoes.js`, seção certa: `export async function favoritar(_, fd) { return rpc('ra_favoritar', { p_id: uuid(fd.get('id')) }); }`.
 3. **Tela**: o componente chama a ação por `components/Form.js`.
 4. **Cabeçalhos e docs**: atualize `@usa` nos arquivos tocados, `docs/02-banco.md` (tabela/função/migração) e este guia se criou um tipo novo de coisa.
