@@ -39,3 +39,10 @@ Cada um tem cabeçalho `@arquivo` explicando o que faz e quem usa. Por tipo: **r
 - **Troca:** encerrar no meio do ciclo vale 1 vez por semana por pessoa (desfazer um desafio criado há menos de 1 dia não conta; terminar o ciclo também não).
 - Desafios que já existiam ganham um ciclo novo de 4 semanas a partir da semana em que o SQL 0031 rodar.
 - Tom: positivo, sem culpa ("Sem pressa", "Menos é mais"). Textos na Ajuda, nos manuais e no balãozinho "Como funciona".
+
+## Categorias padrão e sugestões de Chegada (26/11, SQL 0032)
+
+- Categorias padrão: Casa, Estudo, **Esporte e lazer** (Esporte + Lazer juntas), **Pet** (cor teal, ícone patinha `cPet`), Social, Saúde, Cuidado pessoal, Espiritual, Financeiro, Trabalho, Outros. "Música/Cursos" virou "Cursos".
+- As sugestões de tarefa ficam em `lib/sugestoes.js`; Pet tem 12 tarefas e "Passear com o cachorro"/"Dar comida aos animais" saíram de Casa.
+- Os desafios (`lib/desafios.js`) usam o nome "Esporte e lazer"; o nome tem de bater com a categoria da família.
+- Tarefa tipo **Chegada**: botão "Sugestões" abre `CHEGADAS` (`lib/sugestoes.js`), na ordem escolhida pelo Thomas: escola, casa, curso, treino, casa do amigo, casa da mãe, casa do pai, igreja, shopping, trabalho, faculdade. Um toque preenche o título; dá para digitar outro destino.

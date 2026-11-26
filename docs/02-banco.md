@@ -50,7 +50,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 
 ## Linha do tempo das migrações
 
-(Atualizado em 26/11/2026, até a 0031. Migrações novas já trazem no cabeçalho `-- @migracao` e `-- @altera`/`-- @banco`.)
+(Atualizado em 26/11/2026, até a 0032. Migrações novas já trazem no cabeçalho `-- @migracao` e `-- @altera`/`-- @banco`.)
 
 | Nº | O que trouxe |
 |---|---|
@@ -84,6 +84,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0028 | A criança sugere um desafio; Pai e Mãe aprovam ou dizem "agora não" (tabela `ra_desafio_sugestoes`) |
 | 0029 | Trocar a foto de uma tarefa já concluída e apagar fotos que sobram (`ra_ocorrencias.foto_trocada_em`, política do Storage) |
 | 0031 | Desafios em ciclos de 4 semanas (colunas `ciclo_*`, `descansando_em`), limite de 2 por pessoa e 1 da família no banco (gatilho `ra_desafios_limite`), `ra_desafio_renovar`, 1 troca por semana em `ra_desafio_encerrar` |
+| 0032 | Categorias: Lazer entra em "Esporte e lazer" (tarefas e desafios movidos), nova categoria Pet, "Música/Cursos" vira "Cursos"; `ra_seed_categorias` atualizada. |
 | 0030 | Pai e Mãe fecham (X) a sugestão de desafio do Painel; volta em 14 dias (tabela `ra_desafio_dispensas`) |
 | 0028 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |
 | 0030 | X no cartão de sugestão de desafio do Painel: some por 14 dias para aquela pessoa (tabela ra_desafio_dispensas). Sem ela, o app funciona e o cartão só não fecha |
