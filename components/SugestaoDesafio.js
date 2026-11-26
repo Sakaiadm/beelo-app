@@ -37,7 +37,7 @@ export default function SugestaoDesafio({ pessoa, desafio, tag, meta }) {
         <span className="tg mel">Desafio sugerido</span>
         <button type="button" className="favo-x" style={{ margin: '-10px -10px -10px 0' }} aria-label={`Fechar a sugestão para ${pessoa.nome}`} disabled={env} onClick={fechar}><Icone nome="x" tam={16} larg={2.4} /></button>
       </div>
-      <p style={{ marginTop: 10 }}><b>Aqui está um desafio para {pessoa.nome}.</b></p>
+      <p style={{ marginTop: 10 }}><b>Que tal um desafio para {pessoa.nome}?</b></p>
       <small className="peq-cinza" style={{ display: 'block' }}>O beelo sugere este para começar. Aceitar cria na hora; Escolher outro abre a lista.</small>
       <p style={{ margin: '8px 0 0' }}><b>{desafio.t}</b></p>
       <small className="peq-cinza">{tag ? `${tag} · ` : ''}{meta}</small>
