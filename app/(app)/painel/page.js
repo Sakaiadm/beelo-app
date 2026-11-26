@@ -1,6 +1,6 @@
 // @arquivo  page.js: Painel da família (Pai, Mãe e quem acompanha): atrasos, pedidos, resumo do dia.
 // @tipo     tela
-// @usa      banco ra_adiamentos, banco ra_tela_proposta, banco ra_tarefas, components/LembrarBotao, components/PrimeirosPassos, components/SugestaoDesafio, lib/sugestoesDesafio, components/AvisosConvite, components/IdadePergunta, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/tela, lib/util, components/Calendario, components/FiltroHoje, components/Form, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/Responder, lib/respostas, app/acoes
+// @usa      banco ra_adiamentos, banco ra_tela_proposta, banco ra_tarefas, components/LembrarBotao, components/PrimeirosPassos, components/SugestaoDesafio, banco ra_desafio_dispensas, lib/sugestoesDesafio, components/AvisosConvite, components/IdadePergunta, lib/jeito, lib/sessao, lib/papeis, lib/dados, lib/tela, lib/util, components/Calendario, components/FiltroHoje, components/Form, components/Icone, components/LampadaFlutuante, lib/dicas, lib/desafiosDados, lib/desafios, components/Responder, lib/respostas, app/acoes
 // @usado-por Next.js (rota /painel)
 import LembrarBotao from '@/components/LembrarBotao';
 import PrimeirosPassos from '@/components/PrimeirosPassos';
@@ -80,7 +80,14 @@ export default async function Painel({ searchParams }) {
   const paraEntregar = des ? des.pedidos.filter((p) => p.status === 'pedido').length : 0;
   const paraAprovar = des ? des.desejos.filter((x) => x.desejo === 'esperando').length : 0;
   // U98: quem está sem desafio recebe uma sugestão pronta (Aceitar ou Trocar).
-  const semDesafio = des ? pessoasDesafio(membros).filter((p) => !des.desafios.some((d) => d.membro_id === p.id)).slice(0, 2) : [];
+  // SQL 0030: quem teve a sugestão fechada no X só volta depois de 14 dias. Sem o SQL, a leitura falha e nada é escondido.
+  let semDesafio = des ? pessoasDesafio(membros).filter((p) => !des.desafios.some((d) => d.membro_id === p.id)) : [];
+  if (semDesafio.length) {
+    const { data: fechadas } = await supabase.from('ra_desafio_dispensas').select('membro_id').gt('volta_em', new Date().toISOString());
+    const ocultas = new Set((fechadas || []).map((x) => x.membro_id));
+    semDesafio = semDesafio.filter((p) => !ocultas.has(p.id));
+  }
+  semDesafio = semDesafio.slice(0, 2);
   const sugs = [];
   if (semDesafio.length) {
     const { sugestoes } = await sugestoesDesafio(supabase, semDesafio, hoje);

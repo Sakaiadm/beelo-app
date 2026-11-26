@@ -37,6 +37,7 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | `/seguranca` | `app/(app)/seguranca/page.js` | Segurança e privacidade: só informação (abre pela Ajuda). | — |
 | `/tarefas/[id]/editar` | `app/(app)/tarefas/[id]/editar/page.js` | editar uma tarefa. | ra_categorias, ra_tarefas |
 | `/tarefas/[id]` | `app/(app)/tarefas/[id]/page.js` | rota antiga de detalhes; redireciona para Editar ou Agenda. | ra_tarefas |
+| `/painel` (cartão de sugestão) | `components/SugestaoDesafio.js` | quem está sem desafio (Pai/Mãe, até 2 pessoas) vê um cartão com selo "Desafio sugerido", "Aqui está um desafio para Fulano.", "Aceitar e criar" (cria o desafio da semana na hora) e "Escolher outro" (abre Novo desafio). O X fecha só aquela pessoa por 14 dias (SQL 0030). Some sozinho quando a pessoa ganha um desafio. | ra_desafio_dispensas |
 | `/tarefas/nova` | `app/(app)/tarefas/nova/page.js` | criar tarefa (com sugestões prontas). | ra_categorias |
 | `/tarefas` | `app/(app)/tarefas/page.js` | rota antiga /tarefas; leva para a Agenda em Dia. | — |
 | `/tela` | `app/(app)/tela/page.js` | Tempo de tela: previsto, lançar o que aconteceu, pedidos e gráfico dos 7 dias. | ra_ocorrencias, ra_tarefas, ra_tela_previsto, ra_tela_proposta, ra_tela_real, ra_tela_previsto_dia |
