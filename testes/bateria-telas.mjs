@@ -49,7 +49,7 @@ const VISAO = [
   ['filho', '/desafios', ['Meus desafios', 'Foco no Estudo', 'Como funciona'], ['Desejos para aprovar', 'Prêmio para entregar', 'Encerrar', 'Ajustes']],
   ['filho', '/desafios/cofrinho', ['Semanas', 'MEUS DESEJOS', 'Patins', 'Sugerir um desejo', 'Quero este'], ['Show com amigos']],
   ['filho', '/desafios/mural', ['A família toda vê e comemora junto', 'Meus desafios'], []],
-  ['filho', '/desafios/novo', ['Novo desafio', 'PENSADOS PARA EDUARDO'], []],
+  ['filho', '/desafios/novo', ['Novo desafio', 'PARA EDUARDO'], []],
   ['filho', '/relatorios', ['Minha evolução'], ['Aprovar']],
   ['filho', '/tela', ['Tempo de tela', 'Celular', 'Computador', 'Previsto de hoje'], []],
   ['filho', '/ideias', ['Ideias', 'IDEIA DA SEMANA'], []],
