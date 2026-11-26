@@ -946,9 +946,7 @@ a.tarefa-ir > svg { color: var(--cinza); flex: none; }
 .estr svg { fill: var(--borda); }
 .estr svg.on { fill: #f5b82e; }
 @media print { .rel-sec > summary::after { display: none; } }
-.mais-atr > summary { min-height: 44px; display: flex; align-items: center; color: var(--azul); font-weight: 700; cursor: pointer; list-style: none; }
-.mais-atr > summary::-webkit-details-marker { display: none; }
-.mais-atr[open] > summary { display: none; }
+.ver-mais-aten { display: flex; align-items: center; justify-content: center; gap: 6px; width: 100%; min-height: 44px; border: 1px solid var(--erro-borda); border-radius: 12px; background: var(--erro-fundo); color: var(--erro); font: inherit; font-size: var(--f-apoio); font-weight: 700; cursor: pointer; } /* 26/11: botão vermelhinho do cartão de atenção */
 .rel-sec { padding-top: 6px; padding-bottom: 6px; }
 .rel-sec[open] { padding-bottom: 18px; }
 .rel-sec > summary { min-height: 52px; }
