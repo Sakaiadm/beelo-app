@@ -1285,12 +1285,12 @@ button.cartao-btn:disabled { opacity: .6; cursor: default; }
 .tempo-real .tempo-linha input { flex: 1 1 calc(100% - 112px); min-width: 0; border: 0; background: transparent; box-shadow: none; font-size: 28px; font-weight: 800; color: var(--azul-esc); min-height: 48px; }
 .tempo-real .tempo-linha .btn.sec { width: 48px; min-height: 48px; border-radius: 50%; background: var(--cartao); border: 0; color: var(--azul); }
 .tempo-real .tempo-linha .chips { flex: 1 1 100%; gap: 8px; flex-wrap: wrap; }
-.tempo-real .tempo-linha .chips button { border: 0; background: var(--cartao); color: var(--azul); font-weight: 700; padding: 0 16px; }
+.tempo-real .tempo-linha .chips button { border: 0; background: var(--cartao); color: var(--azul); font-weight: 700; padding: 0 12px; min-height: 40px; }
 .tempo-real .tempo-linha .chips button.on { background: var(--azul); color: #fff; }
 .tempo-real .tempo-campo.grande .tempo-linha input { font-size: 34px; }
-.tempo-acoes { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tempo-acoes { flex: 1 1 100%; display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 8px; }
 .tempo-acoes .chips { flex: none; flex-wrap: nowrap; }
-.foto-redonda { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.foto-redonda { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; flex: 1 1 96px; min-width: 96px; margin-left: auto; } /* os 2 ícones sempre lado a lado */
 .btn.icone.redondo { width: 44px; min-height: 44px; padding: 0; border-radius: 50%; }
 .foto-mini.pq { width: 44px; height: 44px; }
 .foto-msg { flex-basis: 100%; text-align: right; font-size: var(--f-etq); }
@@ -1313,3 +1313,11 @@ button.cartao-btn:disabled { opacity: .6; cursor: default; }
 .est-bola.passou, .est-bola.neutro { background: var(--azul-claro); }
 .est-bola.sem { border: 2px dashed var(--borda); }
 .est-texto { margin: 0 0 6px; font-size: var(--f-texto); }
+
+/* "Usar o mesmo de": uma linha só, à direita, botão azul pequeno igual ao "Hoje" da Agenda. */
+.usar-mesmo { display: flex; flex-wrap: wrap; align-items: center; justify-content: flex-end; gap: 8px; margin-bottom: 8px; }
+.usar-mesmo > span { color: var(--azul-esc); font-weight: 600; font-size: var(--f-apoio); }
+.usar-mesmo .hoje-peq { top: 0; cursor: pointer; }
+.usar-lista { flex-basis: 100%; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
+.usar-lista button { border: 1.5px solid var(--azul); background: var(--cartao); color: var(--azul); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: var(--f-apoio); cursor: pointer; }
+.tempo-real .tempo-linha .tempo-acoes .chips { flex: none; flex-wrap: nowrap; }

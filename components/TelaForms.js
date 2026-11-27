@@ -31,6 +31,7 @@ const opcaoDosDias = (umDia, dias) => (umDia ? 'uma' : igual(dias, TODOS) ? 'dia
 export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], cancelarHref, horarios }) {
   const ini = inicial || { cel: 180, pc: null, dias: TODOS };
   const [versao, setVersao] = useState(0);
+  const [listaCopiar, setListaCopiar] = useState(false); // com 2 ou mais pessoas, o botão abre uma lista curta
   const [cel, setCel] = useState(ini.cel || 0);
   const [pc, setPc] = useState(ini.pc || 0);
   const [dias, setDias] = useState(ini.dias?.length ? ini.dias : TODOS);
@@ -55,9 +56,14 @@ export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], ca
       {substitui && <input type="hidden" name="substitui" value={substitui} />}
       {!umDia && dias.map((d) => <input key={d} type="hidden" name="dias" value={d} />)}
       {!substitui && outros.length > 0 && (
-        <div style={{ marginBottom: 6 }}>
-          <span className="peq-cinza">Usar o mesmo de</span>
-          <div className="chips" style={{ marginTop: 6 }}>{outros.map((o) => <button key={o.nome} type="button" onClick={() => copiar(o)}>{o.nome}</button>)}</div>
+        <div className="usar-mesmo">
+          <span>Usar o mesmo de</span>
+          {outros.length === 1
+            ? <button type="button" className="hoje-peq" onClick={() => copiar(outros[0])}>{outros[0].nome}</button>
+            : <>
+                <button type="button" className="hoje-peq" aria-expanded={listaCopiar} onClick={() => setListaCopiar((v) => !v)}>Copiar de…</button>
+                {listaCopiar && <div className="usar-lista">{outros.map((o) => <button key={o.nome} type="button" onClick={() => { copiar(o); setListaCopiar(false); }}>{o.nome}</button>)}</div>}
+              </>}
         </div>
       )}
       <div className="tempo-real"><div className="tempo-nome"><b>Celular</b></div>
@@ -135,7 +141,7 @@ export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca
   const campo = (id, name, nome, prev, valor, fotoNome) => (
     <div className="tempo-real">
       <div className="tempo-nome"><b>{nome}</b>{de(prev)}</div>
-      <TempoCampo id={id} name={name} etiqueta={nome} valor={valor} grande={crianca} required
+      <TempoCampo id={id} name={name} etiqueta={nome} valor={valor} grande={crianca}
         extra={<Foto nome={fotoNome} familia={familia} membro={eu} redondo />} />
     </div>
   );
