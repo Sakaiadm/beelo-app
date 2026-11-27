@@ -42,7 +42,7 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
   const mudaParentesco = (id) => {
     setParentesco(id);
     const sug = parentescoDe(id)?.papel;
-    if (!m && sug) mudaFuncao(sug);
+    if (!m && sug && !funcao) mudaFuncao(sug);
   };
   const eu = m && m.id === euId;
   // Em "Adicionar pessoa", o e-mail digitado já é de alguém deste grupo (ex.: o responsável
@@ -61,6 +61,16 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
     <>
       <label htmlFor="p-nome" style={{ marginTop: 0 }}>Nome</label>
       <input id="p-nome" name="nome" value={nome} onChange={(e) => setNome(e.target.value)} required={!ja} maxLength={60} placeholder="Ex.: Tia Ana" />
+    </>
+  );
+  const blocoParentesco = (
+    <>
+      <label htmlFor="p-parentesco">Parentesco (opcional)</label>
+      <select id="p-parentesco" value={parentesco} onChange={(e) => mudaParentesco(e.target.value)}>
+          <option value="">Sem parentesco</option>
+          {PARENTESCOS.map((x) => <option key={x.id} value={x.id}>{nomeListaParentesco(x)}</option>)}
+        </select>
+        <p className="peq-cinza">Só aparece no perfil. Não muda o que a pessoa pode fazer.</p>
     </>
   );
   return (
@@ -90,21 +100,17 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
         </div>
         {email && !v.ok && <p className="erro-campo" role="alert">{v.msg}</p>}
         {v.ok && v.sugestao && <p className="sug-campo">Você quis dizer <button type="button" onClick={() => setEmail(v.sugestao)}>{v.sugestao}</button>? Toque para corrigir.</p>}
-        <label htmlFor="p-parentesco">Parentesco (opcional)</label>
-        <select id="p-parentesco" value={parentesco} onChange={(e) => mudaParentesco(e.target.value)}>
-          <option value="">Sem parentesco</option>
-          {PARENTESCOS.map((x) => <option key={x.id} value={x.id}>{nomeListaParentesco(x)}</option>)}
-        </select>
-        <p className="peq-cinza">Só aparece no perfil. Não muda o que a pessoa pode fazer.</p>
         <label htmlFor="p-papel">Papel</label>
         <select id="p-papel" value={funcao} onChange={(e) => mudaFuncao(e.target.value)} required={!ja}>
           <option value="" disabled>Selecione</option>
           {FUNCOES.map((x) => <option key={x.id} value={x.id}>{x.ga ? `${x.nome}(a)` : x.nome}</option>)}
         </select>
         {!m && parentescoDe(parentesco)?.papel && parentescoDe(parentesco).papel === funcao && <p className="peq-cinza">Sugerido pelo parentesco. Você pode mudar.</p>}
+        {!f && blocoParentesco}
         {f && (
           <>
             <div className="caixa-papel"><b>{rotuloFuncao(f.id, null)}:</b> {f.desc}</div>
+            {blocoParentesco}
             {temModoCrianca(f.id) && (
               <div className="lin-chave" style={{ borderTop: 0, marginTop: 4 }}><span>Modo criança<small>Estrelinhas e festa a cada tarefa feita. Bom para até uns 10 anos.</small></span><button type="button" role="switch" aria-checked={crianca} aria-label="Modo criança" className={`chave ${crianca ? 'on' : ''}`} onClick={() => setCrianca(!crianca)} /></div>
             )}

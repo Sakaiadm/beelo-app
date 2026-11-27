@@ -1,7 +1,7 @@
 # beelo: leia primeiro
 
 O **beelo** é um aplicativo (PWA, abre no navegador e instala no celular) para famílias organizarem a rotina:
-tarefas, tempo de tela, desafios e prêmios, com papéis (Pai, Mãe, Adulto que ajuda, Filho(a)).
+tarefas, tempo de tela, desafios e prêmios, com papéis (Responsável, Acompanhado(a), Outro).
 Endereço: beeloapp.com. Escreva sempre "beelo" em minúsculo. (O nome antigo era "Rotina Ativa": ainda aparece em nomes internos, como a pasta `/opt/rotina-ativa` na VPS e o serviço do Docker.)
 
 ## Em uma frase por camada

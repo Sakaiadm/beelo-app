@@ -27,7 +27,7 @@ tudo que **grava** passa por uma ação em `app/acoes*.js`, que chama uma funç�
 | Assunto | Arquivos principais |
 |---|---|
 | 🟨 Login e entrada | `middleware.js`, `app/login`, `app/auth/*`, `lib/sessao.js` (guarda por 30 s o que o topo de toda tela precisa), `lib/supabase/` |
-| 🟨 Quem pode o quê | `lib/papeis.js` (Pai, Mãe, Adulto que ajuda, Filho(a) e chaves de permissão), `lib/membros.js` |
+| 🟨 Quem pode o quê | `lib/papeis.js` (Responsável, Acompanhado(a), Outro e chaves de permissão), `lib/membros.js` |
 | 🟦 Tarefas do dia | `app/(app)/hoje`, `components/Tarefa.js`, `TarefaForm.js`, `lib/dados.js` (gera as ocorrências), `lib/util.js` (datas no fuso de São Paulo) |
 | 🟦 Agenda, painel, relatórios | `app/(app)/agenda`, `painel`, `relatorios`, `lib/relatorio.js` |
 | 🟦 Tempo de tela | `app/(app)/tela`, `lib/tela.js`, `lib/aparelhos.js`, migrações 0011, 0015, 0018 |
