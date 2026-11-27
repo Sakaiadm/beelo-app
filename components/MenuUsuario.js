@@ -1,22 +1,25 @@
 'use client';
 // @arquivo  MenuUsuario.js: botão com o nome no topo: perfil, ajuda, modo escuro, sair.
 // @tipo     componente
-// @usa      ./Icone, lib/contas
+// @usa      ./Icone, lib/contas, ./Reportar (item "Reportar ou sugerir" e print da tela)
 // @usado-por app/(app)/layout.js
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import Icone from './Icone';
+import Reportar, { capturarTela } from './Reportar';
 import { lerContas, trocaLigada, proxima, trocarPara, limparContas } from '@/lib/contas';
 
 // Botão com o nome da pessoa no topo. Abre: Meu perfil, Ajuda, Modo escuro e Sair (Raio-X U67).
 // Sair pergunta antes (U68).
 // Troca de conta (só teste, só quem guardou contas neste aparelho): 2 toques rápidos no ícone giram para a próxima conta; a lista no menu pula direto para uma.
-export default function MenuUsuario({ nome, familia, cadastros, eu, children }) {
+export default function MenuUsuario({ nome, familia, cadastros, relato, eu, children }) {
   const [contas, setContas] = useState([]);
   const ultimo = useRef(0);
   const [aberto, setAberto] = useState(false);
   const [escuro, setEscuro] = useState(false);
   const [sair, setSair] = useState(false);
+  const [relatar, setRelatar] = useState(false);
+  const [print, setPrint] = useState(null);
   const raiz = useRef(null);
 
   useEffect(() => { setContas(trocaLigada() ? lerContas() : []); }, [aberto]);
@@ -70,6 +73,7 @@ export default function MenuUsuario({ nome, familia, cadastros, eu, children }) 
           {cadastros && <Link role="menuitem" href="/config" prefetch={false} onClick={() => setAberto(false)}>Cadastros</Link>}
           <Link role="menuitem" href="/perfil" prefetch={false} onClick={() => setAberto(false)}>Meu perfil</Link>
           <Link role="menuitem" href="/ajuda" prefetch={false} onClick={() => setAberto(false)}>Ajuda</Link>
+          {relato && <button role="menuitem" type="button" onClick={async () => { setAberto(false); await new Promise((r) => setTimeout(r, 120)); setPrint(await capturarTela()); setRelatar(true); }}>Reportar ou sugerir<Icone nome="fala" tam={18} /></button>}
           <button role="menuitem" type="button" onClick={alternar}>Modo escuro<span className={`chave ${escuro ? 'on' : ''}`} aria-hidden="true" /></button>
           {sair ? (
             <form action="/auth/sair" method="post" className="sair-conf" onSubmit={limparContas} role="alertdialog" aria-label="Sair do beelo">
@@ -79,6 +83,7 @@ export default function MenuUsuario({ nome, familia, cadastros, eu, children }) 
           ) : <button role="menuitem" type="button" className="sair" onClick={() => setSair(true)}><Icone nome="sair" tam={18} /> Sair</button>}
         </div>
       )}
+      {relato && <Reportar {...relato} aberto={relatar} setAberto={setRelatar} print={print} setPrint={setPrint} />}
     </div>
   );
 }

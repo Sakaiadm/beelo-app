@@ -5,7 +5,7 @@
 import ChaveLinha from '@/components/ChaveLinha';
 import { visaoCrianca, jeitoDe } from '@/lib/jeito';
 import { exigirMembro } from '@/lib/sessao';
-import { acesso } from '@/lib/papeis';
+import { acesso, nomeFuncao } from '@/lib/papeis';
 import Link from 'next/link';
 import Icone from '@/components/Icone';
 import MenuUsuario from '@/components/MenuUsuario';
@@ -25,7 +25,6 @@ import { pendencias } from '@/lib/aceite';
 import GuiaMel from '@/components/GuiaMel';
 import { publicoDe, jeitoGuia } from '@/lib/guia';
 import ContasGancho from '@/components/ContasGancho';
-import { nomeFuncao } from '@/lib/papeis';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
@@ -69,7 +68,7 @@ export default async function AppLayout({ children }) {
           <Link className="icone-btn sino" href="/notificacoes" aria-label={`Notificações, ${naoLidas} novas`}>
             <Icone nome="sino" cor="#fff" />{naoLidas > 0 && <span className="selo">{naoLidas > 99 ? '99+' : naoLidas}</span>}
           </Link>
-          <MenuUsuario nome={eu.nome} familia={familia.nome} eu={{ id: eu.id, nome: eu.nome, papel: eu.papel, cor: eu.cor, rotulo: nomeFuncao(eu) }}>
+          <MenuUsuario nome={eu.nome} familia={familia.nome} relato={{ familia: familia.id, membro: eu.id, papel: nomeFuncao(eu) }} eu={{ id: eu.id, nome: eu.nome, papel: eu.papel, cor: eu.cor, rotulo: nomeFuncao(eu) }}>
             <Avatar nome={eu.nome} cor={eu.cor} url={urls[eu.avatar]} avatar={eu.avatar} tam={28} />
           </MenuUsuario>
         </div>

@@ -2,7 +2,7 @@
 // @arquivo  Foto.js: foto do dia da tarefa (câmera ou galeria), com data da foto.
 // @tipo     componente
 // @usa      lib/supabase/client, lib/rede, lib/exif, ./Icone (modo `redondo`: 2 ícones azuis, usado no tempo de tela)
-// @usado-por components/SugerirDesejo.js, components/Tarefa.js, components/TelaForms.js
+// @usado-por components/Reportar.js, components/SugerirDesejo.js, components/Tarefa.js, components/TelaForms.js
 import { useRef, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
 import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/rede';
@@ -27,8 +27,8 @@ function fotoDeHoje(d) {
   return dia(d) === hoje || (dia(d) === ontem && horaBR() < 7);
 }
 // redondo: só dois ícones redondos azuis (câmera e galeria) para o tempo de tela, em todo lugar onde se lança (Thomas 27/11).
-// grande: prévia grande com "Tirar outra" / "Da galeria" (seção 42). aoMudar(caminho): avisa quando a foto fica pronta ou é refeita.
-export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHoje, grande, redondo, aoMudar }) {
+// semCamera: só o botão da galeria (relato de problema, Thomas 27/11). grande: prévia grande com "Tirar outra" / "Da galeria" (seção 42). aoMudar(caminho): avisa quando a foto fica pronta ou é refeita.
+export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHoje, grande, redondo, semCamera, rotuloGaleria, aoMudar }) {
   const cam = useRef(null), gal = useRef(null);
   const [estado, setEstado] = useState({ caminho: '', previa: '', msg: '', em: '' });
 
@@ -80,8 +80,8 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHo
         <div>
           {estado.previa && <img src={estado.previa} alt="Prévia da foto" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 14, border: '1px solid var(--borda)', display: 'block' }} />}
           <div style={{ display: 'flex', gap: 8, marginTop: estado.previa ? 8 : 0 }}>
-            <button type="button" className="btn sec peq" style={{ flex: 1 }} onClick={() => cam.current.click()}><Icone nome="camera" tam={18} />{estado.previa ? 'Tirar outra' : 'Tirar foto'}</button>
-            <button type="button" className="btn sec peq" style={{ flex: 1 }} onClick={() => gal.current.click()}><Icone nome="galeria" tam={18} />Da galeria</button>
+            {!semCamera && <button type="button" className="btn sec peq" style={{ flex: 1 }} onClick={() => cam.current.click()}><Icone nome="camera" tam={18} />{estado.previa ? 'Tirar outra' : 'Tirar foto'}</button>}
+            <button type="button" className="btn sec peq" style={{ flex: 1 }} onClick={() => gal.current.click()}><Icone nome="galeria" tam={18} />{rotuloGaleria || 'Da galeria'}</button>
           </div>
           <div style={{ fontSize: 'var(--f-apoio)', marginTop: 6, color: estado.msg.startsWith('Essa foto') ? 'var(--erro)' : 'var(--cinza)' }}>
             {estado.msg || (estado.previa ? 'Confira se a foto ficou boa. Se não, toque em Tirar outra.' : (obrigatoria ? 'Foto obrigatória' : 'Foto opcional') + (soHoje ? ' · de hoje' : ''))}
