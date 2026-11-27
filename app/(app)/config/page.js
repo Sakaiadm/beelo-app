@@ -1,6 +1,6 @@
 // @arquivo  page.js: menu de Cadastros: pessoas, categorias, famílias e grupos.
 // @tipo     tela
-// @usa      banco ra_categorias, rpc ra_admin_familias, lib/sessao, components/Icone
+// @usa      app/(app)/config/contas, banco ra_categorias, rpc ra_admin_familias, lib/sessao, components/Icone
 // @usado-por Next.js (rota /config)
 import Link from 'next/link';
 import { exigirGestor } from '@/lib/sessao';
@@ -36,6 +36,7 @@ export default async function Config({ searchParams }) {
         : <Item href={`/config/familias/${familia.id}`} icone="familia" titulo="Meu grupo" sub={familia.nome} />}
       <Item href="/config/pessoas" icone="pessoa" titulo="Pessoas" sub={`${n} ${n === 1 ? 'pessoa' : 'pessoas'}`} />
       <Item href="/config/categorias" icone="etiqueta" titulo="Categorias" sub={`${nCat ?? 0} categorias`} />
+      {superAdmin && <Item href="/config/contas" icone="pessoa" titulo="Contas para alternar (teste)" sub="Troque de usuário com 2 toques · só você vê" />}
       {superAdmin && <GuiaChave familiaId={familia.id} ligado={familia.guia_mel === true} />}
     </main>
   );

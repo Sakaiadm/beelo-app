@@ -36,6 +36,7 @@ tudo que **grava** passa por uma ação em `app/acoes*.js`, que chama uma funç�
 | 🟦 Dicas e ideias | `lib/dicas.js`, `lib/dicasMotor.js` (roda no aparelho), `lib/ideias.js`, `components/LampadaFlutuante.js` | Abrir a lâmpada (topo ou flutuante) marca TODAS as ideias novas como vistas (`marcarTodasVistas`); o número só some assim.
 | 🟦 Aviso de chegada | `components/Tarefa.js`, `TarefaForm.js`, `ChegadaLembrete.js`, `app/acoes.js` (`cheguei`), `lib/util.js`, migração 0027 |
 | 🟦 Cadastros | `app/(app)/config/*` (pessoas, categorias, famílias, ajustes), `components/PessoaForm.js` |
+| 🟫 Alternar contas (teste, só administrador geral) | `lib/contas.js`, `app/auth/trocar/route.js`, `app/(app)/config/contas/page.js`, `components/ContasAlternar.js`, `components/ContasGancho.js`, `components/MenuUsuario.js`. Até 3 logins guardados só no `localStorage` do aparelho; 2 toques no ícone giram; o menu lista as contas. Sem SQL. |
 | 🟪 Avisos no celular | `lib/despachante.js`, `instrumentation.js`, `public/sw.js`, `components/AvisosCelular.js`, migração 0005 |
 | 🟪 E-mail de convite | `lib/convite.js`, `lib/email.js`, `deploy/config-email.sh` |
 | 🟪 Offline | `public/sw.js`, `public/offline.html`, `lib/fila.js`, `components/Conexao.js`, `lib/rede.js` |
@@ -48,7 +49,7 @@ tudo que **grava** passa por uma ação em `app/acoes*.js`, que chama uma funç�
 ## Telas (rotas)
 
 Públicas: `/login`, `/auth/*`, `/termos`, `/privacidade`, `/consentimento`, `/manual*`.
-Com login (`app/(app)/`): `/hoje`, `/agenda`, `/painel`, `/tarefas`, `/tela`, `/relatorios`, `/desafios` (+ cofrinho, mural, prêmios, ajustes, novo), `/ideias`, `/notificacoes`, `/config` (pessoas, categorias, famílias, ajustes), `/perfil`, `/seguranca`, `/ajuda`, `/admin`.
+Com login (`app/(app)/`): `/hoje`, `/agenda`, `/painel`, `/tarefas`, `/tela`, `/relatorios`, `/desafios` (+ cofrinho, mural, prêmios, ajustes, novo), `/ideias`, `/notificacoes`, `/config` (pessoas, categorias, famílias, ajustes, contas), `/perfil`, `/seguranca`, `/ajuda`, `/admin`.
 `/aceite`, `/sem-acesso` ficam fora do grupo: são os passos antes de entrar.
 
 ## Glossário
