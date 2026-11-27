@@ -25,7 +25,6 @@ import { pendencias } from '@/lib/aceite';
 import GuiaMel from '@/components/GuiaMel';
 import { publicoDe, jeitoGuia } from '@/lib/guia';
 import ContasGancho from '@/components/ContasGancho';
-import { nomeFuncao } from '@/lib/papeis';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
