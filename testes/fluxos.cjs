@@ -23,7 +23,7 @@ const T = [
   ['pai', 'Editar tarefa', '/tarefas/00000000-0000-0000-0000-000000000030/editar', async (p) => { await p.locator('input[name=titulo]').fill('Estudar 2h'); await B(p, 'Salvar tarefa').click(); }, /ra_tarefas|ra_/],
   ['pai', 'Excluir tarefa', '/tarefas/00000000-0000-0000-0000-000000000030/editar', async (p) => { await B(p, 'Excluir tarefa').click(); await p.waitForTimeout(400); await B(p, /Sim/).first().click(); }, /ra_excluir|DELETE|ra_tarefas/],
   ['pai', 'Aprovar adiamento (painel)', '/painel', async (p) => { await B(p, 'Aprovar').first().click(); }, /ra_responder_adiamento/],
-  ['pai', 'Aceitar justificativa (painel)', '/painel', async (p) => { await p.locator('div:has(> .tt:has-text("justificou"))').getByRole('button', { name: 'Aprovar' }).click(); }, /ra_avaliar_justificativa/],
+  ['pai', 'Aceitar justificativa (painel)', '/painel', async (p) => { await p.getByText(/Ver mais precisa de atenção/).click(); await p.locator('div:has(> .tt:has-text("justificou"))').getByRole('button', { name: 'Aprovar' }).click(); }, /ra_avaliar_justificativa/],
   ['pai', 'Conferir tarefa feita', `/hoje?m=${E}`, async (p) => { await B(p, 'Conferido').first().click(); }, /ra_conferir/],
   ['pai', 'Pedir para refazer', `/hoje?m=${E}`, async (p) => { await B(p, 'Refazer').first().click(); }, /ra_conferir/],
   ['pai', 'Desafios: aprovar desejo com preço', '/desafios', async (p) => { await B(p, /Aprovar com/).click(); }, /ra_desejo_aprovar|desejo/],
