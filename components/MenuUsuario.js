@@ -7,7 +7,7 @@ import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import Icone from './Icone';
 import Reportar, { capturarTela } from './Reportar';
-import { lerContas, trocaLigada, proxima, trocarPara, limparContas } from '@/lib/contas';
+import { lerContas, trocaLigada, proxima, trocarPara, limparContas, uidAtual } from '@/lib/contas';
 
 // Botão com o nome da pessoa no topo. Abre: Meu perfil, Ajuda, Modo escuro e Sair (Raio-X U67).
 // Sair pergunta antes (U68).
@@ -15,6 +15,7 @@ import { lerContas, trocaLigada, proxima, trocarPara, limparContas } from '@/lib
 export default function MenuUsuario({ nome, familia, cadastros, relato, eu, children }) {
   const [contas, setContas] = useState([]);
   const ultimo = useRef(0);
+  const [uid, setUid] = useState(null);
   const [aberto, setAberto] = useState(false);
   const [escuro, setEscuro] = useState(false);
   const [sair, setSair] = useState(false);
@@ -22,7 +23,7 @@ export default function MenuUsuario({ nome, familia, cadastros, relato, eu, chil
   const [print, setPrint] = useState(null);
   const raiz = useRef(null);
 
-  useEffect(() => { setContas(trocaLigada() ? lerContas() : []); }, [aberto]);
+  useEffect(() => { setContas(trocaLigada() ? lerContas() : []); uidAtual().then(setUid).catch(() => {}); }, [aberto]);
   useEffect(() => {
     if (!aberto) { setSair(false); return; }
     const el = document.documentElement;
@@ -42,8 +43,8 @@ export default function MenuUsuario({ nome, familia, cadastros, relato, eu, chil
 
   function toque() {
     const agora = Date.now();
-    const outra = contas.length >= 2 && eu ? proxima(eu.id) : null;
-    if (outra && agora - ultimo.current < 400) { ultimo.current = 0; setAberto(false); trocarPara(outra, eu); return; }
+    const outra = contas.length >= 2 && uid ? proxima(uid) : null;
+    if (outra && agora - ultimo.current < 400) { ultimo.current = 0; setAberto(false); trocarPara(outra); return; }
     ultimo.current = agora;
     setAberto((v) => !v);
   }
@@ -62,10 +63,10 @@ export default function MenuUsuario({ nome, familia, cadastros, relato, eu, chil
             <div role="group" aria-label="Trocar de conta">
               <small className="peq-cinza" style={{ padding: '4px 12px', display: 'block' }}>TROCAR DE CONTA</small>
               {contas.map((c) => (
-                <button key={c.id} role="menuitem" type="button" onClick={() => (c.id === eu.id ? setAberto(false) : trocarPara(c, eu))}>
+                <button key={c.id} role="menuitem" type="button" onClick={() => (c.id === uid ? setAberto(false) : trocarPara(c))}>
                   <span className="avatar" style={{ width: 32, height: 32, fontSize: 13, borderRadius: '50%', background: c.cor || '#1a6fe0' }}>{(c.nome || '?')[0]}</span>
                   <span style={{ flex: 1, marginLeft: 10 }}><b>{c.nome}</b><small style={{ display: 'block', color: 'var(--cinza)' }}>{c.rotulo || c.papel}</small></span>
-                  {c.id === eu.id && <Icone nome="check" tam={18} />}
+                  {c.id === uid && <Icone nome="check" tam={18} />}
                 </button>
               ))}
             </div>

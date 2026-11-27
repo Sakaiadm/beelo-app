@@ -25,5 +25,5 @@ export async function POST(request) {
   const { data, error } = await supabase.auth.setSession({ access_token: a, refresh_token: r });
   if (error || !data?.session) return NextResponse.json({ ok: false }, { status: 401 });
   limpar(); // esquece a tela guardada de quem usava antes
-  return NextResponse.json({ ok: true, access_token: data.session.access_token, refresh_token: data.session.refresh_token });
+  return NextResponse.json({ ok: true, uid: data.session.user?.id, access_token: data.session.access_token, refresh_token: data.session.refresh_token });
 }
