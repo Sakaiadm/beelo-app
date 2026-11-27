@@ -35,6 +35,7 @@ tudo que **grava** passa por uma ação em `app/acoes*.js`, que chama uma funç�
 | 🟦 Comemorações e sons | `lib/festa.js`, `lib/festaAnim.js`, `components/Comemorar.js`, `Festa.js`, `SomConcluir.js` |
 | 🟦 Dicas e ideias | `lib/dicas.js`, `lib/dicasMotor.js` (roda no aparelho), `lib/ideias.js`, `components/LampadaFlutuante.js` | Abrir a lâmpada (topo ou flutuante) marca TODAS as ideias novas como vistas (`marcarTodasVistas`); o número só some assim.
 | 🟦 Aviso de chegada | `components/Tarefa.js`, `TarefaForm.js`, `ChegadaLembrete.js`, `app/acoes.js` (`cheguei`), `lib/util.js`, migração 0027 |
+| 🟦 Reportar problema ou sugestão | `components/Reportar.js` (folha + print da tela com html-to-image, 1600px/JPEG 80%, ou imagem da galeria), item no `components/MenuUsuario.js`, `enviarRelato`/`mudarRelato` em `app/acoes.js`, `app/(app)/config/relatos`, migração 0033. O print é tirado ANTES de abrir a folha; é aproximado (imagens de fora e vídeos podem sair em branco). |
 | 🟦 Cadastros | `app/(app)/config/*` (pessoas, categorias, famílias, ajustes), `components/PessoaForm.js` |
 | 🟪 Avisos no celular | `lib/despachante.js`, `instrumentation.js`, `public/sw.js`, `components/AvisosCelular.js`, migração 0005 |
 | 🟪 E-mail de convite | `lib/convite.js`, `lib/email.js`, `deploy/config-email.sh` |

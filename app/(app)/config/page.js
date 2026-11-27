@@ -26,6 +26,8 @@ export default async function Config({ searchParams }) {
     supabase.from('ra_categorias').select('id', { count: 'exact', head: true }),
     superAdmin ? supabase.rpc('ra_admin_familias') : Promise.resolve({ data: null }),
   ]);
+  // @rpc ra_relatos_lista (SQL 0033): só o administrador geral. Sem o SQL, volta vazio e segue.
+  const nRel = superAdmin ? ((await supabase.rpc('ra_relatos_lista')).data || []).filter((r) => r.status === 'novo').length : 0;
   const n = membros.length;
   return (
     <main className="estreito">
@@ -36,6 +38,7 @@ export default async function Config({ searchParams }) {
         : <Item href={`/config/familias/${familia.id}`} icone="familia" titulo="Meu grupo" sub={familia.nome} />}
       <Item href="/config/pessoas" icone="pessoa" titulo="Pessoas" sub={`${n} ${n === 1 ? 'pessoa' : 'pessoas'}`} />
       <Item href="/config/categorias" icone="etiqueta" titulo="Categorias" sub={`${nCat ?? 0} categorias`} />
+      {superAdmin && <Item href="/config/relatos" icone="fala" titulo="Relatos dos testadores" sub={nRel ? `${nRel} ${nRel === 1 ? 'novo' : 'novos'}` : 'nenhum novo'} />}
       {superAdmin && <GuiaChave familiaId={familia.id} ligado={familia.guia_mel === true} />}
     </main>
   );

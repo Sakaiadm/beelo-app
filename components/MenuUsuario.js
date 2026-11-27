@@ -1,18 +1,21 @@
 'use client';
 // @arquivo  MenuUsuario.js: botão com o nome no topo: perfil, ajuda, modo escuro, sair.
 // @tipo     componente
-// @usa      ./Icone
+// @usa      ./Icone, ./Reportar (item "Reportar ou sugerir" e print da tela)
 // @usado-por app/(app)/layout.js
 import Link from 'next/link';
 import { useEffect, useRef, useState } from 'react';
 import Icone from './Icone';
+import Reportar, { capturarTela } from './Reportar';
 
 // Botão com o nome da pessoa no topo. Abre: Meu perfil, Ajuda, Modo escuro e Sair (Raio-X U67).
 // Sair pergunta antes (U68).
-export default function MenuUsuario({ nome, familia, cadastros, children }) {
+export default function MenuUsuario({ nome, familia, cadastros, relato, children }) {
   const [aberto, setAberto] = useState(false);
   const [escuro, setEscuro] = useState(false);
   const [sair, setSair] = useState(false);
+  const [relatar, setRelatar] = useState(false);
+  const [print, setPrint] = useState(null);
   const raiz = useRef(null);
 
   useEffect(() => {
@@ -45,6 +48,7 @@ export default function MenuUsuario({ nome, familia, cadastros, children }) {
           {cadastros && <Link role="menuitem" href="/config" prefetch={false} onClick={() => setAberto(false)}>Cadastros</Link>}
           <Link role="menuitem" href="/perfil" prefetch={false} onClick={() => setAberto(false)}>Meu perfil</Link>
           <Link role="menuitem" href="/ajuda" prefetch={false} onClick={() => setAberto(false)}>Ajuda</Link>
+          {relato && <button role="menuitem" type="button" onClick={async () => { setAberto(false); await new Promise((r) => setTimeout(r, 120)); setPrint(await capturarTela()); setRelatar(true); }}>Reportar ou sugerir<Icone nome="fala" tam={18} /></button>}
           <button role="menuitem" type="button" onClick={alternar}>Modo escuro<span className={`chave ${escuro ? 'on' : ''}`} aria-hidden="true" /></button>
           {sair ? (
             <form action="/auth/sair" method="post" className="sair-conf" role="alertdialog" aria-label="Sair do beelo">
@@ -54,6 +58,7 @@ export default function MenuUsuario({ nome, familia, cadastros, children }) {
           ) : <button role="menuitem" type="button" className="sair" onClick={() => setSair(true)}><Icone nome="sair" tam={18} /> Sair</button>}
         </div>
       )}
+      {relato && <Reportar {...relato} aberto={relatar} setAberto={setRelatar} print={print} setPrint={setPrint} />}
     </div>
   );
 }

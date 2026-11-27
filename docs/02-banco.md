@@ -50,7 +50,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 
 ## Linha do tempo das migrações
 
-(Atualizado em 26/11/2026, até a 0032. Migrações novas já trazem no cabeçalho `-- @migracao` e `-- @altera`/`-- @banco`.)
+(Atualizado em 26/11/2026, até a 0033. Migrações novas já trazem no cabeçalho `-- @migracao` e `-- @altera`/`-- @banco`.)
 
 | Nº | O que trouxe |
 |---|---|
@@ -84,6 +84,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0028 | A criança sugere um desafio; Pai e Mãe aprovam ou dizem "agora não" (tabela `ra_desafio_sugestoes`) |
 | 0029 | Trocar a foto de uma tarefa já concluída e apagar fotos que sobram (`ra_ocorrencias.foto_trocada_em`, política do Storage) |
 | 0031 | Desafios em ciclos de 4 semanas (colunas `ciclo_*`, `descansando_em`), limite de 2 por pessoa e 1 da família no banco (gatilho `ra_desafios_limite`), `ra_desafio_renovar`, 1 troca por semana em `ra_desafio_encerrar` |
+| 0033 | Relatos dos testadores: tabela `ra_relatos` (sem política; só pelas funções), `ra_relatar` (grava e avisa o administrador geral no sino), `ra_relatos_lista` e `ra_relato_status` (só `ra_sou_super`), política `ra_foto_sel_super` (administrador geral lê as imagens dos relatos em `rotina-fotos`). |
 | 0032 | Categorias: Lazer entra em "Esporte e lazer" (tarefas e desafios movidos), nova categoria Pet, "Música/Cursos" vira "Cursos"; `ra_seed_categorias` atualizada. |
 | 0030 | Pai e Mãe fecham (X) a sugestão de desafio do Painel; volta em 14 dias (tabela `ra_desafio_dispensas`) |
 | 0028 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |

@@ -39,6 +39,15 @@ async function rpc(nome, args) {
   return { ok: true };
 }
 
+// ═══ SEÇÃO: Relatos dos testadores (problema ou sugestão) ═══
+// @rpc ra_relatar (SQL 0033): grava o relato e avisa o administrador geral (sino e push).
+export async function enviarRelato(_, fd) {
+  const tipo = fd.get('tipo') === 'sugestao' ? 'sugestao' : 'problema';
+  const texto = txt(fd, 'texto', 2000);
+  if (!texto || texto.length < 5) return { erro: 'Conte um pouco mais, em pelo menos uma frase.' };
+  return rpc('ra_relatar', { p_tipo: tipo, p_texto: texto, p_foto: caminhoFoto(fd.get('foto')), p_tela: txt(fd, 'tela', 200), p_papel: txt(fd, 'papel', 60), p_aparelho: txt(fd, 'aparelho', 200) });
+}
+
 // ═══ SEÇÃO: Tarefas do dia: concluir, desfazer, justificar, adiar, conferir ═══
 
 // ===== Filho =====
@@ -774,4 +783,12 @@ export async function adminAtivarFamilia(fd) {
   const supabase = await supabaseServer();
   await supabase.rpc('ra_admin_ativar_familia', { p_id: uuid(fd.get('id')), p_ativa: fd.get('ativa') === '1' });
   revalidar();
+}
+
+// Administrador geral: muda o andamento de um relato (novo, visto, resolvido).
+// @rpc ra_relato_status (SQL 0033)
+export async function mudarRelato(fd) {
+  const st = ['novo', 'visto', 'resolvido'].includes(fd.get('status')) ? fd.get('status') : null;
+  if (!st) return { erro: 'Andamento inválido' };
+  return rpc('ra_relato_status', { p_id: uuid(fd.get('id')), p_status: st });
 }

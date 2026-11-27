@@ -158,6 +158,10 @@ http.createServer((req, res) => {
       if (m[2] === 'ra_sou_super') return send(200, tok === 'tok-pai');
       if (m[2] === 'ra_admin_familias') return tok === 'tok-pai' ? send(200, adminFamilias) : send(400, { message: 'Apenas o administrador geral' });
       if (m[2] === 'ra_admin_membros') return tok === 'tok-pai' ? send(200, [{ id: id(701), nome: 'Ana', email: 'ana@t.com', funcao: 'mae', papel: 'gestor', ativo: true, entrou: false, responsavel: true }]) : send(400, { message: 'Apenas o administrador geral' });
+      if (m[2] === 'ra_relatos_lista' && process.env.MOCK_RELATOS === '1' && tok === 'tok-pai') return send(200, [
+        { id: id(801), tipo: 'problema', texto: 'Quando toco em Concluir na tarefa de arrumar o quarto, o botão fica girando e a foto não aparece.', foto_path: `${FAM}/${E}/relato1.jpg`, tela: 'Hoje (/hoje)', papel: 'Acompanhado', aparelho: 'iPhone/iPad · Safari · app instalado · 390×844', status: 'novo', criado_em: new Date(Date.now() - 3600e3).toISOString(), nome: 'Bia', familia: 'Família Souza' },
+        { id: id(802), tipo: 'sugestao', texto: 'Seria legal poder escolher o horário do lembrete só para fins de semana.', foto_path: null, tela: 'Tarefas (/tarefas/nova)', papel: 'Mãe', aparelho: 'Android · Chrome · no navegador · 412×820', status: 'novo', criado_em: new Date(Date.now() - 20 * 3600e3).toISOString(), nome: 'Marina', familia: 'Família Lima' },
+        { id: id(803), tipo: 'problema', texto: 'O aviso de chegada não tocou o som.', foto_path: null, tela: 'Painel (/painel)', papel: 'Pai', aparelho: 'Android · Chrome · app instalado · 412×820', status: 'visto', criado_em: new Date(Date.now() - 50 * 3600e3).toISOString(), nome: 'Carlos', familia: 'Família Lima' }]);
       if (m[2] === 'ra_tela_previsto_dia') return send(200, [{ formato: 'aparelho', min_celular: 120, min_computador: 60, min_total: 180, fixado: true }]);
       return send(200, null);
     }
