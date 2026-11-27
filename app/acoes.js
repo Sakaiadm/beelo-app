@@ -285,7 +285,7 @@ export async function ligarTela(fd) {
 
 // Tarefa "Lançar tempo de tela": existe enquanto o tempo de tela da pessoa está ligado.
 // Os dias seguem o previsto (lança no dia seguinte a cada dia com previsto, SQL 0016); o horário e
-// "Pode adiar" ficam no cartão "Lançamento" da aba Tela. Desligando, para de ser gerada e o histórico fica.
+// "Pode lançar até" ficam no "Lançar tempo previsto" da aba Tela; "Pode adiar" na engrenagem. Desligando, para de ser gerada e o histórico fica.
 async function sincronizarTarefaTela(supabase, eu, membroId, ligado) {
   const { data: atual, error: e1 } = await supabase.from('ra_tarefas').select('id').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
   if (e1) return traduzirErro(e1).erro;
@@ -535,6 +535,8 @@ export async function salvarPrevisto(_, fd) {
   if (error) return traduzirErro(error);
   await trocarPrevistosAntigos(supabase, eu, membro, { umDia, dias, inicio, substitui: uuid(fd.get('substitui')) });
   if (!umDia) await ajustarDiasTela(supabase, membro);
+  // Os horários vão junto no "Lançar tempo previsto" e só valem para os responsáveis.
+  if (eu.papel === 'gestor') { const falha = await gravarHorariosTela(supabase, membro, fd); if (falha) return falha; }
   revalidar();
   return { ok: true };
 }
@@ -574,24 +576,42 @@ async function trocarPrevistosAntigos(supabase, eu, membro, { umDia, dias, inici
   }
 }
 
-// Aba Tela › cartão "Lançamento": horário, "Pode adiar" e "Exige justificativa". Salva sozinho ao mudar (Raio-X S9).
-// O horário novo vale também para as próximas pendentes.
+// Horário da tarefa "Lançar tempo de tela" (hora_inicio = "Lançar sempre às"; hora_fim = "Pode lançar até", vazio = sem limite).
+// Vem dentro do "Lançar tempo previsto" (Thomas 27/11, sem SQL: ra_tarefas já tem hora_inicio e hora_fim).
+// Vale também para as próximas pendentes. Devolve { erro } ou null.
+async function gravarHorariosTela(supabase, membroId, fd) {
+  if (!fd.has('tela_hora') && !fd.has('tela_ate')) return null;
+  const { data: t, error } = await supabase.from('ra_tarefas').select('id, hora_inicio, hora_fim').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
+  if (error) return traduzirErro(error);
+  if (!t) return { erro: 'Ligue o tempo de tela desta pessoa primeiro.' };
+  const patch = {};
+  if (fd.has('tela_hora')) { const h = hora(fd.get('tela_hora')); if (!h) return { erro: 'Escolha o horário de lançar o tempo de tela' }; patch.hora_inicio = h; }
+  if (fd.has('tela_ate')) patch.hora_fim = hora(fd.get('tela_ate'));
+  const ini = (patch.hora_inicio ?? t.hora_inicio)?.slice(0, 5), fim = ('hora_fim' in patch ? patch.hora_fim : t.hora_fim)?.slice(0, 5);
+  if (ini && fim && fim <= ini) return { erro: 'O limite para lançar deve ser depois do horário de lançar' };
+  const { error: e2 } = await supabase.from('ra_tarefas').update(patch).eq('id', t.id);
+  if (e2) return traduzirErro(e2);
+  await supabase.from('ra_ocorrencias').update(patch).eq('tarefa_id', t.id).eq('status', 'pendente').gte('data', hojeISO());
+  return null;
+}
+
+// Engrenagem › regras de outra pessoa: "Pode adiar" e "Exige justificativa". Salva sozinho ao mudar (Raio-X S9).
+// Ainda aceita o horário (tela_hora/tela_ate) para quem mandar junto.
 export async function salvarLancamentoTela(_, fd) {
   const supabase = await supabaseServer();
   const { data: eu } = await supabase.rpc('ra_eu');
   if (eu?.papel !== 'gestor') return { erro: 'Só os responsáveis podem fazer isso' };
   const membroId = uuid(fd.get('membro'));
-  const h = hora(fd.get('tela_hora'));
-  if (!h) return { erro: 'Escolha o horário de lançar o tempo de tela' };
-  const { data: t, error } = await supabase.from('ra_tarefas').select('id, hora_inicio').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
-  if (error) return traduzirErro(error);
-  if (!t) return { erro: 'Ligue o tempo de tela desta pessoa primeiro.' };
-  const outro = membroId !== eu.id;
-  const { error: e2 } = await supabase.from('ra_tarefas').update({
-    hora_inicio: h, permite_adiar: outro && fd.get('tela_adiar') === '1', exige_justificativa: outro && fd.get('tela_justificativa') === '1',
-  }).eq('id', t.id);
-  if (e2) return traduzirErro(e2);
-  if (t.hora_inicio?.slice(0, 5) !== h) await supabase.from('ra_ocorrencias').update({ hora_inicio: h }).eq('tarefa_id', t.id).eq('status', 'pendente').gte('data', hojeISO());
+  const falha = await gravarHorariosTela(supabase, membroId, fd);
+  if (falha) return falha;
+  if (fd.get('tela_regras') === '1') {
+    const { data: t, error } = await supabase.from('ra_tarefas').select('id').eq('responsavel_id', membroId).eq('especial', 'tela').eq('ativa', true).maybeSingle();
+    if (error) return traduzirErro(error);
+    if (!t) return { erro: 'Ligue o tempo de tela desta pessoa primeiro.' };
+    const outro = membroId !== eu.id;
+    const { error: e2 } = await supabase.from('ra_tarefas').update({ permite_adiar: outro && fd.get('tela_adiar') === '1', exige_justificativa: outro && fd.get('tela_justificativa') === '1' }).eq('id', t.id);
+    if (e2) return traduzirErro(e2);
+  }
   revalidar();
   return { ok: true };
 }

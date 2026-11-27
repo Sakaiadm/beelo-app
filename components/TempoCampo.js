@@ -10,9 +10,10 @@ import { fmtMin, parseMin } from '@/lib/util';
 // Padrão: 3 sugestões a partir de 3h, na mesma linha do campo (pedido do Thomas 24/11) (pedido do Thomas: hoje quase ninguém usa menos; se usar, é só diminuir).
 // - valor: minutos iniciais (ou null = vazio).  prontos: [{ rotulo, min }].  base: soma "+X" a partir deste valor.
 // - grande: botões maiores (modo criança).  aoMudar(min): avisa a tela (ex.: total do dia).
+// - extra: algo ao lado dos tempos prontos (os ícones redondos de foto e galeria).  etiqueta: nome lido pelo leitor de tela quando não há rotulo.
 export const PRONTOS_PADRAO = [180, 240, 300].map((m) => ({ rotulo: fmtMin(m).replace('h00', 'h'), min: m }));
 
-export default function TempoCampo({ id, name, rotulo, valor = null, prontos = PRONTOS_PADRAO, base = null, grande, required, aoMudar }) {
+export default function TempoCampo({ id, name, rotulo, valor = null, prontos = PRONTOS_PADRAO, base = null, grande, required, aoMudar, extra, etiqueta }) {
   const [txt, setTxt] = useState(valor == null ? '' : fmtMin(valor));
   const min = parseMin(txt);
   const mudar = (m) => { const v = Math.max(0, Math.min(1440, m)); setTxt(fmtMin(v)); aoMudar?.(v); };
@@ -25,17 +26,19 @@ export default function TempoCampo({ id, name, rotulo, valor = null, prontos = P
       })}
     </div>
   );
+  // Com "extra", os tempos prontos e o extra ficam juntos na mesma linha (tempo-acoes).
+  const acoes = extra ? <div className="tempo-acoes">{chips}{extra}</div> : chips;
   return (
     <div className={`tempo-campo${grande ? ' grande' : ''}`}>
       {rotulo && <label htmlFor={id}>{rotulo}</label>}
       <div className="tempo-linha">
         <button type="button" className="btn sec peq icone" onClick={() => passo(-30)} aria-label={`Menos 30 minutos${rotulo ? ' em ' + rotulo : ''}`}>−</button>
-        <input id={id} name={name} value={txt} required={required} inputMode="text" autoComplete="off" placeholder="0h00"
+        <input id={id} name={name} aria-label={rotulo ? undefined : etiqueta} value={txt} required={required} inputMode="text" autoComplete="off" placeholder="0h00"
           onFocus={(e) => e.target.select()} onChange={(e) => { setTxt(e.target.value); const m = parseMin(e.target.value); if (!Number.isNaN(m)) aoMudar?.(m || 0); }} />
         <button type="button" className="btn sec peq icone" onClick={() => passo(30)} aria-label={`Mais 30 minutos${rotulo ? ' em ' + rotulo : ''}`}>+</button>
-        {!grande && chips}
+        {!grande && acoes}
       </div>
-      {grande && chips}
+      {grande && acoes}
     </div>
   );
 }

@@ -41,7 +41,7 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | `/painel` (cartão de sugestão) | `components/SugestaoDesafio.js` | quem está sem desafio (Pai/Mãe, até 2 pessoas) vê um cartão com selo "Desafio sugerido", "Que tal um desafio para Fulano?", "Aceitar e criar" (cria o desafio da semana na hora) e "Escolher outro" (abre Novo desafio). O X fecha só aquela pessoa por 14 dias (SQL 0030). Some sozinho quando a pessoa ganha um desafio. | ra_desafio_dispensas |
 | `/tarefas/nova` | `app/(app)/tarefas/nova/page.js` | criar tarefa (com sugestões prontas). | ra_categorias |
 | `/tarefas` | `app/(app)/tarefas/page.js` | rota antiga /tarefas; leva para a Agenda em Dia. | — |
-| `/tela` | `app/(app)/tela/page.js` | Tempo de tela: previsto, lançar o que aconteceu, pedidos e gráfico dos 7 dias. | ra_ocorrencias, ra_tarefas, ra_tela_previsto, ra_tela_proposta, ra_tela_real, ra_tela_previsto_dia |
+| `/tela` | `app/(app)/tela/page.js` | Tempo de tela: balão do total de ontem, faixas que abrem "Lançar meu tempo de ontem" (com ícones redondos de foto e galeria) e "Lançar tempo previsto" (3h 4h 5h, Repetir, "Lançar sempre às" e "Pode lançar até"), pedidos e gráfico dos 7 dias (criança vê estrelas). A engrenagem só liga pessoas e regras. | ra_ocorrencias, ra_tarefas, ra_tela_previsto, ra_tela_proposta, ra_tela_real, ra_tela_previsto_dia |
 | `/aceite` | `app/aceite/page.js` | passo antes de entrar: aceitar termos e privacidade (e autorização do responsável). | — |
 | `/auth/callback` | `app/auth/callback/route.js` | rota que recebe o retorno do login (código do Supabase) e cria a sessão. | — |
 | `/auth/confirm` | `app/auth/confirm/route.js` | rota que confirma o link de e-mail (convite, entrar sem senha). | — |

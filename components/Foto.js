@@ -1,7 +1,7 @@
 'use client';
 // @arquivo  Foto.js: foto do dia da tarefa (câmera ou galeria), com data da foto.
 // @tipo     componente
-// @usa      lib/supabase/client, lib/rede, lib/exif, ./Icone
+// @usa      lib/supabase/client, lib/rede, lib/exif, ./Icone (modo `redondo`: 2 ícones azuis, usado no tempo de tela)
 // @usado-por components/SugerirDesejo.js, components/Tarefa.js, components/TelaForms.js
 import { useRef, useState } from 'react';
 import { supabaseBrowser } from '@/lib/supabase/client';
@@ -26,8 +26,9 @@ function fotoDeHoje(d) {
   const hoje = dia(new Date()), ontem = dia(new Date(Date.now() - 86400e3));
   return dia(d) === hoje || (dia(d) === ontem && horaBR() < 7);
 }
+// redondo: só dois ícones redondos azuis (câmera e galeria) para o tempo de tela, em todo lugar onde se lança (Thomas 27/11).
 // grande: prévia grande com "Tirar outra" / "Da galeria" (seção 42). aoMudar(caminho): avisa quando a foto fica pronta ou é refeita.
-export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHoje, grande, aoMudar }) {
+export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHoje, grande, redondo, aoMudar }) {
   const cam = useRef(null), gal = useRef(null);
   const [estado, setEstado] = useState({ caminho: '', previa: '', msg: '', em: '' });
 
@@ -68,7 +69,14 @@ export default function Foto({ nome = 'foto', familia, membro, obrigatoria, soHo
       <input type="hidden" name={`${nome}_em`} value={estado.em} />
       <input ref={cam} type="file" accept="image/*" capture="environment" hidden onChange={escolher} />
       <input ref={gal} type="file" accept="image/*" hidden onChange={escolher} />
-      {grande ? (
+      {redondo ? (
+        <div className="foto-redonda">
+          <button type="button" className="btn icone redondo" aria-label="Tirar foto" title="Tirar foto" onClick={() => cam.current.click()}><Icone nome="camera" tam={22} cor="#fff" /></button>
+          <button type="button" className="btn icone redondo" aria-label="Escolher da galeria" title="Escolher da galeria" onClick={() => gal.current.click()}><Icone nome="galeria" tam={22} cor="#fff" /></button>
+          {estado.previa && <img src={estado.previa} alt="Prévia da foto" className="foto-mini pq" />}
+          {estado.msg && <span className="foto-msg" style={{ color: estado.msg.startsWith('Essa foto') ? 'var(--erro)' : 'var(--cinza)' }}>{estado.msg}</span>}
+        </div>
+      ) : grande ? (
         <div>
           {estado.previa && <img src={estado.previa} alt="Prévia da foto" style={{ width: '100%', maxHeight: 240, objectFit: 'cover', borderRadius: 14, border: '1px solid var(--borda)', display: 'block' }} />}
           <div style={{ display: 'flex', gap: 8, marginTop: estado.previa ? 8 : 0 }}>

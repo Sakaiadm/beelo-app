@@ -18,14 +18,15 @@ const HORAS = [
 const MINUTOS = Array.from({ length: 12 }, (_, i) => ({ i, r: R_FORA, v: i * 5 }));
 
 // horarios: botões prontos antes do relógio (Raio-X S13); "Outro" abre o relógio. aoMudar(v): avisa a tela.
-export default function RelogioHora({ id, name, rotulo, defaultValue = '08:00', horarios, aoMudar }) {
+// vazio: texto de "sem horário" (ex.: "Sem limite"); quando existe, o campo pode ficar vazio e o relógio ganha esse botão.
+export default function RelogioHora({ id, name, rotulo, defaultValue = '08:00', horarios, aoMudar, vazio }) {
   const [valor, setValor] = useState(defaultValue);
   const [aberto, setAberto] = useState(false);
   const [modo, setModo] = useState('hora');
   const [h, setH] = useState(0);
   const [m, setM] = useState(0);
   const abrir = () => {
-    const [hh, mm] = (valor || '08:00').split(':').map(Number);
+    const [hh, mm] = (valor || (vazio ? '10:00' : '08:00')).split(':').map(Number);
     setH(hh); setM(mm); setModo('hora'); setAberto(true);
   };
   const itens = modo === 'hora' ? HORAS : MINUTOS;
@@ -46,8 +47,8 @@ export default function RelogioHora({ id, name, rotulo, defaultValue = '08:00', 
           </button>
         </div>
       ) : (
-        <button id={id} type="button" className="campo-botao" onClick={abrir} aria-label={`${rotulo}: ${valor}`}>
-          <span style={{ fontWeight: 600 }}>{valor}</span><span className="relogio-ic" aria-hidden="true"><Icone nome="relogio" tam={20} /></span>
+        <button id={id} type="button" className="campo-botao" onClick={abrir} aria-label={`${rotulo}: ${valor || vazio}`}>
+          <span style={{ fontWeight: 600 }}>{valor || vazio}</span><span className="relogio-ic" aria-hidden="true"><Icone nome="relogio" tam={20} /></span>
         </button>
       )}
       {aberto && (
@@ -77,6 +78,7 @@ export default function RelogioHora({ id, name, rotulo, defaultValue = '08:00', 
             </div>
             <div className="relogio-acoes">
               <button type="button" className="btn sec" onClick={() => setAberto(false)}>Cancelar</button>
+              {vazio && <button type="button" className="btn sec" onClick={() => { definir(''); setAberto(false); }}>{vazio}</button>}
               <button type="button" className="btn" onClick={pronto}>Pronto</button>
             </div>
           </div>
