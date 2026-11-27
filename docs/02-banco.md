@@ -77,6 +77,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0021 A e B | Automações: resumo do dia, conferir sozinho, convite parado, prêmio esperando. **Há duas 0021: rode A, depois B** |
 | 0022 | Jeito de ver o beelo e ano aproximado de nascimento |
 | 0023 | Separa papel de parentesco (Pai, Mãe, Adulto que ajuda, Filho(a)) |
+| 0024 | Libera a coluna `parentesco` para Pai e Mãe (ra_membros tem permissão por coluna desde a 0020) |
 | 0024 | Guia da Mel (beta): uma chave por grupo, só o administrador geral liga e desliga (`ra_familias.guia_mel`) |
 | 0025 | A chave de ligar/desligar os desafios (beta) passa a ser só do administrador geral |
 | 0026 | Desejos e pedidos de prêmio só da própria pessoa e dos responsáveis (regras RLS de `ra_premios` e `ra_premio_pedidos`) |
@@ -107,3 +108,5 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 
 - **`ra_trocar_foto(p_oc, p_foto, p_foto_em)`:** só a própria pessoa, só em tarefa já concluída com foto e **antes do responsável conferir**. A foto nova segue a regra de concluir (precisa ser de hoje). Grava `foto_trocada_em`, não mexe em `concluida_em` e devolve o caminho da foto antiga, que o app apaga do armazenamento. Avisa os responsáveis como o aviso de conclusão ("Alice trocou a foto: …").
 - **Política `ra_foto_del`:** deixa apagar só foto da própria pessoa que não está em nenhuma tarefa. Também apaga a foto trocada antes de concluir (feito por `components/Foto.js`).
+
+@cuidado Coluna nova em `ra_membros` precisa de `grant select/insert/update (coluna)` na mesma migração; sem isso o app dá "Você não tem permissão para fazer isso" ao salvar (foi o caso do `parentesco`, corrigido na 0024).
