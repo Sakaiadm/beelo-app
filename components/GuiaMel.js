@@ -49,6 +49,16 @@ export default function GuiaMel({ membro, publico, jeito, familiaId, pessoas, ta
     return () => els.forEach((el) => el.classList.remove('guia-destaque'));
   }, [dica]);
 
+  // Enquanto o balão está na tela, a página ganha folga embaixo (dá para rolar até o botão Salvar, que ficava por baixo do balão).
+  // Se a pessoa começa a digitar, o balão sai da frente sem contar como visto (volta na próxima visita).
+  useEffect(() => {
+    if (!dica) return undefined;
+    if (!dica.topo) document.body.classList.add('guia-aberto');
+    const sair = (e) => { if (['INPUT', 'TEXTAREA', 'SELECT'].includes(e.target?.tagName)) setDica(null); };
+    document.addEventListener('focusin', sair);
+    return () => { document.body.classList.remove('guia-aberto'); document.removeEventListener('focusin', sair); };
+  }, [dica]);
+
   if (!dica) return null;
   const fechar = (pulou) => { registrar(membro, dica, pulou); setDica(null); };
   const acao = dica.acao ? dica.acao({ pessoas, tarefas, familiaId }) : null;
