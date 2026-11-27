@@ -16,7 +16,7 @@ export default function ContasAlternar({ eu }) {
   }, [eu.id]);
   const alternar = () => { ligarTroca(!ligada); setLigada(!ligada); };
   const tirar = (id) => { remover(id); setContas(lerContas()); };
-  const adicionar = async () => { marcarAdicionando(true); await sairSemRevogar(); };
+  const adicionar = async () => { await guardarAtual(eu); marcarAdicionando(true); await sairSemRevogar(); };
   return (
     <>
       <div className="card">
