@@ -16,6 +16,8 @@ const membros = [
   { id: A, familia_id: FAM, nome: 'Alice', papel: 'filho', cor: '#c2185b', email: 'alice@t.com', ativo: true, tela_ativo: false, user_id: id(94), termos_versao: TV },
 ];
 if (process.env.MOCK_CHEGADA === '1') membros.forEach((m) => { m.termos_versao = '2026-11-24'; });
+// Termos já aceitos (senão toda tela do filho cai em /aceite desde o PR de segurança).
+membros.forEach((m) => { m.termos_versao = '2026-11-24'; m.termos_aceitos_em = '2026-11-01T12:00:00Z'; m.autorizado_em = '2026-11-01T12:00:00Z'; });
 const cats = [{ id: id(20), familia_id: FAM, nome: 'Estudo', cor: 'indigo', ordem: 1 }, { id: id(21), familia_id: FAM, nome: 'Casa', cor: 'laranja', ordem: 2 }];
 const tarefas = [
   { id: id(30), familia_id: FAM, titulo: 'Estudar 1h', descricao: 'Matemática', categoria_id: id(20), responsavel_id: E, tipo: 'recorrente', recorrencia: 'diaria', dias_semana: [], data_inicio: dia(-10), data_fim: null, hora_inicio: '19:00:00', hora_fim: '20:00:00', exige_foto: false, permite_adiar: true, exige_justificativa: false, criada_por: G, ativa: true, prioritaria: true, lembrete_min: 15, categoria: cats[0] },
