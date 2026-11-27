@@ -1,4 +1,4 @@
-// @arquivo  page.js: Tempo de tela: previsto, lançar o que aconteceu, pedidos e gráfico dos 7 dias.
+// @arquivo  page.js: Tempo de tela: balão do total de ontem, faixas "Lançar meu tempo de ontem" e "Lançar tempo previsto", pedidos e gráfico (criança: estrelas).
 // @tipo     tela
 // @usa      banco ra_tela_previsto, banco ra_tela_real, banco ra_tela_proposta, banco ra_ocorrencias, banco ra_tarefas, rpc ra_tela_previsto_dia, lib/jeito, lib/sessao, lib/tela, lib/util, components/TelaForms, components/TelaGrafico, components/Form, components/Responder, lib/respostas, components/ConfirmarBotao, components/TelaAjustes, app/acoes
 // @usado-por Next.js (rota /tela)
@@ -15,6 +15,11 @@ import Responder from '@/components/Responder';
 import { PEDIDO } from '@/lib/respostas';
 import ConfirmarBotao from '@/components/ConfirmarBotao';
 import TelaAjustes from '@/components/TelaAjustes';
+import TelaFaixa from '@/components/TelaFaixa';
+import TotalOntem from '@/components/TotalOntem';
+import AvisoTela from '@/components/AvisoTela';
+import TelaEstrelas from '@/components/TelaEstrelas';
+import Icone from '@/components/Icone';
 import { encerrarPrevisto, responderTela, ligarTela } from '@/app/acoes';
 
 export const dynamic = 'force-dynamic';
@@ -24,6 +29,9 @@ const soUmDia = (r) => r.vigencia_fim != null && r.vigencia_fim === r.vigencia_i
 const diasTxt = (r) => (soUmDia(r) ? `Só em ${dataCurta(r.vigencia_inicio)}` : r.dias_semana.length === 7 ? 'Todos os dias'
   : [...r.dias_semana].sort((a, b) => ((a + 6) % 7) - ((b + 6) % 7)).map((d) => DIAS_CURTO[d]).join(' '));
 // Previsto salvo -> valores iniciais do formulário (Raio-X S6, S15).
+// Resumo curto do previsto para o selo da faixa fechada: "Cel 3h · PC 2h".
+const curto = (m) => fmtMin(m).replace('h00', 'h');
+const seloPrevisto = (r) => (r ? [r.min_celular != null && `Cel ${curto(r.min_celular)}`, r.min_computador != null && `PC ${curto(r.min_computador)}`].filter(Boolean).join(' · ') || (r.min_total != null ? `Total ${curto(r.min_total)}` : '') : '');
 const doPrevisto = (r) => (r ? { cel: r.min_celular, pc: r.min_computador, dias: r.dias_semana, inicio: r.vigencia_inicio, fim: r.vigencia_fim, umDia: soUmDia(r) } : null);
 
 function Historico({ linhas }) {
@@ -95,7 +103,7 @@ export default async function Tela({ searchParams }) {
     const adulto = eu.funcao === 'outro';
     // Sempre o tempo de ontem (S23). Um dia que ficou faltando abre pelo aviso, com ?d=.
     const dia = /^\d{4}-\d{2}-\d{2}$/.test(sp.d || '') && sp.d < ontem && sp.d >= addDias(hoje, -14) ? sp.d : ontem;
-    const [{ data: p }, { data: pHoje }, { data: atual }, { data: props }, { data: faltas }, hist, semana] = await Promise.all([
+    const [{ data: p }, { data: pHoje }, { data: atual }, { data: props }, { data: faltas }, hist, semana, { data: minhaTarefa }] = await Promise.all([
       supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: dia }),
       supabase.rpc('ra_tela_previsto_dia', { p_membro: eu.id, p_data: hoje }),
       supabase.from('ra_tela_real').select('*').eq('membro_id', eu.id).eq('data', dia).maybeSingle(),
@@ -105,6 +113,7 @@ export default async function Tela({ searchParams }) {
         .eq('status', 'pendente').lt('data', hoje).gte('data', addDias(hoje, -13)).order('data', { ascending: false }),
       telaResumo(supabase, eu.id, addDias(hoje, -14), hoje),
       telaSemana(supabase, eu.id, ontem, addDias),
+      supabase.from('ra_tarefas').select('hora_inicio, hora_fim').eq('responsavel_id', eu.id).eq('especial', 'tela').eq('ativa', true).maybeSingle(),
     ]);
     const lancados = new Set(hist.map((r) => r.data));
     const faltou = (faltas || []).map((o) => addDias(o.data, -1)).filter((d) => d !== dia && !lancados.has(d));
@@ -114,32 +123,41 @@ export default async function Tela({ searchParams }) {
       regras = regras || [];
       editar = regras.find((r) => r.id === sp.e) || null;
     }
+    const ate = minhaTarefa?.hora_fim ? minhaTarefa.hora_fim.slice(0, 5) : '';
+    const tituloTotal = dia === ontem ? 'Total de ontem' : `Total de ${dataCurta(dia)}`;
     return (
       <main className="estreito">
         <div className="cab"><div><h1 className="titulo">Tempo de tela</h1><p className="sub">{dataLonga(dia).replace(/^./, (c) => c.toUpperCase())}</p></div></div>
         {faltou.length > 0 && <div className="aviso info">Faltou lançar {dataCurta(faltou[0])}. <Link prefetch={false} href={`/tela?d=${faltou[0]}`}>Lançar agora</Link></div>}
-        <div className="card">
-          <RealForm key={dia} eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={dia} previsto={p?.[0]} atual={atual} crianca={crianca} jaSabe={hist.length >= 3} />
-        </div>
+        <AvisoTela />
+        <TotalOntem atual={atual} titulo={tituloTotal} />
+        <TelaFaixa titulo="Lançar meu tempo de ontem" aberto={dia !== ontem}>
+          <RealForm key={dia} eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={dia} previsto={p?.[0]} atual={atual} crianca={crianca} />
+        </TelaFaixa>
         {adulto ? (<>
-          <div className="card" id="previsto"><h2>{editar ? 'Editar meu previsto' : 'Meu previsto'}</h2>
+          <TelaFaixa claro titulo="Lançar meu previsto" selo={seloPrevisto(regras.find((r) => !soUmDia(r)) || regras[0])} aberto={!!editar || regras.length === 0} id="previsto">
             <PrevistoForm key={editar?.id || 'novo'} membro={eu.id} hoje={hoje} inicial={doPrevisto(editar || regras.find((r) => !soUmDia(r)))}
               substitui={editar?.id} cancelarHref="/tela" />
-          </div>
+          </TelaFaixa>
           <Previstos regras={regras} base="/tela" editando={editar?.id} />
         </>) : (
-          <div className="card">
-            <h2>Previsto de hoje</h2>
-            <p style={{ margin: 0 }}>{pHoje?.[0] ? textoPrevisto(pHoje[0], fmtMin) : 'Seus responsáveis ainda não definiram.'}</p>
-            {!crianca && <>
-              <details className="mais-op" style={{ marginTop: 12 }}><summary>Precisa de mais tempo num dia?</summary>
-                <PropostaForm hoje={hoje} previsto={pHoje?.[0]} /></details>
-              {(props || []).length > 0 && <div style={{ marginTop: 12, fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>
-                {props.map((x) => <div key={x.id}>{dataCurta(x.data)}: {x.status === 'pendente' ? 'aguardando resposta' : x.status}</div>)}</div>}
-            </>}
+          // O previsto é definido pelos responsáveis: aparece já estampado, sem recolher (Thomas 27/11).
+          <div className="prev-fixo">
+            <span className="prev-fixo-ic"><Icone nome="cadeado" tam={18} /></span>
+            <div><b>Tempo previsto</b>
+              <p>{pHoje?.[0] ? `Hoje: ${textoPrevisto(pHoje[0], fmtMin)}` : 'Seus responsáveis ainda não definiram.'}</p>
+              {ate && <p>Pode lançar até {ate}</p>}
+              <small>Definido pelos responsáveis. Só para você ver.</small>
+              {!crianca && <>
+                <details className="mais-op" style={{ marginTop: 8 }}><summary>Precisa de mais tempo num dia?</summary>
+                  <PropostaForm hoje={hoje} previsto={pHoje?.[0]} /></details>
+                {(props || []).length > 0 && <div style={{ marginTop: 8, fontSize: 'var(--f-apoio)', color: 'var(--cinza)' }}>
+                  {props.map((x) => <div key={x.id}>{dataCurta(x.data)}: {x.status === 'pendente' ? 'aguardando resposta' : x.status}</div>)}</div>}
+              </>}
+            </div>
           </div>
         )}
-        <TelaGrafico dias={semana} />
+        {crianca ? <TelaEstrelas dias={semana} /> : <TelaGrafico dias={semana} />}
         {!crianca && <DiaADia linhas={[...hist].reverse()} />}
       </main>
     );
@@ -182,7 +200,7 @@ export default async function Tela({ searchParams }) {
     supabase.from('ra_tela_proposta').select('*').eq('membro_id', alvo.id).eq('status', 'pendente'),
     telaResumo(supabase, alvo.id, addDias(hoje, -14), hoje),
     telaSemana(supabase, alvo.id, ontem, addDias),
-    supabase.from('ra_tarefas').select('hora_inicio, permite_adiar, exige_justificativa').eq('responsavel_id', alvo.id).eq('especial', 'tela').eq('ativa', true).maybeSingle(),
+    supabase.from('ra_tarefas').select('hora_inicio, hora_fim, permite_adiar, exige_justificativa').eq('responsavel_id', alvo.id).eq('especial', 'tela').eq('ativa', true).maybeSingle(),
     previstosDosOutros(supabase, ligados.filter((m) => m.id !== alvo.id), hoje),
   ]);
   const regras = regras0 || [];
@@ -195,16 +213,22 @@ export default async function Tela({ searchParams }) {
     ({ data: meuAtual } = await supabase.from('ra_tela_real').select('*').eq('membro_id', eu.id).eq('data', ontem).maybeSingle());
   }
   const base = `/tela?m=${alvo.id}`;
+  const r0 = regras.find((r) => !soUmDia(r)) || regras[0];
+  const form = (
+    <PrevistoForm key={`${alvo.id}-${editar?.id || 'novo'}`} membro={alvo.id} hoje={hoje} inicial={inicial} substitui={editar?.id} outros={outros} cancelarHref={base}
+      horarios={tarefaTela ? { hora: tarefaTela.hora_inicio?.slice(0, 5), ate: tarefaTela.hora_fim?.slice(0, 5) } : undefined} />
+  );
   return (
     <main>
       <TelaAjustes titulo="Tempo de tela">
         {quem}
-        {tarefaTela && <div className="card"><h2>Lançamento</h2>
-          <LancamentoForm key={alvo.id} membro={alvo.id} hora={tarefaTela.hora_inicio?.slice(0, 5)} adiar={tarefaTela.permite_adiar} justificativa={tarefaTela.exige_justificativa} outro={!souEu} /></div>}
+        {tarefaTela && !souEu && <div className="card"><h2>Regras para {alvo.nome}</h2>
+          <LancamentoForm key={alvo.id} membro={alvo.id} adiar={tarefaTela.permite_adiar} justificativa={tarefaTela.exige_justificativa} /></div>}
       </TelaAjustes>
       <div className="seg pessoas" aria-label="Pessoa">
         {ligados.map((f) => <Link prefetch={false} key={f.id} href={`/tela?m=${f.id}`} className={f.id === alvo.id ? 'on' : ''}>{f.id === eu.id ? 'Eu' : f.nome}</Link>)}
       </div>
+      <AvisoTela />
       <div className="duas">
         <div className="lado">
           {(propostas || []).length > 0 && <div className="card"><h2>Pedidos para responder</h2>
@@ -215,19 +239,15 @@ export default async function Tela({ searchParams }) {
                 <Responder acao={responderTela} fila="responderTela" rotulo="Resposta sobre tempo de tela" campos={{ id: p.id }} opcoes={PEDIDO('aprovar')} />
               </div>))}
           </div>}
-          {souEu && <div className="card"><h2>Meu tempo de ontem</h2><RealForm eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={ontem} previsto={meuPrev?.[0]} atual={meuAtual} /></div>}
-          {(() => {
-            const form = <PrevistoForm key={`${alvo.id}-${editar?.id || 'novo'}`} membro={alvo.id} hoje={hoje} inicial={inicial} substitui={editar?.id} outros={outros} cancelarHref={base} />;
-            const r0 = regras.find((r) => !soUmDia(r)) || regras[0];
-            // Já definido: uma linha só, e o formulário abre ao tocar em Mudar (U82).
-            if (r0 && !editar) return (
-              <details className="card prev-fechado" id="previsto">
-                <summary><span>{souEu ? 'Previsto' : `Previsto de ${alvo.nome}`}: {textoPrevisto(r0, fmtMin)}, {diasTxt(r0).toLowerCase()}</span><b>Mudar</b></summary>
-                {form}
-              </details>
-            );
-            return <div className="card" id="previsto"><h2>{editar ? 'Editar previsto' : souEu ? 'Meu previsto' : `Previsto de ${alvo.nome}`}</h2>{form}</div>;
-          })()}
+          {souEu && <>
+            <TotalOntem atual={meuAtual} />
+            <TelaFaixa titulo="Lançar meu tempo de ontem">
+              <RealForm eu={eu.id} membroId={eu.id} familia={eu.familia_id} data={ontem} previsto={meuPrev?.[0]} atual={meuAtual} />
+            </TelaFaixa>
+          </>}
+          {/* Sem previsto (ou editando um): a faixa já abre. Com previsto definido, fica fechada com o resumo no selo (U82). */}
+          <TelaFaixa key={`${alvo.id}-${editar?.id || 'v'}`} claro id="previsto" titulo={souEu ? 'Lançar tempo previsto' : `Lançar tempo previsto de ${alvo.nome}`}
+            selo={seloPrevisto(r0)} aberto={!r0 || !!editar}>{form}</TelaFaixa>
         </div>
         <div className="grande">
           <Previstos regras={regras} base={base} editando={editar?.id} />

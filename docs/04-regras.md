@@ -46,3 +46,11 @@ Cada um tem cabeçalho `@arquivo` explicando o que faz e quem usa. Por tipo: **r
 - As sugestões de tarefa ficam em `lib/sugestoes.js`; Pet tem 12 tarefas e "Passear com o cachorro"/"Dar comida aos animais" saíram de Casa.
 - Os desafios (`lib/desafios.js`) usam o nome "Esporte e lazer"; o nome tem de bater com a categoria da família.
 - Tarefa tipo **Chegada**: botão "Sugestões" abre `CHEGADAS` (`lib/sugestoes.js`), na ordem escolhida pelo Thomas: escola, casa, curso, treino, casa do amigo, casa da mãe, casa do pai, igreja, shopping, trabalho, faculdade. Um toque preenche o título; dá para digitar outro destino.
+
+## Tempo de tela: horários e quem lança (27/11, sem SQL novo)
+
+- **"Lançar sempre às" e "Pode lançar até"** são `hora_inicio` e `hora_fim` da tarefa "Lançar tempo de tela" (`ra_tarefas`). Quem grava é `gravarHorariosTela` em `app/acoes.js`, chamada por `salvarPrevisto`; ela também ajusta as ocorrências ainda pendentes. Vazio em "Pode lançar até" = sem limite.
+- **Engrenagem**: só liga/desliga pessoas e as regras "Pode adiar" e "Exige justificativa" (`salvarLancamentoTela`, só para outras pessoas).
+- **Responsáveis e adultos** lançam o previsto; **criança e adolescente** só lançam o dia de ontem, com o previsto fixo definido pelos responsáveis (lido por `ra_tela_previsto_dia`).
+- **Criança** vê estrelas (`components/TelaEstrelas.js`); os demais veem o gráfico de sempre (`TelaGrafico`).
+- Foto/galeria: `components/Foto.js` com `redondo`, igual na tela e no cartão da tarefa em Hoje.

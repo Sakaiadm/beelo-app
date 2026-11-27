@@ -1,5 +1,5 @@
 'use client';
-// @arquivo  TelaForms.js: formulários do tempo de tela: previsto, lançar o real e propor mudança.
+// @arquivo  TelaForms.js: formulários do tempo de tela: previsto (com horários), regras de lançamento, lançar o real e propor mudança.
 // @tipo     componente
 // @usa      ./Form, ./Foto, ./TempoCampo, ./RelogioHora, ./RepetirCampo, app/acoes, lib/util, lib/aparelhos, lib/festa
 // @usado-por app/(app)/tela/page.js, components/Tarefa.js
@@ -27,7 +27,8 @@ const opcaoDosDias = (umDia, dias) => (umDia ? 'uma' : igual(dias, TODOS) ? 'dia
 // Diariamente, Seg. a Sex., Personalizar), tempos prontos e "Mais opções" para começo e fim. Salvar um novo para os mesmos dias troca o antigo.
 // - inicial: { cel, pc, dias, inicio, fim, umDia }  - substitui: id do previsto que está sendo editado
 // - outros: [{ nome, cel, pc, dias }] para "Usar o mesmo de…" (Raio-X S31)
-export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], cancelarHref }) {
+// - horarios: { hora, ate } da tarefa "Lançar tempo de tela" (só para os responsáveis): "Lançar sempre às" e "Pode lançar até" (Thomas 27/11)
+export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], cancelarHref, horarios }) {
   const ini = inicial || { cel: 180, pc: null, dias: TODOS };
   const [versao, setVersao] = useState(0);
   const [cel, setCel] = useState(ini.cel || 0);
@@ -59,10 +60,20 @@ export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], ca
           <div className="chips" style={{ marginTop: 6 }}>{outros.map((o) => <button key={o.nome} type="button" onClick={() => copiar(o)}>{o.nome}</button>)}</div>
         </div>
       )}
-      <TempoCampo key={`c${versao}`} id={`pc-${membro}`} name="celular" rotulo="Celular" valor={base.cel} aoMudar={setCel} />
-      <TempoCampo key={`p${versao}`} id={`pp-${membro}`} name="computador" rotulo="Computador" valor={base.pc} aoMudar={setPc} />
+      <div className="tempo-real"><div className="tempo-nome"><b>Celular</b></div>
+        <TempoCampo key={`c${versao}`} id={`pc-${membro}`} name="celular" etiqueta="Celular" valor={base.cel} aoMudar={setCel} /></div>
+      <div className="tempo-real"><div className="tempo-nome"><b>Computador</b></div>
+        <TempoCampo key={`p${versao}`} id={`pp-${membro}`} name="computador" etiqueta="Computador" valor={base.pc} aoMudar={setPc} /></div>
       <p className="total-dia">Total do dia: <b>{fmtMin(total)}</b></p>
       <RepetirCampo nome={`rep-${membro}`} hoje={hoje} opcao={opcao} dias={opcao === 'pers' ? dias : SEG_SEX} aoMudar={mudarRepetir} semCampos />
+      {horarios && (
+        <div className="duas-campos">
+          <div><label htmlFor={`hl-${membro}`}>Lançar sempre às</label>
+            <RelogioHora id={`hl-${membro}`} name="tela_hora" rotulo="Lançar sempre às" defaultValue={horarios.hora || '08:00'} /></div>
+          <div><label htmlFor={`ha-${membro}`}>Pode lançar até</label>
+            <RelogioHora id={`ha-${membro}`} name="tela_ate" rotulo="Pode lançar até" defaultValue={horarios.ate || ''} vazio="Sem limite" /></div>
+        </div>
+      )}
       {umDia && <><label htmlFor={`pi-${membro}`}>Dia</label><input id={`pi-${membro}`} type="date" name="inicio" min={hoje} value={inicio} onChange={(e) => setInicio(e.target.value)} required /></>}
       {!umDia && <details className="mais-op" open={!!fim || inicio !== hoje || undefined}>
         <summary>Mais opções</summary>
@@ -88,8 +99,9 @@ export function PrevistoForm({ membro, hoje, inicial, substitui, outros = [], ca
   );
 }
 
-// "Lançar sempre às", "Pode adiar" e "Exige justificativa": salvam sozinhos ao mudar (Raio-X S9, S13).
-export function LancamentoForm({ membro, hora, adiar: adiar0, justificativa: just0, outro }) {
+// Regras de lançamento de outra pessoa: "Pode adiar" e "Exige justificativa". Salvam sozinhas ao mudar (Raio-X S9).
+// O horário ("Lançar sempre às" e "Pode lançar até") agora fica dentro do "Lançar tempo previsto" (PrevistoForm).
+export function LancamentoForm({ membro, adiar: adiar0, justificativa: just0 }) {
   const ref = useRef(null);
   const [adiar, setAdiar] = useState(!!adiar0);
   const [just, setJust] = useState(!!just0);
@@ -98,17 +110,13 @@ export function LancamentoForm({ membro, hora, adiar: adiar0, justificativa: jus
     <div ref={ref}>
       <Form acao={salvarLancamentoTela} okTxt="Salvo.">
         <input type="hidden" name="membro" value={membro} />
+        <input type="hidden" name="tela_regras" value="1" />
         {adiar && <input type="hidden" name="tela_adiar" value="1" />}
         {just && <input type="hidden" name="tela_justificativa" value="1" />}
-        <label htmlFor={`hl-${membro}`}>Lançar sempre às</label>
-        <RelogioHora id={`hl-${membro}`} name="tela_hora" rotulo="Lançar sempre às" defaultValue={hora || '08:00'}
-          horarios={['07:00', '08:00', '12:00', '19:00', '21:00']} aoMudar={enviar} />
-        {outro && <>
-          <div className="lin-chave" style={{ marginTop: 10 }}><span>Pode adiar</span>
-            <button type="button" role="switch" aria-checked={adiar} aria-label="Pode adiar" className={`chave ${adiar ? 'on' : ''}`} onClick={() => { setAdiar(!adiar); enviar(); }} /></div>
-          <div className="lin-chave"><span>Exige justificativa se atrasar</span>
-            <button type="button" role="switch" aria-checked={just} aria-label="Exige justificativa se atrasar" className={`chave ${just ? 'on' : ''}`} onClick={() => { setJust(!just); enviar(); }} /></div>
-        </>}
+        <div className="lin-chave"><span>Pode adiar<small>Pode pedir para lançar mais tarde</small></span>
+          <button type="button" role="switch" aria-checked={adiar} aria-label="Pode adiar" className={`chave ${adiar ? 'on' : ''}`} onClick={() => { setAdiar(!adiar); enviar(); }} /></div>
+        <div className="lin-chave"><span>Exige justificativa se atrasar</span>
+          <button type="button" role="switch" aria-checked={just} aria-label="Exige justificativa se atrasar" className={`chave ${just ? 'on' : ''}`} onClick={() => { setJust(!just); enviar(); }} /></div>
       </Form>
     </div>
   );
@@ -116,15 +124,19 @@ export function LancamentoForm({ membro, hora, adiar: adiar0, justificativa: jus
 
 // Lançar o tempo de ontem. O previsto aparece como texto ("de 2h00") ao lado do nome do aparelho (S20).
 // crianca: "Quanto tempo você usou ontem?" com botões grandes (S25). aoConcluir: para a tarefa de Hoje (S19).
-export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca, aoConcluir, jaSabe }) {
+// @decisao Thomas 27/11: em TODO lançamento (tela, atividade do dia, visão do acompanhado) há dois ícones redondos azuis,
+// câmera e galeria, ao lado dos tempos prontos; vale também para a criança. "Como achar?" virou "Como encontrar?".
+export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca, aoConcluir }) {
   const formato = previsto?.formato === 'total' ? 'total' : 'aparelho';
   const { cel, pc } = aparelhosDo(previsto);
   const [obs, setObs] = useState(!!atual?.obs);
+  const [ajuda, setAjuda] = useState(false);
   const de = (m) => (previsto && m != null ? <small className="de-prev">de {fmtMin(m)}</small> : null);
-  const campo = (id, name, nome, prev, valor) => (
+  const campo = (id, name, nome, prev, valor, fotoNome) => (
     <div className="tempo-real">
       <div className="tempo-nome"><b>{nome}</b>{de(prev)}</div>
-      <TempoCampo id={id} name={name} valor={valor} grande={crianca} required />
+      <TempoCampo id={id} name={name} etiqueta={nome} valor={valor} grande={crianca} required
+        extra={<Foto nome={fotoNome} familia={familia} membro={eu} redondo />} />
     </div>
   );
   return (
@@ -132,28 +144,24 @@ export function RealForm({ eu, data, previsto, atual, membroId, familia, crianca
       <input type="hidden" name="data" value={data} />
       <input type="hidden" name="formato" value={formato} />
       <input type="hidden" name="membro" value={membroId} />
-      {crianca && <h2 style={{ margin: '0 0 8px' }}>Quanto tempo você usou ontem?</h2>}
-      {!crianca && (
-        <details className="como-achar">
-          <summary>{jaSabe ? <span>Como achar o tempo de ontem?</span> : <>Veja em Bem-estar digital ou Tempo de Uso. <span>Como achar?</span></>}</summary>
-          <p>Android: Configurações › Bem-estar digital.<br />iPhone: Ajustes › Tempo de Uso › Ver Todas as Atividades.</p>
-        </details>
-      )}
+      {crianca && <p className="sub" style={{ margin: '0 0 6px', fontWeight: 700 }}>Quanto tempo você usou ontem?</p>}
       {formato === 'total' ? (
-        <>{campo(`rt-${data}`, 'total', 'Total', previsto?.min_total, atual?.min_total ?? null)}
-          <div style={{ marginTop: 8 }}><Foto nome="foto_celular" familia={familia} membro={eu} /></div></>
+        campo(`rt-${data}`, 'total', 'Total', previsto?.min_total, atual?.min_total ?? null, 'foto_celular')
       ) : (
         <>
-          {cel && <>{campo(`rc-${data}`, 'celular', 'Celular', previsto?.min_celular, atual?.min_celular ?? null)}
-            {!crianca && <div style={{ marginTop: 8 }}><Foto nome="foto_celular" familia={familia} membro={eu} /></div>}</>}
-          {pc && <>{campo(`rp-${data}`, 'computador', 'Computador', previsto?.min_computador, atual?.min_computador ?? null)}
-            {!crianca && <div style={{ marginTop: 8 }}><Foto nome="foto_computador" familia={familia} membro={eu} /></div>}</>}
+          {cel && campo(`rc-${data}`, 'celular', 'Celular', previsto?.min_celular, atual?.min_celular ?? null, 'foto_celular')}
+          {pc && campo(`rp-${data}`, 'computador', 'Computador', previsto?.min_computador, atual?.min_computador ?? null, 'foto_computador')}
         </>
       )}
-      {!crianca && (obs ? (
-        <><label htmlFor={`obs-${data}`}>Observação</label>
-          <input id={`obs-${data}`} name="obs" maxLength={300} defaultValue={atual?.obs || ''} placeholder="ex.: trabalho da faculdade no computador" /></>
-      ) : <button type="button" className="link-mais" onClick={() => setObs(true)}>+ Observação</button>)}
+      {!crianca && (
+        <div className="obs-linha">
+          {!obs ? <button type="button" className="link-mais" onClick={() => setObs(true)}>+ Observação</button> : <span />}
+          <button type="button" className="link-mais" aria-expanded={ajuda} onClick={() => setAjuda((v) => !v)}>Como encontrar?</button>
+        </div>
+      )}
+      {!crianca && ajuda && <p className="como-achar-txt">Android: Configurações › Bem-estar digital.<br />iPhone: Ajustes › Tempo de Uso › Ver Todas as Atividades.</p>}
+      {!crianca && obs && (<><label htmlFor={`obs-${data}`}>Observação</label>
+        <input id={`obs-${data}`} name="obs" maxLength={300} defaultValue={atual?.obs || ''} placeholder="ex.: trabalho da faculdade no computador" /></>)}
       <button className="btn bloco" style={{ marginTop: 14 }} onPointerDown={prepararSom} onKeyDown={prepararSom}>Salvar</button>
     </Form>
   );

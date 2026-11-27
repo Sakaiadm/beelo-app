@@ -1255,3 +1255,60 @@ button.cartao-btn { width: 100%; text-align: left; font: inherit; cursor: pointe
 button.cartao-btn:disabled { opacity: .6; cursor: default; }
 .des-rodape { display: flex; justify-content: space-between; align-items: center; gap: 8px; margin: 6px 0 0; }
 .des-rodape .discreto { color: var(--cinza); }
+
+/* ═══ SEÇÃO: Tempo de tela, faixas que abrem e fecham (Thomas 27/11) ═══ */
+/* Balão do total de ontem: sem lançamento, texto pequeno e sutil; com lançamento, o número grande. */
+.total-ontem { display: flex; align-items: center; justify-content: space-between; gap: 12px; background: var(--azul); color: #fff; border-radius: 16px; padding: 10px 14px; margin-bottom: 8px; }
+.total-ontem > div { text-align: left; }
+.total-ontem small { display: block; font-size: var(--f-etq); font-weight: 700; text-transform: uppercase; letter-spacing: .04em; opacity: .85; }
+.total-ontem strong { font-size: 30px; line-height: 1.05; font-weight: 800; font-variant-numeric: tabular-nums; }
+.total-ontem .nao { display: block; font-size: var(--f-texto); font-weight: 600; opacity: .92; margin-top: 2px; }
+.total-ontem em { font-style: normal; font-size: var(--f-apoio); text-align: right; line-height: 1.35; }
+.total-ontem em span { display: block; }
+.total-ontem.vazio em { opacity: .85; font-size: var(--f-etq); }
+/* Faixa que abre e fecha: azul para lançar o que aconteceu, azul-claro para o previsto. Sem borda branca em volta. */
+.tela-faixa { margin-bottom: 8px; }
+.faixa-t { display: flex; align-items: center; justify-content: space-between; gap: 10px; width: 100%; min-height: 52px; padding: 0 14px; border: 0; border-radius: 14px; background: var(--azul); color: #fff; font: inherit; font-size: var(--f-texto); font-weight: 800; text-align: left; cursor: pointer; }
+.faixa-t.claro { background: var(--azul-claro); color: var(--azul); }
+.faixa-t:focus-visible { outline: 3px solid var(--azul-esc); outline-offset: 2px; }
+.faixa-v { display: flex; align-items: center; gap: 8px; flex: none; }
+.faixa-v b { background: rgba(255,255,255,.2); border-radius: 999px; padding: 2px 10px; font-size: var(--f-apoio); font-weight: 700; }
+.faixa-t.claro .faixa-v b { background: var(--cartao); color: var(--azul); }
+.faixa-seta { display: inline-flex; transition: transform .15s; }
+.faixa-seta.on { transform: rotate(180deg); }
+.faixa-c { padding: 8px 0 0; }
+/* Cada aparelho numa faixa azul-claro: − número + em cima; tempos prontos e ícones de foto e galeria embaixo. */
+.tempo-real { margin-top: 0; margin-bottom: 8px; background: var(--azul-claro); border-radius: 16px; padding: 10px 12px; }
+.tempo-real .tempo-nome { justify-content: space-between; margin-bottom: 2px; }
+.tempo-real .tempo-linha { flex-wrap: wrap; gap: 6px 8px; }
+.tempo-real .tempo-linha input { flex: 1 1 calc(100% - 112px); min-width: 0; border: 0; background: transparent; box-shadow: none; font-size: 28px; font-weight: 800; color: var(--azul-esc); min-height: 48px; }
+.tempo-real .tempo-linha .btn.sec { width: 48px; min-height: 48px; border-radius: 50%; background: var(--cartao); border: 0; color: var(--azul); }
+.tempo-real .tempo-linha .chips { flex: 1 1 100%; gap: 8px; flex-wrap: wrap; }
+.tempo-real .tempo-linha .chips button { border: 0; background: var(--cartao); color: var(--azul); font-weight: 700; padding: 0 16px; }
+.tempo-real .tempo-linha .chips button.on { background: var(--azul); color: #fff; }
+.tempo-real .tempo-campo.grande .tempo-linha input { font-size: 34px; }
+.tempo-acoes { flex: 1 1 100%; display: flex; align-items: center; justify-content: space-between; gap: 8px; }
+.tempo-acoes .chips { flex: none; flex-wrap: nowrap; }
+.foto-redonda { display: flex; align-items: center; gap: 8px; flex-wrap: wrap; justify-content: flex-end; }
+.btn.icone.redondo { width: 44px; min-height: 44px; padding: 0; border-radius: 50%; }
+.foto-mini.pq { width: 44px; height: 44px; }
+.foto-msg { flex-basis: 100%; text-align: right; font-size: var(--f-etq); }
+.obs-linha { display: flex; align-items: center; justify-content: space-between; gap: 12px; }
+.como-achar-txt { margin: 0 0 6px; font-size: var(--f-apoio); color: var(--cinza); }
+.duas-campos { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
+.duas-campos .campo-botao { min-height: 48px; }
+/* Previsto fixo (definido pelos responsáveis), estampado no cartão, sem recolher. */
+.prev-fixo { display: flex; gap: 10px; align-items: flex-start; background: var(--cartao); border: 1px solid var(--borda); border-radius: 14px; padding: 10px 12px; margin-bottom: 8px; color: var(--cinza); }
+.prev-fixo b { color: var(--texto); }
+.prev-fixo p { margin: 2px 0; color: var(--texto); font-size: var(--f-apoio); }
+.prev-fixo small { font-size: var(--f-etq); }
+.prev-fixo-ic { flex: none; margin-top: 2px; }
+/* Modo criança: os 7 dias em estrelas no lugar do gráfico. */
+.estrelas7 { display: flex; justify-content: space-between; margin: 2px 0 8px; }
+.est-dia { display: flex; flex-direction: column; align-items: center; gap: 4px; }
+.est-dia small { font-size: var(--f-etq); color: var(--cinza); font-weight: 600; }
+.est-bola { width: 38px; height: 38px; border-radius: 50%; display: grid; place-items: center; }
+.est-bola.ok { background: #F5B82E; }
+.est-bola.passou, .est-bola.neutro { background: var(--azul-claro); }
+.est-bola.sem { border: 2px dashed var(--borda); }
+.est-texto { margin: 0 0 6px; font-size: var(--f-texto); }
