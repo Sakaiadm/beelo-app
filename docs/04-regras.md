@@ -54,3 +54,5 @@ Cada um tem cabeçalho `@arquivo` explicando o que faz e quem usa. Por tipo: **r
 - **Responsáveis e adultos** lançam o previsto; **criança e adolescente** só lançam o dia de ontem, com o previsto fixo definido pelos responsáveis (lido por `ra_tela_previsto_dia`).
 - **Criança** vê estrelas (`components/TelaEstrelas.js`); os demais veem o gráfico de sempre (`TelaGrafico`).
 - Foto/galeria: `components/Foto.js` com `redondo`, igual na tela e no cartão da tarefa em Hoje.
+- **Lançar ontem** aceita só celular, só computador ou os dois; se os dois ficarem vazios, `salvarTelaReal` devolve "Preencha o tempo do celular ou do computador. Pelo menos um deles." (sem o balão do navegador).
+- **"Usar o mesmo de"** (previsto): uma linha, à direita, botão azul pequeno (`.hoje-peq`) com o nome; com 2 ou mais pessoas vira "Copiar de…" e abre a lista.
