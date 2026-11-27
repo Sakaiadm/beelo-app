@@ -23,6 +23,7 @@ Padrões do arquivo: `rpc(nome, args)` (chama, traduz erro, revalida); `uuid()`,
 | Não se conclui tarefa de data futura | banco 0008 (`ra_concluir2`) |
 | E-mail das pessoas só para Pai e Mãe | `lib/membros.js`, banco 0020 (`ra_emails_grupo`) |
 | Jeito de ver (Divertido até 9 anos, Calmo 10–12, adultos 13+); guarda só o ano aproximado | `lib/jeito.js`, banco 0022 |
+| No cadastro da pessoa, o jeito de ver é escolhido tocando nas 3 miniaturas (Divertido, Calmo, Como os adultos) | `components/PreviaCrianca.js` (com `onMudar`), `components/PessoaForm.js` |
 | Desafios e prêmios: catálogo fixo no código (ids gravados no banco) e cálculo do cofrinho | `lib/desafios.js`, `lib/desafiosDados.js`, banco 0016/0017 |
 | Aceite de termos por versão (`VERSAO_TERMOS`); menores precisam de autorização do responsável | `lib/aceite.js`, `lib/contato.js`, banco 0019 |
 | Endereço público seguro (evita link para site falso depois do login) | `lib/origem.js` |
