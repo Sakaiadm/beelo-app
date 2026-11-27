@@ -4,7 +4,7 @@ O beelo tem **três manuais ilustrados** (páginas públicas, com PDF) e uma tel
 
 | Perfil | Quem é | Manual (página) | PDF | Perguntas na Ajuda |
 |---|---|---|---|---|
-| Responsável | Pai, Mãe e Adulto que ajuda com acesso ao Painel | `/manual` | `public/manual-pdf/beelo-manual-responsaveis.pdf` | "Para responsáveis" + o que o adolescente e a criança veem |
+| Responsável | Responsáveis e Outros com acesso ao Painel | `/manual` | `public/manual-pdf/beelo-manual-responsaveis.pdf` | "Para responsáveis" + o que o adolescente e a criança veem |
 | Adolescente | Filho(a) "como os adultos" e adulto que ajuda sem Painel | `/manual/pessoa` | `beelo-manual-pessoa.pdf` | "Como usar o app" |
 | Criança | Filho(a) no modo criança (Divertido ou Calmo): frases curtas, lúdico | `/manual/crianca` | `beelo-manual-crianca.pdf` | "Perguntas e respostas" |
 

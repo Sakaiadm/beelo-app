@@ -25,7 +25,7 @@ export default function Privacidade() {
 
       <h2>Que dados guardamos e para quê</h2>
       <ul>
-        <li><b>Cadastro:</b> nome, e-mail, papel no grupo (Pai, Mãe, Adulto que ajuda ou Filho(a)), parentesco (opcional, como neto ou tio), cor, foto ou avatar e se usa o modo criança. Serve para criar a conta e o grupo.</li>
+        <li><b>Cadastro:</b> nome, e-mail, papel no grupo (Responsável, Acompanhado(a) ou Outro), parentesco (opcional, como neto ou tio), cor, foto ou avatar e se usa o modo criança. Serve para criar a conta e o grupo.</li>
         <li><b>Rotina:</b> tarefas, dias, horários, quando cada tarefa foi feita, foto de comprovação (só quando a tarefa pede), justificativas e pedidos de adiamento com as respostas.</li>
         <li><b>Tempo de tela:</b> os minutos que a própria pessoa lança, e o previsto combinado. O beelo não mede o uso do celular nem lê outros apps.</li>
         <li><b>Desafios e cofrinho:</b> desafios, estrelinhas, prêmios combinados e a lista de desejos.</li>
@@ -47,7 +47,7 @@ export default function Privacidade() {
       <h2>Quem vê o quê</h2>
       <ul>
         <li><b>Pai e Mãe:</b> tudo do grupo, inclusive fotos, tempo de tela, pedidos, histórico e os e-mails das pessoas.</li>
-        <li><b>Adulto que ajuda, com as chaves liberadas:</b> o painel, as conferências e os relatórios, conforme o que os responsáveis liberarem.</li>
+        <li><b>Outro, com as chaves liberadas:</b> o painel, as conferências e os relatórios, conforme o que os responsáveis liberarem.</li>
         <li><b>Cada pessoa:</b> as próprias tarefas, fotos e tempo de tela, além do nome e da foto das pessoas do grupo.</li>
         <li><b>Outros grupos:</b> nada. Essa regra é conferida no próprio banco de dados.</li>
       </ul>

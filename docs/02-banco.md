@@ -11,7 +11,7 @@ Toda tabela tem **RLS** (segurança por linha): cada pessoa só enxerga e mexe n
 | Tabela | Para que serve | Quem usa no código |
 |---|---|---|
 | `ra_familias` | O grupo (família). Nome, cor, ajustes (desafios_beta, justificativa obrigatória…) | `lib/sessao.js`, `app/(app)/config/familias` |
-| `ra_membros` | Cada pessoa: `papel` (gestor/filho), `funcao` (Pai, Mãe, Adulto que ajuda, Filho(a)), parentesco, cor, avatar, permissões, modo criança, jeito de ver, ano aproximado de nascimento. O e-mail só sai pela função `ra_emails_grupo` (Pai/Mãe) | `lib/membros.js`, `lib/papeis.js`, `lib/sessao.js` |
+| `ra_membros` | Cada pessoa: `papel` (gestor/filho), `funcao` (pai = Responsável, filho = Acompanhado(a), outro = Outro), parentesco, cor, avatar, permissões, modo criança, jeito de ver, ano aproximado de nascimento. O e-mail só sai pela função `ra_emails_grupo` (Pai/Mãe) | `lib/membros.js`, `lib/papeis.js`, `lib/sessao.js` |
 | `ra_categorias` | Categorias de tarefa por família (Casa, Estudo…) | `app/(app)/config/categorias` |
 | `ra_tarefas` | O **modelo** da tarefa: título, responsável, repetição, horário, regras (foto, adiar, justificar, prioritária) | `components/TarefaForm.js`, `salvarTarefa` |
 | `ra_ocorrencias` | A tarefa **de um dia** (única por tarefa+data). Estados: pendente, cumprida, adiamento_pedido, adiada, cancelada; mais foto, conferência e justificativa | `lib/dados.js`, `components/Tarefa.js` |
@@ -90,6 +90,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0030 | Pai e Mãe fecham (X) a sugestão de desafio do Painel; volta em 14 dias (tabela `ra_desafio_dispensas`) |
 | 0028 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |
 | 0030 | X no cartão de sugestão de desafio do Painel: some por 14 dias para aquela pessoa (tabela ra_desafio_dispensas). Sem ela, o app funciona e o cartão só não fecha |
+| 0034 | Responsável, Acompanhado(a) e Outro: marca o parentesco Pai ou Mãe de quem já era Responsável |
 
 ⚠️ Ordem importa: algumas migrações dizem no cabeçalho "rode ANTES do app novo" (0021 A, 0022) ou "SÓ DEPOIS" (0020). Leia a primeira linha de cada arquivo antes de rodar.
 
