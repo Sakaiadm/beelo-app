@@ -5,7 +5,7 @@
 // @usado-por app/(app)/layout.js
 // @cuidado  não faz nada para quem nunca guardou contas neste aparelho (famílias comuns não veem nada).
 import { useEffect, useState } from 'react';
-import { estaAdicionando, marcarAdicionando, guardarAtual, renovarAtual, acompanharRenovacao, lerAviso } from '@/lib/contas';
+import { estaAdicionando, marcarAdicionando, guardarAtual, renovarAtual, acompanharRenovacao, uidAtual, lerAviso } from '@/lib/contas';
 
 export default function ContasGancho({ eu }) {
   const [aviso, setAviso] = useState(null);
@@ -16,13 +16,16 @@ export default function ContasGancho({ eu }) {
         const ok = await guardarAtual(eu);
         setAviso(ok ? `${eu.nome} foi guardada. Toque 2 vezes no ícone para alternar.` : 'Já há 3 contas guardadas. Remova uma em Cadastros.');
       } else {
-        await renovarAtual(eu.id);
+        await renovarAtual();
         const n = lerAviso();
-        if (n) setAviso(`Agora você está como ${n.split(' ')[0]} · toque 2 vezes no ícone para trocar`);
+        if (n) {
+          const uid = await uidAtual();
+          setAviso(uid === n.uid ? `Agora você está como ${eu.nome.split(' ')[0]} · toque 2 vezes no ícone para trocar` : `Não consegui entrar como ${n.nome.split(' ')[0]}. Você continua como ${eu.nome.split(' ')[0]}. Tire a conta e adicione de novo.`);
+        }
       }
     })();
   }, [eu.id]);
-  useEffect(() => acompanharRenovacao(eu.id), [eu.id]);
+  useEffect(() => acompanharRenovacao(), []);
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(null), 3500); return () => clearTimeout(t); }, [aviso]);
   if (!aviso) return null;
   return <div className="aviso ok" role="status" style={{ margin: '10px 16px 0', padding: '8px 14px' }}>{aviso}</div>;

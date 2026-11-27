@@ -5,14 +5,15 @@
 // @usado-por app/(app)/config/contas/page.js
 // @decisao  27/11 Thomas: só o administrador geral abre esta tela; máximo de 3 contas.
 import { useEffect, useState } from 'react';
-import { lerContas, guardarAtual, remover, trocaLigada, ligarTroca, marcarAdicionando, sairSemRevogar, MAX_CONTAS } from '@/lib/contas';
+import { lerContas, guardarAtual, uidAtual, remover, trocaLigada, ligarTroca, marcarAdicionando, sairSemRevogar, MAX_CONTAS } from '@/lib/contas';
 
 export default function ContasAlternar({ eu }) {
   const [contas, setContas] = useState([]);
   const [ligada, setLigada] = useState(true);
   const [pronto, setPronto] = useState(false);
+  const [uid, setUid] = useState(null);
   useEffect(() => {
-    (async () => { await guardarAtual(eu); setContas(lerContas()); setLigada(trocaLigada()); setPronto(true); })();
+    (async () => { await guardarAtual(eu); setUid(await uidAtual()); setContas(lerContas()); setLigada(trocaLigada()); setPronto(true); })();
   }, [eu.id]);
   const alternar = () => { ligarTroca(!ligada); setLigada(!ligada); };
   const tirar = (id) => { remover(id); setContas(lerContas()); };
@@ -29,8 +30,8 @@ export default function ContasAlternar({ eu }) {
         {pronto && contas.map((c) => (
           <div className="lin-chave" key={c.id}>
             <span className="avatar" style={{ width: 32, height: 32, fontSize: 13, borderRadius: '50%', background: c.cor || '#1a6fe0' }}>{(c.nome || '?')[0]}</span>
-            <span style={{ flex: 1, marginLeft: 10 }}><b>{c.nome}</b><small>{c.rotulo || c.papel}{c.id === eu.id ? ' · você agora' : ''}</small></span>
-            {c.id !== eu.id && <button type="button" className="btn sec peq" onClick={() => tirar(c.id)}>Tirar</button>}
+            <span style={{ flex: 1, marginLeft: 10 }}><b>{c.nome}</b><small>{c.rotulo || c.papel}{c.email ? ` · ${c.email}` : ''}{c.id === uid ? ' · você agora' : ''}</small></span>
+            {c.id !== uid && <button type="button" className="btn sec peq" onClick={() => tirar(c.id)}>Tirar</button>}
           </div>
         ))}
         {pronto && contas.length === 0 && <p className="peq-cinza" style={{ padding: 10 }}>Nenhuma conta guardada ainda.</p>}
