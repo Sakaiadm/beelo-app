@@ -35,6 +35,7 @@ export default function Login() {
     if (q.get('erro')) setMsg({ tipo: 'erro', txt: 'Esse link não vale mais (ele só funciona uma vez e por pouco tempo). Peça um novo link de entrada abaixo.' });
     if (q.get('apagado')) setMsg({ tipo: 'ok', txt: 'O grupo e todos os dados dele foram apagados. Obrigado por usar o beelo.' });
     if (q.get('expirou')) setMsg({ tipo: 'erro', txt: 'Sua sessão expirou. Entre de novo para continuar.' });
+    if (q.get('reentrar')) setAviso(`A conta ${q.get('reentrar').slice(0, 40)} precisa entrar de novo. Toque em Receber link de entrada por e-mail e abra o link neste mesmo aparelho.`);
     const conv = (q.get('email') || '').trim().toLowerCase();
     // Guarda o e-mail do convite: se a pessoa entrar com outra conta, a tela seguinte explica e oferece voltar.
     if (conv && (q.get('ja') || q.get('convite'))) document.cookie = `convite_email=${encodeURIComponent(conv)}; path=/; max-age=${7 * 86400}; samesite=lax`;
