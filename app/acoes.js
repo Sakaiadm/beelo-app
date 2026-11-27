@@ -633,6 +633,9 @@ export async function salvarTelaReal(_, fd) {
   const { data: eu } = await supabase.rpc('ra_eu');
   const formato = fd.get('formato') === 'total' ? 'total' : 'aparelho';
   const m = lerMinutos(fd, formato); if (m.erro) return m;
+  // @regra pode lançar só celular, só computador ou os dois; só não pode deixar os dois vazios (Thomas 27/11).
+  if (formato === 'aparelho' && m.min_celular == null && m.min_computador == null) return { erro: 'Preencha o tempo do celular ou do computador. Pelo menos um deles.' };
+  if (formato === 'total' && m.min_total == null) return { erro: 'Preencha o tempo total.' };
   if (formato === 'aparelho') m.min_total = (m.min_celular || 0) + (m.min_computador || 0);
   const d = data(fd.get('data')); if (!d) return { erro: 'Data inválida' };
   const membro = eu.papel === 'gestor' ? uuid(fd.get('membro')) : eu.id;
