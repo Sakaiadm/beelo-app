@@ -1,7 +1,7 @@
 'use client';
 // @arquivo  PessoaForm.js: formulário de cadastro/edição de pessoa.
 // @tipo     componente
-// @usa      ./Form, ./AvatarUpload, ./Avatar, app/acoes, lib/email, lib/papeis, ./CorFolha, lib/statusConvite, ./ReenviarConvite, ./ConfirmarBotao, lib/jeito, ./JeitoEscolha
+// @usa      ./Form, ./AvatarUpload, ./Avatar, app/acoes, lib/email, lib/papeis, ./CorFolha, lib/statusConvite, ./ReenviarConvite, ./ConfirmarBotao, lib/jeito, ./PreviaCrianca
 // @usado-por app/(app)/config/pessoas/[id]/page.js, app/(app)/config/pessoas/nova/page.js
 import { useState } from 'react';
 import Link from 'next/link';
@@ -16,7 +16,6 @@ import { statusConvite } from '@/lib/statusConvite';
 import ReenviarConvite from './ReenviarConvite';
 import ConfirmarBotao from './ConfirmarBotao';
 import { jeitoDe } from '@/lib/jeito';
-import JeitoEscolha from './JeitoEscolha';
 import PreviaCrianca from './PreviaCrianca';
 
 export default function PessoaForm({ m, familia, url, corInicial, usadas = [], euId, existentes = [], guia = false }) {
@@ -109,11 +108,9 @@ export default function PessoaForm({ m, familia, url, corInicial, usadas = [], e
             {temModoCrianca(f.id) && (
               <div className="lin-chave" style={{ borderTop: 0, marginTop: 4 }}><span>Modo criança<small>Estrelinhas e festa a cada tarefa feita. Bom para até uns 10 anos.</small></span><button type="button" role="switch" aria-checked={crianca} aria-label="Modo criança" className={`chave ${crianca ? 'on' : ''}`} onClick={() => setCrianca(!crianca)} /></div>
             )}
-            {guia && temModoCrianca(f.id) && crianca && <PreviaCrianca nome={nome} jeito={jeito} />}
             {temModoCrianca(f.id) && crianca && comJeito && (
               <>
-                <p className="peq-cinza" style={{ margin: '12px 0 8px' }}>Jeito de ver o beelo</p>
-                <JeitoEscolha inicial={jeito} livre onMudar={(id) => { setJeito(id); setJeitoMexido(true); }} />
+                <PreviaCrianca nome={nome} jeito={jeito} onMudar={(id) => { setJeito(id); setJeitoMexido(true); }} />
                 <div className="lin-chave" style={{ marginTop: 10 }}><span>Pode trocar {m?.sexo === 'f' ? 'sozinha' : m?.sexo === 'm' ? 'sozinho' : 'sozinho(a)'}<small>{nome.trim().split(' ')[0] || 'A pessoa'} escolhe o jeito em Meu perfil.</small></span><button type="button" role="switch" aria-checked={livre} aria-label="Pode trocar sozinho" className={`chave ${livre ? 'on' : ''}`} onClick={() => setLivre(!livre)} /></div>
               </>
             )}
