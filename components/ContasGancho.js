@@ -16,7 +16,7 @@ export default function ContasGancho({ eu }) {
         const ok = await guardarAtual(eu);
         setAviso(ok ? `${eu.nome} foi guardada. Toque 2 vezes no ícone para alternar.` : 'Já há 3 contas guardadas. Remova uma em Cadastros.');
       } else {
-        await renovarAtual();
+        await renovarAtual(eu); // renova os tokens e o nome/papel guardados
         const n = lerAviso();
         if (n) {
           const uid = await uidAtual();
@@ -24,7 +24,7 @@ export default function ContasGancho({ eu }) {
         }
       }
     })();
-  }, [eu.id]);
+  }, [eu.id, eu.nome, eu.papel, eu.cor, eu.rotulo]);
   useEffect(() => acompanharRenovacao(), []);
   useEffect(() => { if (!aviso) return; const t = setTimeout(() => setAviso(null), 3500); return () => clearTimeout(t); }, [aviso]);
   if (!aviso) return null;
