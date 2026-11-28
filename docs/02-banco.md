@@ -93,7 +93,6 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0034 | Responsável, Acompanhado(a) e Outro: marca o parentesco Pai ou Mãe de quem já era Responsável |
 | 0035 | Só Responsável vê o painel da família: tira a chave ver_painel de Acompanhado(a) e Outro |
 | 0036 | Desafios: o dia de hoje só conta como "dia bom" depois das 19h (Brasília); antes fica "em andamento" |
-| 0037 | Desafios de porcentagem: o % exibido é "até agora" (só tarefas já vencidas); tarefa nova não derruba o número. Cumprir continua pela semana inteira |
 
 ⚠️ Ordem importa: algumas migrações dizem no cabeçalho "rode ANTES do app novo" (0021 A, 0022) ou "SÓ DEPOIS" (0020). Leia a primeira linha de cada arquivo antes de rodar.
 
