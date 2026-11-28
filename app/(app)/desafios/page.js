@@ -1,4 +1,4 @@
-// @arquivo   desafios/page.js: tela Desafios (opção A, 25/11): Pai/Mãe veem abas Desafios | Mural | Vitrine; os outros veem "Meus desafios" com abas.
+// @arquivo   desafios/page.js: tela Desafios (opção A, 25/11): Pai/Mãe veem abas Desafios | Mural | Vitrine; os outros veem "Desafios" com abas (e o troféu no menu de baixo, 28/11).
 // @tipo      tela
 // @usa       lib/desafiosDados.js, lib/desafios.js, lib/sugestoesDesafio.js, components/DesafiosTopo, DesafiosVazio, SugerirDesafio, app/acoes-desafios.js; tabelas ra_desafio*, ra_premios, ra_cofrinho*
 // @usado-por menu de baixo (Desafios), cartões do Hoje e do Painel
@@ -259,7 +259,7 @@ export default async function Desafios({ searchParams }) {
   return (
     <main className={`estreito${pf === 'c' ? ' des-crianca' : ''}`}>
       <Comemorar itens={comemorar} nome={eu.nome.split(' ')[0]} crianca={!gestor && !!eu.modo_crianca} />
-      {/* @decisao 25/11 Thomas (opção A): abas Meus desafios | Mural | Cofrinho. O filho mantém a setinha (o menu de baixo dele não tem Desafios). */}
+      {/* @decisao 25/11 Thomas (opção A): abas Desafios | Mural | Cofrinho. Desde 28/11 o menu de baixo do filho tem o troféu Desafios, então sem setinha. */}
       <DesafiosTopo gestor={false} perfil={pf} ativo={0} />
       {aviso}
       <ComoFunciona perfil={pf} membro={eu.id} semLinha />
