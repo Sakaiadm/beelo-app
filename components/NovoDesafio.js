@@ -47,7 +47,7 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
   const normais = sugs.filter((s) => s !== temaSug).slice(0, temaSug ? 1 : 2);
 
   function escolherQuem(id) { if (gestor) { setQuem(id); setGrupo(null); } }
-  function escolher(c) { setEsc(c); setMeta(c.meta); setCoringa(false); window.scrollTo?.(0, 0); }
+  function escolher(c, m = c.meta) { setEsc(c); setMeta(m); setCoringa(false); window.scrollTo?.(0, 0); }
 
   if (esc) {
     const ops = opcoesMeta(esc);
@@ -134,8 +134,8 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
         <div className="ideia-cartao ideia-leve pens-cartao">
           <div className="ideia-leve-cab"><span className="tm-ic ideia-leve-ic"><Icone nome="trofeu" tam={20} cor="#13203a" /></span><span><small>{normais.length > 1 ? 'Pensados' : 'Pensado'} para {familia ? 'a família' : sel[0]?.nome}</small></span></div>
           {normais.map((s) => (
-            <button type="button" key={s.id + s.tag} className="pens-item" onClick={() => escolher(s.c)}>
-              <span className="corpo"><small className="pens-tag">{s.tag}</small><b>{s.c.t}</b><small className="pens-txt">{s.por || s.c.d}</small><small className="pens-txt">Meta: {textoMeta(s.c)}.</small></span>
+            <button type="button" key={s.id + s.tag} className="pens-item" onClick={() => escolher(s.c, s.meta ?? s.c.meta)}>
+              <span className="corpo"><small className="pens-tag">{s.tag}</small><b>{s.c.t}</b><small className="pens-txt">{s.por || s.c.d}</small><small className="pens-txt">Meta: {textoMeta(s.c, s.meta ?? s.c.meta)}.</small></span>
               <span className="seta" aria-hidden="true">›</span>
             </button>
           ))}

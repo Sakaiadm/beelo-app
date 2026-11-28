@@ -1,7 +1,7 @@
 'use client';
 // @arquivo  Form.js: formulário padrão: envia sem limpar campos e guarda ações na fila quando está sem internet.
 // @tipo     componente
-// @usa      lib/rede, lib/fila
+// @usa      lib/rede, lib/fila (o aviso "Salvo." é flutuante: classe .salvo-toast em app/globals.css)
 // @usado-por app/(app)/config/familias/[id]/page.js, app/(app)/desafios/ajustes/page.js, app/(app)/desafios/cofrinho/page.js, app/(app)/desafios/page.js, app/(app)/desafios/premios/page.js, app/(app)/notificacoes/page.js e mais 22
 // @cuidado  usado por quase todo formulário; mexer aqui afeta o app inteiro.
 import { useEffect, useRef, useState } from 'react';
@@ -26,6 +26,19 @@ export default function Form({ acao, children, okTxt, limpar, className, style, 
   const vivo = useRef(true);
   useEffect(() => () => { vivo.current = false; }, []);
   useEffect(() => { if (estado?.ok && limpar) ref.current?.reset(); }, [estado, limpar]);
+  // @decisao O "Salvo." aparece como aviso flutuante no pé da tela (some sozinho), porque no topo do formulário
+  // a pessoa já tinha rolado e não via. O erro continua no formulário, mas rola até ele para ser visto.
+  const [toast, setToast] = useState(null);
+  const erroRef = useRef(null);
+  useEffect(() => {
+    if (!estado?.ok) { setToast(null); return undefined; }
+    const txt = estado.guardado ? (!discreto ? estado.msg : null) : (estado.msg || okTxt);
+    if (!txt) return undefined;
+    setToast({ txt, tipo: estado.guardado ? 'info' : 'ok' });
+    const t = setTimeout(() => setToast(null), 3800);
+    return () => clearTimeout(t);
+  }, [estado]); // eslint-disable-line react-hooks/exhaustive-deps
+  useEffect(() => { if (estado?.erro) erroRef.current?.scrollIntoView?.({ block: 'nearest', behavior: 'smooth' }); }, [estado]);
 
   async function processar(fd) {
     const guardarNoAparelho = () => {
@@ -69,9 +82,8 @@ export default function Form({ acao, children, okTxt, limpar, className, style, 
   };
   return (
     <form ref={ref} onSubmit={aoEnviar} className={className} style={style} aria-busy={pendente}>
-      {estado?.erro && <div className="aviso erro" role="alert">{estado.erro}</div>}
-      {estado?.ok && (estado.guardado ? !discreto && <div className="aviso info" role="status">{estado.msg}</div>
-        : (estado.msg || okTxt) && <div className="aviso ok" role="status">{estado.msg || okTxt}</div>)}
+      {estado?.erro && <div ref={erroRef} className="aviso erro" role="alert">{estado.erro}</div>}
+      {toast && <div className={`aviso ${toast.tipo} salvo-toast`} role="status">{toast.txt}</div>}
       <fieldset disabled={pendente} style={{ border: 0, padding: 0, margin: 0, minWidth: 0 }}>{children}</fieldset>
     </form>
   );

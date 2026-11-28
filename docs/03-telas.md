@@ -81,3 +81,9 @@ Os mais importantes: `Tarefa.js` (cartão de tarefa), `TarefaForm.js`, `Form.js`
 - Fora do escopo por decisão: botão "Preciso de ajuda" e localização.
 
 @cuidado Menu "Trocar de conta": cada conta guardada no celular só atualiza nome e papel quando essa conta é aberta (components/ContasGancho.js chama renovarAtual(eu)).
+
+## Rodada 2 (28/11): avisos, favoritas, dias da semana e desafio sugerido
+- **Aviso "Salvo."** (`components/Form.js`, classe `.salvo-toast` em `app/globals.css`): aparece flutuando no pé da tela por ~4 s em todo formulário que usa `Form`; o erro continua no formulário, mas a tela rola até ele.
+- **Sugestões de tarefa com estrelinha** (`components/TarefaForm.js`, `lib/sugestoesUso.js`): cada sugestão tem uma estrela; até 3 favoritas aparecem numa listinha no alto e, dentro de cada categoria, favoritas e mais usadas sobem (as nunca usadas ficam no fim). Fica no aparelho (localStorage), sem banco.
+- **Dias da semana dos desafios** (`DiasSemana` em `components/DesafioCartao.js`): bolinhas ligadas por um fio; hoje pulsa devagar; na criança o dia feito leva uma estrelinha mel.
+- **Desafio sugerido a partir de tarefa repetida** (`lib/sugestoesDesafio.js`): quem lança o tempo de tela em 3 ou mais dias por semana ganha a sugestão "Lançar no horário" (t4) com a meta igual aos dias marcados. Só tarefas fixas; escola e afins não viram desafio.

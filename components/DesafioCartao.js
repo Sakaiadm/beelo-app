@@ -25,14 +25,15 @@ const NOME_DIA = ['domingo', 'segunda', 'terça', 'quarta', 'quinta', 'sexta', '
 const dow = (iso) => new Date(iso + 'T12:00:00Z').getUTCDay();
 
 // Bolinhas da semana: feito, dia coringa, hoje, ainda vem, sem tarefa que conte.
-export function DiasSemana({ dias, desafio }) {
+// @decisao 28/11 Thomas (rodada 2): bolinhas ligadas por um fio (adolescente/adulto); na criança o dia feito leva uma estrelinha.
+export function DiasSemana({ dias, desafio, crianca = false }) {
   if (!dias?.length || dias.length > 7) return null;
   const txt = { ok: 'feito', cor: 'dia coringa', hoje: 'hoje', futuro: 'ainda vem', livre: 'não conta', falta: 'não feito' };
   return (
-    <div className="des-dias">
+    <div className={`des-dias${crianca ? ' des-dias-c' : ''}`}>
       {dias.map((x) => (
         <div key={x.d} data-dia={x.d} data-desafio={desafio}>
-          <i className={x.s} aria-label={`${NOME_DIA[dow(x.d)]}: ${txt[x.s] || ''}`}>{x.s === 'ok' ? <Icone nome="check" tam={18} cor="#fff" larg={3} /> : x.s === 'cor' ? '★' : ''}</i>
+          <i className={x.s} aria-label={`${NOME_DIA[dow(x.d)]}: ${txt[x.s] || ''}`}>{x.s === 'ok' ? (crianca ? <Estrela tam={20} cor="#fff" /> : <Icone nome="check" tam={18} cor="#fff" larg={3} />) : x.s === 'cor' ? '★' : ''}</i>
           {LETRA[dow(x.d)]}
         </div>
       ))}
@@ -128,7 +129,7 @@ function DiaBom({ d, p, pf }) {
   return (
     <>
       <CarimboDia desafio={d.id} dias={det.dias || []} hoje={hoje} crianca={pf === 'c'} />
-      <DiasSemana dias={det.dias} desafio={d.id} />
+      <DiasSemana dias={det.dias} desafio={d.id} crianca={pf === 'c'} />
       <div className="des-num" style={{ marginTop: 4 }}><strong>{p?.progresso ?? 0} {(p?.progresso ?? 0) === 1 ? T.um : T.varios}</strong><span>meta {p?.meta ?? d.meta}</span></div>
       <div className="des-msg">
         {p?.status === 'cumprido' ? mensagem(d, p, pf)
