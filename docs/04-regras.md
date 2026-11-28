@@ -14,7 +14,7 @@ Padrões do arquivo: `rpc(nome, args)` (chama, traduz erro, revalida); `uuid()`,
 
 | Regra | Arquivo |
 |---|---|
-| Quem pode o quê: Pai e Mãe têm tudo; os demais por **chaves** (criar tarefa para si, ver painel, conferir, ver relatórios). O mesmo está no banco (`ra_pode`): mudou aqui, mude lá. | `lib/papeis.js` → `acesso()` |
+| Quem pode o quê: Pai e Mãe têm tudo; os demais por **chaves** (criar tarefa para si, conferir, ver relatórios). O painel da família é só do Responsável (SQL 0035). O mesmo está no banco (`ra_pode`): mudou aqui, mude lá. | `lib/papeis.js` → `acesso()` |
 | Quem está logado e de qual família; cache de 30 s por login | `lib/sessao.js` → `sessao()`, `exigirMembro()`, `exigirGestor()` |
 | Status exibido de uma tarefa: pendente, cumprida, cumprida com atraso, adiada, atrasada, justificada, não cumprida (depois de 1 dia sem justificativa) | `lib/util.js` → `statusExibido()` |
 | Datas sempre no fuso de São Paulo (`hojeISO()`, `addDias()`); nunca `new Date()` puro para "hoje" | `lib/util.js` |

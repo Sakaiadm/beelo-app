@@ -91,6 +91,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0028 | Criança sugere um desafio e Pai/Mãe respondem (tabela ra_desafio_sugestoes). Sem ela, o app funciona e só esconde a sugestão |
 | 0030 | X no cartão de sugestão de desafio do Painel: some por 14 dias para aquela pessoa (tabela ra_desafio_dispensas). Sem ela, o app funciona e o cartão só não fecha |
 | 0034 | Responsável, Acompanhado(a) e Outro: marca o parentesco Pai ou Mãe de quem já era Responsável |
+| 0035 | Só Responsável vê o painel da família: tira a chave ver_painel de Acompanhado(a) e Outro |
 
 ⚠️ Ordem importa: algumas migrações dizem no cabeçalho "rode ANTES do app novo" (0021 A, 0022) ou "SÓ DEPOIS" (0020). Leia a primeira linha de cada arquivo antes de rodar.
 
