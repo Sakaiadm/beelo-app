@@ -136,7 +136,7 @@ function DiaBom({ d, p, pf }) {
           : 'O resultado de hoje sai amanhã.'}
         {p?.status !== 'cumprido' && falta > 0 && !impossivel ? ` Faltam ${falta}.` : ''}
       </div>
-      {impossivel && <div className="aviso info" style={{ margin: '10px 0 0', padding: '6px 12px', fontSize: 13 }}>Esta semana não dá mais para bater a meta. A próxima começa do zero.</div>}
+      {impossivel && <div className="aviso info" style={{ margin: '10px 0 0', padding: '6px 12px', fontSize: 13 }}>{T.impossivel}</div>}
       {d.decisao && d.semana_decidida && p && d.semana_decidida === p.inicio && (
         <div className="aviso ok" style={{ margin: '10px 0 0', padding: '6px 12px', fontSize: 13 }}>{d.decisao === 'leve' ? 'Combinado: a meta ficou mais leve nesta semana.' : 'Combinado: segue como está.'}</div>
       )}
