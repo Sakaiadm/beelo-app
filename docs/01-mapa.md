@@ -61,7 +61,7 @@ Com login (`app/(app)/`): `/hoje`, `/agenda`, `/painel`, `/tarefas`, `/tela`, `/
 - **Previsto / real** (tempo de tela): o combinado (`ra_tela_previsto`) e o que aconteceu (`ra_tela_real`); pedidos de mudança em `ra_tela_proposta`.
 - **Desafio, prêmio, cofrinho**: `ra_desafios`, `ra_premios`, `ra_cofrinho` (estrelinhas ou semanas, conforme o modo criança).
   Privacidade (migração 0026): desejos e pedidos de prêmio em aberto são só da própria pessoa e dos responsáveis; o catálogo do grupo é de todos; prêmio entregue de outra pessoa só aparece no Mural quando a opção é "A família toda vê".
-  Mural (28/11): quem não é Responsável não vê abas com os Responsáveis, só ele e os outros Acompanhados.
+  Mural (28/11): quem não é Responsável vê só as próprias conquistas, mesmo com "A família toda vê"; só Responsáveis veem as abas por pessoa.
 - **Modo criança / jeito de ver**: quem usa o modo criança escolhe a aparência (Divertido, Calmo, Como os adultos). Só muda o visual.
 - **RLS**: regra do banco que só deixa cada pessoa ver e mexer nos dados da própria família.
 - **rpc**: função do banco chamada pelo app (`supabase.rpc('ra_concluir', ...)`).
