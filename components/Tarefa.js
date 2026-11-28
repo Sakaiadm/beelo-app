@@ -186,7 +186,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
       )}
       {aba === 'justificar' && (
         <div className="painel-acao">
-          <Form acao={justificar} fila="justificar" rotulo={`Justificativa de “${t}”`} okTxt="Justificativa enviada a quem cuida de você.">
+          <Form acao={justificar} fila="justificar" rotulo={`Justificativa de “${t}”`} okTxt="Justificativa enviada aos seus responsáveis.">
             <input type="hidden" name="oc" value={oc.id} />
             <Motivos id={`j-${oc.id}`} name="texto" rotulo="Por que atrasou?" botao="Enviar justificativa" />
           </Form>
@@ -194,7 +194,7 @@ export default function Tarefa({ oc, st: stServidor, dono, gestor, confere, fami
       )}
       {aba === 'adiar' && (
         <div className="painel-acao">
-          <Form acao={pedirAdiamento} fila="pedirAdiamento" rotulo={`Pedido para adiar “${t}”`} okTxt="Pedido enviado. Quem cuida de você vai responder.">
+          <Form acao={pedirAdiamento} fila="pedirAdiamento" rotulo={`Pedido para adiar “${t}”`} okTxt="Pedido enviado. Seus responsáveis vão responder.">
             <input type="hidden" name="oc" value={oc.id} />
             <label>Para quando?</label>
             <div className="chips" role="radiogroup" aria-label="Para quando?">

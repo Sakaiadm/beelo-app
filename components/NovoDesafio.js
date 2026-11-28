@@ -85,7 +85,11 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
             {tarefaTxt && <p className="sub" style={{ fontSize: 'var(--f-apoio)', marginTop: 6 }}>{tarefaTxt}</p>}
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>
               <label className="check" style={{ margin: 0 }}><input type="checkbox" checked disabled readOnly /> Começa de novo sozinho {esc.periodo === 'mes' ? 'todo mês' : 'toda semana'}</label>
-              {['dias', 'seq', 'pct'].includes(esc.tipo) && <label className="check" style={{ margin: 0 }}><input type="checkbox" checked={coringa} onChange={(e) => setCoringa(e.target.checked)} /> Dia coringa: 1 dia difícil não conta</label>}
+              {['dias', 'seq', 'pct'].includes(esc.tipo) && <div>
+                <label className="check" style={{ margin: 0 }}><input type="checkbox" checked={coringa} onChange={(e) => setCoringa(e.target.checked)} /> Dia coringa</label>
+                {/* @decisao 28/11 Thomas: "1 dia difícil não conta" não era claro; frase de ajuda abaixo da chave. */}
+                <small className="peq-cinza" style={{ display: 'block', marginTop: 4 }}>Se um dia da semana for muito difícil, ele não conta contra você.</small>
+              </div>}
             </div>
           </div>
           {crianca && <div className="aviso info" style={{ margin: '14px 0 0' }}>Combinem juntos: pergunte {sel.length > 1 ? 'a cada um' : `ao ${crianca.nome}`} o que quer juntar no cofrinho.</div>}

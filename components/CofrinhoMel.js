@@ -37,7 +37,8 @@ export default function CofrinhoMel({ tipo, quem, saldo, meta = 0, unidade = '',
       <div ref={arte} style={{ position: 'absolute', right: 14, top: 10, width: 120, height: 120 }} aria-hidden="true" />
       <small>Guardadas</small>
       <div className="cofre-n">{children}<strong ref={num}>{saldo}</strong></div>
-      <em>{linha}</em>
+      {/* @cuidado a arte ocupa ~130px à direita; sem essa folga a Mel cobria o texto (28/11). */}
+      <em style={{ display: 'block', paddingRight: 132 }}>{linha}</em>
     </div>
   );
 }
