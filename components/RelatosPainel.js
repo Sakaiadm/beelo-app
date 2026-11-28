@@ -75,6 +75,7 @@ export default function RelatosPainel({ lista, fotos }) {
                 <img src={marcas[r.id]?.url || fotos[r.foto_path]} alt="Imagem anexada ao relato" onError={() => setFalhou((f) => ({ ...f, [r.id]: true }))} style={{ width: '100%', maxHeight: 280, objectFit: 'contain', borderRadius: 12, border: '1px solid var(--borda)', background: 'var(--fundo)', display: 'block' }} />
               </button>
               <span className="icone-btn" aria-hidden="true" style={{ position: 'absolute', right: 8, bottom: 8, background: '#1a6fe0', pointerEvents: 'none' }}><Icone nome="lapis" tam={18} cor="#fff" /></span>
+              {marcas[r.id]?.descricao?.length > 0 && <span className="tg" style={{ position: 'absolute', left: 8, top: 8, background: '#2c9a5b', color: '#fff', pointerEvents: 'none' }}>✓ Marcação salva</span>}
             </div>
           )}
           {fotos[r.foto_path] && falhou[r.id] && <p className="peq-cinza" style={{ margin: '4px 0' }}>Não foi possível carregar a imagem deste relato.</p>}

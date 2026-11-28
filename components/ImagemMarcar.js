@@ -44,6 +44,7 @@ export default function ImagemMarcar({ src, tracosIniciais = [], aoPronto, fecha
   const tela = useRef(null), base = useRef(null), desenhando = useRef(null);
   const [tracos, setTracos] = useState(tracosIniciais);
   const [estado, setEstado] = useState('carregando'); // carregando | ok | erro
+  const [sair, setSair] = useState(false); // pergunta ao voltar com marcação ainda não salva
 
   function pintar(lista, comNumeros) {
     const c = tela.current, img = base.current;
@@ -100,19 +101,29 @@ export default function ImagemMarcar({ src, tracosIniciais = [], aoPronto, fecha
   return (
     <div className="folha" style={{ zIndex: 70 }} role="dialog" aria-modal="true" aria-label="Marcar na imagem">
       <div className="folha-in">
-        <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar sem salvar" onClick={fechar}><Icone nome="esq" tam={26} /></button><h2>Marcar na imagem</h2></div>
+        <div className="folha-cab"><button type="button" className="folha-volta" aria-label="Voltar" onClick={() => (tracos.length && JSON.stringify(tracos) !== JSON.stringify(tracosIniciais) ? setSair(true) : fechar())}><Icone nome="esq" tam={26} /></button><h2>Marcar na imagem</h2></div>
         <p className="peq-cinza" style={{ margin: 0 }}>Desenhe com o dedo onde está o problema. Cada risco perto do outro vira uma marcação numerada.</p>
         {estado === 'erro' && <div className="aviso erro" role="alert">Não foi possível carregar a imagem. Feche e tente de novo.</div>}
         <canvas ref={tela} style={{ width: '100%', borderRadius: 12, border: '1px solid var(--borda)', touchAction: 'none', background: 'var(--cartao)', display: estado === 'ok' ? 'block' : 'none' }}
           onPointerDown={comeca} onPointerMove={move} onPointerUp={termina} onPointerCancel={termina} aria-label="Imagem do relato para desenhar" />
+        {sair && (
+          <div className="aviso info" role="alertdialog" aria-label="Sair sem salvar?">
+            Você desenhou, mas ainda não salvou a marcação.
+            <div style={{ display: 'flex', gap: 8, marginTop: 8 }}>
+              <button type="button" className="btn peq" style={{ flex: 1 }} onClick={pronto}>Salvar e voltar</button>
+              <button type="button" className="btn sec peq" style={{ flex: 1 }} onClick={fechar}>Descartar</button>
+            </div>
+          </div>
+        )}
+        {/* Barra fixa embaixo: com a imagem alta (print de celular) os botões ficavam fora da tela e a pessoa não via Desfazer nem Salvar (Thomas 28/11). */}
         {estado === 'ok' && (
-          <>
+          <div style={{ position: 'sticky', bottom: 0, background: 'var(--fundo)', padding: '10px 0 calc(10px + env(safe-area-inset-bottom))', borderTop: '1px solid var(--borda)', display: 'flex', flexDirection: 'column', gap: 8, zIndex: 2 }}>
             <div style={{ display: 'flex', gap: 8 }}>
-              <button type="button" className="btn sec peq" style={{ flex: 1 }} disabled={!tracos.length} onClick={() => setTracos((t) => t.slice(0, -1))}>Desfazer</button>
+              <button type="button" className="btn sec peq" style={{ flex: 1 }} disabled={!tracos.length} onClick={() => setTracos((t) => t.slice(0, -1))}><Icone nome="esq" tam={18} />Desfazer</button>
               <button type="button" className="btn sec peq" style={{ flex: 1 }} disabled={!tracos.length} onClick={() => setTracos([])}>Limpar tudo</button>
             </div>
-            <button type="button" className="btn bloco" onClick={pronto}><Icone nome="lapis" tam={18} cor="#fff" />{tracos.length ? `Usar ${agrupar(tracos).length} ${agrupar(tracos).length === 1 ? 'marcação' : 'marcações'}` : 'Voltar sem marcar'}</button>
-          </>
+            <button type="button" className="btn bloco" onClick={pronto}><Icone nome="check" tam={18} cor="#fff" />{tracos.length ? `Salvar ${agrupar(tracos).length} ${agrupar(tracos).length === 1 ? 'marcação' : 'marcações'}` : 'Voltar sem marcar'}</button>
+          </div>
         )}
       </div>
     </div>

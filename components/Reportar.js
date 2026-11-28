@@ -115,6 +115,7 @@ export default function Reportar({ familia, membro, papel, aberto, setAberto, pr
                       <button type="button" onClick={() => setLapis(true)} aria-label="Ampliar a imagem e marcar com o lápis" style={{ position: 'relative', padding: 0, border: 0, background: 'none', cursor: 'pointer', flex: 'none' }}>
                         <img src={urlMarcado || urlPrint} alt="Imagem do relato" style={{ width: 64, height: 96, objectFit: 'cover', objectPosition: 'top', borderRadius: 10, border: '1px solid var(--borda)', display: 'block' }} />
                         <span className="icone-btn" aria-hidden="true" style={{ position: 'absolute', right: -6, bottom: -6, width: 28, height: 28, background: '#1a6fe0' }}><Icone nome="lapis" tam={14} cor="#fff" /></span>
+                        {marcado?.descricao?.length > 0 && <span className="tg" style={{ position: 'absolute', left: 4, top: 4, background: '#2c9a5b', color: '#fff' }}>✓ Marcado</span>}
                       </button>
                       <span className="corpo"><b>{origem === 'print' ? `Print da tela de ${telaDe(caminho)}` : 'Imagem da galeria'}</b>
                         <small className="peq-cinza" style={{ whiteSpace: 'normal' }}>{marcado?.descricao?.length ? `${marcado.descricao.length} ${marcado.descricao.length === 1 ? 'marcação feita' : 'marcações feitas'}. Toque para mudar.` : 'Toque na imagem para ampliar e marcar onde está o problema.'}</small></span>
