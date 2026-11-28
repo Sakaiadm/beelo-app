@@ -85,8 +85,9 @@ export function DesafioCartao({ d, p, nome, href, pf = 'j', children }) {
         <span><b>{familia ? 'Desafio da família' : 'Desafio'}: {d.titulo}</b><small>{nome ? `${nome} · ` : ''}{textoMeta(d, d.meta)} · {rotuloPeriodo(d)}</small></span>
       </div>
       {ciclo && !ciclo.terminou && (
-        <div className="des-ciclo" aria-label={`Semana ${ciclo.semana} de ${ciclo.total} do ciclo`}>
-          <span>Semana {ciclo.semana} de {ciclo.total}{ciclo.ultima ? ' · última semana do ciclo' : ''}</span>
+        <div className="des-ciclo" aria-label={`Desafio de ${ciclo.total} semanas, na semana ${ciclo.semana}`}>
+          {/* @decisao 28/11 Thomas: "Semana 1 de 4" parecia tarefas; agora diz que é o ciclo do desafio. */}
+          <span>Desafio de {ciclo.total} semanas · {ciclo.ultima ? 'última semana' : `você está na ${ciclo.semana}ª`}</span>
           <div className="barra"><div style={{ width: `${(ciclo.semana / ciclo.total) * 100}%` }} /></div>
         </div>
       )}
