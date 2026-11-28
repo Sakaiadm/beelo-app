@@ -59,7 +59,7 @@ Com login (`app/(app)/`): `/hoje`, `/agenda`, `/painel`, `/tarefas`, `/tela`, `/
 - **Membro / pessoa**: cada pessoa de uma família (`ra_membros`). `papel` = `gestor` (Pai ou Mãe) ou `filho`; `funcao` = Pai, Mãe, Adulto que ajuda, Filho(a); parentesco é só um rótulo.
 - **Tarefa**: o modelo (`ra_tarefas`), com repetição. **Ocorrência**: a tarefa de um dia específico (`ra_ocorrencias`); é nela que se conclui, justifica, adia e confere.
 - **Previsto / real** (tempo de tela): o combinado (`ra_tela_previsto`) e o que aconteceu (`ra_tela_real`); pedidos de mudança em `ra_tela_proposta`.
-- **Desafio, prêmio, cofrinho**: `ra_desafios`, `ra_premios`, `ra_cofrinho` (estrelinhas ou semanas, conforme o modo criança).
+- **Desafio, prêmio, cofrinho**: `ra_desafios`, `ra_premios`, `ra_cofrinho` (estrelinhas ou semanas, conforme o modo criança). Para mudar a Vitrine: `components/NovoPremio.js` e `PremioLinha.js`. Para "Subir de novo": `components/SubirDeNovo.js` e `subirDeNovo` em `app/acoes-desafios.js`.
   Privacidade (migração 0026): desejos e pedidos de prêmio em aberto são só da própria pessoa e dos responsáveis; o catálogo do grupo é de todos; prêmio entregue de outra pessoa só aparece no Mural quando a opção é "A família toda vê".
   Mural (28/11): quem não é Responsável vê só as próprias conquistas, mesmo com "A família toda vê"; só Responsáveis veem as abas por pessoa.
 - **Modo criança / jeito de ver**: quem usa o modo criança escolhe a aparência (Divertido, Calmo, Como os adultos). Só muda o visual.
