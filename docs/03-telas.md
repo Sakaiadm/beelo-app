@@ -13,7 +13,7 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 | `/config/categorias/[id]` | `app/(app)/config/categorias/[id]/page.js` | editar uma categoria de tarefa. | ra_categorias |
 | `/config/categorias/nova` | `app/(app)/config/categorias/nova/page.js` | criar categoria de tarefa. | — |
 | `/config/categorias` | `app/(app)/config/categorias/page.js` | lista de categorias da família (Pai e Mãe). | ra_categorias |
-| `/config/relatos` | `app/(app)/config/relatos/page.js` | só administrador geral: relatos dos testadores (problema ou sugestão) com foto, tela, perfil e aparelho; abas Novos/Vistos/Resolvidos. | ra_relatos_lista, ra_relato_status |
+| `/config/relatos` | `app/(app)/config/relatos/page.js` | só administrador geral: relatos dos testadores (problema ou sugestão) com foto, tela, perfil e aparelho; abas Novos/Vistos/Resolvidos. | ra_relatos_lista, ra_relato_status | (cartões com caixinha "Incluir no prompt", lápis na imagem, "+ Pedir algo" e botão único "Gerar e copiar prompt": `components/RelatosPainel.js`, `components/ImagemMarcar.js`)
 | `/config/familias/[id]` | `app/(app)/config/familias/[id]/page.js` | editar um grupo/família: nome, avatar, cor, responsável, apagar. | ra_admin_cores, ra_admin_familias, ra_admin_membros, ra_guia_mel_estado |
 | `/config/familias/nova` | `app/(app)/config/familias/nova/page.js` | criar um novo grupo/família. | — |
 | `/config/familias` | `app/(app)/config/familias/page.js` | lista dos grupos da família, com cor; para super admin, a administração de todos. | ra_admin_cores, ra_admin_familias |

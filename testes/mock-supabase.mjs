@@ -2,6 +2,7 @@
 // @tipo     teste
 // Supabase falso para testar as telas sem tocar no banco real.
 import http from 'node:http';
+import fs from 'node:fs';
 const hoje = new Date(Date.now() - 3 * 3600e3).toISOString().slice(0, 10);
 const dia = (n) => { const d = new Date(hoje + 'T12:00:00Z'); d.setUTCDate(d.getUTCDate() + n); return d.toISOString().slice(0, 10); };
 const FAM = '11111111-1111-1111-1111-111111111111';
@@ -149,6 +150,8 @@ http.createServer((req, res) => {
     // Pedido do link por e-mail (entrar sem senha). /__falha?otp=429 simula "vários links seguidos".
     if (u.pathname === '/auth/v1/otp') return falha.otp ? send(Number(falha.otp), Number(falha.otp) === 429 ? { code: 'over_email_send_rate_limit', message: 'email rate limit exceeded' } : { message: 'Erro interno do servidor' }) : send(200, {});
     if (u.pathname === '/auth/v1/logout') return send(204);
+    // MOCK_IMAGEM=/caminho.jpg: o link assinado (GET) devolve uma imagem de verdade (prévia do lápis nos relatos); sem isso devolve JSON.
+    if (req.method === 'GET' && u.pathname.startsWith('/storage/v1/object/sign/') && process.env.MOCK_IMAGEM) { res.writeHead(200, { 'content-type': 'image/jpeg', ...cors }); res.end(fs.readFileSync(process.env.MOCK_IMAGEM)); return; }
     if (u.pathname.startsWith('/storage/v1/object/sign/')) { const b = JSON.parse(body || '{}'); return send(200, (b.paths || []).map((p) => ({ path: p, signedURL: '/object/sign/x?token=t', error: null }))); }
     if (u.pathname.startsWith('/storage/v1/object/') && req.method === 'POST') return send(200, { Key: u.pathname.slice(19), Id: 'x' });
     const m = u.pathname.match(/^\/rest\/v1\/(rpc\/)?([a-z0-9_]+)$/);
