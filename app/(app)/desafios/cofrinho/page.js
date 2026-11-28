@@ -1,12 +1,11 @@
 // @arquivo  page.js: cofrinho de estrelinhas ou semanas e troca por prêmios.
 // @tipo     tela
-// @usa      components/CofrinhoMel, banco ra_cofrinho, lib/sessao, lib/desafiosDados, components/Icone, components/SugerirDesejo, lib/desafios, lib/util, components/DesafioCartao, components/Voltar, components/Form, components/TrocarPremio, app/acoes-desafios
+// @usa      components/CofrinhoMel, banco ra_cofrinho, lib/sessao, lib/desafiosDados, components/Icone, lib/desafios, lib/util, components/DesafioCartao, components/Voltar, components/Form, components/TrocarPremio, app/acoes-desafios
 // @usado-por Next.js (rota /desafios/cofrinho)
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
 import { carregarDesafios, desafiosLigados, vitrineDe, desejosVisiveis } from '@/lib/desafiosDados';
 import Icone from '@/components/Icone';
-import SugerirDesejo from '@/components/SugerirDesejo';
 import { perfil } from '@/lib/desafios';
 import { addDias, dataCurta } from '@/lib/util';
 import { Estrela, Hexagono } from '@/components/DesafioCartao';
@@ -36,14 +35,13 @@ export default async function Cofrinho({ searchParams }) {
   const esperando = dados.pedidos.filter((p) => p.membro_id === m.id && p.status === 'pedido');
   const maior = (p) => v.lista.find((x) => x.custo > v.tem && x.id !== p.id && x.custo > p.custo) || null;
   const meus = desejosVisiveis(dados.desejos, m.id);
-  const nEsperando = meus.filter((x) => x.desejo === 'esperando').length;
   const titulo = semanas ? (proprio ? 'Semanas conquistadas' : `Semanas de ${m.nome}`) : (proprio ? 'Meu cofrinho' : `Cofrinho de ${m.nome}`);
 
   return (
     <main className="estreito">
       {/* @decisao 25/11 Thomas (opção A): para o filho o Cofrinho é uma aba (Desafios | Mural | Cofrinho). Pai/Mãe vendo o cofrinho de alguém voltam com a setinha. */}
       {proprio && !gestor
-        ? <><DesafiosTopo gestor={false} perfil={perfil(m)} ativo={2} /><p className="sub" style={{ margin: '-4px 0 12px' }}>{semanas ? 'Não vencem. Use quando quiser.' : 'Suas estrelinhas ficam guardadas. Não somem.'}</p></>
+        ? <><DesafiosTopo gestor={false} perfil={perfil(m)} ativo={3} /><p className="sub" style={{ margin: '-4px 0 12px' }}>{semanas ? 'Não vencem. Use quando quiser.' : 'Suas estrelinhas ficam guardadas. Não somem.'}</p></>
         : <Voltar href="/desafios" titulo={titulo} sub={semanas ? 'Não vencem. Use quando quiser.' : 'Suas estrelinhas ficam guardadas. Não somem.'} />}
       {/* @decisao 27/11 Thomas: criança = Mel na pilha; adolescente = Anel da meta. Só o dono vê a animação com a contagem do "saldo visto". */}
       <CofrinhoMel tipo={semanas ? 'T3' : 'A'} quem={m.id} saldo={v.tem} meta={semanas ? v.meta?.custo || 0 : 0}
@@ -63,18 +61,17 @@ export default async function Cofrinho({ searchParams }) {
         </div>
       )}
 
-      {(proprio || meus.length > 0) && <>
-        <div className="grupo-titulo">{proprio ? 'Meus desejos' : `Desejos de ${m.nome}`}</div>
+      {/* @decisao 28/11 Thomas: os desejos do próprio têm aba Desejos; aqui só o responsável vendo o cofrinho de outra pessoa. */}
+      {!proprio && meus.length > 0 && <>
+        <div className="grupo-titulo">{`Desejos de ${m.nome}`}</div>
         <div className="card" style={{ padding: '12px 18px' }}>
-          {meus.length === 0 && <div className="vazio" style={{ padding: '6px 0' }}>Tem algo que você quer muito? Sugira aos seus responsáveis.</div>}
           {meus.map((x) => (
             <div className="vit" key={x.id}>
               <span className="des-ic"><Icone nome="presente" tam={22} /></span>
               <span className="corpo"><b>{x.sugerido || x.nome}</b>
-                <small>{x.desejo === 'esperando' ? (proprio ? 'Esperando seus responsáveis' : 'Esperando a resposta. Veja em Desafios.') : `Os responsáveis: “${x.resposta}”`}</small></span>
+                <small>{x.desejo === 'esperando' ? 'Esperando a resposta. Veja em Desafios.' : `Os responsáveis: “${x.resposta}”`}</small></span>
             </div>
           ))}
-          {proprio && <SugerirDesejo familia={m.familia_id} membro={m.id} esperando={nEsperando} moeda={v.moeda} />}
         </div>
       </>}
 

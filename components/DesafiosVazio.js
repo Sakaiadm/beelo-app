@@ -16,7 +16,7 @@ export default function DesafiosVazio({ itens }) {
   async function criar(i) {
     setEnv(i.pessoa.id); setErro('');
     const fd = new FormData();
-    fd.set('catalogo', i.desafio.id); fd.set('quem', i.pessoa.id); fd.set('meta', String(i.desafio.meta)); fd.set('coringa', '1');
+    fd.set('catalogo', i.desafio.id); fd.set('quem', i.pessoa.id); fd.set('meta', String(i.desafio.meta)); fd.set('coringa', '0');
     try {
       const r = await criarDesafio(null, fd);
       if (r?.erro) { setErro(r.erro); setEnv(''); } else router.refresh();

@@ -18,7 +18,7 @@ export default function SugestaoDesafio({ pessoa, desafio, tag, meta }) {
   const aceitar = async () => {
     setEnv(true); setErro('');
     const fd = new FormData();
-    fd.set('catalogo', desafio.id); fd.set('quem', pessoa.id); fd.set('meta', String(desafio.meta)); fd.set('coringa', '1');
+    fd.set('catalogo', desafio.id); fd.set('quem', pessoa.id); fd.set('meta', String(desafio.meta)); fd.set('coringa', '0');
     try {
       const r = await criarDesafio(null, fd);
       if (r?.erro) { setErro(r.erro); setEnv(false); } else router.refresh();
