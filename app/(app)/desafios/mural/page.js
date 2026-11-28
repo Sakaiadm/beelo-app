@@ -29,14 +29,14 @@ export default async function Mural({ searchParams }) {
   ]);
   const tit = Object.fromEntries((des || []).map((d) => [d.id, d]));
   const visiveis = membros.filter((m) => m.ativo && (gestor || familia.mural_visivel !== 'pais' || m.id === eu.id));
-  // @regra 28/11 (Thomas, tela 4): quem não é Responsável não vê abas com os Responsáveis; fica só ele e os outros Acompanhados.
-  const abas = gestor ? visiveis : visiveis.filter((m) => m.id === eu.id || m.papel !== 'gestor');
+  // @regra 28/11 (Thomas, tela 4): quem não é Responsável vê SÓ as próprias conquistas (sem abas), mesmo com "A família toda vê".
+  const abas = gestor ? visiveis : visiveis.filter((m) => m.id === eu.id);
   const sel = abas.find((m) => m.id === sp?.m) || null;
   const urls = await urlsAvatares(supabase, visiveis.map((m) => m.avatar));
   const itens = [
     ...(pers || []).filter((p) => tit[p.desafio_id]).map((p) => ({ tipo: 'd', quando: p.cumprido_em, membro: p.membro_id, t: tit[p.desafio_id].titulo, icone: tit[p.desafio_id].icone, sub: tit[p.desafio_id].periodo === 'mes' ? `mês de ${dataCurta(p.inicio).slice(3)}` : `semana de ${dataCurta(p.inicio)}` })),
     ...(peds || []).map((p) => ({ tipo: 'p', quando: p.entregue_em, membro: p.membro_id, t: p.nome, sub: 'prêmio entregue' })),
-  ].filter((x) => (sel ? x.membro === sel.id : gestor || !x.membro || abas.some((a) => a.id === x.membro))).sort((a, b) => String(b.quando).localeCompare(String(a.quando))).slice(0, 60);
+  ].filter((x) => (sel ? x.membro === sel.id : gestor || x.membro === eu.id)).sort((a, b) => String(b.quando).localeCompare(String(a.quando))).slice(0, 60);
   const nome = Object.fromEntries(membros.map((m) => [m.id, m]));
 
   return (
