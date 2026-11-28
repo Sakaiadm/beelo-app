@@ -9,7 +9,7 @@ import { MSG, semRede, falhaDeRede, comLimite, avisarFalhaDeRede } from '@/lib/r
 import { dataDaFoto } from '@/lib/exif';
 import Icone from './Icone';
 
-async function comprimir(arquivo) {
+export async function comprimir(arquivo) {
   const img = await createImageBitmap(arquivo);
   const max = 1600, esc = Math.min(1, max / Math.max(img.width, img.height));
   const c = document.createElement('canvas');
