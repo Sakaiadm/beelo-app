@@ -77,3 +77,5 @@ Os mais importantes: `Tarefa.js` (cartão de tarefa), `TarefaForm.js`, `Form.js`
 - Lembrete: o sino e o push (como os outros avisos) e, em Hoje, um cartão suave "Já chegou?" (`components/ChegadaLembrete.js`) com **Cheguei** e **Ainda não**.
 - Chegada nunca aparece como "Atrasada" (`lib/util.js`, `statusExibido`). Cada responsável liga ou desliga o aviso em Meu perfil ("Quando alguém avisar que chegou").
 - Fora do escopo por decisão: botão "Preciso de ajuda" e localização.
+
+@cuidado Menu "Trocar de conta": cada conta guardada no celular só atualiza nome e papel quando essa conta é aberta (components/ContasGancho.js chama renovarAtual(eu)).
