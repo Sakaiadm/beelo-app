@@ -1066,12 +1066,24 @@ a.tarefa-ir > svg { color: var(--cinza); flex: none; }
 .banco-grupo > form { margin: 0; }
 button.vit-linha { display: flex; align-items: center; gap: 12px; width: 100%; background: transparent; border: 0; border-top: 1px solid var(--borda); padding: 12px 0; font: inherit; color: var(--texto); text-align: left; cursor: pointer; min-height: 56px; }
 .vit-col { display: block; padding: 0; }
+.vit-col.apagado { opacity: 1; }
+.vit-col.apagado .vit-linha { opacity: .55; }
+.vit-topo { display: flex; align-items: center; gap: 10px; }
+.vit-topo > .vit-linha { flex: 1; min-width: 0; border-top: 0; }
+.vit-col > .vit-topo { border-top: 1px solid var(--borda); }
+.vit-col:first-child > .vit-topo { border-top: 0; }
+.vit-x { flex: none; width: 32px; height: 44px; display: grid; place-items: center; background: transparent; border: 0; color: var(--cinza); cursor: pointer; padding: 0; }
+.vit-aviso.vit-conf { display: flex; flex-direction: column; gap: 8px; background: #fdecec; color: var(--erro); }
+.vit-conf-bt { display: flex; gap: 8px; }
+.vit-aviso { margin: -2px 0 12px; padding: 8px 12px; border-radius: 10px; background: #fff7e0; color: #7a5a00; font-size: var(--f-apoio); font-weight: 600; }
 .vit-col > .vit-linha { border-top: 0; }
 .vit-col .seta { color: var(--cinza); font-size: 20px; }
 .vit-linha .corpo { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
 .vit-linha .mais-ic { width: 44px; height: 44px; border-radius: 12px; background: var(--azul); display: grid; place-items: center; flex: none; }
 .vit-ed { padding: 0 0 14px; }
-.criar-premio { margin-bottom: 12px; }
+/* Cabeça da Vitrine: texto à esquerda e botão "+ Prêmio" à direita (27/11). */
+.vit-cabeca { display: flex; align-items: center; gap: 10px; margin: -4px 0 12px; }
+.vit-cabeca .sub { flex: 1; min-width: 0; margin: 0; }
 /* @cuidado Bolinhas grandes do modo criança: encolhem para caber (7 x 44 px + espaços passava da tela em 360 e 390 px). */
 .des-crianca .des-dias { gap: 6px; grid-template-columns: repeat(7, minmax(0, 1fr)); }
 .des-crianca .des-dias i { width: 100%; max-width: 44px; height: auto; aspect-ratio: 1 / 1; }

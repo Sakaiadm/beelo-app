@@ -259,6 +259,14 @@ export async function alternarPremio(fd) {
   await supabase.from('ra_premios').update({ ativo: fd.get('ativo') === '1' }).eq('id', uuid(fd.get('id')));
   revalidatePath('/desafios/premios');
 }
+// @decisao 27/11 Thomas (prévia): "x" na Vitrine exclui o prêmio de vez. Pedidos já feitos guardam o nome (premio_id vira vazio) e a meta de quem juntava cai na sugestão do app.
+export async function excluirPremio(fd) {
+  const supabase = await supabaseServer();
+  const eu = await quemSou(supabase);
+  if (eu?.papel !== 'gestor') return;
+  await supabase.from('ra_premios').delete().eq('id', uuid(fd.get('id')));
+  revalidatePath('/desafios/premios');
+}
 export async function adicionarPremio(_, fd) {
   const supabase = await supabaseServer();
   const eu = await quemSou(supabase);
@@ -376,10 +384,29 @@ export async function decidirSemana(_, fd) {
   const hoje = hojeISO();
   const segunda = addDias(hoje, -((new Date(hoje + 'T12:00:00Z').getUTCDay() + 6) % 7));
   const patch = { semana_decidida: segunda, decisao };
-  if (decisao === 'leve') { const l = maisLeve(d); patch.meta = l.meta; patch.estrelas = l.estrelas; }
+  if (decisao === 'leve') { const l = maisLeve(d); patch.meta_normal = d.meta_normal ?? d.meta; patch.estrelas_normal = d.estrelas_normal ?? d.estrelas; patch.meta = l.meta; patch.estrelas = l.estrelas; }
   const { error } = await supabase.from('ra_desafios').update(patch).eq('id', id);
   if (error) return erroDe(error);
   await supabase.rpc('ra_desafios_atualizar'); // a semana atual já passa a contar com a meta nova
   revalidar();
   return { ok: true, msg: decisao === 'leve' ? 'Combinado! A meta ficou mais leve.' : 'Combinado! Segue como está.' };
+}
+
+// ═══ SEÇÃO: Subir de novo ═══
+// @regra 28/11 Thomas: depois de "Pegar mais leve", na semana seguinte o Responsável (ou a própria pessoa) volta à meta normal com 1 toque. Migração 0038.
+export async function subirDeNovo(_, fd) {
+  const supabase = await supabaseServer();
+  const eu = await quemSou(supabase);
+  if (!eu) return { erro: 'Entre de novo para continuar.' };
+  const id = uuid(fd.get('id'));
+  if (!id) return { erro: 'Desafio não encontrado.' };
+  const { data: d } = await supabase.from('ra_desafios').select('*').eq('id', id).eq('ativo', true).maybeSingle();
+  if (!d || d.meta_normal == null) return { erro: 'Esse desafio já está com a meta normal.' };
+  if (!(eu.papel === 'gestor' || (d.membro_id === eu.id && d.criado_por === eu.id))) return { erro: 'Só os responsáveis decidem isso.' };
+  const patch = { meta: d.meta_normal, estrelas: d.estrelas_normal ?? d.estrelas, meta_normal: null, estrelas_normal: null, decisao: null };
+  const { error } = await supabase.from('ra_desafios').update(patch).eq('id', id);
+  if (error) return erroDe(error);
+  await supabase.rpc('ra_desafios_atualizar');
+  revalidar();
+  return { ok: true, msg: 'Meta de volta ao normal. Boa semana!' };
 }

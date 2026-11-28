@@ -94,6 +94,7 @@ Agrupadas pelo assunto (arquivo que chama entre parênteses):
 | 0035 | Só Responsável vê o painel da família: tira a chave ver_painel de Acompanhado(a) e Outro |
 | 0036 | Desafios: o dia de hoje só conta como "dia bom" depois das 19h (Brasília); antes fica "em andamento" |
 | 0037 | "Dia bom" (só no desafio Semana em dia, c1, como exemplo): colunas dia_bom_pct, semana_decidida, decisao, impossivel_avisado em ra_desafios; ra_desafio_calc usa dia bom com X% e devolve "impossivel"; ra_desafios_atualizar avisa os Responsáveis |
+| 0038 | "Subir de novo": colunas meta_normal e estrelas_normal em ra_desafios (guardam a meta e o ganho de antes do "pegar mais leve"). Pode rodar mais de uma vez. |
 
 ⚠️ Ordem importa: algumas migrações dizem no cabeçalho "rode ANTES do app novo" (0021 A, 0022) ou "SÓ DEPOIS" (0020). Leia a primeira linha de cada arquivo antes de rodar.
 

@@ -18,6 +18,7 @@ import { linksAssinados } from '@/lib/links';
 import DesejoAprovar from '@/components/DesejoAprovar';
 import { DesafioCartao, Estrela, Hexagono } from '@/components/DesafioCartao';
 import DecidirSemana from '@/components/DecidirSemana';
+import SubirDeNovo from '@/components/SubirDeNovo';
 import Avatar from '@/components/Avatar';
 import Icone from '@/components/Icone';
 import Form from '@/components/Form';
@@ -54,6 +55,9 @@ function Saldo({ m, saldo }) {
 }
 
 // @regra 28/11: pede a decisão quando a meta da semana ficou impossível (desafios de "dia bom") e ainda ninguém decidiu nesta semana.
+// @regra 28/11: depois de "pegar mais leve", a partir da semana seguinte aparece "Subir de novo" (meta_normal guarda a meta de antes).
+const segundaDe = (hoje) => addDias(hoje, -((new Date(hoje + 'T12:00:00Z').getUTCDay() + 6) % 7));
+const podeSubir = (d, hoje) => !d.descansando_em && d.meta_normal != null && d.decisao === 'leve' && !!d.semana_decidida && d.semana_decidida < segundaDe(hoje);
 const precisaDecidir = (d) => !d.descansando_em && (d.dia_bom_pct ?? 100) < 100 && !!d.atual?.detalhe?.impossivel && d.atual.status !== 'cumprido' && d.semana_decidida !== d.atual.inicio;
 
 export default async function Desafios({ searchParams }) {
@@ -100,6 +104,7 @@ export default async function Desafios({ searchParams }) {
   const cartaoFamilia = daFamilia.map((d) => (
     <DesafioCartao key={d.id} d={d} p={d.atual}>
       {gestor && precisaDecidir(d) && <DecidirSemana d={d} pf="j" />}
+      {gestor && podeSubir(d, hoje) && <SubirDeNovo d={d} pf="j" />}
       {d.premio && <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '8px 0 0' }}>Prêmio da família: <b>{d.premio}</b></p>}
       {contrib.length > 0 && ['pct', 'pct_cada'].includes(d.tipo) && (
         <div className="barras-h contrib" style={{ marginTop: 14, fontSize: 'var(--f-apoio)' }}>
@@ -214,6 +219,7 @@ export default async function Desafios({ searchParams }) {
               {ds.map((d) => (
                 <DesafioCartao key={d.id} d={d} p={d.atual} pf={m.perfil}>
                   {precisaDecidir(d) && <DecidirSemana d={d} pf={m.perfil} quem={m.id === eu.id ? '' : m.nome} />}
+                  {podeSubir(d, hoje) && <SubirDeNovo d={d} pf={m.perfil} />}
                   {d.descansando_em ? <FimCicloAcoes d={d} c={cicloDe(d, hoje)} /> : <>
                   <div className="des-acoes">
                     {d.prox && <Form acao={subirMeta}><input type="hidden" name="id" value={d.id} /><input type="hidden" name="meta" value={d.prox} /><button className="btn peq">Subir a meta para {textoMeta(d, d.prox)}</button></Form>}
@@ -272,6 +278,7 @@ export default async function Desafios({ searchParams }) {
       {meus.map((d) => (
         <DesafioCartao key={d.id} d={d} p={d.atual} pf={pf}>
           {pf !== 'c' && d.criado_por === eu.id && precisaDecidir(d) && <DecidirSemana d={d} pf={pf} />}
+          {pf !== 'c' && d.criado_por === eu.id && podeSubir(d, hoje) && <SubirDeNovo d={d} pf={pf} />}
           {pf === 'c' && precisaDecidir(d) && <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '8px 0 0' }}>Seus responsáveis vão ver e combinar com você.</p>}
           {d.descansando_em
             ? (pf !== 'c' && d.criado_por === eu.id ? <FimCicloAcoes d={d} c={cicloDe(d, dados.hoje)} /> : <p className="sub" style={{ fontSize: 'var(--f-apoio)', margin: '8px 0 0' }}>Os responsáveis escolhem o próximo desafio com você.</p>)
