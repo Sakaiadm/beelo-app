@@ -62,7 +62,7 @@ Toda tela com login passa por `app/(app)/layout.js` (topo, menu, avisos) e come�
 
 74 componentes. Os que começam com `'use client'` rodam no aparelho (têm estado e toque); os outros são desenhados no servidor.
 Cada um tem cabeçalho `@arquivo` com o que faz, o que usa e quem usa. Para achar quem usa um componente, busque por `@usado-por` ou pelo nome no VS Code.
-Os mais importantes: `Tarefa.js` (cartão de tarefa), `TarefaForm.js`, `Form.js` (formulário padrão com fila offline), `Menu.js`, `Festa.js`/`Comemorar.js` (comemorações), `LampadaFlutuante.js` (dicas), `Conexao.js` (sem internet).
+Os mais importantes: `Tarefa.js` (cartão de tarefa), `TarefaForm.js`, `Form.js` (formulário padrão com fila offline), `Menu.js`, `Festa.js`/`Comemorar.js` (comemorações), (a festa grande do dia só vem a partir das 18h; antes disso, o aviso "Tudo feito por enquanto"), `LampadaFlutuante.js` (dicas), `Conexao.js` (sem internet).
 
 ## Como uma tela funciona (receita)
 1. `const { supabase, eu, familia, gestor } = await exigirMembro();`: confere o login e traz quem é a pessoa e a família (cache de 30 s).
