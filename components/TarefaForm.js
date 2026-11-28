@@ -1,16 +1,17 @@
 'use client';
 // @arquivo  TarefaForm.js: formulário de criar/editar tarefa.
 // @tipo     componente
-// @usa      ./Icone, ./HorarioCampo, ./Form, app/acoes, lib/util, lib/sugestoes
+// @usa      ./Icone, ./HorarioCampo, ./Form, app/acoes, lib/util, lib/sugestoes, lib/sugestoesUso
 // @usado-por app/(app)/tarefas/[id]/editar/page.js, app/(app)/tarefas/nova/page.js
 // @decisao  "O que é": Tarefa ou Chegada (um toque de aviso aos pais, migração 0027). Só aparece para Pai e Mãe.
 import Icone from './Icone';
 import HorarioCampo from './HorarioCampo';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import Form from './Form';
 import { salvarTarefa } from '@/app/acoes';
 import { hhmm } from '@/lib/util';
 import { SUGESTOES, IDADES, ICONE_CAT, CHEGADAS, resumoSugestao } from '@/lib/sugestoes';
+import { lerFavoritas, lerUso, alternarFavorita, contarUso, ordenarSugestoes, favoritasDoAlto } from '@/lib/sugestoesUso';
 
 
 const SEG_SEX = [1, 2, 3, 4, 5];
@@ -72,13 +73,19 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
     if (dias.includes(d) && dias.length === 1) { setUmDia(true); return; }
     setUmDia(false); setDias((x) => (x.includes(d) ? x.filter((y) => y !== d) : [...x, d]));
   };
+  // Favoritas (estrelinha) e uso das sugestões: ficam no aparelho (lib/sugestoesUso.js). Lidos só depois de abrir a tela.
+  const [favs, setFavs] = useState([]);
+  const [uso, setUso] = useState({});
+  useEffect(() => { setFavs(lerFavoritas()); setUso(lerUso()); }, []);
   const usar = (x) => {
+    setUso(contarUso(x.nome));
     setTitulo(x.nome); setOpcao(x.rec); setDias(x.dias || SEG_SEX); setFoto(!!x.foto);
     setCat(categorias.find((c) => c.nome.toLowerCase().startsWith(x.cat.toLowerCase()))?.id || '');
     setHora((h) => ({ i: x.hora || '', f: '', n: h.n + 1 })); setFolha(null);
   };
   const catsSug = [...new Set(SUGESTOES.map((x) => x.cat))];
-  const listaSug = SUGESTOES.filter((x) => x.cat === fCat && (!fIdade || x.idade.includes(fIdade)));
+  const listaSug = ordenarSugestoes(SUGESTOES.filter((x) => x.cat === fCat && (!fIdade || x.idade.includes(fIdade))), favs, uso);
+  const altoSug = favoritasDoAlto(SUGESTOES.filter((x) => !fIdade || x.idade.includes(fIdade)), favs, uso);
   const voltarPers = () => { if (dias.length === 0) setDias(SEG_SEX); setOpcao('pers'); setFolha('repetir'); };
   return (
     <Form acao={salvarTarefa} className="card">
@@ -152,13 +159,25 @@ export default function TarefaForm({ t, filhos, categorias, gestor, hoje, voltar
               <button type="button" className={fIdade === '' ? 'on' : ''} aria-pressed={fIdade === ''} onClick={() => setFIdade('')}>Todas</button>
               {IDADES.map(([k, n]) => <button key={k} type="button" className={fIdade === k ? 'on' : ''} aria-pressed={fIdade === k} onClick={() => setFIdade(k)}>{n}</button>)}
             </div>
+            {altoSug.length > 0 && (
+              <div className="sug-favs" role="group" aria-label="Favoritas">
+                <small>Favoritas</small>
+                {altoSug.map((x) => <button key={x.nome} type="button" onClick={() => usar(x)}><Icone nome="estrela" tam={16} cor="#F5B82E" />{x.nome}</button>)}
+              </div>
+            )}
             <div className="folha-lista">
               {listaSug.length === 0 && <div style={{ padding: 16, color: 'var(--cinza)' }}>Nenhuma sugestão para essa idade nesta categoria.</div>}
-              {listaSug.map((x) => (
-                <button key={x.nome} type="button" onClick={() => usar(x)}>
-                  <span>{x.nome}<small style={{ display: 'block', color: 'var(--cinza)', fontSize: 'var(--f-apoio)' }}>{resumoSugestao(x)}</small></span><span aria-hidden="true">›</span>
-                </button>
-              ))}
+              {listaSug.map((x) => {
+                const fav = favs.includes(x.nome);
+                return (
+                  <div key={x.nome} className="sug-linha">
+                    <button type="button" onClick={() => usar(x)}>
+                      <span>{x.nome}<small style={{ display: 'block', color: 'var(--cinza)', fontSize: 'var(--f-apoio)' }}>{resumoSugestao(x)}</small></span><span aria-hidden="true">›</span>
+                    </button>
+                    <button type="button" className={`sug-estrela${fav ? ' on' : ''}`} aria-pressed={fav} aria-label={fav ? `Tirar ${x.nome} das favoritas` : `Marcar ${x.nome} como favorita`} onClick={() => setFavs(alternarFavorita(x.nome))}><Icone nome="estrela" tam={22} cor={fav ? '#F5B82E' : 'currentColor'} /></button>
+                  </div>
+                );
+              })}
             </div>
           </div>
         </div>
