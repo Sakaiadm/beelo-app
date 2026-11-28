@@ -42,7 +42,7 @@ begin
     'if d.dia_bom_pct < 100 and coalesce((c->>''impossivel'')::boolean, false) and d.impossivel_avisado is distinct from v_ini then
         update public.ra_desafios set impossivel_avisado = v_ini where id = d.id;
         select nome into v_nome from public.ra_membros where id = d.membro_id;
-        perform public.ra_notificar_gestores(d.familia_id, coalesce(v_nome, ''A família'') || '': a meta da semana de '' || d.titulo || '' não dá mais para bater. Pegar mais leve, manter ou trocar?'', ''/desafios'');
+        perform public.ra_notificar_gestores(d.familia_id, coalesce(v_nome, ''A família'') || '': a meta da semana de '' || d.titulo || '' não dá mais para cumprir. Pegar mais leve, manter ou trocar?'', ''/desafios'');
       end if;
       v_ini := v_fim + 1;');
   if v_novo = v_def then raise exception 'beelo 0037: trecho não encontrado em ra_desafios_atualizar'; end if;
