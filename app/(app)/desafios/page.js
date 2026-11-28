@@ -270,7 +270,7 @@ export default async function Desafios({ searchParams }) {
             : pf !== 'c' && d.criado_por === eu.id && <div className="des-acoes"><ConfirmarBotao acao={encerrarDesafio} campos={{ id: d.id }} rotulo="Encerrar" titulo="Encerrar desafio?" nome={d.titulo} pergunta="O que você já conquistou continua guardado. Trocar de desafio no meio do ciclo vale 1 vez por semana." sim="Sim, encerrar" icone="bloquear" /></div>}
         </DesafioCartao>
       ))}
-      {meus.length === 0 && <div className="card vazio">{pf === 'c' ? 'Ainda não tem desafio. Combine um com quem cuida de você!' : 'Você ainda não tem desafio.'}</div>}
+      {meus.length === 0 && <div className="card vazio">{pf === 'c' ? 'Ainda não tem desafio. Combine um com seus responsáveis!' : 'Você ainda não tem desafio.'}</div>}
       {pf !== 'c' && meus.length === 0 && <Link prefetch={false} className="btn sec bloco" style={{ borderStyle: 'dashed', marginBottom: 16 }} href="/desafios/novo"><Icone nome="mais" tam={18} />Escolher meu desafio</Link>}
       {pf === 'c' && meus.length === 0 && paraSugerir.length > 0 && <SugerirDesafio itens={paraSugerir} esperando={sugsMinhas.map((x) => x.titulo)} />}
       {cartaoFamilia}

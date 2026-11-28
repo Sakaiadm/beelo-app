@@ -29,12 +29,14 @@ export default async function Mural({ searchParams }) {
   ]);
   const tit = Object.fromEntries((des || []).map((d) => [d.id, d]));
   const visiveis = membros.filter((m) => m.ativo && (gestor || familia.mural_visivel !== 'pais' || m.id === eu.id));
-  const sel = visiveis.find((m) => m.id === sp?.m) || null;
+  // @regra 28/11 (Thomas, tela 4): quem não é Responsável não vê abas com os Responsáveis; fica só ele e os outros Acompanhados.
+  const abas = gestor ? visiveis : visiveis.filter((m) => m.id === eu.id || m.papel !== 'gestor');
+  const sel = abas.find((m) => m.id === sp?.m) || null;
   const urls = await urlsAvatares(supabase, visiveis.map((m) => m.avatar));
   const itens = [
     ...(pers || []).filter((p) => tit[p.desafio_id]).map((p) => ({ tipo: 'd', quando: p.cumprido_em, membro: p.membro_id, t: tit[p.desafio_id].titulo, icone: tit[p.desafio_id].icone, sub: tit[p.desafio_id].periodo === 'mes' ? `mês de ${dataCurta(p.inicio).slice(3)}` : `semana de ${dataCurta(p.inicio)}` })),
     ...(peds || []).map((p) => ({ tipo: 'p', quando: p.entregue_em, membro: p.membro_id, t: p.nome, sub: 'prêmio entregue' })),
-  ].filter((x) => !sel || x.membro === sel.id).sort((a, b) => String(b.quando).localeCompare(String(a.quando))).slice(0, 60);
+  ].filter((x) => (sel ? x.membro === sel.id : gestor || !x.membro || abas.some((a) => a.id === x.membro))).sort((a, b) => String(b.quando).localeCompare(String(a.quando))).slice(0, 60);
   const nome = Object.fromEntries(membros.map((m) => [m.id, m]));
 
   return (
@@ -42,13 +44,13 @@ export default async function Mural({ searchParams }) {
       {/* @decisao 25/11 Thomas (opção A): Mural é uma aba da tela Desafios (mesmas abas no alto). */}
       <DesafiosTopo gestor={gestor} perfil={perfil(eu)} ativo={1} />
       <p className="sub" style={{ margin: '-4px 0 12px' }}>{familia.mural_visivel === 'pais' ? 'Visível só para os pais e para cada pessoa.' : 'A família toda vê e comemora junto.'}</p>
-      {visiveis.length > 1 && (
+      {abas.length > 1 && (
         <div className="seg pessoas">
           <Link prefetch={false} href="/desafios/mural" className={!sel ? 'on' : ''}>Todos</Link>
-          {visiveis.map((m) => <Link prefetch={false} key={m.id} href={`/desafios/mural?m=${m.id}`} className={sel?.id === m.id ? 'on' : ''}>{m.nome}</Link>)}
+          {abas.map((m) => <Link prefetch={false} key={m.id} href={`/desafios/mural?m=${m.id}`} className={sel?.id === m.id ? 'on' : ''}>{m.nome}</Link>)}
         </div>
       )}
-      {(sel ? [sel] : visiveis).map((m) => {
+      {(sel ? [sel] : abas).map((m) => {
         const md = medalhas(pers || [], m.id);
         if (!md.length) return null;
         return (

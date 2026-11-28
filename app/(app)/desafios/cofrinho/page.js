@@ -66,12 +66,12 @@ export default async function Cofrinho({ searchParams }) {
       {(proprio || meus.length > 0) && <>
         <div className="grupo-titulo">{proprio ? 'Meus desejos' : `Desejos de ${m.nome}`}</div>
         <div className="card" style={{ padding: '12px 18px' }}>
-          {meus.length === 0 && <div className="vazio" style={{ padding: '6px 0' }}>Tem algo que você quer muito? Sugira a quem cuida de você.</div>}
+          {meus.length === 0 && <div className="vazio" style={{ padding: '6px 0' }}>Tem algo que você quer muito? Sugira aos seus responsáveis.</div>}
           {meus.map((x) => (
             <div className="vit" key={x.id}>
               <span className="des-ic"><Icone nome="presente" tam={22} /></span>
               <span className="corpo"><b>{x.sugerido || x.nome}</b>
-                <small>{x.desejo === 'esperando' ? (proprio ? 'Esperando os responsáveis' : 'Esperando a resposta. Veja em Desafios.') : `Os responsáveis: “${x.resposta}”`}</small></span>
+                <small>{x.desejo === 'esperando' ? (proprio ? 'Esperando seus responsáveis' : 'Esperando a resposta. Veja em Desafios.') : `Os responsáveis: “${x.resposta}”`}</small></span>
             </div>
           ))}
           {proprio && <SugerirDesejo familia={m.familia_id} membro={m.id} esperando={nEsperando} moeda={v.moeda} />}

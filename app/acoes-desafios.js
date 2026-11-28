@@ -296,7 +296,7 @@ export async function sugerirDesejo(_, fd) {
   const nome = txt(fd, 'nome');
   if (!nome) return { erro: 'Escreva o que você quer.' };
   const r = await rpcDesejo('ra_desejo_sugerir', { p_nome: nome, p_foto: txt(fd, 'foto', 300) });
-  return r.ok ? { ok: true, msg: 'Enviado! Quem cuida de você vai responder.' } : r;
+  return r.ok ? { ok: true, msg: 'Enviado! Seus responsáveis vão responder.' } : r;
 }
 export async function responderDesejo(_, fd) {
   const aprovar = fd.get('aprovar') === '1';
@@ -335,7 +335,7 @@ export async function sugerirDesafio(_, fd) {
   const { error } = await supabase.rpc('ra_desafio_sugerir', { p_catalogo: c.id, p_titulo: c.t });
   if (error) return /ra_desafio_sugerir|ra_desafio_sugestoes/.test(String(error.message)) && /function|schema cache|relation/.test(String(error.message)) ? { erro: 'Para sugerir desafios, rode antes o SQL 0028 no Supabase.' } : erroDe(error);
   revalidar();
-  return { ok: true, msg: 'Enviado! Quem cuida de você vai responder.' };
+  return { ok: true, msg: 'Enviado! Seus responsáveis vão responder.' };
 }
 export async function fecharSugestaoDesafio(_, fd) {
   const supabase = await supabaseServer();
