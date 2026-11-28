@@ -50,6 +50,8 @@ export default async function Hoje({ searchParams }) {
   const semHora = doDia.filter((x) => !x.o.hora_inicio).sort(prio);
   const comHora = doDia.filter((x) => x.o.hora_inicio).sort(prio);
   const restantes = doDia.filter((x) => !x.st.startsWith('cumprida') && !['adiada', 'adiamento_pedido'].includes(x.st)).length;
+  // @regra 28/11 Thomas: tudo feito antes das 19h NÃO parece dia encerrado (pode entrar tarefa nova): "por enquanto". Vale para todos os perfis.
+  const porEnquanto = dia === hoje && total > 0 && feitas === total && Number(agoraHHMM().slice(0, 2)) < 19;
   const estrelas = visaoCrianca(alvo) && total ? Math.round((feitas / total) * 5) : null;
   // Para a comemoração do fim do dia: dias seguidos com tudo feito (contando hoje) e os dias completos da semana.
   const diaOk = (d) => { const l = comSt.filter((x) => x.o.data === d && x.st !== 'adiada'); return l.length > 0 && l.every((x) => x.st.startsWith('cumprida')); };
@@ -116,10 +118,10 @@ export default async function Hoje({ searchParams }) {
 
       {/* Tarefas primeiro (U1): o quadro azul vira uma faixa fina. */}
       <div className="faixa-dia" aria-label={`${feitas} de ${total} tarefas feitas`}>
-        <div className="faixa-l"><b>{feitas} de {total} feitas</b>{daSemana.length > 0 && <small>Semana: {semFeitas} de {daSemana.length}</small>}</div>
+        <div className="faixa-l"><b>{feitas} de {total} feitas{porEnquanto ? ' por enquanto' : ''}</b>{daSemana.length > 0 && <small>Semana: {semFeitas} de {daSemana.length} tarefas</small>}</div>
         <div className="barra"><div style={{ width: `${total ? (feitas / total) * 100 : 0}%` }} /></div>
         {estrelas != null && (
-          <div className="estrelas" aria-label={`${estrelas} de 5 estrelas hoje`}>
+          <div className="estrelas" aria-label={`${estrelas} de 5 estrelas hoje${porEnquanto ? ', por enquanto' : ''}`}>
             {[0, 1, 2, 3, 4].map((i) => <svg key={i} width="22" height="22" viewBox="0 0 24 24" className={i < estrelas ? 'on' : ''} aria-hidden="true"><path d="M12 2.5l2.9 6 6.6.9-4.8 4.6 1.2 6.5L12 17.4l-5.9 3.1 1.2-6.5L2.5 9.4l6.6-.9z" /></svg>)}
           </div>
         )}
