@@ -50,8 +50,8 @@ export function mensagem(d, p) {
   if (d.tipo === 'capricho') return p.progresso === 0 ? 'Nenhum pedido de refazer até agora. Continue assim!' : 'Teve um pedido de refazer. Semana que vem tem mais!';
   if (d.tipo === 'melhor') return `${p.progresso} feitas. Na semana passada foram ${Math.max(p.meta - 1, 0)}.`;
   if (d.tipo === 'pct' || d.tipo === 'pct_cada') {
-    const base = d.tipo === 'pct' && det.total ? `${det.feitas} de ${det.total} tarefas (${p.progresso}%).` : `${p.progresso}%.`;
-    return `${base} Meta: ${p.meta}%.`;
+    // @decisao 28/11 Thomas: % é "até agora" (só tarefas já vencidas, migração 0037); a meta vale no fim da semana.
+    return `${p.progresso}% até agora. Meta: ${p.meta}% no fim.`;
   }
   if (p.possivel === 0 && ['dias', 'seq'].includes(d.tipo)) return 'Ainda não há tarefas que contam para este desafio neste período.';
   const falta = Math.max(p.meta - p.progresso, 0);
@@ -78,8 +78,9 @@ export function DesafioCartao({ d, p, nome, href, children }) {
         <span><b>{familia ? 'Desafio da família' : 'Desafio'}: {d.titulo}</b><small>{nome ? `${nome} · ` : ''}{textoMeta(d, d.meta)} · {rotuloPeriodo(d)}</small></span>
       </div>
       {ciclo && !ciclo.terminou && (
-        <div className="des-ciclo" aria-label={`Semana ${ciclo.semana} de ${ciclo.total} do ciclo`}>
-          <span>Semana {ciclo.semana} de {ciclo.total}{ciclo.ultima ? ' · última semana do ciclo' : ''}</span>
+        <div className="des-ciclo" aria-label={`Desafio de ${ciclo.total} semanas, na semana ${ciclo.semana}`}>
+          {/* @decisao 28/11 Thomas: "Semana 1 de 4" parecia tarefas; agora diz que é o ciclo do desafio. */}
+          <span>Desafio de {ciclo.total} semanas · {ciclo.ultima ? 'última semana' : `você está na ${ciclo.semana}ª`}</span>
           <div className="barra"><div style={{ width: `${(ciclo.semana / ciclo.total) * 100}%` }} /></div>
         </div>
       )}
@@ -87,8 +88,9 @@ export function DesafioCartao({ d, p, nome, href, children }) {
         <div className="des-msg des-fim"><b>Ciclo completo! {balanco(d, ciclo)}.</b> {ciclo.feitas > 0 ? 'Que tal continuar?' : 'Sem pressa: recomeçar com calma ou trocar por outro desafio?'}</div>
       ) : barra ? (
         <>
-          <div className="des-num"><strong>{['pct', 'pct_cada'].includes(d.tipo) ? `${p?.progresso ?? 0}%` : `${p?.progresso ?? 0} de ${p?.meta ?? d.meta}`}</strong><span>{['pct', 'pct_cada'].includes(d.tipo) ? `meta ${p?.meta ?? d.meta}%` : d.periodo === 'mes' ? 'neste mês' : 'nesta semana'}</span></div>
+          <div className="des-num"><strong>{['pct', 'pct_cada'].includes(d.tipo) ? `${p?.progresso ?? 0}%` : `${p?.progresso ?? 0} de ${p?.meta ?? d.meta}`}</strong><span>{['pct', 'pct_cada'].includes(d.tipo) ? `até agora · meta ${p?.meta ?? d.meta}% no fim` : d.periodo === 'mes' ? 'neste mês' : 'nesta semana'}</span></div>
           <div className="barra"><div style={{ width: `${Math.min(100, p?.meta ? (p.progresso / p.meta) * 100 : 0)}%`, background: p?.status === 'cumprido' ? 'var(--ok)' : undefined }} /></div>
+          {p?.status !== 'cumprido' && ['pct', 'pct_cada'].includes(d.tipo) && <div className="aviso info" style={{ margin: '10px 0 0', padding: '6px 12px', fontSize: 13 }}>Em andamento: o % muda a cada tarefa.</div>}
           <div className="des-msg" style={{ marginTop: 10 }}>{mensagem(d, p)}</div>
         </>
       ) : (
