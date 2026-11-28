@@ -10,7 +10,7 @@ import { esquecerSessoes } from '@/lib/sessao';
 import { traduzirErro } from '@/lib/rede';
 import { hojeISO, addDias, agoraHHMM } from '@/lib/util';
 import { COLS_MEMBRO } from '@/lib/membros';
-import { desafioDe, perfil, recompensaDe, diasPorMeta, opcoesMeta, PREMIOS, PREMIOS_FAMILIA, MAX_POR_PESSOA, CICLOS } from '@/lib/desafios';
+import { desafioDe, maisLeve, perfil, recompensaDe, diasPorMeta, opcoesMeta, PREMIOS, PREMIOS_FAMILIA, MAX_POR_PESSOA, CICLOS } from '@/lib/desafios';
 
 function revalidar() { esquecerSessoes(); revalidatePath('/', 'layout'); }
 const uuid = (v) => (/^[0-9a-f-]{36}$/i.test(String(v || '')) ? String(v) : null);
@@ -121,7 +121,7 @@ export async function criarDesafio(_, fd) {
     const reg = {
       familia_id: eu.familia_id, membro_id: m?.id || null, grupo, catalogo: c.id, titulo: c.t, descricao: c.d, icone: c.icone,
       tipo: c.tipo, alvo: c.alvo === 'tela' ? 'tarefa' : c.alvo, criterio: c.criterio, dias_semana: c.dsem || null, meta,
-      periodo: c.periodo, coringa: fd.get('coringa') !== '0', recompensa: recompensaDe(pf), estrelas: 10,
+      periodo: c.periodo, coringa: fd.get('coringa') === '1', dia_bom_pct: c.diaBom || 100, recompensa: recompensaDe(pf), estrelas: 10,
       premio: pf === 'familia' ? premioFamilia : null, criado_por: eu.id, categorias: [],
     };
     // Categorias que contam.
@@ -354,4 +354,32 @@ export async function dispensarSugestaoDesafio(membroId) {
   if (error) return /ra_desafio_sugestao_dispensar|ra_desafio_dispensas/.test(String(error.message)) && /function|schema cache|relation/.test(String(error.message)) ? { erro: 'Para fechar a sugestão, rode antes o SQL 0030 no Supabase.' } : erroDe(error);
   revalidar();
   return { ok: true };
+}
+
+// ===== Meta da semana impossível: o Responsável decide (ou a própria pessoa, no desafio dela) =====
+// @regra 28/11 Thomas: Pegar mais leve (meta e ganho caem para 70%) | Manter | Trocar de desafio. Migração 0037.
+export async function decidirSemana(_, fd) {
+  const supabase = await supabaseServer();
+  const eu = await quemSou(supabase);
+  if (!eu) return { erro: 'Entre de novo para continuar.' };
+  const id = uuid(fd.get('id'));
+  const decisao = String(fd.get('decisao') || '');
+  if (!id || !['leve', 'manter', 'trocar'].includes(decisao)) return { erro: 'Escolha uma opção.' };
+  const { data: d } = await supabase.from('ra_desafios').select('*').eq('id', id).eq('ativo', true).maybeSingle();
+  if (!d) return { erro: 'Desafio não encontrado.' };
+  if (!(eu.papel === 'gestor' || (d.membro_id === eu.id && d.criado_por === eu.id))) return { erro: 'Só os responsáveis decidem isso.' };
+  if (decisao === 'trocar') {
+    const r = await rpc('ra_desafio_encerrar', { p_id: id });
+    if (r.erro) return r;
+    redirect(d.membro_id ? `/desafios/novo?m=${d.membro_id}` : '/desafios/novo');
+  }
+  const hoje = hojeISO();
+  const segunda = addDias(hoje, -((new Date(hoje + 'T12:00:00Z').getUTCDay() + 6) % 7));
+  const patch = { semana_decidida: segunda, decisao };
+  if (decisao === 'leve') { const l = maisLeve(d); patch.meta = l.meta; patch.estrelas = l.estrelas; }
+  const { error } = await supabase.from('ra_desafios').update(patch).eq('id', id);
+  if (error) return erroDe(error);
+  await supabase.rpc('ra_desafios_atualizar'); // a semana atual já passa a contar com a meta nova
+  revalidar();
+  return { ok: true, msg: decisao === 'leve' ? 'Combinado! A meta ficou mais leve.' : 'Combinado! Segue como está.' };
 }

@@ -1323,3 +1323,7 @@ button.cartao-btn:disabled { opacity: .6; cursor: default; }
 .usar-lista { flex-basis: 100%; display: flex; flex-wrap: wrap; justify-content: flex-end; gap: 6px; }
 .usar-lista button { border: 1.5px solid var(--azul); background: var(--cartao); color: var(--azul); border-radius: 999px; padding: 4px 12px; font-weight: 700; font-size: var(--f-apoio); cursor: pointer; }
 .tempo-real .tempo-linha .tempo-acoes .chips { flex: none; flex-wrap: nowrap; }
+
+/* Palavra que abre um balãozinho de explicação (dia bom, dia coringa). 28/11 Thomas. */
+.termo { background: none; border: 0; padding: 0; font: inherit; font-weight: 700; color: var(--azul); cursor: pointer; border-bottom: 1.5px dotted var(--azul); line-height: 1.2; }
+.termo:focus-visible { outline: 2px solid var(--azul); outline-offset: 2px; border-radius: 3px; }

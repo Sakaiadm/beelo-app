@@ -4,6 +4,7 @@
 // @usa      ./Form, ./Icone, app/acoes-desafios, lib/desafios
 // @decisao  26/11 Thomas: uma pessoa por vez (abas como as da Agenda), sem busca, assuntos em cartões e no máximo 2 "Pensados para…" no topo.
 // @usado-por app/(app)/desafios/novo/page.js
+import Termo from './Termo';
 import { useMemo, useState } from 'react';
 import Link from 'next/link';
 import Form from './Form';
@@ -34,7 +35,7 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
   const [grupo, setGrupo] = useState(null); // assunto aberto no banco (null = lista de assuntos)
   const [esc, setEsc] = useState(() => (catalogoInicial ? DESAFIOS.find((c) => c.id === catalogoInicial) || null : null)); // vindo da sugestão da criança
   const [meta, setMeta] = useState(() => (catalogoInicial ? DESAFIOS.find((c) => c.id === catalogoInicial)?.meta ?? null : null));
-  const [coringa, setCoringa] = useState(true);
+  const [coringa, setCoringa] = useState(false);
   const [premio, setPremio] = useState(PREMIOS_FAMILIA[0]);
   const familia = quem === 'familia';
   const sel = familia ? [] : pessoas.filter((p) => p.id === quem);
@@ -46,7 +47,7 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
   const normais = sugs.filter((s) => s !== temaSug).slice(0, temaSug ? 1 : 2);
 
   function escolherQuem(id) { if (gestor) { setQuem(id); setGrupo(null); } }
-  function escolher(c) { setEsc(c); setMeta(c.meta); setCoringa(true); window.scrollTo?.(0, 0); }
+  function escolher(c) { setEsc(c); setMeta(c.meta); setCoringa(false); window.scrollTo?.(0, 0); }
 
   if (esc) {
     const ops = opcoesMeta(esc);
@@ -86,9 +87,8 @@ export default function NovoDesafio({ pessoas, inicial, euId = null, sugestoes, 
             <div style={{ display: 'flex', flexDirection: 'column', gap: 14, marginTop: 14 }}>
               <label className="check" style={{ margin: 0 }}><input type="checkbox" checked disabled readOnly /> Começa de novo sozinho {esc.periodo === 'mes' ? 'todo mês' : 'toda semana'}</label>
               {['dias', 'seq', 'pct'].includes(esc.tipo) && <div>
-                <label className="check" style={{ margin: 0 }}><input type="checkbox" checked={coringa} onChange={(e) => setCoringa(e.target.checked)} /> Dia coringa</label>
-                {/* @decisao 28/11 Thomas: "1 dia difícil não conta" não era claro; frase de ajuda abaixo da chave. */}
-                <small className="peq-cinza" style={{ display: 'block', marginTop: 4 }}>Se um dia da semana for muito difícil, ele não conta contra você.</small>
+                <label className="check" style={{ margin: 0 }}><input type="checkbox" checked={coringa} onChange={(e) => setCoringa(e.target.checked)} /> <Termo texto="Dia coringa" titulo="O que é o dia coringa?">É um dia que você pode perder sem estragar a semana. Se o desafio tiver dia coringa, o seu pior dia não conta contra você.</Termo></label>
+                {/* @decisao 28/11 Thomas: dia coringa vem DESMARCADO; o nome é sublinhado e abre um balãozinho. */}
               </div>}
             </div>
           </div>
