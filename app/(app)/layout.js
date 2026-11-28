@@ -25,6 +25,7 @@ import { pendencias } from '@/lib/aceite';
 import GuiaMel from '@/components/GuiaMel';
 import { publicoDe, jeitoGuia } from '@/lib/guia';
 import ContasGancho from '@/components/ContasGancho';
+import { desafiosLigados } from '@/lib/desafiosDados';
 
 export default async function AppLayout({ children }) {
   const { supabase, eu, naoLidas, gestor, superAdmin, familia, membros } = await exigirMembro();
@@ -43,6 +44,8 @@ export default async function AppLayout({ children }) {
        { href: '/relatorios', txt: 'Relatórios', icone: 'grafico' },
        { href: '/config', txt: 'Cadastros', icone: 'config' }]
     : [...(a.painel ? [{ href: '/painel', txt: 'Painel', icone: 'painel' }] : []), { href: '/hoje', txt: 'Hoje', icone: 'hoje' }, { href: '/agenda', txt: 'Agenda', icone: 'agenda' },
+       // @decisao 28/11 Thomas: o troféu "Desafios" também no menu de quem é Acompanhado ou Outro (só com os desafios ligados).
+       ...(desafiosLigados(familia) ? [{ href: '/desafios', txt: 'Desafios', icone: 'trofeu' }] : []),
        ...(telaLigada ? [{ href: '/tela', txt: 'Tela', icone: 'tela' }] : []), { href: '/relatorios', txt: a.relatorios ? 'Relatórios' : 'Evolução', icone: 'grafico' }];
   // Guia da Mel (beta, SQL 0024): só aparece com a chave do grupo ligada. Desligada, o app é o de sempre.
   // @banco ra_tarefas (só a contagem, só para o gestor e só com o guia ligado)

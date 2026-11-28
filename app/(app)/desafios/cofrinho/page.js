@@ -1,6 +1,6 @@
 // @arquivo  page.js: cofrinho de estrelinhas ou semanas e troca por prêmios.
 // @tipo     tela
-// @usa      banco ra_cofrinho, lib/sessao, lib/desafiosDados, components/Icone, components/SugerirDesejo, lib/desafios, lib/util, components/DesafioCartao, components/Voltar, components/Form, components/TrocarPremio, app/acoes-desafios
+// @usa      components/CofrinhoMel, banco ra_cofrinho, lib/sessao, lib/desafiosDados, components/Icone, components/SugerirDesejo, lib/desafios, lib/util, components/DesafioCartao, components/Voltar, components/Form, components/TrocarPremio, app/acoes-desafios
 // @usado-por Next.js (rota /desafios/cofrinho)
 import { redirect } from 'next/navigation';
 import { exigirMembro } from '@/lib/sessao';
@@ -14,6 +14,7 @@ import Voltar from '@/components/Voltar';
 import DesafiosTopo from '@/components/DesafiosTopo';
 import Form from '@/components/Form';
 import TrocarPremio from '@/components/TrocarPremio';
+import CofrinhoMel from '@/components/CofrinhoMel';
 import { metaCofrinho } from '@/app/acoes-desafios';
 
 export const dynamic = 'force-dynamic';
@@ -40,15 +41,16 @@ export default async function Cofrinho({ searchParams }) {
 
   return (
     <main className="estreito">
-      {/* @decisao 25/11 Thomas (opção A): para o filho o Cofrinho é uma aba (Meus desafios | Mural | Cofrinho). Pai/Mãe vendo o cofrinho de alguém voltam com a setinha. */}
+      {/* @decisao 25/11 Thomas (opção A): para o filho o Cofrinho é uma aba (Desafios | Mural | Cofrinho). Pai/Mãe vendo o cofrinho de alguém voltam com a setinha. */}
       {proprio && !gestor
         ? <><DesafiosTopo gestor={false} perfil={perfil(m)} ativo={2} /><p className="sub" style={{ margin: '-4px 0 12px' }}>{semanas ? 'Não vencem. Use quando quiser.' : 'Suas estrelinhas ficam guardadas. Não somem.'}</p></>
         : <Voltar href="/desafios" titulo={titulo} sub={semanas ? 'Não vencem. Use quando quiser.' : 'Suas estrelinhas ficam guardadas. Não somem.'} />}
-      <div className="kpi destaque" style={{ marginBottom: 14 }}>
-        <small>Guardadas</small>
-        <div className="cofre-n">{semanas ? <Hexagono tam={34} /> : <Estrela tam={34} />}<strong>{v.tem}</strong></div>
-        <em>{nestaSemana ? `+${nestaSemana} nesta semana` : 'Cumpra o desafio da semana para juntar mais.'}</em>
-      </div>
+      {/* @decisao 27/11 Thomas: criança = Mel na pilha; adolescente = Anel da meta. Só o dono vê a animação com a contagem do "saldo visto". */}
+      <CofrinhoMel tipo={semanas ? 'T3' : 'A'} quem={m.id} saldo={v.tem} meta={semanas ? v.meta?.custo || 0 : 0}
+        unidade={semanas ? 'semanas' : 'estrelinhas'} unidade1={semanas ? 'semana' : 'estrelinha'}
+        linha={nestaSemana ? `+${nestaSemana} nesta semana` : 'Cumpra o desafio da semana para juntar mais.'}>
+        {semanas ? <Hexagono tam={34} /> : <Estrela tam={34} />}
+      </CofrinhoMel>
 
       {esperando.length > 0 && (
         <div className="aviso info">Esperando a entrega: {esperando.map((p) => p.nome).join(', ')}.</div>
@@ -96,7 +98,7 @@ export default async function Cofrinho({ searchParams }) {
 
       {(mov || []).length > 0 && (
         <>
-          <div className="grupo-titulo">Últimos movimentos</div>
+          <div className="grupo-titulo">Ganhei e troquei</div>
           <div className="card" style={{ padding: '8px 18px' }}>
             {mov.map((x) => (
               <div className="mural-item" key={x.id}>
