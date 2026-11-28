@@ -57,3 +57,6 @@ Cada um tem cabeçalho `@arquivo` explicando o que faz e quem usa. Por tipo: **r
 - Foto/galeria: `components/Foto.js` com `redondo`, igual na tela e no cartão da tarefa em Hoje.
 - **Lançar ontem** aceita só celular, só computador ou os dois; se os dois ficarem vazios, `salvarTelaReal` devolve "Preencha o tempo do celular ou do computador. Pelo menos um deles." (sem o balão do navegador).
 - **"Usar o mesmo de"** (previsto): uma linha, à direita, botão azul pequeno (`.hoje-peq`) com o nome; com 2 ou mais pessoas vira "Copiar de…" e abre a lista.
+
+## Tudo feito antes das 19h (28/11)
+Na tela Hoje, com todas as tarefas feitas antes das 19h (Brasília), a faixa diz "X de X feitas por enquanto" (vale para todos os perfis; o dia ainda pode ganhar tarefas). O resumo da semana diz "Semana: 4 de 6 tarefas".
